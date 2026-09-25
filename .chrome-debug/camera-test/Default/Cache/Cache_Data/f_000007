@@ -1,0 +1,239 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/pages/CriticalPeriodsPage.tsx");import __vite__cjsImport0_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=792c6080"; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport1_react from "/node_modules/.vite/deps/react.js?v=792c6080"; const useState = __vite__cjsImport1_react["useState"];
+import { getCriticalPeriods, normalizeApiError } from "/src/api/client.ts";
+import WorldviewButton from "/src/components/WorldviewButton.tsx";
+import { useAppContext } from "/src/context/AppContext.tsx";
+export default function CriticalPeriodsPage() {
+  _s();
+  const { bbox, startDate, endDate, sensors } = useAppContext();
+  const [periods, setPeriods] = useState([]);
+  const [metadata, setMetadata] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [sortKey, setSortKey] = useState("max_anomaly");
+  const run = async () => {
+    if (!bbox) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await getCriticalPeriods({ bbox, start_date: startDate, end_date: endDate, sensors });
+      setPeriods(response.periods);
+      setMetadata(response.metadata);
+    } catch (err) {
+      setError(normalizeApiError(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+  return /* @__PURE__ */ jsxDEV("main", { className: "content-page", children: [
+    /* @__PURE__ */ jsxDEV("div", { className: "page-title-row", children: [
+      /* @__PURE__ */ jsxDEV("div", { children: [
+        /* @__PURE__ */ jsxDEV("p", { className: "eyebrow", children: "Anomaly threshold: 2 sigma" }, void 0, false, {
+          fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+          lineNumber: 36,
+          columnNumber: 11
+        }, this),
+        /* @__PURE__ */ jsxDEV("h2", { children: "Critical Periods" }, void 0, false, {
+          fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+          lineNumber: 37,
+          columnNumber: 11
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+        lineNumber: 35,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ jsxDEV("button", { className: "primary-button compact", disabled: !bbox || loading, onClick: run, children: loading ? "Analyzing..." : "Find Periods" }, void 0, false, {
+        fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+        lineNumber: 39,
+        columnNumber: 9
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+      lineNumber: 34,
+      columnNumber: 7
+    }, this),
+    error && /* @__PURE__ */ jsxDEV("p", { className: "error-text", children: error }, void 0, false, {
+      fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+      lineNumber: 43,
+      columnNumber: 17
+    }, this),
+    !bbox && /* @__PURE__ */ jsxDEV("p", { className: "empty-state", children: "Choose an AOI on the calendar page first." }, void 0, false, {
+      fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+      lineNumber: 44,
+      columnNumber: 17
+    }, this),
+    typeof metadata.pct_days_critical === "number" && /* @__PURE__ */ jsxDEV("p", { className: "meta-text", children: [
+      metadata.pct_days_critical,
+      "% of days in this range were critical."
+    ] }, void 0, true, {
+      fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+      lineNumber: 45,
+      columnNumber: 58
+    }, this),
+    /* @__PURE__ */ jsxDEV("div", { className: "sort-row", children: /* @__PURE__ */ jsxDEV("label", { children: [
+      "Sort by",
+      /* @__PURE__ */ jsxDEV("select", { value: sortKey, onChange: (event) => setSortKey(event.target.value), children: [
+        /* @__PURE__ */ jsxDEV("option", { value: "max_anomaly", children: "Max anomaly" }, void 0, false, {
+          fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+          lineNumber: 50,
+          columnNumber: 13
+        }, this),
+        /* @__PURE__ */ jsxDEV("option", { value: "duration_days", children: "Duration" }, void 0, false, {
+          fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+          lineNumber: 51,
+          columnNumber: 13
+        }, this),
+        /* @__PURE__ */ jsxDEV("option", { value: "avg_hotspot_count", children: "Average hotspots" }, void 0, false, {
+          fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+          lineNumber: 52,
+          columnNumber: 13
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+        lineNumber: 49,
+        columnNumber: 11
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+      lineNumber: 47,
+      columnNumber: 9
+    }, this) }, void 0, false, {
+      fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+      lineNumber: 46,
+      columnNumber: 7
+    }, this),
+    /* @__PURE__ */ jsxDEV("div", { className: "table-wrap", children: /* @__PURE__ */ jsxDEV("table", { children: [
+      /* @__PURE__ */ jsxDEV("thead", { children: /* @__PURE__ */ jsxDEV("tr", { children: [
+        /* @__PURE__ */ jsxDEV("th", { children: "Start" }, void 0, false, {
+          fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+          lineNumber: 60,
+          columnNumber: 15
+        }, this),
+        /* @__PURE__ */ jsxDEV("th", { children: "End" }, void 0, false, {
+          fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+          lineNumber: 61,
+          columnNumber: 15
+        }, this),
+        /* @__PURE__ */ jsxDEV("th", { children: "Days" }, void 0, false, {
+          fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+          lineNumber: 62,
+          columnNumber: 15
+        }, this),
+        /* @__PURE__ */ jsxDEV("th", { children: "Max z" }, void 0, false, {
+          fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+          lineNumber: 63,
+          columnNumber: 15
+        }, this),
+        /* @__PURE__ */ jsxDEV("th", { children: "Total hotspots" }, void 0, false, {
+          fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+          lineNumber: 64,
+          columnNumber: 15
+        }, this),
+        /* @__PURE__ */ jsxDEV("th", { children: "Verify" }, void 0, false, {
+          fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+          lineNumber: 65,
+          columnNumber: 15
+        }, this)
+      ] }, void 0, true, {
+        fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+        lineNumber: 59,
+        columnNumber: 13
+      }, this) }, void 0, false, {
+        fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+        lineNumber: 58,
+        columnNumber: 11
+      }, this),
+      /* @__PURE__ */ jsxDEV("tbody", { children: [...periods].sort((a, b) => b[sortKey] - a[sortKey]).map(
+        (period, index) => /* @__PURE__ */ jsxDEV("tr", { className: index < 3 ? "top-row" : "", children: [
+          /* @__PURE__ */ jsxDEV("td", { children: period.start_date }, void 0, false, {
+            fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+            lineNumber: 71,
+            columnNumber: 17
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: period.end_date }, void 0, false, {
+            fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+            lineNumber: 72,
+            columnNumber: 17
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: period.duration_days }, void 0, false, {
+            fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+            lineNumber: 73,
+            columnNumber: 17
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: period.max_anomaly.toFixed(2) }, void 0, false, {
+            fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+            lineNumber: 74,
+            columnNumber: 17
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: period.total_hotspots }, void 0, false, {
+            fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+            lineNumber: 75,
+            columnNumber: 17
+          }, this),
+          /* @__PURE__ */ jsxDEV("td", { children: bbox && /* @__PURE__ */ jsxDEV(WorldviewButton, { date: period.start_date, bbox }, void 0, false, {
+            fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+            lineNumber: 76,
+            columnNumber: 30
+          }, this) }, void 0, false, {
+            fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+            lineNumber: 76,
+            columnNumber: 17
+          }, this)
+        ] }, `${period.start_date}-${period.end_date}`, true, {
+          fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+          lineNumber: 70,
+          columnNumber: 13
+        }, this)
+      ) }, void 0, false, {
+        fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+        lineNumber: 68,
+        columnNumber: 11
+      }, this)
+    ] }, void 0, true, {
+      fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+      lineNumber: 57,
+      columnNumber: 9
+    }, this) }, void 0, false, {
+      fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+      lineNumber: 56,
+      columnNumber: 7
+    }, this)
+  ] }, void 0, true, {
+    fileName: "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx",
+    lineNumber: 33,
+    columnNumber: 5
+  }, this);
+}
+_s(CriticalPeriodsPage, "sWuyTT3NBRhsrJ1Blu6uQrYTPYo=", false, function() {
+  return [useAppContext];
+});
+_c = CriticalPeriodsPage;
+var _c;
+$RefreshReg$(_c, "CriticalPeriodsPage");
+import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react can't detect preamble. Something is wrong."
+    );
+  }
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+function $RefreshReg$(type, id) {
+  return RefreshRuntime.register(type, "C:/Users/User/Downloads/nasa space/frontend/src/pages/CriticalPeriodsPage.tsx " + id);
+}
+function $RefreshSig$() {
+  return RefreshRuntime.createSignatureFunctionForTransform();
+}
+
+//# sourceMappingURL=data:application/json;base64,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bkMsdUJBQUMsUUFBSUosaUJBQU9LLGtCQUFaO0FBQUE7QUFBQTtBQUFBO0FBQUEsaUJBQTJCO0FBQUEsVUFDM0IsdUJBQUMsUUFBSWhDLGtCQUFRLHVCQUFDLG1CQUFnQixNQUFNMkIsT0FBT1gsWUFBWSxRQUExQztBQUFBO0FBQUE7QUFBQTtBQUFBLGlCQUFxRCxLQUFsRTtBQUFBO0FBQUE7QUFBQTtBQUFBLGlCQUFzRTtBQUFBLGFBTi9ELEdBQUdXLE9BQU9YLFVBQVUsSUFBSVcsT0FBT1YsUUFBUSxJQUFoRDtBQUFBO0FBQUE7QUFBQTtBQUFBLGVBT0E7QUFBQSxNQUNELEtBVkg7QUFBQTtBQUFBO0FBQUE7QUFBQSxhQVdBO0FBQUEsU0F0QkY7QUFBQTtBQUFBO0FBQUE7QUFBQSxXQXVCQSxLQXhCRjtBQUFBO0FBQUE7QUFBQTtBQUFBLFdBeUJBO0FBQUEsT0FoREY7QUFBQTtBQUFBO0FBQUE7QUFBQSxTQWlEQTtBQUVKO0FBQUNsQixHQTNFdUJELHFCQUFtQjtBQUFBLFVBQ0tELGFBQWE7QUFBQTtBQUFBLEtBRHJDQztBQUFtQixJQUFBbUM7QUFBQSxhQUFBQSxJQUFBIiwibmFtZXMiOlsidXNlU3RhdGUiLCJnZXRDcml0aWNhbFBlcmlvZHMiLCJub3JtYWxpemVBcGlFcnJvciIsIldvcmxkdmlld0J1dHRvbiIsInVzZUFwcENvbnRleHQiLCJDcml0aWNhbFBlcmlvZHNQYWdlIiwiX3MiLCJiYm94Iiwic3RhcnREYXRlIiwiZW5kRGF0ZSIsInNlbnNvcnMiLCJwZXJpb2RzIiwic2V0UGVyaW9kcyIsIm1ldGFkYXRhIiwic2V0TWV0YWRhdGEiLCJsb2FkaW5nIiwic2V0TG9hZGluZyIsImVycm9yIiwic2V0RXJyb3IiLCJzb3J0S2V5Iiwic2V0U29ydEtleSIsInJ1biIsInJlc3BvbnNlIiwic3RhcnRfZGF0ZSIsImVuZF9kYXRlIiwiZXJyIiwicGN0X2RheXNfY3JpdGljYWwiLCJldmVudCIsInRhcmdldCIsInZhbHVlIiwic29ydCIsImEiLCJiIiwibWFwIiwicGVyaW9kIiwiaW5kZXgiLCJkdXJhdGlvbl9kYXlzIiwibWF4X2Fub21hbHkiLCJ0b0ZpeGVkIiwidG90YWxfaG90c3BvdHMiLCJfYyJdLCJpZ25vcmVMaXN0IjpbXSwic291cmNlcyI6WyJDcml0aWNhbFBlcmlvZHNQYWdlLnRzeCJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyB1c2VTdGF0ZSB9IGZyb20gXCJyZWFjdFwiO1xuaW1wb3J0IHsgZ2V0Q3JpdGljYWxQZXJpb2RzLCBub3JtYWxpemVBcGlFcnJvciB9IGZyb20gXCIuLi9hcGkvY2xpZW50XCI7XG5pbXBvcnQgV29ybGR2aWV3QnV0dG9uIGZyb20gXCIuLi9jb21wb25lbnRzL1dvcmxkdmlld0J1dHRvblwiO1xuaW1wb3J0IHsgdXNlQXBwQ29udGV4dCB9IGZyb20gXCIuLi9jb250ZXh0L0FwcENvbnRleHRcIjtcbmltcG9ydCB0eXBlIHsgQ3JpdGljYWxQZXJpb2QgfSBmcm9tIFwiLi4vdHlwZXMvYXBpXCI7XG5cbnR5cGUgU29ydEtleSA9IFwibWF4X2Fub21hbHlcIiB8IFwiZHVyYXRpb25fZGF5c1wiIHwgXCJhdmdfaG90c3BvdF9jb3VudFwiO1xuXG5leHBvcnQgZGVmYXVsdCBmdW5jdGlvbiBDcml0aWNhbFBlcmlvZHNQYWdlKCkge1xuICBjb25zdCB7IGJib3gsIHN0YXJ0RGF0ZSwgZW5kRGF0ZSwgc2Vuc29ycyB9ID0gdXNlQXBwQ29udGV4dCgpO1xuICBjb25zdCBbcGVyaW9kcywgc2V0UGVyaW9kc10gPSB1c2VTdGF0ZTxDcml0aWNhbFBlcmlvZFtdPihbXSk7XG4gIGNvbnN0IFttZXRhZGF0YSwgc2V0TWV0YWRhdGFdID0gdXNlU3RhdGU8UmVjb3JkPHN0cmluZywgdW5rbm93bj4+KHt9KTtcbiAgY29uc3QgW2xvYWRpbmcsIHNldExvYWRpbmddID0gdXNlU3RhdGUoZmFsc2UpO1xuICBjb25zdCBbZXJyb3IsIHNldEVycm9yXSA9IHVzZVN0YXRlPHN0cmluZyB8IG51bGw+KG51bGwpO1xuICBjb25zdCBbc29ydEtleSwgc2V0U29ydEtleV0gPSB1c2VTdGF0ZTxTb3J0S2V5PihcIm1heF9hbm9tYWx5XCIpO1xuXG4gIGNvbnN0IHJ1biA9IGFzeW5jICgpID0+IHtcbiAgICBpZiAoIWJib3gpIHJldHVybjtcbiAgICBzZXRMb2FkaW5nKHRydWUpO1xuICAgIHNldEVycm9yKG51bGwpO1xuICAgIHRyeSB7XG4gICAgICBjb25zdCByZXNwb25zZSA9IGF3YWl0IGdldENyaXRpY2FsUGVyaW9kcyh7IGJib3gsIHN0YXJ0X2RhdGU6IHN0YXJ0RGF0ZSwgZW5kX2RhdGU6IGVuZERhdGUsIHNlbnNvcnMgfSk7XG4gICAgICBzZXRQZXJpb2RzKHJlc3BvbnNlLnBlcmlvZHMpO1xuICAgICAgc2V0TWV0YWRhdGEocmVzcG9uc2UubWV0YWRhdGEpO1xuICAgIH0gY2F0Y2ggKGVycikge1xuICAgICAgc2V0RXJyb3Iobm9ybWFsaXplQXBpRXJyb3IoZXJyKSk7XG4gICAgfSBmaW5hbGx5IHtcbiAgICAgIHNldExvYWRpbmcoZmFsc2UpO1xuICAgIH1cbiAgfTtcblxuICByZXR1cm4gKFxuICAgIDxtYWluIGNsYXNzTmFtZT1cImNvbnRlbnQtcGFnZVwiPlxuICAgICAgPGRpdiBjbGFzc05hbWU9XCJwYWdlLXRpdGxlLXJvd1wiPlxuICAgICAgICA8ZGl2PlxuICAgICAgICAgIDxwIGNsYXNzTmFtZT1cImV5ZWJyb3dcIj5Bbm9tYWx5IHRocmVzaG9sZDogMiBzaWdtYTwvcD5cbiAgICAgICAgICA8aDI+Q3JpdGljYWwgUGVyaW9kczwvaDI+XG4gICAgICAgIDwvZGl2PlxuICAgICAgICA8YnV0dG9uIGNsYXNzTmFtZT1cInByaW1hcnktYnV0dG9uIGNvbXBhY3RcIiBkaXNhYmxlZD17IWJib3ggfHwgbG9hZGluZ30gb25DbGljaz17cnVufT5cbiAgICAgICAgICB7bG9hZGluZyA/IFwiQW5hbHl6aW5nLi4uXCIgOiBcIkZpbmQgUGVyaW9kc1wifVxuICAgICAgICA8L2J1dHRvbj5cbiAgICAgIDwvZGl2PlxuICAgICAge2Vycm9yICYmIDxwIGNsYXNzTmFtZT1cImVycm9yLXRleHRcIj57ZXJyb3J9PC9wPn1cbiAgICAgIHshYmJveCAmJiA8cCBjbGFzc05hbWU9XCJlbXB0eS1zdGF0ZVwiPkNob29zZSBhbiBBT0kgb24gdGhlIGNhbGVuZGFyIHBhZ2UgZmlyc3QuPC9wPn1cbiAgICAgIHt0eXBlb2YgbWV0YWRhdGEucGN0X2RheXNfY3JpdGljYWwgPT09IFwibnVtYmVyXCIgJiYgPHAgY2xhc3NOYW1lPVwibWV0YS10ZXh0XCI+e21ldGFkYXRhLnBjdF9kYXlzX2NyaXRpY2FsfSUgb2YgZGF5cyBpbiB0aGlzIHJhbmdlIHdlcmUgY3JpdGljYWwuPC9wPn1cbiAgICAgIDxkaXYgY2xhc3NOYW1lPVwic29ydC1yb3dcIj5cbiAgICAgICAgPGxhYmVsPlxuICAgICAgICAgIFNvcnQgYnlcbiAgICAgICAgICA8c2VsZWN0IHZhbHVlPXtzb3J0S2V5fSBvbkNoYW5nZT17KGV2ZW50KSA9PiBzZXRTb3J0S2V5KGV2ZW50LnRhcmdldC52YWx1ZSBhcyBTb3J0S2V5KX0+XG4gICAgICAgICAgICA8b3B0aW9uIHZhbHVlPVwibWF4X2Fub21hbHlcIj5NYXggYW5vbWFseTwvb3B0aW9uPlxuICAgICAgICAgICAgPG9wdGlvbiB2YWx1ZT1cImR1cmF0aW9uX2RheXNcIj5EdXJhdGlvbjwvb3B0aW9uPlxuICAgICAgICAgICAgPG9wdGlvbiB2YWx1ZT1cImF2Z19ob3RzcG90X2NvdW50XCI+QXZlcmFnZSBob3RzcG90czwvb3B0aW9uPlxuICAgICAgICAgIDwvc2VsZWN0PlxuICAgICAgICA8L2xhYmVsPlxuICAgICAgPC9kaXY+XG4gICAgICA8ZGl2IGNsYXNzTmFtZT1cInRhYmxlLXdyYXBcIj5cbiAgICAgICAgPHRhYmxlPlxuICAgICAgICAgIDx0aGVhZD5cbiAgICAgICAgICAgIDx0cj5cbiAgICAgICAgICAgICAgPHRoPlN0YXJ0PC90aD5cbiAgICAgICAgICAgICAgPHRoPkVuZDwvdGg+XG4gICAgICAgICAgICAgIDx0aD5EYXlzPC90aD5cbiAgICAgICAgICAgICAgPHRoPk1heCB6PC90aD5cbiAgICAgICAgICAgICAgPHRoPlRvdGFsIGhvdHNwb3RzPC90aD5cbiAgICAgICAgICAgICAgPHRoPlZlcmlmeTwvdGg+XG4gICAgICAgICAgICA8L3RyPlxuICAgICAgICAgIDwvdGhlYWQ+XG4gICAgICAgICAgPHRib2R5PlxuICAgICAgICAgICAge1suLi5wZXJpb2RzXS5zb3J0KChhLCBiKSA9PiBiW3NvcnRLZXldIC0gYVtzb3J0S2V5XSkubWFwKChwZXJpb2QsIGluZGV4KSA9PiAoXG4gICAgICAgICAgICAgIDx0ciBrZXk9e2Ake3BlcmlvZC5zdGFydF9kYXRlfS0ke3BlcmlvZC5lbmRfZGF0ZX1gfSBjbGFzc05hbWU9e2luZGV4IDwgMyA/IFwidG9wLXJvd1wiIDogXCJcIn0+XG4gICAgICAgICAgICAgICAgPHRkPntwZXJpb2Quc3RhcnRfZGF0ZX08L3RkPlxuICAgICAgICAgICAgICAgIDx0ZD57cGVyaW9kLmVuZF9kYXRlfTwvdGQ+XG4gICAgICAgICAgICAgICAgPHRkPntwZXJpb2QuZHVyYXRpb25fZGF5c308L3RkPlxuICAgICAgICAgICAgICAgIDx0ZD57cGVyaW9kLm1heF9hbm9tYWx5LnRvRml4ZWQoMil9PC90ZD5cbiAgICAgICAgICAgICAgICA8dGQ+e3BlcmlvZC50b3RhbF9ob3RzcG90c308L3RkPlxuICAgICAgICAgICAgICAgIDx0ZD57YmJveCAmJiA8V29ybGR2aWV3QnV0dG9uIGRhdGU9e3BlcmlvZC5zdGFydF9kYXRlfSBiYm94PXtiYm94fSAvPn08L3RkPlxuICAgICAgICAgICAgICA8L3RyPlxuICAgICAgICAgICAgKSl9XG4gICAgICAgICAgPC90Ym9keT5cbiAgICAgICAgPC90YWJsZT5cbiAgICAgIDwvZGl2PlxuICAgIDwvbWFpbj5cbiAgKTtcbn1cbiJdLCJmaWxlIjoiQzovVXNlcnMvVXNlci9Eb3dubG9hZHMvbmFzYSBzcGFjZS9mcm9udGVuZC9zcmMvcGFnZXMvQ3JpdGljYWxQZXJpb2RzUGFnZS50c3gifQ==

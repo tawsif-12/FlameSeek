@@ -1,0 +1,120 @@
+{
+   "checksum": "94e746e9f64a6434044092e0277dd513",
+   "roots": {
+      "bookmark_bar": {
+         "children": [  ],
+         "date_added": "13434839004045190",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+         "id": "1",
+         "name": "Favorites bar",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "other": {
+         "children": [ {
+            "date_added": "13344270712363681",
+            "date_last_used": "0",
+            "guid": "6b0f6904-5a6c-45de-b192-01e063047cc7",
+            "id": "11",
+            "name": "Home",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://classroom.google.com/h",
+            "visit_count": 0
+         }, {
+            "date_added": "13378659727006284",
+            "date_last_used": "0",
+            "guid": "8191378e-fa22-4ca1-a433-52109a266845",
+            "id": "12",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "AUST Drives - OneDrive",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://aust0-my.sharepoint.com/personal/tahmid_cse_20220204086_aust_edu/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Ftahmid%5Fcse%5F20220204086%5Faust%5Fedu%2FDocuments%2FAUST%20Drives&ga=1",
+            "visit_count": 1
+         } ],
+         "date_added": "13434839004045190",
+         "date_last_used": "0",
+         "date_modified": "13378659727006284",
+         "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+         "id": "2",
+         "name": "Other favorites",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [ {
+            "date_added": "13304940530684646",
+            "date_last_used": "0",
+            "guid": "92dd2294-b2d0-475f-aafb-faeff408cacc",
+            "id": "7",
+            "name": "Physics | ACS ইঞ্জিনিয়ারিং এডমিশন প্রাইভেট ব্যাচ…",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://engineering22.aparsclassroom.com/Physics",
+            "visit_count": 0
+         }, {
+            "date_added": "13365367735574355",
+            "date_last_used": "0",
+            "guid": "899964fa-02ff-4791-9e34-b9b750d89873",
+            "id": "8",
+            "name": "Online C++ Compiler",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://www.programiz.com/cpp-programming/online-compiler/",
+            "visit_count": 0
+         }, {
+            "date_added": "13365367736182936",
+            "date_last_used": "0",
+            "guid": "5d918af7-d8df-4e44-9c13-00b80d163493",
+            "id": "9",
+            "name": "view-source:https://www.programiz.com/cpp-programming/online-compiler/",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "view-source:https://www.programiz.com/cpp-programming/online-compiler/",
+            "visit_count": 0
+         }, {
+            "date_added": "13365367736714423",
+            "date_last_used": "0",
+            "guid": "393dfc27-83a1-422d-84d9-9491645ad3c0",
+            "id": "10",
+            "name": "",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "chrome://downloads/",
+            "visit_count": 0
+         } ],
+         "date_added": "13434839004045190",
+         "date_last_used": "0",
+         "date_modified": "13365367736714423",
+         "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+         "id": "3",
+         "name": "Mobile favorites",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "workspaces_v2": {
+         "children": [  ],
+         "date_added": "13434839004045190",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "75aa6670-344f-549d-b742-660f029506ab",
+         "id": "5",
+         "name": "Workspaces",
+         "source": "unknown",
+         "type": "folder"
+      }
+   },
+   "sync_metadata": "CjEKDgiIgQISCETbF9qgAQAAEgAqGFlDMTdkQnphdDFER2J3WXhrUjJoU1E9PUgDoAYHEowBCAEShwEKHHl4Si82ZnZrZWNyN2twNUVRekI0dFdMcGRiRT0SJGI2NWJiN2ViLTRmMmItNTJlZS05NzFhLWRlZmI0YmE4YWZiNxgAIAAoADD5opb1rjE466SW9a4xQOuklvWuMUocYVJDV0xnaEY5YjVJbnFLSUR2dUovanZRa0ZjPWUAAAAAwj4CYAASjAEIAhKHAQocWWNTVG9udkVTUHdxQ3M0TDJjclZodjY4TDk4PRIkNGYxN2Q1NWEtMmRiZi01OTgzLWFmYjgtYjVhMmJiYWVlNmZlGAAgACgAMPqilvWuMTiEpZb1rjFAhKWW9a4xShxvUFZraHdCUmJWNjVLQ1dSMitJT05IV29PdTg9ZQAAAADCPgJgABKsAQgMEqcBChxJYkV4R3Jmbk9lZDVzL2s3TUFOaWdzeVk5Nnc9EiQ4MTkxMzc4ZS1mYTIyLTRjYTEtYTQzMy01MjEwOWEyNjY4NDUYACAAKAAwnJuyrLwyOL6dsqy8MkC+nbKsvDJKHG1Lc0dlbWQ1WHNuNG5BTnY2cE9ZTEszZ1E2cz1aHiIcZE5PWFhHQWhicGVkMjdGdGZJeUxVOXUwWDBBPWUA6hNMwj4CYAUSrQEIChKoAQoceHJwTGE0UUZmRDVtSG5OZ3JGV1M5NERJVUo0PRIkMzkzZGZjMjctODNhMS00MjJkLTg0ZDktOTQ5MTY0NWFkM2MwGAAgACgAMLGu2ePCMjjJsNnjwjJAybDZ48IyShxmdWxzRCtXT001WE1FM0RDOGdocnorVlFDT0k9Wh8iHdt0aHZxOVFXelVPaWhMTjcrbW8zTjRiNjN0UEU9ZQAAAADCPgJgBRKsAQgIEqcBChxwM1RRNmZqaGtoU2dUeU03c01rK1Y3Z0djMUE9EiQ4OTk5NjRmYS0wMmZmLTQ3OTEtOWUzNC1iOWI3NTBkODk4NzMYACAAKAAws67Z48IyOPix2ePCMkD4sdnjwjJKHGtGMHdQZTRHK0w2Zlc0Uk9mMDBUMzZ0T1UxWT1aHiIcbEozZjduNEtRdU1HNzRtcnViS052VmxRU0Q4PWVCrlJAwj4CYAUSjAEIBRKHAQocd1JCclpMKzZQQTlhdktnak5QN0pYRExjZnZzPRIkZDIxMDY4ZTItYTcwNi01MjQxLWIyNGYtMzhmNmNiYzVjZjc5GAAgACgAMPrLzKukMziVzcyrpDNAlc3Mq6QzShxubXg2NXNRRHZ4SThUZ0VlditBK250dG9TbjQ9ZQAAAADCPgJgABKsAQgHEqcBChxBZVg3eDJ2TTF2U0M0cldIS3JTQmlyYjlkZlE9EiQ5MmRkMjI5NC1iMmQwLTQ3NWYtYWFmYi1mYWVmZjQwOGNhY2MYACAAKAAwsq7Z48IyONex2ePCMkDXsdnjwjJKHHA4aDRJelRBTjdxOFErT0s5VDdRWlYxUHMyMD1aHiIcY1I0bTBqT2tYVFBTcmUvQ2J6T3lpWGMxSms4PWUAAAAAwj4CYAUSrQEICRKoAQocNmhocVVtTnpzUlN4YzhXcWtHWjR5WTB6TGVjPRIkNWQ5MThhZjctZDhkZi00ZTQ0LTljMTMtMDBiODBkMTYzNDkzGAAgACgAMLSu2ePCMjicstnjwjJAnLLZ48IyShxHMG04aDFFMEVCYno4T1JvY3pVRWxSamU0VGM9Wh8iHbZBRmJWRzNIVkhVT0ltcU1LVUdlQ093RTJPQkk9ZQAAAADCPgJgBRKsAQgLEqcBChxaT1JJbHRqUjE4a2ZzcnpiTXU1UXZ2NENzUmc9EiQ2YjBmNjkwNC01YTZjLTQ1ZGUtYjE5Mi0wMWUwNjMwNDdjYzcYACAAKAAw+964r74xOKLiuK++MUCi4rivvjFKHFMwaWVQS1JjejhCUkQ1SmJPT3dzL0h2cVlCQT1aHiIcQklOZDlkUUdzakc5UGVQbUR1c2NWbUhWVXhzPWULUWxnwj4CYAUSjAEIAxKHAQocbmpnRHU4OGVDcnZYcDg2cEQ3ZkhHY3FGcDg4PRIkMDIwMjRhM2EtOTA3Ny01ZTE0LWE0N2ItOGE4MWYwYWRjYzRhGAAgACgAMP+ilvWuMTjepZb1rjFA3qWW9a4xShx5ek5CMDFjbjU0QTdjUlUwdVQrL1BnbVR0VW89ZQAAAADCPgJgADAAOAA=",
+   "version": 1
+}
