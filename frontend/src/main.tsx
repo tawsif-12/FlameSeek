@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { NavLink, Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { NavLink, Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "./styles.css";
@@ -11,17 +11,23 @@ import DataSourcesPage from "./pages/DataSourcesPage";
 import FireGlobePage from "./pages/FireGlobePage";
 
 function Header() {
+  const location = useLocation();
+  const isHome = location.pathname === "/";
+
   return (
-    <header className="app-header">
+    <header className={isHome ? "app-header mission-header" : "app-header"}>
       <div>
         <p className="eyebrow">NASA Space Apps Challenge</p>
-        <h1>Burning Activity Calendar</h1>
+        <h1>{isHome ? "FIREHARMONY" : "Burning Activity Calendar"}</h1>
       </div>
       <nav>
-        <NavLink to="/">Calendar</NavLink>
-        <NavLink to="/fire-map">3D Fire Map</NavLink>
-        <NavLink to="/critical-periods">Critical Periods</NavLink>
-        <NavLink to="/data-sources">Data Sources</NavLink>
+        <NavLink to="/">EARTH</NavLink>
+        <NavLink to="/fire-map">FIRE MAP</NavLink>
+        <a href="/#explorer">CALENDAR</a>
+        <a href="/#explorer">ANALYTICS</a>
+        <a href="/#explorer">ALERTS</a>
+        <NavLink to="/data-sources">ABOUT</NavLink>
+        <NavLink className="launch-link" to="/fire-map">LAUNCH EXPLORER</NavLink>
       </nav>
     </header>
   );
