@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import time
 from datetime import date
 from collections import Counter
 
@@ -11,15 +10,18 @@ from critical_periods import find_critical_periods
 from config import CONFIDENCE_THRESHOLD
 from firms_client import FirmsAPIError, fetch_hotspots_for_window, fetch_recent_hotspots
 from harmonize import build_daily_series, filter_low_confidence, summarize_daily_series
+from evidence import build_hotspot_evidence
 from schemas import (
     CriticalPeriodsResponse,
     CurrentHotspotsResponse,
-    FirmsTestFetchRequest,
-    FirmsTestFetchResponse,
     GenerateCalendarRequest,
     GenerateCalendarResponse,
+    HotspotEvidenceRequest,
+    HotspotEvidenceResponse,
     HotspotRecord,
+    VerifiedHotspotsResponse,
 )
+from verification import verify_hotspot
 
 
 router = APIRouter()
@@ -32,7 +34,7 @@ def _validate_request(payload: GenerateCalendarRequest) -> None:
     if not (-90 <= south < north <= 90):
         raise HTTPException(status_code=400, detail={"error": "invalid_bbox", "message": "South must be less than north and both must be valid latitudes."})
     if (east - west) > MAX_AOI_DEGREES_SPAN or (north - south) > MAX_AOI_DEGREES_SPAN:
-        raise HTTPException(status_code=400, detail={"error": "aoi_too_large", "message": "Draw a smaller area of interest for this demo."})
+        raise HTTPException(status_code=400, detail={"error": "aoi_too_large", "message": "Draw a smaller area of interest (maximum 20 degrees in either direction)."})
     if payload.start_date > payload.end_date:
         raise HTTPException(status_code=400, detail={"error": "invalid_date_range", "message": "Start date must be before or equal to end date."})
     if (payload.end_date - payload.start_date).days > MAX_DATE_RANGE_DAYS:
@@ -100,14 +102,6 @@ async def critical_periods_get(
     return await critical_periods(payload)
 
 
-@router.post("/firms/test_fetch", response_model=FirmsTestFetchResponse)
-async def test_fetch(payload: FirmsTestFetchRequest) -> FirmsTestFetchResponse:
-    _validate_request(payload)
-    started = time.perf_counter()
-    hotspots = await fetch_hotspots_for_window(payload.bbox, payload.start_date, payload.end_date, [str(sensor) for sensor in payload.sensors])
-    return FirmsTestFetchResponse(count=len(hotspots), elapsed_ms=round((time.perf_counter() - started) * 1000, 1), sample_rows=hotspots[:5])
-
-
 @router.get("/current_hotspots", response_model=CurrentHotspotsResponse)
 async def current_hotspots(
     bbox: str | None = Query(default=None, description="Optional comma-separated west,south,east,north. Omit for world."),
@@ -133,18 +127,49 @@ async def current_hotspots(
         raise HTTPException(status_code=502, detail={"error": "firms_api_error", "message": exc.message, "detail": {"status_code": exc.status_code}}) from exc
 
     filtered = filter_low_confidence(rows, CONFIDENCE_THRESHOLD)
+    sorted_filtered = sorted(filtered, key=lambda row: row["acq_datetime"], reverse=True)
+    returned = sorted_filtered[:limit]
     raw_by_sensor = dict(Counter(row["sensor"] for row in rows))
     filtered_by_sensor = dict(Counter(row["sensor"] for row in filtered))
+    returned_by_sensor = dict(Counter(row["sensor"] for row in returned))
     return CurrentHotspotsResponse(
-        hotspots=[HotspotRecord(**row) for row in filtered[:limit]],
+        hotspots=[HotspotRecord(**row) for row in returned],
         metadata={
             "raw_hotspot_count": len(rows),
             "filtered_hotspot_count": len(filtered),
-            "returned_hotspot_count": min(len(filtered), limit),
+            "returned_hotspot_count": len(returned),
             "raw_by_sensor": raw_by_sensor,
             "filtered_by_sensor": filtered_by_sensor,
+            "returned_by_sensor": returned_by_sensor,
             "days": days,
             "scope": "world" if bbox_tuple is None else "bbox",
             "sensors": sensors,
         },
     )
+
+
+@router.get("/verified_hotspots", response_model=VerifiedHotspotsResponse)
+async def verified_hotspots(
+    bbox: str | None = Query(default=None, description="Optional comma-separated west,south,east,north. Omit for world."),
+    days: int = Query(default=1, ge=1, le=5),
+    limit: int = Query(default=300, ge=1, le=1000),
+    sensors: list[str] = Query(default=["modis", "viirs_snpp", "viirs_noaa20", "viirs_noaa21"]),
+) -> VerifiedHotspotsResponse:
+    response = await current_hotspots(bbox=bbox, days=days, limit=limit, sensors=sensors)
+    verified = [verify_hotspot(row.model_dump()) for row in response.hotspots]
+    verdict_counts = dict(Counter(row["verification"]["verdict"] for row in verified))
+    metadata = {
+        **response.metadata,
+        "verification_model": "firms_metadata_rules_v1",
+        "verdict_counts": verdict_counts,
+        "imagery_source": "NASA Worldview/GIBS",
+        "news_source": "GDELT DOC API",
+    }
+    return VerifiedHotspotsResponse(hotspots=verified, metadata=metadata)
+
+
+@router.post("/hotspot_evidence", response_model=HotspotEvidenceResponse)
+async def hotspot_evidence(payload: HotspotEvidenceRequest) -> HotspotEvidenceResponse:
+    hotspot = HotspotRecord(**payload.model_dump(exclude={"refresh"}))
+    evidence = await build_hotspot_evidence(hotspot, refresh=payload.refresh)
+    return HotspotEvidenceResponse(**evidence)

@@ -4,7 +4,7 @@ The core harmonization step snaps MODIS and VIIRS detections onto a common
 roughly kilometer-scale grid so the app reports active cells, not only raw
 sensor-biased point counts. Confidence filtering suppresses marginal detections
 before aggregation. Anomaly scores use day-of-year climatology when enough
-history exists, then fall back to rolling and flat baselines for short demos.
+history exists, then falls back to rolling and flat baselines for shorter date ranges.
 """
 
 from __future__ import annotations

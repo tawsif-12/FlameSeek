@@ -46,5 +46,17 @@ async def data_sources() -> dict:
                 "url": "https://worldview.earthdata.nasa.gov/",
                 "last_verified": "2026-09-25",
             },
+            {
+                "name": "GDELT Project",
+                "description": "Fast global news/events feed used to corroborate fire, smoke, burning, and disaster reports near detections.",
+                "url": "https://www.gdeltproject.org/",
+                "last_verified": "2026-09-25",
+            },
+            {
+                "name": "Regional confirmation sources",
+                "description": "Sentinel, Landsat, INPE, LAPAN, FSI, Bhuvan, and Global Forest Watch can validate burn scars or local corrections after FIRMS detection.",
+                "url": "https://www.globalforestwatch.org/map/",
+                "last_verified": "2026-09-25",
+            },
         ]
     }

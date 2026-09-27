@@ -1356,6 +1356,8 @@ select {
   bottom: 18px;
   z-index: 2;
   width: min(380px, calc(100% - 36px));
+  max-height: calc(100vh - var(--app-header-height) - 48px);
+  overflow-y: auto;
   padding: 14px;
   color: #e5eefb;
   background: rgba(7, 17, 31, 0.94);
@@ -1389,6 +1391,154 @@ select {
 .hotspot-popup p {
   margin: 12px 0 0;
   color: #cbd5e1;
+}
+
+.fire-validation-panel {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+.validation-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.validation-header h4,
+.fire-validation-panel h4 {
+  margin: 0;
+  color: #f8fafc;
+}
+
+.validation-header button {
+  width: auto;
+  min-width: 92px;
+  min-height: 30px;
+  font-size: 11px;
+}
+
+.evidence-score {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 6px;
+}
+
+.evidence-score span,
+.validation-stages small,
+.fire-validation-panel small {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.evidence-score strong {
+  color: #fbbf24;
+}
+
+.evidence-error {
+  color: #fecaca;
+}
+
+.validation-stages {
+  display: grid;
+  gap: 6px;
+}
+
+.validation-stages div {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 8px;
+  background: rgba(15, 23, 42, 0.55);
+  border-radius: 5px;
+}
+
+.validation-stages span {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  color: #07111f;
+  background: #38bdf8;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.validation-stages p,
+.fire-validation-panel section p,
+.news-evidence-card p {
+  margin: 0;
+}
+
+.validation-stages small {
+  grid-column: 2;
+}
+
+.fire-validation-panel section {
+  display: grid;
+  gap: 7px;
+}
+
+.fire-validation-panel ul {
+  display: grid;
+  gap: 6px;
+  padding-left: 18px;
+  margin: 0;
+  color: #dbeafe;
+}
+
+.fire-validation-panel li.uncertain {
+  color: #fbbf24;
+}
+
+.news-evidence-card {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(2, 8, 18, 0.66);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 6px;
+}
+
+.news-evidence-card strong,
+.news-evidence-card a {
+  color: #bfdbfe;
+}
+
+.news-evidence-card span {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.news-evidence-card dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 0;
+}
+
+.news-evidence-card dt,
+.news-evidence-card dd {
+  margin: 0;
+  font-size: 11px;
+}
+
+.news-evidence-card dt {
+  color: #94a3b8;
+}
+
+.news-evidence-card dd {
+  color: #f8fafc;
+  font-weight: 800;
 }
 
 .zoom-controls {
@@ -1495,6 +1645,84 @@ td {
 
 .source-card {
   padding: 16px;
+}
+
+.verification-panel {
+  margin-top: 18px;
+  padding: 18px;
+  background: #f8fafc;
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+}
+
+.verification-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.verification-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  background: #ffffff;
+  border: 1px solid #d8dee8;
+  border-left: 5px solid #64748b;
+  border-radius: 8px;
+}
+
+.verification-card.confirmed_fire {
+  border-left-color: #16a34a;
+}
+
+.verification-card.needs_review {
+  border-left-color: #f59e0b;
+}
+
+.verification-card.likely_false_positive {
+  border-left-color: #dc2626;
+}
+
+.verification-card strong,
+.verification-card span {
+  display: block;
+}
+
+.verification-card span,
+.verification-card dt {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.verification-card dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin: 0;
+}
+
+.verification-card dd {
+  margin: 2px 0 0;
+  font-weight: 800;
+}
+
+.verification-card p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.verification-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.verification-actions a {
+  color: #1d4ed8;
+  font-weight: 800;
 }
 
 .source-card h3 {

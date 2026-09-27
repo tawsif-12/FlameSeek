@@ -69,16 +69,52 @@ class HotspotRecord(BaseModel):
     daynight: str = ""
 
 
+class VerificationEvidence(BaseModel):
+    source: str
+    signal: str
+    weight: int | float
+
+
+class HotspotVerification(BaseModel):
+    score: int
+    verdict: Literal["confirmed_fire", "needs_review", "likely_false_positive"]
+    evidence: list[VerificationEvidence]
+    warnings: list[str]
+    imagery_url: str
+    news_url: str
+    national_news_url: str
+    country_code: str | None = None
+    country_name: str
+    place_name: str
+    next_step: str
+    sensor_family: str
+
+
+class VerifiedHotspotRecord(HotspotRecord):
+    verification: HotspotVerification
+
+
 class CurrentHotspotsResponse(BaseModel):
     hotspots: list[HotspotRecord]
     metadata: dict
 
 
-class FirmsTestFetchRequest(GenerateCalendarRequest):
-    pass
+class VerifiedHotspotsResponse(BaseModel):
+    hotspots: list[VerifiedHotspotRecord]
+    metadata: dict
 
 
-class FirmsTestFetchResponse(BaseModel):
-    count: int
-    elapsed_ms: float
-    sample_rows: list[HotspotRecord]
+class HotspotEvidenceRequest(HotspotRecord):
+    refresh: bool = False
+
+
+class HotspotEvidenceResponse(BaseModel):
+    hotspot: HotspotRecord
+    place: dict
+    stages: list[dict]
+    satellite_evidence: dict
+    government_evidence: dict
+    news_evidence: dict
+    fusion: dict
+    source_transparency: dict
+    cache: dict
