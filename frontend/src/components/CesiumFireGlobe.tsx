@@ -199,6 +199,7 @@ export default function CesiumFireGlobe() {
   const [exposure, setExposure] = useState<ExposureMarker[]>([]);
   const [viewerReady, setViewerReady] = useState(false);
   const [viewerError, setViewerError] = useState<string | null>(null);
+  const [activeInsight, setActiveInsight] = useState<null | "snapshot" | "intensity" | "timeline" | "events">(null);
   const buildingsRef = useRef<Cesium.Cesium3DTileset | null>(null);
   const photorealisticTilesRef = useRef<Cesium.Cesium3DTileset | null>(null);
   const photorealisticLoadingRef = useRef(false);
@@ -217,6 +218,36 @@ export default function CesiumFireGlobe() {
     [events, filterToAoi, aoi],
   );
   const confirmed = useMemo(() => crossSensorSet(hotspots), [hotspots]);
+
+  const stats = useMemo(() => {
+    const modis = visibleHotspots.filter((h) => h.sensor === "modis").length;
+    const viirs = visibleHotspots.length - modis;
+    const crossConfirmed = visibleHotspots.filter((h) => confirmed.has(hotspotKey(h))).length;
+    const frps = visibleHotspots.map((h) => h.frp ?? 0);
+    const totalFrp = frps.reduce((s, v) => s + v, 0);
+    const maxFrp = frps.length ? Math.max(...frps) : 0;
+    const intense = frps.filter((v) => v >= 100).length;
+    const strong = frps.filter((v) => v >= 30 && v < 100).length;
+    const mild = frps.filter((v) => v >= 10 && v < 30).length;
+    const weak = frps.filter((v) => v < 10).length;
+    const eventCount = visibleEvents.length;
+    const eventArea = visibleEvents.reduce((s, e) => s + (e.extent_km2 ?? 0), 0);
+    const topEvents = [...visibleEvents]
+      .sort((a, b) => (b.observation_count ?? 0) - (a.observation_count ?? 0))
+      .slice(0, 4);
+    const behaviour = (eventMeta.behaviour_counts ?? {}) as Record<string, number>;
+    const now = Date.now();
+    const hours = Array.from({ length: 12 }, () => 0);
+    for (const h of visibleHotspots) {
+      const t = new Date(h.acq_datetime).getTime();
+      if (!Number.isFinite(t)) continue;
+      const dh = (now - t) / 3600000;
+      if (dh < 0 || dh >= 24) continue;
+      hours[Math.min(11, Math.floor(dh / 2))] += 1;
+    }
+    const hourMax = Math.max(1, ...hours);
+    return { modis, viirs, crossConfirmed, totalFrp, maxFrp, intense, strong, mild, weak, eventCount, eventArea, topEvents, behaviour, hours, hourMax };
+  }, [visibleHotspots, visibleEvents, confirmed, eventMeta]);
 
   useEffect(() => {
     drawingRef.current = drawing;
@@ -682,8 +713,141 @@ export default function CesiumFireGlobe() {
   const behaviourCounts = (eventMeta.behaviour_counts ?? {}) as Record<string, number>;
 
   return (
-    <section className={`cesium-shell command-globe ${themeClass(theme)} ${drawing ? "drawing" : ""}`}>
+    <section className={`cesium-shell command-globe ${themeClass(theme)} ${drawing ? "drawing" : ""} ${activeInsight ? "insight-open" : ""}`}>
       <div ref={containerRef} className="cesium-container" />
+
+      <nav className="insight-dock" aria-label="Data insights">
+        {([
+          { key: "snapshot", label: "Snapshot" },
+          { key: "intensity", label: "FRP Mix" },
+          { key: "timeline", label: "24 h Timeline" },
+          { key: "events", label: "Top Events" },
+        ] as const).map((o) => (
+          <button
+            key={o.key}
+            type="button"
+            className={activeInsight === o.key ? "active" : ""}
+            onClick={() => setActiveInsight((cur) => (cur === o.key ? null : o.key))}
+            aria-pressed={activeInsight === o.key}
+          >
+            {o.label}
+          </button>
+        ))}
+      </nav>
+
+      {activeInsight && (
+        <aside className="insight-drawer" aria-label="Insight panel">
+          <header>
+            <div>
+              <p className="mission-kicker">
+                <span className="hud-dot" />{" "}
+                {activeInsight === "snapshot" && "Live snapshot"}
+                {activeInsight === "intensity" && "FRP intensity mix"}
+                {activeInsight === "timeline" && "Detections · last 24 h"}
+                {activeInsight === "events" && "Top active events"}
+              </p>
+              <small className="insight-context">{periodLabels[period]}{period === "historical" ? ` · ${historicalDate}` : ""}</small>
+            </div>
+            <button type="button" className="insight-close" onClick={() => setActiveInsight(null)} aria-label="Close panel">×</button>
+          </header>
+
+          {activeInsight === "snapshot" && (
+            <div className="insight-body snapshot-body">
+              <div className="hud-stat">
+                <span>Detections</span>
+                <strong>{visibleHotspots.length.toLocaleString()}</strong>
+                <small>MODIS {stats.modis.toLocaleString()} · VIIRS {stats.viirs.toLocaleString()}</small>
+              </div>
+              <div className="hud-stat tone-warn">
+                <span>Cross-confirmed</span>
+                <strong>{stats.crossConfirmed.toLocaleString()}</strong>
+                <small>MODIS ∩ VIIRS within 15 km / 6 h</small>
+              </div>
+              <div className="hud-stat">
+                <span>Fire events</span>
+                <strong>{stats.eventCount.toLocaleString()}</strong>
+                <small>{Math.round(stats.eventArea).toLocaleString()} km² footprint</small>
+              </div>
+              <div className="hud-stat tone-hot">
+                <span>Peak FRP</span>
+                <strong>{Math.round(stats.maxFrp).toLocaleString()}<i>MW</i></strong>
+                <small>Total {Math.round(stats.totalFrp).toLocaleString()} MW</small>
+              </div>
+            </div>
+          )}
+
+          {activeInsight === "intensity" && (
+            <div className="insight-body">
+              <ul className="frp-bars">
+                {(() => {
+                  const total = Math.max(1, stats.weak + stats.mild + stats.strong + stats.intense);
+                  const rows = [
+                    { key: "Intense", n: stats.intense, hint: "≥100 MW", color: "#b91c1c" },
+                    { key: "Strong", n: stats.strong, hint: "30–100", color: "#ea580c" },
+                    { key: "Mild", n: stats.mild, hint: "10–30", color: "#f59e0b" },
+                    { key: "Weak", n: stats.weak, hint: "<10", color: "#fde68a" },
+                  ];
+                  return rows.map((r) => (
+                    <li key={r.key}>
+                      <em>{r.key}</em>
+                      <div className="bar-track"><i style={{ width: `${(r.n / total) * 100}%`, background: r.color }} /></div>
+                      <b>{r.n.toLocaleString()}</b>
+                      <small>{r.hint}</small>
+                    </li>
+                  ));
+                })()}
+              </ul>
+              <p className="insight-note">Distribution of visible detections by Fire Radiative Power.</p>
+            </div>
+          )}
+
+          {activeInsight === "timeline" && (
+            <div className="insight-body">
+              <div className="hud-sparkbars" aria-hidden="true">
+                {stats.hours.map((n, i) => (
+                  <div key={i} style={{ height: `${Math.max(6, (n / stats.hourMax) * 100)}%` }} title={`${n} detections`} />
+                ))}
+              </div>
+              <ul className="axis-mini"><li>-24h</li><li>-12h</li><li>now</li></ul>
+              <p className="insight-note">12 bins × 2 h each. Peak bin: {Math.max(...stats.hours).toLocaleString()} detections.</p>
+            </div>
+          )}
+
+          {activeInsight === "events" && (
+            <div className="insight-body">
+              {stats.topEvents.length === 0 ? (
+                <p className="hud-empty">No multi-detection events yet.</p>
+              ) : (
+                <ul className="hud-events">
+                  {stats.topEvents.map((e) => {
+                    const color = BEHAVIOUR_COLORS[e.behaviour_state] ?? "#6ad7ff";
+                    return (
+                      <li key={e.event_id}>
+                        <span className="hud-event-dot" style={{ background: color }} />
+                        <div>
+                          <strong>EV-{e.event_id.slice(-6).toUpperCase()}</strong>
+                          <em>{e.centroid.lat.toFixed(2)}°, {e.centroid.lon.toFixed(2)}° · {e.behaviour_state}</em>
+                        </div>
+                        <b>{e.observation_count}</b>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              <ul className="behaviour-mini">
+                {Object.entries(BEHAVIOUR_COLORS).map(([state, color]) => (
+                  <li key={state}>
+                    <i style={{ background: color }} />
+                    <span>{state}</span>
+                    <b>{(stats.behaviour[state] ?? 0).toLocaleString()}</b>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </aside>
+      )}
+
       <aside className="scene-panel globe-left">
         <section>
           <p className="panel-title">Fire Now · time period</p>
