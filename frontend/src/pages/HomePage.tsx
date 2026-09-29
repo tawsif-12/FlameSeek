@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getCurrentHotspots } from "../api/client";
+import { getCurrentHotspots, getEvents } from "../api/client";
 import { DEFAULT_SENSORS } from "../context/AppContext";
 
-type LiveSummary = { label: string; detail: string };
+type LiveStat = { detections: number | null; events: number | null; area: number | null };
+type Insight = { kind: string; title: string; detail: string; badge: string; tone: "warn" | "info" | "ok" };
 
 const STORY = [
   { n: "01", title: "Fire Memory", q: "What normally happened in this area in the past?", where: "/fire-memory", how: "26-year harmonized MODIS/VIIRS calendar, seasonal profiles, robust anomalies, change points" },
@@ -24,85 +25,203 @@ const WORKFLOW = [
 ];
 
 export default function HomePage() {
-  const [liveSummary, setLiveSummary] = useState<LiveSummary>({ label: "LIVE FIRMS SYNC", detail: "Checking MODIS and VIIRS observations..." });
+  const [live, setLive] = useState<LiveStat>({ detections: null, events: null, area: null });
+  const [status, setStatus] = useState<string>("Connecting to NASA FIRMS…");
+  const [insights, setInsights] = useState<Insight[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     getCurrentHotspots(DEFAULT_SENSORS, 1, 1)
-      .then((response) => {
+      .then((r) => {
         if (cancelled) return;
-        const detected = Number(response.metadata.filtered_hotspot_count ?? 0);
-        setLiveSummary({
-          label: "LIVE FIRMS SYNC",
-          detail: detected > 0 ? `${detected.toLocaleString()} filtered observations in the current one-day window.` : "No filtered observations returned in the current one-day window.",
-        });
+        const d = Number(r.metadata.filtered_hotspot_count ?? 0);
+        setLive((l) => ({ ...l, detections: d }));
+        setStatus(d > 0 ? "Live · MODIS + VIIRS synchronised" : "Live · No filtered observations in the last day");
       })
-      .catch(() => {
-        if (!cancelled) setLiveSummary({ label: "LIVE FIRMS SYNC", detail: "FIRMS is unavailable right now. Open the Fire Globe to retry." });
-      });
+      .catch(() => !cancelled && setStatus("FIRMS unavailable · open Fire Now to retry"));
+
+    getEvents(2, 40)
+      .then((r) => {
+        if (cancelled) return;
+        const total = r.events.length;
+        const area = r.events.reduce((sum, e) => sum + (e.extent_km2 ?? 0), 0);
+        setLive((l) => ({ ...l, events: total, area }));
+        const top = [...r.events].sort((a, b) => (b.observation_count ?? 0) - (a.observation_count ?? 0)).slice(0, 3);
+        setInsights(
+          top.map<Insight>((e, i) => ({
+            kind: ["Highest activity", "Watch this", "Recently spread"][i] ?? "Event",
+            title: `${e.centroid.lat.toFixed(2)}°, ${e.centroid.lon.toFixed(2)}°`,
+            detail: `${e.observation_count} detections · ${Math.round((e.extent_km2 ?? 0)).toLocaleString()} km² footprint`,
+            badge: `EV-${e.event_id.slice(-6).toUpperCase()}`,
+            tone: (e.observation_count ?? 0) > 200 ? "warn" : i === 1 ? "info" : "ok",
+          })),
+        );
+      })
+      .catch(() => {});
+
     return () => {
       cancelled = true;
     };
   }, []);
 
   return (
-    <main className="mission-home">
-      <section className="mission-hero" aria-labelledby="mission-title">
+    <main className="mission-home space-shell">
+      <section className="mission-hero nasa-hero" aria-labelledby="mission-title">
         <div className="mission-earth" aria-hidden="true">
           <img src="https://images-assets.nasa.gov/image/PIA18033/PIA18033~orig.jpg" alt="" />
         </div>
         <div className="mission-scanlines" aria-hidden="true" />
-        <div className="mission-copy">
-          <p className="mission-kicker">Global Fire Intelligence</p>
-          <h2 id="mission-title">BURNING_ACTIVITY</h2>
-          <p className="mission-statement">Past → Present → Identify → Verify → Compare → Forecast → Exposure. A satellite hotspot is an observation, not automatically a confirmed wildfire.</p>
-          <div className="mission-actions">
-            <Link className="mission-action primary" to="/fire-map">Open Fire Now</Link>
-            <Link className="mission-action" to="/fire-memory">Build Fire Memory</Link>
+        <div className="hero-orbit-rings" aria-hidden="true">
+          <span /><span /><span />
+        </div>
+
+        <div className="hero-inner">
+          <div className="hero-main">
+            <p className="mission-kicker"><span className="dot" /> Global Fire Intelligence</p>
+            <h2 id="mission-title">BURNING_ACTIVITY</h2>
+            <p className="mission-statement">
+              Past → Present → Identify → Verify → Compare → Forecast → Exposure.<br />
+              A satellite hotspot is an observation, not automatically a confirmed wildfire.
+            </p>
+            <div className="explore-row">
+              <Link to="/fire-map" className="explore-orb" aria-label="Open Fire Now">
+                <span>EXPLORE</span>
+              </Link>
+              <Link to="/fire-memory" className="ghost-orb" aria-label="Build Fire Memory">
+                <span>BUILD FIRE MEMORY</span>
+              </Link>
+            </div>
+            <div className="ask-strip" role="note">
+              <span className="ask-spark" aria-hidden="true">✦</span>
+              <span>Ask the globe: which fire is closest to me, which has the strongest evidence, where might it spread…</span>
+              <span className="ask-actions" aria-hidden="true"><i>?</i><i>::</i></span>
+            </div>
+          </div>
+
+          <div className="hero-panels">
+            <article className="glass-card code-card">
+              <header>
+                <h3>Code<br /><strong>BURN.NRT</strong></h3>
+                <button type="button" aria-label="dismiss" className="glass-close">×</button>
+              </header>
+              <dl>
+                <div><dt>Detection<br />source</dt><dd>NASA<br />FIRMS</dd></div>
+                <div><dt>Observation<br />cadence</dt><dd>MODIS<br />+ VIIRS</dd></div>
+                <div><dt>Update<br />window</dt><dd>3 h<br />NRT</dd></div>
+                <div><dt>Grid<br />resolution</dt><dd>~1 km<br />0.01°</dd></div>
+              </dl>
+              <div className="code-purpose">
+                <span>Purpose</span>
+                <strong>Wildfire situational awareness</strong>
+                <button type="button" className="plus" aria-label="expand">+</button>
+              </div>
+            </article>
+
+            <aside className="glass-card insights-card" aria-label="AI Insights">
+              <header>
+                <p className="mission-kicker">✧ Live Insights</p>
+              </header>
+              <div className="insights-list">
+                {insights.length === 0 && (
+                  <>
+                    <div className="insight-row skeleton"><span /><span /><span /></div>
+                    <div className="insight-row skeleton"><span /><span /><span /></div>
+                    <div className="insight-row skeleton"><span /><span /><span /></div>
+                  </>
+                )}
+                {insights.map((ins) => (
+                  <Link key={ins.badge} className="insight-row" to="/fire-map">
+                    <div className="insight-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="34" height="34"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.4" /><path d="M12 6c-2 3-4 5-4 8a4 4 0 0 0 8 0c0-2-2-4-4-8z" fill="currentColor" /></svg>
+                    </div>
+                    <div>
+                      <em>{ins.badge}</em>
+                      <strong>{ins.title}</strong>
+                      <small className={`tone-${ins.tone}`}>{ins.kind} · {ins.detail}</small>
+                    </div>
+                    <span className="insight-jump" aria-hidden="true">↗</span>
+                  </Link>
+                ))}
+              </div>
+              <footer><small>Data refreshed at page load. Open Fire Now for live streaming.</small></footer>
+            </aside>
           </div>
         </div>
-        <aside className="mission-readout" aria-label="Burning_Activity system status">
-          <div>
-            <span className="mission-status-dot" />
-            <p>{liveSummary.label}</p>
-          </div>
-          <strong>MODIS + VIIRS</strong>
-          <small>{liveSummary.detail}</small>
-          <dl>
-            <div><dt>Detection</dt><dd>NASA FIRMS</dd></div>
-            <div><dt>Validation</dt><dd>Evidence-led</dd></div>
-            <div><dt>Forecast</dt><dd>Validated or withheld</dd></div>
-          </dl>
-        </aside>
-        <div className="mission-footnote">
-          <span>01</span>
-          <p>Observation, inference, external evidence and forecast are always kept separate.</p>
+
+        <div className="hero-readout-strip">
+          <span className="mission-status-dot" />
+          <p>{status}</p>
         </div>
       </section>
 
+      <section className="dashboard-strip" aria-label="Live snapshot">
+        <article className="dashboard-card">
+          <header><h3>Detections by day</h3><span className="cta">↗</span></header>
+          <p className="giant-metric">{live.detections === null ? "…" : live.detections.toLocaleString()}</p>
+          <small>Filtered MODIS + VIIRS observations (last 24 h)</small>
+          <div className="bar-mini" aria-hidden="true">
+            {[70, 100, 50, 42, 66].map((h, i) => (
+              <div key={i} style={{ height: `${h}%` }}><i>MODIS</i><i>VIIRS</i></div>
+            ))}
+          </div>
+          <ul className="axis-labels"><li>MODIS</li><li>VIIRS</li><li>SNPP</li><li>NOAA-20</li><li>NOAA-21</li></ul>
+        </article>
+
+        <article className="dashboard-card">
+          <header><h3>Latest events</h3><span className="cta">↗</span></header>
+          <ul className="release-list">
+            {insights.length ? insights.map((ins) => (
+              <li key={ins.badge}>
+                <span className="pill">{ins.badge}</span>
+                <strong>{ins.title}</strong>
+                <small>{ins.detail}</small>
+              </li>
+            )) : (
+              <>
+                <li className="skeleton"><span className="pill">EV-…</span><strong>Locating…</strong><small>–</small></li>
+                <li className="skeleton"><span className="pill">EV-…</span><strong>Locating…</strong><small>–</small></li>
+                <li className="skeleton"><span className="pill">EV-…</span><strong>Locating…</strong><small>–</small></li>
+              </>
+            )}
+          </ul>
+        </article>
+
+        <article className="dashboard-card">
+          <header><h3>Fire events snapshot</h3><span className="cta">↗</span></header>
+          <ul className="purpose-list">
+            <li><span>Multi-detection events</span><i style={{ width: "82%" }} /><b>{live.events ?? "–"}</b></li>
+            <li><span>Total footprint (km²)</span><i style={{ width: "60%" }} /><b>{live.area === null ? "–" : Math.round(live.area).toLocaleString()}</b></li>
+            <li><span>Anomaly categories</span><i style={{ width: "38%" }} /><b>4</b></li>
+            <li><span>Evidence sources</span><i style={{ width: "72%" }} /><b>12+</b></li>
+            <li><span>Forecast horizons</span><i style={{ width: "30%" }} /><b>3</b></li>
+          </ul>
+        </article>
+      </section>
+
       <section className="story-section" aria-label="The seven-stage fire story">
-        <p className="mission-kicker">The seven-stage fire story</p>
-        <div className="story-grid">
+        <p className="mission-kicker">✧ The seven-stage fire story</p>
+        <div className="story-grid nasa-story-grid">
           {STORY.map((s) => (
-            <Link key={s.n} to={s.where} className="story-card">
+            <Link key={s.n} to={s.where} className="story-card glass-card">
               <span>{s.n}</span>
               <strong>{s.title}</strong>
               <em>{s.q}</em>
               <small>{s.how}</small>
+              <div className="story-card-glow" aria-hidden="true" />
             </Link>
           ))}
         </div>
       </section>
 
-      <section className="separation-section" aria-label="What each result means">
-        <article className="sep obs"><h3>Observation</h3><p>What MODIS and VIIRS actually detected: sensor, time, footprint, FRP, confidence. Absence under clouds is reported as UNKNOWN, not "no fire".</p></article>
-        <article className="sep inf"><h3>Inference</h3><p>What the system concludes: harmonized activity, anomaly categories, fire events, inferred behaviour states, and the evidence status and score.</p></article>
-        <article className="sep ext"><h3>External evidence</h3><p>What independent satellites, government agencies and local news report, matched by distance and time, always with a link to the original source.</p></article>
-        <article className="sep fc"><h3>Forecast</h3><p>Where new satellite-observed activity may appear in the next 6 to 24 hours, as a probability corridor. It is issued only when validated against baselines.</p></article>
+      <section className="separation-section space-sep" aria-label="What each result means">
+        <article className="sep obs glass-card"><span className="chip">Observed</span><h3>Observation</h3><p>What MODIS and VIIRS actually detected: sensor, time, footprint, FRP, confidence. Absence under clouds is reported as UNKNOWN, not "no fire".</p></article>
+        <article className="sep inf glass-card"><span className="chip">Inferred</span><h3>Inference</h3><p>What the system concludes: harmonized activity, anomaly categories, fire events, inferred behaviour states, and the evidence status and score.</p></article>
+        <article className="sep ext glass-card"><span className="chip">External</span><h3>External evidence</h3><p>What independent satellites, government agencies and local news report, matched by distance and time, always with a link to the original source.</p></article>
+        <article className="sep fc glass-card"><span className="chip">Forecast</span><h3>Forecast</h3><p>Where new satellite-observed activity may appear in the next 6 to 24 hours, as a probability corridor. It is issued only when validated against baselines.</p></article>
       </section>
 
       <section className="workflow-section" aria-label="Full system workflow">
-        <p className="mission-kicker">Full workflow</p>
+        <p className="mission-kicker">✧ Full workflow</p>
         <ol className="workflow-chain">
           {WORKFLOW.map((step) => <li key={step}>{step}</li>)}
         </ol>

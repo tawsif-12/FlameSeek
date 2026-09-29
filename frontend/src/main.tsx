@@ -12,13 +12,19 @@ import FireMemoryPage from "./pages/FireMemoryPage";
 
 function Header() {
   const location = useLocation();
-  const isHome = location.pathname === "/";
+  const darkRoutes = ["/", "/fire-memory", "/data-sources"];
+  const isDark = darkRoutes.includes(location.pathname);
 
   return (
-    <header className={isHome ? "app-header mission-header" : "app-header"}>
-      <div>
-        <p className="eyebrow">NASA Space Apps Challenge</p>
-        <h1>BURNING_ACTIVITY</h1>
+    <header className={isDark ? "app-header mission-header" : "app-header"}>
+      <div className="brand-mark">
+        <span className="brand-glyph" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="32" height="32"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.6" /><circle cx="16" cy="16" r="4" fill="currentColor" opacity="0.9" /><ellipse cx="16" cy="16" rx="14" ry="5.5" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.5" /></svg>
+        </span>
+        <div>
+          <p className="eyebrow">NASA Space Apps Challenge</p>
+          <h1>BURNING_ACTIVITY</h1>
+        </div>
       </div>
       <nav>
         <NavLink to="/">HOME</NavLink>

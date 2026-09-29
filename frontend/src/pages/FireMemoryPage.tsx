@@ -47,16 +47,25 @@ export default function FireMemoryPage() {
   const toggleSensor = (sensor: SensorName) => setSensors(sensors.includes(sensor) ? sensors.filter((s) => s !== sensor) : [...sensors, sensor]);
 
   return (
-    <main className="memory-page">
-      <header className="memory-intro">
-        <p className="eyebrow">Stage 1 · Fire Memory</p>
-        <h2>What normally happens in this area?</h2>
-        <p className="lead">
-          Up to 26 years of MODIS and VIIRS observations are harmonized onto a common ~1 km grid. The result is a burning activity calendar,
-          seasonal profiles, and a comparison of current activity with the area's own history.
-        </p>
-      </header>
-      <section className="memory-setup">
+    <main className="memory-page space-shell space-page">
+      <div className="space-hero-strip">
+        <div className="space-hero-orbit" aria-hidden="true"><span /><span /></div>
+        <header className="memory-intro nasa-page-intro">
+          <p className="eyebrow"><span className="dot" /> Stage 1 · Fire Memory</p>
+          <h2>What normally happens in this area?</h2>
+          <p className="lead">
+            Up to 26 years of MODIS and VIIRS observations are harmonized onto a common ~1 km grid. The result is a burning activity calendar,
+            seasonal profiles, and a comparison of current activity with the area's own history.
+          </p>
+          <ul className="hero-chips">
+            <li><span className="dot" />26-year record</li>
+            <li><span className="dot" />Harmonized MODIS + VIIRS</li>
+            <li><span className="dot" />Robust anomalies</li>
+            <li><span className="dot" />PELT change points</li>
+          </ul>
+        </header>
+      </div>
+      <section className="memory-setup glass-card">
         <div className="memory-setup-map">
           <h3>1. Area of interest</h3>
           <AOISelector />

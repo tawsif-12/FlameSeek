@@ -25,23 +25,39 @@ export default function DataSourcesPage() {
   const groups = [...new Set(sources.map((s) => s.group))];
 
   return (
-    <main className="content-page">
-      <p className="eyebrow">Transparency</p>
-      <h2>Sources & Methods</h2>
-      <p className="lead">
-        Every result names its source and processing method. <strong>Automated</strong> sources are queried by the backend. <strong>Review links</strong> are offered for an analyst to check
-        and are never counted as checked evidence.
-      </p>
+    <main className="content-page space-shell space-page">
+      <div className="space-hero-strip">
+        <div className="space-hero-orbit" aria-hidden="true"><span /><span /></div>
+        <header className="nasa-page-intro">
+          <p className="eyebrow"><span className="dot" /> Transparency</p>
+          <h2>Sources & Methods</h2>
+          <p className="lead">
+            Every result names its source and processing method. <strong>Automated</strong> sources are queried by the backend. <strong>Review links</strong> are offered for an analyst to check
+            and are never counted as checked evidence.
+          </p>
+          <ul className="hero-chips">
+            <li><span className="dot" />NASA FIRMS</li>
+            <li><span className="dot" />Regional satellites</li>
+            <li><span className="dot" />Government agencies</li>
+            <li><span className="dot" />News NLP</li>
+          </ul>
+        </header>
+      </div>
       {groups.map((group) => (
         <section key={group} className="source-group">
           <h3>{group}</h3>
           <div className="source-grid">
             {sources.filter((s) => s.group === group).map((source) => (
-              <article key={source.name} className="source-card">
+              <article key={source.name} className="source-card glass-card">
+                <div className="source-card-glyph" aria-hidden="true">
+                  <svg viewBox="0 0 32 32" width="26" height="26"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.5" /><circle cx="16" cy="16" r="3" fill="currentColor" /><path d="M4 16h24M16 4v24" stroke="currentColor" strokeWidth="0.6" opacity="0.4" /></svg>
+                </div>
                 <h3>{source.name}</h3>
                 <p>{source.description}</p>
-                <span className={`access-pill ${source.access.replace(/\s/g, "-")}`}>{source.access}</span>
-                {source.url && <a href={source.url} target="_blank" rel="noreferrer">Visit source</a>}
+                <div className="source-card-footer">
+                  <span className={`access-pill ${source.access.replace(/\s/g, "-")}`}>{source.access}</span>
+                  {source.url && <a href={source.url} target="_blank" rel="noreferrer">Visit ↗</a>}
+                </div>
               </article>
             ))}
           </div>
@@ -49,9 +65,15 @@ export default function DataSourcesPage() {
       ))}
       <section className="methods">
         <h3>Methods</h3>
-        <dl className="kv methods-list">
-          {METHODS.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
-        </dl>
+        <div className="method-grid">
+          {METHODS.map(([k, v]) => (
+            <article key={k} className="method-card glass-card">
+              <span className="method-index" aria-hidden="true">{String(METHODS.findIndex(([kk]) => kk === k) + 1).padStart(2, "0")}</span>
+              <h4>{k}</h4>
+              <p>{v}</p>
+            </article>
+          ))}
+        </div>
       </section>
       <VerificationPanel />
     </main>
