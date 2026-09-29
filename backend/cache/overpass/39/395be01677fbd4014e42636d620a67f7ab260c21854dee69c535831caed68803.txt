@@ -1,0 +1,81 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-29T17:09:21Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 9437053694,
+  "lat": -10.4383354,
+  "lon": 36.0414927,
+  "tags": {
+    "addr:district": "Namtumbo District Council",
+    "addr:region": "Ruvuma",
+    "addr:street": "Libango",
+    "addr:ward": "Namtumbo",
+    "contact:phone": "255745801209",
+    "craft": "grinding_mill",
+    "description": "Rice",
+    "flour_fortified": "no",
+    "industrial": "grinding_mill",
+    "man_made": "works",
+    "name": "Yasini Kitondo Milling Machine",
+    "opening_hours": "Mo-Fr 6:00-21:00; Sa-Su 6:30-21:30",
+    "operator:type": "private",
+    "product": "food",
+    "source": "WFP Field Survey 2021, OMDTZ"
+  }
+},
+{
+  "type": "node",
+  "id": 9437055148,
+  "lat": -10.4380199,
+  "lon": 36.0409219,
+  "tags": {
+    "addr:district": "Namtumbo District Council",
+    "addr:region": "Ruvuma",
+    "addr:street": "Libango",
+    "addr:ward": "Namtumbo",
+    "contact:phone": "255627038630",
+    "craft": "grinding_mill",
+    "description": "Maize,Cassava",
+    "flour_fortified": "no",
+    "industrial": "grinding_mill",
+    "man_made": "works",
+    "name": "Ased Ligoma Milling Machine",
+    "opening_hours": "Mo-Fr 6:00-21:00; Sa-Su 7:00-21:00",
+    "operator:type": "private",
+    "product": "food",
+    "source": "WFP Field Survey 2021, OMDTZ"
+  }
+},
+{
+  "type": "node",
+  "id": 9437055333,
+  "lat": -10.4401640,
+  "lon": 36.0442632,
+  "tags": {
+    "addr:district": "Namtumbo District Council",
+    "addr:region": "Ruvuma",
+    "addr:street": "Libango",
+    "addr:ward": "Namtumbo",
+    "contact:phone": "255652276922",
+    "craft": "grinding_mill",
+    "description": "Cassava, Maize",
+    "flour_fortified": "no",
+    "industrial": "grinding_mill",
+    "man_made": "works",
+    "name": "Geoffrey Kimario Milling Machine",
+    "opening_hours": "Mo-Fr 6:00-20:30; Sa-Su 6:00-21:00",
+    "operator:type": "private",
+    "product": "food",
+    "source": "WFP Field Survey 2021, OMDTZ"
+  }
+}
+
+  ]
+}

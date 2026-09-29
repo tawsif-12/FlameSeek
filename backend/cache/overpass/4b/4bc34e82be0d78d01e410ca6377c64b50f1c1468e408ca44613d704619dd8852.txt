@@ -1,0 +1,511 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-29T17:10:21Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 1308289841,
+  "lat": 2.3382681,
+  "lon": 100.2170133,
+  "tags": {
+    "admin_level": "7",
+    "name": "Selat Beting",
+    "place": "village",
+    "ref": "12.10.18.2007",
+    "wikidata": "Q12513233"
+  }
+},
+{
+  "type": "node",
+  "id": 1308299809,
+  "lat": 2.6099003,
+  "lon": 100.0412907,
+  "tags": {
+    "admin_level": "7",
+    "name": "Teluk Piai",
+    "place": "village",
+    "ref": "12.23.03.2004",
+    "wikidata": "Q12520594"
+  }
+},
+{
+  "type": "node",
+  "id": 1308315250,
+  "lat": 2.3358580,
+  "lon": 100.1884648,
+  "tags": {
+    "name": "Ajamu",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 1308320274,
+  "lat": 2.3874639,
+  "lon": 100.1675649,
+  "tags": {
+    "admin_level": "7",
+    "name": "Meranti Paham",
+    "place": "village",
+    "ref": "12.10.20.2006",
+    "wikidata": "Q12498166"
+  }
+},
+{
+  "type": "node",
+  "id": 1308321047,
+  "lat": 2.6121198,
+  "lon": 100.1239535,
+  "tags": {
+    "name": "Sei Berombang",
+    "place": "town",
+    "population": "32577"
+  }
+},
+{
+  "type": "node",
+  "id": 1308321215,
+  "lat": 2.3548846,
+  "lon": 100.1107960,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sei Tampang",
+    "place": "village",
+    "ref": "12.10.08.2008",
+    "wikidata": "Q12512852"
+  }
+},
+{
+  "type": "node",
+  "id": 1308335355,
+  "lat": 2.6100423,
+  "lon": 100.1244507,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sei Berombang",
+    "place": "village",
+    "ref": "12.10.19.1001",
+    "wikidata": "Q14719129"
+  }
+},
+{
+  "type": "node",
+  "id": 1308340914,
+  "lat": 2.5330757,
+  "lon": 100.1727697,
+  "tags": {
+    "admin_level": "7",
+    "name": "Pasar Tiga",
+    "place": "village",
+    "ref": "12.10.18.2010",
+    "wikidata": "Q12503495"
+  }
+},
+{
+  "type": "node",
+  "id": 1308343018,
+  "lat": 2.5640066,
+  "lon": 100.1457066,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sei Lumut",
+    "place": "village",
+    "ref": "12.10.19.2003",
+    "wikidata": "Q12512802"
+  }
+},
+{
+  "type": "node",
+  "id": 1308345393,
+  "lat": 2.6361254,
+  "lon": 100.1320264,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sei Baru",
+    "place": "village",
+    "ref": "12.10.19.2007",
+    "wikidata": "Q14719113"
+  }
+},
+{
+  "type": "node",
+  "id": 1308345799,
+  "lat": 2.4472803,
+  "lon": 100.2223410,
+  "tags": {
+    "name": "Sei Rakyat",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 1308350029,
+  "lat": 2.4128181,
+  "lon": 100.0913106,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sei Kasih",
+    "place": "village",
+    "ref": "12.10.08.2013",
+    "wikidata": "Q14719136"
+  }
+},
+{
+  "type": "node",
+  "id": 1308350847,
+  "lat": 2.5983988,
+  "lon": 100.1293802,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sei Sanggul",
+    "place": "village",
+    "ref": "12.10.19.2005",
+    "wikidata": "Q12512840"
+  }
+},
+{
+  "type": "node",
+  "id": 1308352124,
+  "lat": 2.5143283,
+  "lon": 100.1699212,
+  "tags": {
+    "admin_level": "7",
+    "name": "Labuhan Bilik",
+    "place": "village",
+    "ref": "12.10.18.1001",
+    "wikidata": "Q14636057"
+  }
+},
+{
+  "type": "node",
+  "id": 1308364076,
+  "lat": 2.4819073,
+  "lon": 100.1816708,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sei Nahodaris",
+    "place": "village",
+    "ref": "12.10.18.2004",
+    "wikidata": "Q12512816"
+  }
+},
+{
+  "type": "node",
+  "id": 1308371196,
+  "lat": 2.3832966,
+  "lon": 100.0854685,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sei Tarolat",
+    "place": "village",
+    "ref": "12.10.08.2012",
+    "wikidata": "Q14719172"
+  }
+},
+{
+  "type": "node",
+  "id": 1308373837,
+  "lat": 2.6265098,
+  "lon": 100.1455295,
+  "tags": {
+    "name": "Wonosari",
+    "place": "village",
+    "wikidata": "Q12524828"
+  }
+},
+{
+  "type": "node",
+  "id": 1308374111,
+  "lat": 2.4204533,
+  "lon": 100.1977032,
+  "tags": {
+    "admin_level": "7",
+    "name": "Bagan Bilah",
+    "place": "village",
+    "ref": "12.10.18.2008",
+    "wikidata": "Q13489395"
+  }
+},
+{
+  "type": "node",
+  "id": 1308388227,
+  "lat": 2.5193669,
+  "lon": 100.1562776,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sei Merdeka",
+    "place": "village",
+    "ref": "12.06.17.2014",
+    "wikidata": "Q12512813"
+  }
+},
+{
+  "type": "node",
+  "id": 1308396571,
+  "lat": 2.5085974,
+  "lon": 100.1729923,
+  "tags": {
+    "admin_level": "7",
+    "name": "Telaga Suka",
+    "place": "village",
+    "ref": "12.10.18.2009",
+    "wikidata": "Q12520439"
+  }
+},
+{
+  "type": "node",
+  "id": 1308401955,
+  "lat": 2.4547373,
+  "lon": 100.0870920,
+  "tags": {
+    "admin_level": "7",
+    "name": "Selat Besar",
+    "place": "village",
+    "ref": "12.10.08.2009",
+    "wikidata": "Q12513232"
+  }
+},
+{
+  "type": "node",
+  "id": 1308402594,
+  "lat": 2.6077995,
+  "lon": 100.0893420,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sei Penggantungan",
+    "place": "village",
+    "ref": "12.10.19.2002",
+    "wikidata": "Q12512822"
+  }
+},
+{
+  "type": "node",
+  "id": 1308406316,
+  "lat": 2.4991316,
+  "lon": 100.1128637,
+  "tags": {
+    "name": "Sei Jawi Jawi",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 1308444810,
+  "lat": 2.4209538,
+  "lon": 100.0916307,
+  "tags": {
+    "admin_level": "7",
+    "name": "Tanjung Haloban",
+    "place": "village",
+    "ref": "12.10.08.2010",
+    "wikidata": "Q12519519"
+  }
+},
+{
+  "type": "node",
+  "id": 1308446381,
+  "lat": 2.5768807,
+  "lon": 100.2780111,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sei Tawar",
+    "place": "village",
+    "ref": "12.10.19.2004",
+    "wikidata": "Q12512853"
+  }
+},
+{
+  "type": "node",
+  "id": 1308457957,
+  "lat": 2.4848738,
+  "lon": 100.1405857,
+  "tags": {
+    "admin_level": "7",
+    "name": "Tanjung Sarang Elang",
+    "place": "village",
+    "ref": "12.10.20.2001",
+    "wikidata": "Q12519718"
+  }
+},
+{
+  "type": "node",
+  "id": 1308469065,
+  "lat": 2.4646866,
+  "lon": 100.1379624,
+  "tags": {
+    "admin_level": "7",
+    "name": "Cinta Makmur",
+    "place": "village",
+    "ref": "12.10.20.2004",
+    "wikidata": "Q12479138"
+  }
+},
+{
+  "type": "node",
+  "id": 1308471671,
+  "lat": 2.3787797,
+  "lon": 100.2171354,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sei Pelancang",
+    "place": "village",
+    "ref": "12.10.18.2002",
+    "wikidata": "Q14719152"
+  }
+},
+{
+  "type": "node",
+  "id": 1308473255,
+  "lat": 2.6185372,
+  "lon": 100.1244996,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sei Sakat",
+    "place": "village",
+    "ref": "12.10.19.2006",
+    "wikidata": "Q12512838"
+  }
+},
+{
+  "type": "node",
+  "id": 1308474917,
+  "lat": 2.4567207,
+  "lon": 100.1563392,
+  "tags": {
+    "admin_level": "7",
+    "name": "Teluk Sentosa",
+    "place": "village",
+    "ref": "12.10.20.2003",
+    "wikidata": "Q12520613"
+  }
+},
+{
+  "type": "node",
+  "id": 12329986592,
+  "lat": 2.4688396,
+  "lon": 100.3423792,
+  "tags": {
+    "admin_level": "7",
+    "alt_name": "Panipahan Kota",
+    "capital": "6",
+    "name": "Panipahan",
+    "name:id": "Panipahan",
+    "name:ms": "Panipahan",
+    "name:ms-Arab": "ڤنيڤهن",
+    "official_name": "Kelurahan Panipahan",
+    "official_name:en": "Subdistrict of Panipahan",
+    "place": "town",
+    "postal_code": "28995",
+    "ref": "14.07.06.1007",
+    "ref:ID:BPS": "1409031008",
+    "wikidata": "Q23988299"
+  }
+},
+{
+  "type": "node",
+  "id": 12329986593,
+  "lat": 2.4691042,
+  "lon": 100.3380137,
+  "tags": {
+    "admin_level": "7",
+    "name": "Panipahan",
+    "name:id": "Panipahan",
+    "name:ms": "Panipahan",
+    "name:ms-Arab": "ڤنيڤهن",
+    "official_name": "Kepenghuluan Panipahan",
+    "official_name:en": "Administrative Chieftaincy (Village) of Panipahan",
+    "place": "village",
+    "postal_code": "28995",
+    "ref": "14.07.06.2001",
+    "ref:ID:BPS": "1409031003",
+    "wikidata": "Q7131185"
+  }
+},
+{
+  "type": "node",
+  "id": 12329986594,
+  "lat": 2.4737540,
+  "lon": 100.3179885,
+  "tags": {
+    "admin_level": "7",
+    "name": "Panipahan Darat",
+    "name:id": "Panipahan Darat",
+    "name:ms": "Panipahan Darat",
+    "name:ms-Arab": "ڤنيڤهن دارت",
+    "official_name": "Kepenghuluan Panipahan Darat",
+    "official_name:en": "Administrative Chieftaincy (Village) of Panipahan Darat",
+    "place": "village",
+    "postal_code": "28995",
+    "ref": "14.07.06.2005",
+    "ref:ID:BPS": "1409031006",
+    "wikidata": "Q12502758"
+  }
+},
+{
+  "type": "node",
+  "id": 12329986595,
+  "lat": 2.4347095,
+  "lon": 100.3427512,
+  "tags": {
+    "admin_level": "7",
+    "name": "Panipahan Laut",
+    "name:id": "Panipahan Laut",
+    "name:ms": "Panipahan Laut",
+    "name:ms-Arab": "ڤنيڤهن لاوت",
+    "official_name": "Kepenghuluan Panipahan Laut",
+    "official_name:en": "Administrative Chieftaincy (Village) of Panipahan Laut",
+    "place": "village",
+    "postal_code": "28995",
+    "ref": "14.07.06.2006",
+    "ref:ID:BPS": "1409031005",
+    "wikidata": "Q12502760"
+  }
+},
+{
+  "type": "node",
+  "id": 12329986597,
+  "lat": 2.5234205,
+  "lon": 100.3180044,
+  "tags": {
+    "admin_level": "7",
+    "name": "Pulau Jemur",
+    "name:id": "Pulau Jemur",
+    "name:ms": "Pulau Jemur",
+    "name:ms-Arab": "ڤولاو جمور",
+    "official_name": "Kepenghuluan Pulaujemur",
+    "official_name:en": "Administrative Chieftaincy (Village) of Pulaujemur",
+    "place": "village",
+    "postal_code": "28995",
+    "ref": "14.07.06.2008",
+    "ref:ID:BPS": "1409031007",
+    "wikidata": "Q23988326"
+  }
+},
+{
+  "type": "node",
+  "id": 12329989402,
+  "lat": 2.5014435,
+  "lon": 100.3243179,
+  "tags": {
+    "admin_level": "7",
+    "name": "Teluk Pulai",
+    "name:id": "Teluk Pulai",
+    "name:ms": "Telok Pulai",
+    "name:ms-Arab": "تلوق ڤولاي",
+    "official_name": "Kepenghuluan Telukpulai",
+    "official_name:en": "Administrative Chieftaincy (Village) of Telukpulai",
+    "place": "village",
+    "postal_code": "28995",
+    "ref": "14.07.06.2002",
+    "ref:ID:BPS": "1409031004",
+    "wikidata": "Q12520597"
+  }
+}
+
+  ]
+}

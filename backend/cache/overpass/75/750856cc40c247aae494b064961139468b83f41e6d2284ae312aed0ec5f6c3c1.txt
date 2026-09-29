@@ -1,0 +1,352 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-29T17:08:20Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 262110599,
+  "lat": -10.4635624,
+  "lon": 36.1383772,
+  "tags": {
+    "is_in": "Ruvuma, Tanzania",
+    "name": "Namtumbo",
+    "place": "town"
+  }
+},
+{
+  "type": "node",
+  "id": 2490158061,
+  "lat": -10.5586011,
+  "lon": 35.8654145,
+  "tags": {
+    "name": "Namabengo",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 2490158450,
+  "lat": -10.5490874,
+  "lon": 35.9441212,
+  "tags": {
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 2490194255,
+  "lat": -10.5315459,
+  "lon": 36.0764394,
+  "tags": {
+    "name": "Nahoro",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 2490194265,
+  "lat": -10.5918683,
+  "lon": 36.0447619,
+  "tags": {
+    "name": "Mkongo",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7835305768,
+  "lat": -10.5356384,
+  "lon": 36.0105403,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Luegu",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Luegu"
+  }
+},
+{
+  "type": "node",
+  "id": 7835305769,
+  "lat": -10.5485599,
+  "lon": 35.8610855,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Namabengo",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Namabengo"
+  }
+},
+{
+  "type": "node",
+  "id": 7835305770,
+  "lat": -10.2801676,
+  "lon": 36.0820840,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Mtumbatimaji",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Mgombasi"
+  }
+},
+{
+  "type": "node",
+  "id": 7835305772,
+  "lat": -10.5359751,
+  "lon": 35.9519319,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Kumbara",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Litola"
+  }
+},
+{
+  "type": "node",
+  "id": 7835305775,
+  "lat": -10.5937057,
+  "lon": 36.0772774,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Chengena",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Luchili"
+  }
+},
+{
+  "type": "node",
+  "id": 7835305776,
+  "lat": -10.6205625,
+  "lon": 35.9409216,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Ngwinde",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Litola"
+  }
+},
+{
+  "type": "node",
+  "id": 7835305779,
+  "lat": -10.5888000,
+  "lon": 35.9934205,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Ukiwayuyu",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Luegu"
+  }
+},
+{
+  "type": "node",
+  "id": 7835305782,
+  "lat": -10.5606030,
+  "lon": 35.9266771,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Litola",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Litola"
+  }
+},
+{
+  "type": "node",
+  "id": 7835313489,
+  "lat": -10.5265955,
+  "lon": 36.0744852,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Suluti",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Namtumbo"
+  }
+},
+{
+  "type": "node",
+  "id": 7835313491,
+  "lat": -10.5566173,
+  "lon": 36.2386047,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Masuguru",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Mchomoro"
+  }
+},
+{
+  "type": "node",
+  "id": 7835313497,
+  "lat": -10.4750863,
+  "lon": 36.1469365,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Rwinga",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Rwinga"
+  }
+},
+{
+  "type": "node",
+  "id": 7835313498,
+  "lat": -10.4577209,
+  "lon": 36.1243535,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Minazini",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Rwinga"
+  }
+},
+{
+  "type": "node",
+  "id": 7835313500,
+  "lat": -10.4418095,
+  "lon": 36.1858187,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Mandepwende",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Rwinga"
+  }
+},
+{
+  "type": "node",
+  "id": 7835313502,
+  "lat": -10.4337139,
+  "lon": 36.0466247,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Libango",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Namtumbo"
+  }
+},
+{
+  "type": "node",
+  "id": 7835313508,
+  "lat": -10.4865216,
+  "lon": 35.8983900,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Mbimbi",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Litola"
+  }
+},
+{
+  "type": "node",
+  "id": 7835313509,
+  "lat": -10.6312782,
+  "lon": 36.0576861,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Kilangalanga",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Luchili"
+  }
+},
+{
+  "type": "node",
+  "id": 7835313515,
+  "lat": -10.2810514,
+  "lon": 36.1330280,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Mgombasi",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Mgombasi"
+  }
+},
+{
+  "type": "node",
+  "id": 7835313520,
+  "lat": -10.5944381,
+  "lon": 36.0447121,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Namanguli",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Luchili"
+  }
+},
+{
+  "type": "node",
+  "id": 7835313522,
+  "lat": -10.3749374,
+  "lon": 36.1665192,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Mtonya",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Likuyuseka"
+  }
+},
+{
+  "type": "node",
+  "id": 7835313524,
+  "lat": -10.5290862,
+  "lon": 36.0331984,
+  "tags": {
+    "country": "TZ",
+    "district": "Namtumbo",
+    "name": "Nahoro",
+    "place": "village",
+    "region": "Ruvuma",
+    "ward": "Luegu"
+  }
+},
+{
+  "type": "node",
+  "id": 10295822235,
+  "lat": -10.3495314,
+  "lon": 36.2353391,
+  "tags": {
+    "name": "Mfate",
+    "place": "hamlet"
+  }
+}
+
+  ]
+}

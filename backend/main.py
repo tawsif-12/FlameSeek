@@ -1,14 +1,37 @@
 from __future__ import annotations
 
+import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import APP_NAME, FRONTEND_ORIGINS
+from config import APP_NAME, APP_VERSION, FRONTEND_ORIGINS
 from routers.analysis import router as analysis_router
+from routers.fire_events import list_events
+from routers.fire_events import router as events_router
+from routers.memory import router as memory_router
+from routers.places import router as places_router
 from routers.sources import router as sources_router
 
 
-app = FastAPI(title="Burning Activity Calendar API", version="0.1.0")
+async def _warm_event_set() -> None:
+    """Reconstruct the recent world event set once at startup so the globe's first load is fast."""
+    try:
+        await list_events(bbox=None, days=2, limit=1, min_detections=1)
+        print("event set warmed")
+    except Exception as exc:  # noqa: BLE001 - warm-up is best effort
+        print(f"event warm-up skipped: {exc}")
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    task = asyncio.create_task(_warm_event_set())
+    yield
+    task.cancel()
+
+
+app = FastAPI(title="Burning_Activity API", version=APP_VERSION, lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,15 +42,17 @@ app.add_middleware(
 )
 
 app.include_router(analysis_router, prefix="/api", tags=["analysis"])
+app.include_router(memory_router, prefix="/api", tags=["fire memory"])
+app.include_router(events_router, prefix="/api", tags=["fire events"])
+app.include_router(places_router, prefix="/api", tags=["places and jobs"])
 app.include_router(sources_router, tags=["sources"])
 
 
 @app.get("/")
 async def root() -> dict[str, str]:
-    return {"service": APP_NAME, "message": "Burning Activity Calendar API"}
+    return {"service": APP_NAME, "message": "Burning_Activity API", "version": APP_VERSION}
 
 
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok", "service": APP_NAME}
-

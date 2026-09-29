@@ -1,0 +1,245 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-29T16:43:51Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 150938545,
+  "lat": 37.4660498,
+  "lon": -119.7357154,
+  "tags": {
+    "ele": "912",
+    "gnis:feature_id": "1809330",
+    "name": "Ponderosa Basin",
+    "place": "hamlet",
+    "wikidata": "Q7227704"
+  }
+},
+{
+  "type": "node",
+  "id": 150940090,
+  "lat": 37.5424357,
+  "lon": -119.6448790,
+  "tags": {
+    "ele": "1250",
+    "gnis:feature_id": "275734",
+    "name": "South Wawona",
+    "place": "hamlet",
+    "wikidata": "Q7568814"
+  }
+},
+{
+  "type": "node",
+  "id": 150941015,
+  "lat": 37.4785497,
+  "lon": -119.6404311,
+  "tags": {
+    "ele": "1543",
+    "gnis:feature_id": "260142",
+    "name": "Fish Camp",
+    "name:zh": "优胜美地大溪村",
+    "place": "village",
+    "wikidata": "Q3458389"
+  }
+},
+{
+  "type": "node",
+  "id": 150941523,
+  "lat": 37.6604583,
+  "lon": -119.8526096,
+  "tags": {
+    "ele": "463",
+    "gnis:feature_id": "1656087",
+    "name": "Incline",
+    "place": "hamlet",
+    "wikidata": "Q14682466"
+  }
+},
+{
+  "type": "node",
+  "id": 150945898,
+  "lat": 37.5477132,
+  "lon": -119.6446015,
+  "tags": {
+    "ele": "1256",
+    "gnis:feature_id": "275733",
+    "name": "North Wawona",
+    "place": "hamlet",
+    "wikidata": "Q7057206"
+  }
+},
+{
+  "type": "node",
+  "id": 150946014,
+  "lat": 37.7380882,
+  "lon": -119.5734190,
+  "tags": {
+    "ele": "1220",
+    "gnis:feature_id": "1658360",
+    "name": "Curry Village",
+    "name:en": "Curry Village",
+    "old_name": "Half Dome Village",
+    "place": "village",
+    "wikidata": "Q5195221",
+    "wikipedia": "en:Curry Village"
+  }
+},
+{
+  "type": "node",
+  "id": 150952683,
+  "lat": 37.6407644,
+  "lon": -119.8490623,
+  "tags": {
+    "ele": "481",
+    "gnis:feature_id": "1656072",
+    "name": "Hite Cove",
+    "place": "hamlet",
+    "wikidata": "Q5871882"
+  }
+},
+{
+  "type": "node",
+  "id": 150960311,
+  "lat": 37.5179921,
+  "lon": -119.8351676,
+  "tags": {
+    "ele": "952",
+    "gnis:feature_id": "1659717",
+    "name": "Darrah",
+    "place": "hamlet",
+    "wikidata": "Q14681804"
+  }
+},
+{
+  "type": "node",
+  "id": 150964359,
+  "lat": 37.4627165,
+  "lon": -119.7746066,
+  "tags": {
+    "ele": "901",
+    "gnis:feature_id": "252670",
+    "name": "Elliott Corner",
+    "place": "hamlet",
+    "wikidata": "Q5365636"
+  }
+},
+{
+  "type": "node",
+  "id": 150965288,
+  "lat": 37.6474304,
+  "lon": -119.7185006,
+  "tags": {
+    "ele": "1788",
+    "gnis:feature_id": "252493",
+    "name": "Yosemite West",
+    "place": "hamlet",
+    "wikidata": "Q8055946"
+  }
+},
+{
+  "type": "node",
+  "id": 150968501,
+  "lat": 37.5802976,
+  "lon": -119.8525992,
+  "tags": {
+    "ele": "1152",
+    "gnis:feature_id": "1659737",
+    "name": "Jerseydale",
+    "place": "hamlet",
+    "wikidata": "Q6185016"
+  }
+},
+{
+  "type": "node",
+  "id": 150972258,
+  "lat": 37.5368699,
+  "lon": -119.6549160,
+  "tags": {
+    "ele": "1219",
+    "gnis:feature_id": "1652868",
+    "name": "Wawona",
+    "place": "hamlet",
+    "wikidata": "Q3460942"
+  }
+},
+{
+  "type": "node",
+  "id": 150972557,
+  "lat": 37.6649302,
+  "lon": -119.8673974,
+  "tags": {
+    "ele": "474",
+    "gnis:feature_id": "1655902",
+    "name": "Clearing House",
+    "place": "hamlet",
+    "wikidata": "Q5130862"
+  }
+},
+{
+  "type": "node",
+  "id": 150974034,
+  "lat": 37.4411288,
+  "lon": -119.6337050,
+  "tags": {
+    "ele": "1291",
+    "gnis:feature_id": "1656338",
+    "name": "Sugar Pine",
+    "place": "hamlet",
+    "wikidata": "Q7634885"
+  }
+},
+{
+  "type": "node",
+  "id": 150977105,
+  "lat": 37.6746526,
+  "lon": -119.7840681,
+  "tags": {
+    "ele": "591",
+    "gnis:feature_id": "259813",
+    "name": "El Portal",
+    "place": "hamlet",
+    "wikidata": "Q2855863"
+  }
+},
+{
+  "type": "node",
+  "id": 150977109,
+  "lat": 37.6982612,
+  "lon": -119.7551719,
+  "tags": {
+    "ele": "1315",
+    "gnis:feature_id": "260258",
+    "name": "Foresta",
+    "place": "hamlet",
+    "wikidata": "Q5469208"
+  }
+},
+{
+  "type": "node",
+  "id": 331742981,
+  "lat": 37.7481814,
+  "lon": -119.5868869,
+  "tags": {
+    "name": "Yosemite Village",
+    "place": "village",
+    "wikidata": "Q8055944"
+  }
+},
+{
+  "type": "node",
+  "id": 7164899373,
+  "lat": 37.7442594,
+  "lon": -119.5988320,
+  "tags": {
+    "name": "Yosemite Lodge",
+    "place": "hamlet"
+  }
+}
+
+  ]
+}

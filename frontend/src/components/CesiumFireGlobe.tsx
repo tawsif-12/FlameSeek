@@ -1,52 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import { getCurrentHotspots, getHotspotEvidence, normalizeApiError } from "../api/client";
-import { DEFAULT_SENSORS } from "../context/AppContext";
-import type { HotspotEvidenceResponse, HotspotRecord, SensorName } from "../types/api";
+import { getCurrentHotspots, getEvent, getEvents, lookupEvent, normalizeApiError, searchPlaces } from "../api/client";
+import { DEFAULT_SENSORS, aoiBBox, aoiContains, describeAoi, useAppContext } from "../context/AppContext";
+import type { AOI, FireEvent, FireEventSummary, ForecastHorizon, HotspotRecord, PlaceResult } from "../types/api";
+import EventPanel, { BEHAVIOUR_COLORS } from "./EventPanel";
 
-type FireSensor = "MODIS" | "VIIRS";
-type LayerKey = FireSensor | "Harmonized Activity" | "Anomaly Layer";
+type LayerKey = "MODIS" | "VIIRS" | "Fire Events" | "FRP Columns" | "Forecast Corridor" | "Exposure";
 type LightingMode = "Dawn" | "Day" | "Dusk" | "Night";
 type ThemeMode = "Default" | "Faded" | "Mono" | "Ocean" | "Warm" | "Vivid";
 type EarthMode = "Map" | "3D Terrain" | "Photorealistic";
-type GlobeHotspot = {
-  id: string;
-  latitude: number;
-  longitude: number;
-  acq_date: string;
-  acq_time: string;
-  satellite: string;
-  sensor: FireSensor;
-  confidence: string;
-  frp: number | null;
-  day_night: "D" | "N";
-  grid_id: string;
-  harmonized_activity_index: number;
-  anomaly_score: number;
-  cross_sensor_confirmed?: boolean;
-  merge_distance_km?: number;
-  merge_time_minutes?: number;
-};
+type Period = "1" | "2" | "5" | "historical";
+type ExposureMarker = { lat: number; lon: number; name: string; category: string };
 
-const daylightBackgrounds: Record<LightingMode, string> = {
-  Dawn: "#061f36",
-  Day: "#031529",
-  Dusk: "#071a30",
-  Night: "#020817",
-};
-
+const daylightBackgrounds: Record<LightingMode, string> = { Dawn: "#061f36", Day: "#031529", Dusk: "#071a30", Night: "#020817" };
 const globeBaseColor = Cesium.Color.fromCssColorString("#0b2f63");
-
-const defaultImageryStyle = {
-  alpha: 1,
-  brightness: 1,
-  contrast: 1.02,
-  gamma: 1,
-  hue: 0,
-  saturation: 1,
-};
-
+const defaultImageryStyle = { alpha: 1, brightness: 1, contrast: 1.02, gamma: 1, hue: 0, saturation: 1 };
 const minimumTerrainZoomDistance = 20;
 const minimumMapZoomDistance = 50000;
 
@@ -59,182 +29,80 @@ const locations = {
   Greece: { lat: 38.05, lon: 23.78, height: 750000 },
 };
 
-const nadirOrientation = {
-  heading: 0,
-  pitch: Cesium.Math.toRadians(-90),
-  roll: 0,
-};
+const nadirOrientation = { heading: 0, pitch: Cesium.Math.toRadians(-90), roll: 0 };
+const obliqueOrientation = { heading: Cesium.Math.toRadians(18), pitch: Cesium.Math.toRadians(-52), roll: 0 };
 
-const obliqueOrientation = {
-  heading: Cesium.Math.toRadians(18),
-  pitch: Cesium.Math.toRadians(-52),
-  roll: 0,
-};
-
-const layerDefaults: Record<LayerKey, boolean> = {
-  MODIS: true,
-  VIIRS: true,
-  "Harmonized Activity": true,
-  "Anomaly Layer": true,
-};
-
+const layerDefaults: Record<LayerKey, boolean> = { MODIS: true, VIIRS: true, "Fire Events": true, "FRP Columns": false, "Forecast Corridor": true, Exposure: true };
 const lightingModes: LightingMode[] = ["Dawn", "Day", "Dusk", "Night"];
 const themeModes: ThemeMode[] = ["Default", "Faded", "Mono", "Ocean", "Warm", "Vivid"];
+const periodLabels: Record<Period, string> = { "1": "Last 24 h", "2": "Last 48 h", "5": "Last 5 days", historical: "Historical date" };
+const EXPOSURE_COLORS: Record<string, string> = {
+  settlements: "#f8fafc",
+  schools: "#60a5fa",
+  hospitals: "#f472b6",
+  power: "#facc15",
+  critical_facilities: "#c084fc",
+  agriculture: "#84cc16",
+  forests: "#22c55e",
+  protected_areas: "#14b8a6",
+};
 
-const sceneItems = [
-  { title: "Globe View", detail: "Rotating 3D fire globe" },
-  { title: "Markers", detail: "MODIS and VIIRS detections" },
-  { title: "Harmonized Overlay", detail: "Sensor-aware activity layer" },
-  { title: "Activity Columns", detail: "FRP and anomaly height" },
-  { title: "AOI Focus", detail: "Turn-by-turn location guidance" },
-];
-
-function formatTime(value: string) {
-  return `${value.slice(0, 2)}:${value.slice(2)}`;
+function sensorFamily(sensor: string) {
+  return sensor === "modis" ? "MODIS" : sensor.startsWith("viirs") ? "VIIRS" : sensor.toUpperCase();
 }
 
-function statusForZ(z: number) {
-  if (z >= 3) return "Very unusual";
-  if (z >= 2) return "Unusual";
-  if (z >= 1) return "Elevated";
-  return "Normal";
+function hotspotKey(h: HotspotRecord) {
+  return `hs:${h.sensor}|${h.lat}|${h.lon}|${h.acq_datetime}`;
 }
 
-function colorForHotspot(hotspot: GlobeHotspot, layers: Record<LayerKey, boolean>, useSensorConfirmationColors: boolean) {
-  if (useSensorConfirmationColors) {
-    if (hotspot.cross_sensor_confirmed) return Cesium.Color.RED.withAlpha(0.95);
-    return hotspot.sensor === "MODIS" ? Cesium.Color.LIME.withAlpha(0.95) : Cesium.Color.YELLOW.withAlpha(0.95);
-  }
-  if (layers["Anomaly Layer"] && hotspot.anomaly_score >= 3) return Cesium.Color.MAGENTA.withAlpha(0.95);
-  if (layers["Anomaly Layer"] && hotspot.anomaly_score >= 2) return Cesium.Color.RED.withAlpha(0.95);
-  if (layers["Harmonized Activity"]) return Cesium.Color.ORANGE.withAlpha(0.9);
-  return hotspot.sensor === "VIIRS" ? Cesium.Color.CYAN.withAlpha(0.9) : Cesium.Color.YELLOW.withAlpha(0.9);
+function distanceKm(aLat: number, aLon: number, bLat: number, bLon: number) {
+  const toRad = Math.PI / 180;
+  const h = Math.sin(((bLat - aLat) * toRad) / 2) ** 2 + Math.cos(aLat * toRad) * Math.cos(bLat * toRad) * Math.sin(((bLon - aLon) * toRad) / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
 }
 
-function sensorFamily(sensor: HotspotRecord["sensor"]): FireSensor {
-  return sensor === "modis" ? "MODIS" : "VIIRS";
-}
-
-function sensorNameForHotspot(hotspot: GlobeHotspot): SensorName {
-  if (hotspot.sensor === "MODIS") return "modis";
-  if (hotspot.satellite.toLowerCase().includes("noaa-20")) return "viirs_noaa20";
-  if (hotspot.satellite.toLowerCase().includes("noaa-21")) return "viirs_noaa21";
-  return "viirs_snpp";
-}
-
-function hotspotToEvidencePayload(hotspot: GlobeHotspot, refresh = false): HotspotRecord & { refresh?: boolean } {
-  return {
-    lat: hotspot.latitude,
-    lon: hotspot.longitude,
-    acq_datetime: `${hotspot.acq_date}T${formatTime(hotspot.acq_time)}:00Z`,
-    confidence_pct: hotspot.confidence === "High" ? 90 : hotspot.confidence === "Nominal" ? 60 : Number.parseFloat(hotspot.confidence) || 0,
-    frp: hotspot.frp,
-    sensor: sensorNameForHotspot(hotspot),
-    satellite: hotspot.satellite,
-    daynight: hotspot.day_night,
-    refresh,
-  };
-}
-
-function timeFromIso(value: string) {
-  const date = new Date(value);
-  return `${String(date.getUTCHours()).padStart(2, "0")}${String(date.getUTCMinutes()).padStart(2, "0")}`;
-}
-
-function liveHotspotToGlobeHotspot(record: HotspotRecord, index: number): GlobeHotspot {
-  const date = new Date(record.acq_datetime);
-  const confidence = record.confidence_pct >= 80 ? "High" : record.confidence_pct >= 50 ? "Nominal" : `${record.confidence_pct.toFixed(0)}%`;
-  const frp = record.frp ?? 0;
-  return {
-    id: `live-${record.sensor}-${index}-${record.lat.toFixed(4)}-${record.lon.toFixed(4)}-${record.acq_datetime}`,
-    latitude: record.lat,
-    longitude: record.lon,
-    acq_date: date.toISOString().slice(0, 10),
-    acq_time: timeFromIso(record.acq_datetime),
-    satellite: record.satellite || record.sensor.toUpperCase(),
-    sensor: sensorFamily(record.sensor),
-    confidence,
-    frp: record.frp,
-    day_night: record.daynight === "N" ? "N" : "D",
-    grid_id: `${record.lat.toFixed(2)}_${record.lon.toFixed(2)}`,
-    harmonized_activity_index: Math.max(0.4, Math.min(4, frp / 20)),
-    anomaly_score: Math.max(0.4, Math.min(4, frp / 15)),
-  };
-}
-
-function hotspotTimestamp(hotspot: GlobeHotspot) {
-  return new Date(`${hotspot.acq_date}T${formatTime(hotspot.acq_time)}:00Z`).getTime();
-}
-
-function distanceKm(a: GlobeHotspot, b: GlobeHotspot) {
-  const radiusKm = 6371;
-  const lat1 = Cesium.Math.toRadians(a.latitude);
-  const lat2 = Cesium.Math.toRadians(b.latitude);
-  const deltaLat = Cesium.Math.toRadians(b.latitude - a.latitude);
-  const deltaLon = Cesium.Math.toRadians(b.longitude - a.longitude);
-  const sinLat = Math.sin(deltaLat / 2);
-  const sinLon = Math.sin(deltaLon / 2);
-  const h = sinLat * sinLat + Math.cos(lat1) * Math.cos(lat2) * sinLon * sinLon;
-  return radiusKm * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
-}
-
-function markCrossSensorConfirmed(hotspots: GlobeHotspot[]) {
-  const maxDistanceKm = 15;
-  const maxTimeMinutes = 360;
-  const modis = hotspots.filter((hotspot) => hotspot.sensor === "MODIS");
-  const viirs = hotspots.filter((hotspot) => hotspot.sensor === "VIIRS");
-
-  return hotspots.map((hotspot) => ({
-    ...hotspot,
-    ...nearestOppositeSensorConfirmation(hotspot, hotspot.sensor === "MODIS" ? viirs : modis, maxDistanceKm, maxTimeMinutes),
-  }));
-}
-
-function nearestOppositeSensorConfirmation(hotspot: GlobeHotspot, candidates: GlobeHotspot[], maxDistanceKm: number, maxTimeMinutes: number) {
-  let best: { distance: number; minutes: number } | null = null;
-  const hotspotTime = hotspotTimestamp(hotspot);
-  for (const candidate of candidates) {
-    const minutes = Math.abs(hotspotTime - hotspotTimestamp(candidate)) / 60000;
-    if (minutes > maxTimeMinutes) continue;
-    const distance = distanceKm(hotspot, candidate);
-    if (distance > maxDistanceKm) continue;
-    if (!best || distance < best.distance || (distance === best.distance && minutes < best.minutes)) {
-      best = { distance, minutes };
+/** Mark detections with an opposite-family detection within 15 km and 6 h (cross-sensor confirmation colour). */
+function crossSensorSet(hotspots: HotspotRecord[]) {
+  const confirmed = new Set<string>();
+  const grid = new Map<string, HotspotRecord[]>();
+  const cellOf = (h: HotspotRecord) => `${Math.floor(h.lat / 0.15)}|${Math.floor(h.lon / 0.15)}`;
+  hotspots.forEach((h) => {
+    const k = cellOf(h);
+    grid.set(k, [...(grid.get(k) ?? []), h]);
+  });
+  hotspots.forEach((h) => {
+    const [ci, cj] = cellOf(h).split("|").map(Number);
+    const t = new Date(h.acq_datetime).getTime();
+    for (let di = -1; di <= 1; di += 1) {
+      for (let dj = -1; dj <= 1; dj += 1) {
+        for (const o of grid.get(`${ci + di}|${cj + dj}`) ?? []) {
+          if (sensorFamily(o.sensor) === sensorFamily(h.sensor)) continue;
+          if (Math.abs(new Date(o.acq_datetime).getTime() - t) > 6 * 3600000) continue;
+          if (distanceKm(h.lat, h.lon, o.lat, o.lon) <= 15) {
+            confirmed.add(hotspotKey(h));
+            return;
+          }
+        }
+      }
     }
-  }
-  return {
-    cross_sensor_confirmed: Boolean(best),
-    merge_distance_km: best ? Number(best.distance.toFixed(1)) : undefined,
-    merge_time_minutes: best ? Math.round(best.minutes) : undefined,
-  };
+  });
+  return confirmed;
 }
 
-function sensorCountLabel(metadata: Record<string, unknown>) {
-  const counts = metadata.returned_by_sensor;
-  if (!counts || typeof counts !== "object") return "";
-  const bySensor = counts as Record<string, number>;
-  const modis = bySensor.modis ?? 0;
-  const viirs = (bySensor.viirs_snpp ?? 0) + (bySensor.viirs_noaa20 ?? 0) + (bySensor.viirs_noaa21 ?? 0);
-  return ` (${modis.toLocaleString()} MODIS, ${viirs.toLocaleString()} VIIRS)`;
+function hotspotColor(h: HotspotRecord, confirmed: Set<string>, sensorColors: boolean) {
+  if (sensorColors) {
+    if (confirmed.has(hotspotKey(h))) return Cesium.Color.RED.withAlpha(0.95);
+    return h.sensor === "modis" ? Cesium.Color.LIME.withAlpha(0.95) : Cesium.Color.YELLOW.withAlpha(0.95);
+  }
+  const frp = h.frp ?? 0;
+  if (frp >= 100) return Cesium.Color.fromCssColorString("#b91c1c");
+  if (frp >= 30) return Cesium.Color.fromCssColorString("#ea580c");
+  if (frp >= 10) return Cesium.Color.fromCssColorString("#f59e0b");
+  return Cesium.Color.fromCssColorString("#fde68a");
 }
 
 function themeClass(theme: ThemeMode) {
   return `theme-${theme.toLowerCase()}`;
-}
-
-function closeZoomLimitForMode(mode: EarthMode) {
-  return mode === "Map" ? minimumMapZoomDistance : minimumTerrainZoomDistance;
-}
-
-function cameraHeightForLocation(name: keyof typeof locations, mode: EarthMode) {
-  const location = locations[name];
-  if (name === "Atlantic View") return location.height;
-  return mode === "Map" ? location.height : Math.min(location.height, 1250000);
-}
-
-function cameraOrientationForLocation(name: keyof typeof locations, mode: EarthMode) {
-  if (name === "Atlantic View" || mode === "Map") return nadirOrientation;
-  return obliqueOrientation;
 }
 
 function configureCameraController(viewer: Cesium.Viewer, mode: EarthMode) {
@@ -246,7 +114,7 @@ function configureCameraController(viewer: Cesium.Viewer, mode: EarthMode) {
   controller.enableLook = true;
   controller.enableTranslate = true;
   controller.enableCollisionDetection = mode !== "Map";
-  controller.minimumZoomDistance = closeZoomLimitForMode(mode);
+  controller.minimumZoomDistance = mode === "Map" ? minimumMapZoomDistance : minimumTerrainZoomDistance;
   controller.maximumZoomDistance = 30000000;
   controller.inertiaSpin = 0.85;
   controller.inertiaTranslate = 0.9;
@@ -272,6 +140,7 @@ function isPositionVisibleFromCamera(position: Cesium.Cartesian3, cameraPosition
   return Cesium.Cartesian3.dot(pointDirection, cameraDirection) > -0.08;
 }
 
+/** Hide entities on the far side of the Earth so the globe reads as a solid planet. */
 function updateHotspotOcclusion(viewer: Cesium.Viewer) {
   viewer.entities.values.forEach((entity) => {
     if (!entity.position) return;
@@ -281,26 +150,53 @@ function updateHotspotOcclusion(viewer: Cesium.Viewer) {
   viewer.scene.requestRender();
 }
 
+function aoiOutline(aoi: AOI): number[][] {
+  if (aoi.center && aoi.radius_km) {
+    const [lon, lat] = aoi.center;
+    return Array.from({ length: 73 }, (_, i) => {
+      const a = (i / 72) * 2 * Math.PI;
+      return [lon + (aoi.radius_km! / (111.32 * Math.cos((lat * Math.PI) / 180))) * Math.sin(a), lat + (aoi.radius_km! / 111.32) * Math.cos(a)];
+    });
+  }
+  if (aoi.geometry) {
+    return aoi.geometry.type === "Polygon" ? (aoi.geometry.coordinates as number[][][])[0] : (aoi.geometry.coordinates as number[][][][]).sort((a, b) => b[0].length - a[0].length)[0][0];
+  }
+  const b = aoiBBox(aoi)!;
+  return [[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]], [b[0], b[1]]];
+}
+
 export default function CesiumFireGlobe() {
+  const { aoi, setAoi } = useAppContext();
+  const [searchParams, setSearchParams] = useSearchParams();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const [layers, setLayers] = useState<Record<LayerKey, boolean>>(layerDefaults);
   const [selectedLocation, setSelectedLocation] = useState<keyof typeof locations>("Atlantic View");
-  const [metric, setMetric] = useState("Anomaly score");
   const [lighting, setLighting] = useState<LightingMode>("Day");
   const [theme, setTheme] = useState<ThemeMode>("Default");
   const [showImagery, setShowImagery] = useState(true);
   const [earthMode, setEarthMode] = useState<EarthMode>("3D Terrain");
-  const [showFirePoints, setShowFirePoints] = useState(true);
-  const [useSensorConfirmationColors, setUseSensorConfirmationColors] = useState(true);
+  const [sensorColors, setSensorColors] = useState(true);
   const [showBuildings, setShowBuildings] = useState(true);
   const [tilesStatus, setTilesStatus] = useState<string | null>(null);
-  const [selectedHotspot, setSelectedHotspot] = useState<GlobeHotspot | null>(null);
-  const [hotspotEvidence, setHotspotEvidence] = useState<HotspotEvidenceResponse | null>(null);
-  const [evidenceLoading, setEvidenceLoading] = useState(false);
-  const [evidenceError, setEvidenceError] = useState<string | null>(null);
-  const [hotspots, setHotspots] = useState<GlobeHotspot[]>([]);
+  const [period, setPeriod] = useState<Period>("1");
+  const [historicalDate, setHistoricalDate] = useState(() => new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10));
+  const [hotspots, setHotspots] = useState<HotspotRecord[]>([]);
+  const [events, setEvents] = useState<FireEventSummary[]>([]);
+  const [eventMeta, setEventMeta] = useState<Record<string, unknown>>({});
   const [dataStatus, setDataStatus] = useState("Loading live FIRMS MODIS/VIIRS data...");
+  const [eventStatus, setEventStatus] = useState<string | null>(null);
+  const [filterToAoi, setFilterToAoi] = useState(false);
+  const [drawing, setDrawing] = useState(false);
+  const [drawPoints, setDrawPoints] = useState<number[][]>([]);
+  const [placeQuery, setPlaceQuery] = useState("");
+  const [placeResults, setPlaceResults] = useState<PlaceResult[]>([]);
+  const [radiusKm, setRadiusKm] = useState(50);
+  const [selectedEvent, setSelectedEvent] = useState<FireEvent | null>(null);
+  const [selectedDetection, setSelectedDetection] = useState<HotspotRecord | null>(null);
+  const [selectionStatus, setSelectionStatus] = useState<string | null>(null);
+  const [forecast, setForecast] = useState<{ horizon: ForecastHorizon | null; size: number }>({ horizon: null, size: 0 });
+  const [exposure, setExposure] = useState<ExposureMarker[]>([]);
   const [viewerReady, setViewerReady] = useState(false);
   const [viewerError, setViewerError] = useState<string | null>(null);
   const buildingsRef = useRef<Cesium.Cesium3DTileset | null>(null);
@@ -308,37 +204,53 @@ export default function CesiumFireGlobe() {
   const photorealisticLoadingRef = useRef(false);
   const terrainRef = useRef<Cesium.TerrainProvider | null>(null);
   const ellipsoidTerrainRef = useRef<Cesium.EllipsoidTerrainProvider | null>(null);
-  const hotspotsRef = useRef<GlobeHotspot[]>(hotspots);
+  const lookupRef = useRef<Map<string, HotspotRecord>>(new Map());
+  const drawingRef = useRef(false);
   const removeCameraOcclusionRef = useRef<Cesium.Event.RemoveCallback | null>(null);
-  const visibleHotspots = useMemo(() => hotspots.filter((hotspot) => layers[hotspot.sensor]), [hotspots, layers]);
+
+  const visibleHotspots = useMemo(
+    () => hotspots.filter((h) => layers[sensorFamily(h.sensor) as "MODIS" | "VIIRS"] && (!filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon))),
+    [hotspots, layers, filterToAoi, aoi],
+  );
+  const visibleEvents = useMemo(
+    () => events.filter((e) => e.observation_count >= 3 && (!filterToAoi || !aoi || aoiContains(aoi, e.centroid.lat, e.centroid.lon))),
+    [events, filterToAoi, aoi],
+  );
+  const confirmed = useMemo(() => crossSensorSet(hotspots), [hotspots]);
 
   useEffect(() => {
-    hotspotsRef.current = hotspots;
-  }, [hotspots]);
+    drawingRef.current = drawing;
+  }, [drawing]);
 
-  async function loadLiveHotspots() {
-    setDataStatus("Loading live FIRMS MODIS/VIIRS data...");
+  async function loadData() {
+    const historical = period === "historical";
+    const days = historical ? 1 : Number(period);
+    setDataStatus(historical ? `Loading archived detections for ${historicalDate}...` : `Loading FIRMS detections (${periodLabels[period].toLowerCase()})...`);
     try {
-      let response = await getCurrentHotspots(DEFAULT_SENSORS, 1, 3000);
-      let daysLoaded = 1;
-      if (response.hotspots.length === 0) {
-        setDataStatus("No FIRMS detections in the last day. Checking the last 5 days...");
-        response = await getCurrentHotspots(DEFAULT_SENSORS, 5, 3000);
-        daysLoaded = 5;
-      }
-      const liveRows = markCrossSensorConfirmed(response.hotspots.map(liveHotspotToGlobeHotspot));
-      if (liveRows.length === 0) {
-        setHotspots([]);
-        setSelectedHotspot(null);
-        setDataStatus("No live FIRMS detections were returned for the last 5 days.");
-        return;
-      }
-      setHotspots(liveRows);
-      setDataStatus(`Live FIRMS data: ${liveRows.length.toLocaleString()} detections from the last ${daysLoaded === 1 ? "day" : "5 days"}${sensorCountLabel(response.metadata)}.`);
+      const response = await getCurrentHotspots(DEFAULT_SENSORS, days, 4000, historical ? historicalDate : undefined);
+      setHotspots(response.hotspots);
+      const m = response.metadata as Record<string, number | string>;
+      setDataStatus(
+        `${historical ? `Archive ${historicalDate}` : periodLabels[period]}: ${Number(m.filtered_hotspot_count).toLocaleString()} detections, showing the ${Number(m.returned_hotspot_count).toLocaleString()} strongest by FRP.`,
+      );
     } catch (error) {
       setHotspots([]);
-      setSelectedHotspot(null);
-      setDataStatus(`Live FIRMS unavailable: ${normalizeApiError(error)}`);
+      setDataStatus(`FIRMS unavailable: ${normalizeApiError(error)}`);
+    }
+    if (historical) {
+      setEvents([]);
+      setEventStatus("Event reconstruction runs on recent data. Use Fire Memory for historical events in an area.");
+      return;
+    }
+    setEventStatus("Reconstructing fire events...");
+    try {
+      const response = await getEvents(Math.max(2, days));
+      setEvents(response.events);
+      setEventMeta(response.metadata);
+      setEventStatus(`${Number(response.metadata.multi_detection_events).toLocaleString()} multi-detection events from ${Number(response.metadata.detections).toLocaleString()} detections.`);
+    } catch (error) {
+      setEvents([]);
+      setEventStatus(`Event reconstruction unavailable: ${normalizeApiError(error)}`);
     }
   }
 
@@ -353,39 +265,47 @@ export default function CesiumFireGlobe() {
 
   async function loadPhotorealisticTiles(viewer: Cesium.Viewer) {
     if (photorealisticTilesRef.current || photorealisticLoadingRef.current) return;
-
     photorealisticLoadingRef.current = true;
     setTilesStatus("Loading photorealistic 3D tiles...");
-
     try {
       const googleMapsKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
       const tileset = await Cesium.createGooglePhotorealistic3DTileset(
-        {
-          key: googleMapsKey || undefined,
-          onlyUsingWithGoogleGeocoder: true,
-        },
-        {
-          show: earthMode === "Photorealistic",
-          maximumScreenSpaceError: 4,
-          dynamicScreenSpaceError: false,
-          skipLevelOfDetail: false,
-          enableCollision: true,
-          immediatelyLoadDesiredLevelOfDetail: true,
-        },
+        { key: googleMapsKey || undefined, onlyUsingWithGoogleGeocoder: true },
+        { show: earthMode === "Photorealistic", maximumScreenSpaceError: 4, dynamicScreenSpaceError: false, skipLevelOfDetail: false, enableCollision: true, immediatelyLoadDesiredLevelOfDetail: true },
       );
-
       if (viewer.isDestroyed()) return;
-
       tileset.show = earthMode === "Photorealistic";
       viewer.scene.primitives.add(tileset);
       photorealisticTilesRef.current = tileset;
-      viewer.scene.globe.show = earthMode !== "Photorealistic" ? true : false;
+      viewer.scene.globe.show = earthMode !== "Photorealistic";
       setTilesStatus(null);
       viewer.scene.requestRender();
     } catch (error) {
       setTilesStatus(error instanceof Error ? error.message : "Photorealistic 3D tiles are unavailable for this key.");
     } finally {
       photorealisticLoadingRef.current = false;
+    }
+  }
+
+  async function openEvent(eventId: string, detection: HotspotRecord | null) {
+    setSelectionStatus("Loading fire event...");
+    try {
+      const ev = await getEvent(eventId);
+      setSelectedEvent(ev);
+      setSelectedDetection(detection);
+      setSelectionStatus(null);
+    } catch (error) {
+      setSelectionStatus(normalizeApiError(error));
+    }
+  }
+
+  async function openDetection(h: HotspotRecord) {
+    setSelectionStatus("Finding the fire event this detection belongs to...");
+    try {
+      const eventId = await lookupEvent(h.sensor, h.lat, h.lon, h.acq_datetime);
+      await openEvent(eventId, h);
+    } catch (error) {
+      setSelectionStatus(`${normalizeApiError(error)} Historical-date detections are not linked into events.`);
     }
   }
 
@@ -401,15 +321,10 @@ export default function CesiumFireGlobe() {
           setViewerError("3D map container is not ready yet.");
           return;
         }
-
         const cesiumIonToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
-        if (cesiumIonToken) {
-          Cesium.Ion.defaultAccessToken = cesiumIonToken;
-        }
-
+        if (cesiumIonToken) Cesium.Ion.defaultAccessToken = cesiumIonToken;
         const ellipsoidTerrain = new Cesium.EllipsoidTerrainProvider();
         ellipsoidTerrainRef.current = ellipsoidTerrain;
-
         const worldImageryProvider = cesiumIonToken
           ? await Cesium.createWorldImageryAsync({ style: Cesium.IonWorldImageryStyle.AERIAL })
           : await Cesium.TileMapServiceImageryProvider.fromUrl(Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII"));
@@ -425,15 +340,32 @@ export default function CesiumFireGlobe() {
           selectionIndicator: true,
           timeline: false,
           infoBox: false,
+          navigationInstructionsInitiallyVisible: false,
           terrainProvider: ellipsoidTerrain,
           requestRenderMode: true,
           maximumRenderTimeChange: Infinity,
         });
+        viewer.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 
         viewer.selectedEntityChanged.addEventListener((entity) => {
-          const hotspot = hotspotsRef.current.find((record) => record.id === entity?.id);
-          setSelectedHotspot(hotspot ?? null);
+          if (drawingRef.current || !entity) return;
+          const id = String(entity.id);
+          if (id.startsWith("hs:")) {
+            const h = lookupRef.current.get(id.split("#")[0]);
+            if (h) void openDetection(h);
+          } else if (id.startsWith("ev:")) {
+            void openEvent(id.slice(3).split("#")[0], null);
+          }
         });
+
+        const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+        handler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
+          if (!drawingRef.current) return;
+          const cartesian = viewer.camera.pickEllipsoid(click.position, viewer.scene.globe.ellipsoid);
+          if (!cartesian) return;
+          const c = Cesium.Cartographic.fromCartesian(cartesian);
+          setDrawPoints((pts) => [...pts, [Cesium.Math.toDegrees(c.longitude), Cesium.Math.toDegrees(c.latitude)]]);
+        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
         viewer.scene.renderError.addEventListener((_scene, error) => {
           const message = error instanceof Error ? error.message : String(error);
@@ -451,13 +383,11 @@ export default function CesiumFireGlobe() {
         viewer.scene.globe.enableLighting = false;
         viewer.scene.globe.showGroundAtmosphere = true;
         viewer.scene.globe.atmosphereLightIntensity = 5;
-        viewer.scene.globe.atmosphereHueShift = 0;
         viewer.scene.globe.atmosphereSaturationShift = -0.45;
         viewer.scene.globe.atmosphereBrightnessShift = -0.08;
         configureCameraController(viewer, earthMode);
         viewer.scene.backgroundColor = Cesium.Color.fromCssColorString(daylightBackgrounds.Day);
         if (viewer.scene.skyAtmosphere) {
-          viewer.scene.skyAtmosphere.hueShift = 0;
           viewer.scene.skyAtmosphere.saturationShift = -0.55;
           viewer.scene.skyAtmosphere.brightnessShift = -0.15;
         }
@@ -467,10 +397,7 @@ export default function CesiumFireGlobe() {
           destination: Cesium.Cartesian3.fromDegrees(locations["Atlantic View"].lon, locations["Atlantic View"].lat, locations["Atlantic View"].height),
           orientation: nadirOrientation,
         });
-
-        const updateVisibleHotspots = () => updateHotspotOcclusion(viewer);
-        removeCameraOcclusionRef.current = viewer.camera.changed.addEventListener(updateVisibleHotspots);
-
+        removeCameraOcclusionRef.current = viewer.camera.changed.addEventListener(() => updateHotspotOcclusion(viewer));
         viewerRef.current = viewer;
         setViewerError(null);
         setViewerReady(true);
@@ -480,13 +407,10 @@ export default function CesiumFireGlobe() {
             .then((terrainProvider) => {
               if (disposed || viewer.isDestroyed()) return;
               terrainRef.current = terrainProvider;
-              if (earthMode !== "Map") {
-                viewer.terrainProvider = terrainProvider;
-              }
+              if (earthMode !== "Map") viewer.terrainProvider = terrainProvider;
               viewer.scene.requestRender();
             })
             .catch(() => undefined);
-
           void Cesium.createOsmBuildingsAsync()
             .then((buildings) => {
               if (disposed || viewer.isDestroyed()) return;
@@ -503,7 +427,6 @@ export default function CesiumFireGlobe() {
     }
 
     void initializeViewer();
-
     return () => {
       disposed = true;
       setViewerReady(false);
@@ -517,42 +440,44 @@ export default function CesiumFireGlobe() {
       terrainRef.current = null;
       ellipsoidTerrainRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    void loadLiveHotspots();
-  }, []);
+    void loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period, historicalDate]);
 
+  // Deep link: /fire-map?event=EV-XXXX opens that event once events are loaded.
   useEffect(() => {
-    if (!selectedHotspot) {
-      setHotspotEvidence(null);
-      setEvidenceError(null);
-      setEvidenceLoading(false);
-      return;
+    const linked = searchParams.get("event");
+    if (!linked || !viewerReady || events.length === 0 || selectedEvent?.event_id === linked) return;
+    const summary = events.find((e) => e.event_id === linked);
+    if (summary) {
+      const pad = 0.4;
+      flyToBBox([summary.bbox[0] - pad, summary.bbox[1] - pad, summary.bbox[2] + pad, summary.bbox[3] + pad]);
     }
-    void loadEvidence(false);
-  }, [selectedHotspot]);
+    void openEvent(linked, null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events, viewerReady]);
 
-  async function loadEvidence(refresh: boolean) {
-    if (!selectedHotspot) return;
-    setEvidenceLoading(true);
-    setEvidenceError(null);
-    try {
-      const evidence = await getHotspotEvidence(hotspotToEvidencePayload(selectedHotspot, refresh));
-      setHotspotEvidence(evidence);
-    } catch (error) {
-      setEvidenceError(normalizeApiError(error));
-    } finally {
-      setEvidenceLoading(false);
+  const hadEventRef = useRef(false);
+  useEffect(() => {
+    if (selectedEvent) {
+      hadEventRef.current = true;
+      setSearchParams({ event: selectedEvent.event_id }, { replace: true });
+    } else if (hadEventRef.current) {
+      // Only clear the link when the user closes an open event, not before a linked one loads.
+      hadEventRef.current = false;
+      setSearchParams({}, { replace: true });
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedEvent]);
 
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer) return;
     viewer.scene.backgroundColor = Cesium.Color.fromCssColorString(daylightBackgrounds[lighting]);
-    viewer.scene.globe.enableLighting = false;
-    viewer.scene.globe.baseColor = globeBaseColor;
     viewer.scene.requestRender();
   }, [lighting, viewerReady]);
 
@@ -569,132 +494,263 @@ export default function CesiumFireGlobe() {
       baseLayer.gamma = theme === "Warm" ? 0.98 : defaultImageryStyle.gamma;
       baseLayer.hue = theme === "Ocean" ? -0.02 : theme === "Warm" ? 0.025 : defaultImageryStyle.hue;
     }
-    if (buildingsRef.current) {
-      buildingsRef.current.show = earthMode === "3D Terrain" && showBuildings;
-    }
-    if (photorealisticTilesRef.current) {
-      photorealisticTilesRef.current.show = earthMode === "Photorealistic";
-    }
+    if (buildingsRef.current) buildingsRef.current.show = earthMode === "3D Terrain" && showBuildings;
+    if (photorealisticTilesRef.current) photorealisticTilesRef.current.show = earthMode === "Photorealistic";
     viewer.scene.requestRender();
   }, [earthMode, lighting, showBuildings, showImagery, theme, viewerReady]);
 
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer) return;
-
-    if (earthMode === "Photorealistic") {
-      void loadPhotorealisticTiles(viewer);
-    }
-
+    if (earthMode === "Photorealistic") void loadPhotorealisticTiles(viewer);
     const terrainProvider = earthMode === "Map" ? ellipsoidTerrainRef.current : terrainRef.current;
-    if (terrainProvider) {
-      viewer.terrainProvider = terrainProvider;
-    }
-
+    if (terrainProvider) viewer.terrainProvider = terrainProvider;
     configureCameraController(viewer, earthMode);
-    viewer.scene.globe.depthTestAgainstTerrain = true;
     viewer.scene.globe.show = earthMode !== "Photorealistic" || !photorealisticTilesRef.current;
-
-    if (buildingsRef.current) {
-      buildingsRef.current.show = earthMode === "3D Terrain" && showBuildings;
-    }
-
-    if (photorealisticTilesRef.current) {
-      photorealisticTilesRef.current.show = earthMode === "Photorealistic";
-    }
-
     viewer.scene.requestRender();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [earthMode, viewerReady]);
 
+  // Rebuild all overlay entities whenever data, layers, AOI or selection change.
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer) return;
-
     viewer.entities.removeAll();
-    if (!showFirePoints) {
-      viewer.scene.requestRender();
-      return;
-    }
-    visibleHotspots.forEach((hotspot) => {
-      const anomalyHeight = Math.max(25000, hotspot.anomaly_score * 65000);
+    lookupRef.current = new Map();
+
+    visibleHotspots.forEach((h) => {
+      const id = hotspotKey(h);
+      lookupRef.current.set(id, h);
+      const color = hotspotColor(h, confirmed, sensorColors);
       viewer.entities.add({
-        id: hotspot.id,
-        name: "Active Fire Detection",
-        position: Cesium.Cartesian3.fromDegrees(hotspot.longitude, hotspot.latitude, 0),
-        point: {
-          pixelSize: hotspot.sensor === "VIIRS" ? 11 : 14,
-          color: colorForHotspot(hotspot, layers, useSensorConfirmationColors),
-          outlineColor: Cesium.Color.WHITE.withAlpha(0.9),
-          outlineWidth: 2,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          disableDepthTestDistance: 0,
-        },
-        cylinder: layers["Harmonized Activity"]
-          ? {
-              length: metric === "FRP" ? (hotspot.frp ?? 1) * 2200 : anomalyHeight,
-              topRadius: 18000,
-              bottomRadius: 18000,
-              material: colorForHotspot(hotspot, layers, useSensorConfirmationColors).withAlpha(0.42),
-              outline: true,
-              outlineColor: Cesium.Color.WHITE.withAlpha(0.25),
-              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-            }
+        id,
+        name: `${sensorFamily(h.sensor)} detection`,
+        position: Cesium.Cartesian3.fromDegrees(h.lon, h.lat, 0),
+        point: { pixelSize: h.sensor === "modis" ? 9 : 7, color, outlineColor: Cesium.Color.BLACK.withAlpha(0.6), outlineWidth: 1, heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance: 0 },
+        cylinder: layers["FRP Columns"]
+          ? { length: Math.max(8000, (h.frp ?? 1) * 1500), topRadius: 9000, bottomRadius: 9000, material: color.withAlpha(0.4), heightReference: Cesium.HeightReference.CLAMP_TO_GROUND }
           : undefined,
       });
     });
+
+    if (layers["Fire Events"]) {
+      visibleEvents.forEach((e) => {
+        const color = Cesium.Color.fromCssColorString(BEHAVIOUR_COLORS[e.behaviour_state] ?? "#e2e8f0");
+        const selected = selectedEvent?.event_id === e.event_id;
+        viewer.entities.add({
+          id: `ev:${e.event_id}`,
+          name: `Fire event (${e.behaviour_state})`,
+          position: Cesium.Cartesian3.fromDegrees(e.centroid.lon, e.centroid.lat, 0),
+          point: { pixelSize: Math.min(22, 8 + Math.log2(e.observation_count) * 2), color: color.withAlpha(0.25), outlineColor: color, outlineWidth: selected ? 4 : 2, heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance: 0 },
+        });
+        if (e.hull.length >= 3) {
+          viewer.entities.add({
+            id: `ev:${e.event_id}#hull`,
+            position: Cesium.Cartesian3.fromDegrees(e.centroid.lon, e.centroid.lat, 0),
+            polyline: { positions: Cesium.Cartesian3.fromDegreesArray([...e.hull, e.hull[0]].flat()), width: selected ? 3 : 1.5, material: color, clampToGround: true },
+          });
+        }
+      });
+    }
+
+    // Selected event: every linked detection with its approximate pixel footprint (scan x track).
+    if (selectedEvent) {
+      selectedEvent.detections.forEach((d, i) => {
+        const scan = d.scan_km && d.scan_km <= 6 ? d.scan_km : d.sensor === "modis" ? 1 : 0.375;
+        const track = d.track_km && d.track_km <= 6 ? d.track_km : d.sensor === "modis" ? 1 : 0.375;
+        const halfLat = track / 2 / 111.32;
+        const halfLon = scan / 2 / (111.32 * Math.max(Math.cos((d.lat * Math.PI) / 180), 0.01));
+        const color = d.sensor === "modis" ? Cesium.Color.LIME : Cesium.Color.YELLOW;
+        const id = `hs:${d.sensor}|${d.lat}|${d.lon}|${d.acq_datetime}`;
+        lookupRef.current.set(id, d);
+        viewer.entities.add({
+          id: `${id}#fp${i}`,
+          position: Cesium.Cartesian3.fromDegrees(d.lon, d.lat, 0),
+          rectangle: { coordinates: Cesium.Rectangle.fromDegrees(d.lon - halfLon, d.lat - halfLat, d.lon + halfLon, d.lat + halfLat), material: color.withAlpha(0.35) },
+        });
+      });
+    }
+
+    if (aoi) {
+      const outline = aoiOutline(aoi);
+      const b = aoiBBox(aoi)!;
+      viewer.entities.add({
+        id: "aoi:outline",
+        position: Cesium.Cartesian3.fromDegrees((b[0] + b[2]) / 2, (b[1] + b[3]) / 2, 0),
+        polyline: { positions: Cesium.Cartesian3.fromDegreesArray(outline.flat()), width: 2.5, material: new Cesium.PolylineDashMaterialProperty({ color: Cesium.Color.fromCssColorString("#f97316") }), clampToGround: true },
+      });
+    }
+    if (drawPoints.length > 0) {
+      viewer.entities.add({
+        id: "aoi:draft",
+        position: Cesium.Cartesian3.fromDegrees(drawPoints[0][0], drawPoints[0][1], 0),
+        polyline: drawPoints.length > 1 ? { positions: Cesium.Cartesian3.fromDegreesArray(drawPoints.flat()), width: 2, material: Cesium.Color.ORANGE, clampToGround: true } : undefined,
+        point: { pixelSize: 8, color: Cesium.Color.ORANGE },
+      });
+    }
+
+    if (layers["Forecast Corridor"] && forecast.horizon) {
+      const half = forecast.size / 2;
+      forecast.horizon.cells.forEach((c, i) => {
+        const color = c.p >= 0.6 ? "#b91c1c" : c.p >= 0.3 ? "#f97316" : "#fde047";
+        viewer.entities.add({
+          id: `fc:${i}`,
+          position: Cesium.Cartesian3.fromDegrees(c.lon, c.lat, 0),
+          rectangle: { coordinates: Cesium.Rectangle.fromDegrees(c.lon - half, c.lat - half, c.lon + half, c.lat + half), material: Cesium.Color.fromCssColorString(color).withAlpha(0.2 + 0.5 * c.p) },
+        });
+      });
+    }
+
+    if (layers.Exposure) {
+      exposure.forEach((x, i) => {
+        viewer.entities.add({
+          id: `ex:${i}`,
+          name: x.name,
+          position: Cesium.Cartesian3.fromDegrees(x.lon, x.lat, 0),
+          point: { pixelSize: 6, color: Cesium.Color.fromCssColorString(EXPOSURE_COLORS[x.category] ?? "#e2e8f0"), outlineColor: Cesium.Color.BLACK, outlineWidth: 1, heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance: 0 },
+          label: x.category === "settlements" || x.category === "hospitals" || x.category === "schools"
+            ? { text: x.name, font: "11px Inter, sans-serif", fillColor: Cesium.Color.WHITE, outlineColor: Cesium.Color.BLACK, outlineWidth: 2, style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(0, -12), distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 250000), heightReference: Cesium.HeightReference.CLAMP_TO_GROUND }
+            : undefined,
+        });
+      });
+    }
+
     updateHotspotOcclusion(viewer);
     viewer.scene.requestRender();
-  }, [layers, metric, showFirePoints, useSensorConfirmationColors, viewerReady, visibleHotspots]);
+  }, [aoi, confirmed, drawPoints, exposure, forecast, layers, selectedEvent, sensorColors, viewerReady, visibleEvents, visibleHotspots]);
+
+  function flyToBBox(b: [number, number, number, number]) {
+    viewerRef.current?.camera.flyTo({ destination: Cesium.Rectangle.fromDegrees(b[0], b[1], b[2], b[3]), duration: 1.2 });
+  }
 
   function flyToLocation(name: keyof typeof locations) {
     setSelectedLocation(name);
-    const destination = locations[name];
-    if (!viewerRef.current) return;
-    viewerRef.current.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(destination.lon, destination.lat, cameraHeightForLocation(name, earthMode)),
-      orientation: cameraOrientationForLocation(name, earthMode),
+    const d = locations[name];
+    viewerRef.current?.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(d.lon, d.lat, name === "Atlantic View" || earthMode === "Map" ? d.height : Math.min(d.height, 1250000)),
+      orientation: name === "Atlantic View" || earthMode === "Map" ? nadirOrientation : obliqueOrientation,
       duration: 1.2,
     });
-  }
-
-  function toggleLayer(layer: LayerKey) {
-    setLayers((current) => ({ ...current, [layer]: !current[layer] }));
   }
 
   function zoom(direction: "in" | "out") {
     const camera = viewerRef.current?.camera;
     if (!camera) return;
     const amount = Math.max(camera.positionCartographic.height * 0.45, 60000);
-    if (direction === "in") {
-      camera.zoomIn(amount);
-    } else {
-      camera.zoomOut(amount);
-    }
+    if (direction === "in") camera.zoomIn(amount);
+    else camera.zoomOut(amount);
     viewerRef.current?.scene.requestRender();
   }
 
+  async function runPlaceSearch(event: React.FormEvent) {
+    event.preventDefault();
+    if (placeQuery.trim().length < 2) return;
+    try {
+      setPlaceResults(await searchPlaces(placeQuery.trim()));
+    } catch (error) {
+      setSelectionStatus(normalizeApiError(error));
+    }
+  }
+
+  function choosePlace(p: PlaceResult) {
+    setPlaceResults([]);
+    const next: AOI = p.geometry ? { geometry: p.geometry, bbox: p.bbox, name: p.name.split(",").slice(0, 2).join(","), kind: "place" } : { bbox: p.bbox, name: p.name, kind: "place" };
+    setAoi(next);
+    flyToBBox(p.bbox);
+  }
+
+  function radiusAroundView() {
+    const viewer = viewerRef.current;
+    if (!viewer) return;
+    const center = viewer.camera.pickEllipsoid(new Cesium.Cartesian2(viewer.canvas.clientWidth / 2, viewer.canvas.clientHeight / 2), viewer.scene.globe.ellipsoid);
+    if (!center) return;
+    const c = Cesium.Cartographic.fromCartesian(center);
+    const lon = Cesium.Math.toDegrees(c.longitude);
+    const lat = Cesium.Math.toDegrees(c.latitude);
+    setAoi({ center: [lon, lat], radius_km: radiusKm, name: `${radiusKm} km around ${lat.toFixed(2)}, ${lon.toFixed(2)}`, kind: "radius" });
+  }
+
+  function finishDrawing() {
+    if (drawPoints.length >= 3) {
+      const ring = [...drawPoints, drawPoints[0]];
+      setAoi({ geometry: { type: "Polygon", coordinates: [ring] }, name: "Custom polygon", kind: "polygon" });
+    }
+    setDrawPoints([]);
+    setDrawing(false);
+  }
+
+  const behaviourCounts = (eventMeta.behaviour_counts ?? {}) as Record<string, number>;
+
   return (
-    <section className={`cesium-shell command-globe ${themeClass(theme)}`}>
+    <section className={`cesium-shell command-globe ${themeClass(theme)} ${drawing ? "drawing" : ""}`}>
       <div ref={containerRef} className="cesium-container" />
-      <aside className="scene-panel">
-        <p className="panel-title">Scenes</p>
-        <div className="scene-list">
-          {sceneItems.map((item, index) => (
-            <button key={item.title} className={index === 0 ? "scene-item active" : "scene-item"} type="button">
-              <span className="scene-icon">{["O", "+", "=", "~", ">"][index]}</span>
-              <span>
-                <strong>{item.title}</strong>
-                <small>{item.detail}</small>
-              </span>
-            </button>
-          ))}
-        </div>
-        <div className="scene-note">
-          <span>O</span>
-          <p>
-            <code>Cesium</code> provides the 3D terrain, buildings, and globe. MODIS/VIIRS remain the source of fire detections.
-          </p>
-        </div>
+      <aside className="scene-panel globe-left">
+        <section>
+          <p className="panel-title">Fire Now · time period</p>
+          <div className="option-grid">
+            {(Object.keys(periodLabels) as Period[]).map((p) => (
+              <button key={p} type="button" className={period === p ? "option-card active" : "option-card"} onClick={() => setPeriod(p)}>{periodLabels[p]}</button>
+            ))}
+          </div>
+          {period === "historical" && (
+            <label className="select-row"><span>Date (UTC)</span><input type="date" value={historicalDate} max={new Date().toISOString().slice(0, 10)} min="2000-11-01" onChange={(e) => setHistoricalDate(e.target.value)} /></label>
+          )}
+          <button className="option-card refresh-live-data" type="button" onClick={loadData}>Refresh FIRMS</button>
+          <p className="tiles-status">{dataStatus}</p>
+          {eventStatus && <p className="tiles-status">{eventStatus}</p>}
+        </section>
+        <section>
+          <p className="panel-title">Layers</p>
+          <div className="compact-layer-grid">
+            {(Object.keys(layerDefaults) as LayerKey[]).map((layer) => (
+              <button key={layer} className={layers[layer] ? "active" : ""} type="button" onClick={() => setLayers((cur) => ({ ...cur, [layer]: !cur[layer] }))}>{layer}</button>
+            ))}
+          </div>
+          <label className="switch-row"><span>Sensor colours</span><input type="checkbox" checked={sensorColors} onChange={(e) => setSensorColors(e.target.checked)} /></label>
+          <p className="tiles-status">{sensorColors ? "Green MODIS · yellow VIIRS · red = MODIS+VIIRS within 15 km / 6 h" : "Colour by FRP: pale < 10, amber 10–30, orange 30–100, red ≥ 100 MW"}</p>
+          {layers["Fire Events"] && (
+            <div className="behaviour-legend">
+              {Object.entries(BEHAVIOUR_COLORS).map(([state, color]) => (
+                <span key={state}><i style={{ borderColor: color }} />{state}{behaviourCounts[state] ? ` ${behaviourCounts[state].toLocaleString()}` : ""}</span>
+              ))}
+              <small>Events with 3+ detections are outlined. Click one to open it. States are inferred.</small>
+            </div>
+          )}
+        </section>
+        <section>
+          <p className="panel-title">Area of interest</p>
+          <form className="aoi-search dark" onSubmit={runPlaceSearch}>
+            <input value={placeQuery} onChange={(e) => setPlaceQuery(e.target.value)} placeholder="Country, state, district, forest..." aria-label="Search place" />
+            <button type="submit">Go</button>
+          </form>
+          {placeResults.length > 0 && (
+            <ul className="aoi-results dark">
+              {placeResults.map((r) => (
+                <li key={`${r.name}-${r.center.join(",")}`}><button type="button" onClick={() => choosePlace(r)}><strong>{r.name.split(",")[0]}</strong><span>{(r.addresstype || r.type).replace(/_/g, " ")}</span></button></li>
+              ))}
+            </ul>
+          )}
+          <div className="aoi-tools">
+            <label className="select-row"><span>Radius km</span><input type="number" min={1} max={500} value={radiusKm} onChange={(e) => setRadiusKm(Number(e.target.value))} /></label>
+            <button type="button" onClick={radiusAroundView}>Radius around view centre</button>
+            {drawing ? (
+              <button type="button" className="active" onClick={finishDrawing}>Finish polygon ({drawPoints.length} pts)</button>
+            ) : (
+              <button type="button" onClick={() => { setDrawing(true); setDrawPoints([]); }}>Draw polygon (click points)</button>
+            )}
+          </div>
+          {aoi && (
+            <div className="aoi-current">
+              <strong>{describeAoi(aoi)}</strong>
+              <label className="switch-row"><span>Show only this area</span><input type="checkbox" checked={filterToAoi} onChange={(e) => setFilterToAoi(e.target.checked)} /></label>
+              <div className="aoi-actions">
+                <button type="button" onClick={() => flyToBBox(aoiBBox(aoi)!)}>Zoom</button>
+                <Link to="/fire-memory">Fire Memory →</Link>
+                <button type="button" onClick={() => setAoi(null)}>Clear</button>
+              </div>
+            </div>
+          )}
+        </section>
       </aside>
       <aside className="control-panel-3d">
         <section>
@@ -723,65 +779,19 @@ export default function CesiumFireGlobe() {
           <p className="panel-title">View</p>
           <div className="mode-toggle" aria-label="Earth display mode">
             {(["Map", "3D Terrain", "Photorealistic"] as EarthMode[]).map((mode) => (
-              <button key={mode} className={earthMode === mode ? "active" : ""} type="button" onClick={() => setEarthMode(mode)}>
-                {mode}
-              </button>
+              <button key={mode} className={earthMode === mode ? "active" : ""} type="button" onClick={() => setEarthMode(mode)}>{mode}</button>
             ))}
           </div>
-          <label className="switch-row">
-            <span>Imagery</span>
-            <input type="checkbox" checked={showImagery} onChange={(event) => setShowImagery(event.target.checked)} />
-          </label>
+          <label className="switch-row"><span>Imagery</span><input type="checkbox" checked={showImagery} onChange={(e) => setShowImagery(e.target.checked)} /></label>
           <label className="switch-row">
             <span>OSM Buildings</span>
-            <input
-              type="checkbox"
-              checked={earthMode === "3D Terrain" && showBuildings}
-              disabled={earthMode !== "3D Terrain"}
-              onChange={(event) => setShowBuildings(event.target.checked)}
-            />
-          </label>
-          <label className="switch-row">
-            <span>Terrain</span>
-            <input type="checkbox" checked={earthMode !== "Map"} readOnly />
+            <input type="checkbox" checked={earthMode === "3D Terrain" && showBuildings} disabled={earthMode !== "3D Terrain"} onChange={(e) => setShowBuildings(e.target.checked)} />
           </label>
           {tilesStatus && <p className="tiles-status">{tilesStatus}</p>}
-          <label className="switch-row">
-            <span>Fire Points</span>
-            <input type="checkbox" checked={showFirePoints} onChange={(event) => setShowFirePoints(event.target.checked)} />
-          </label>
-          <label className="switch-row">
-            <span>Sensor Colors</span>
-            <input type="checkbox" checked={useSensorConfirmationColors} onChange={(event) => setUseSensorConfirmationColors(event.target.checked)} />
-          </label>
-          {useSensorConfirmationColors && <p className="tiles-status">Green MODIS, yellow VIIRS, red merged confirmation.</p>}
-          <button className="option-card refresh-live-data" type="button" onClick={loadLiveHotspots}>
-            Refresh FIRMS
-          </button>
-          <p className="tiles-status">{dataStatus}</p>
-        </section>
-        <section>
-          <p className="panel-title">Fire Layers</p>
-          <div className="compact-layer-grid">
-            {(Object.keys(layerDefaults) as LayerKey[]).map((layer) => (
-              <button key={layer} className={layers[layer] ? "active" : ""} type="button" onClick={() => toggleLayer(layer)}>
-                {layer}
-              </button>
-            ))}
-          </div>
           <label className="select-row">
             <span>Location</span>
-            <select value={selectedLocation} onChange={(event) => flyToLocation(event.target.value as keyof typeof locations)}>
-              {Object.keys(locations).map((name) => (
-                <option key={name}>{name}</option>
-              ))}
-            </select>
-          </label>
-          <label className="select-row">
-            <span>Column Metric</span>
-            <select value={metric} onChange={(event) => setMetric(event.target.value)}>
-              <option>Anomaly score</option>
-              <option>FRP</option>
+            <select value={selectedLocation} onChange={(e) => flyToLocation(e.target.value as keyof typeof locations)}>
+              {Object.keys(locations).map((name) => <option key={name}>{name}</option>)}
             </select>
           </label>
         </section>
@@ -792,125 +802,20 @@ export default function CesiumFireGlobe() {
           <p>{viewerError}</p>
         </div>
       )}
+      {drawing && <div className="draw-hint">Click on the globe to add polygon points, then press "Finish polygon".</div>}
+      {selectionStatus && <div className="selection-status">{selectionStatus}</div>}
       <div className="zoom-controls" aria-label="Map zoom controls">
         <button type="button" aria-label="Zoom in" onClick={() => zoom("in")}>+</button>
         <button type="button" aria-label="Zoom out" onClick={() => zoom("out")}>-</button>
       </div>
-      {selectedHotspot && (
-        <aside className="hotspot-popup">
-          <div className="hotspot-popup-title">
-            <div>
-              <p className="eyebrow">Active Fire Detection</p>
-              <h3>{selectedHotspot.sensor} hotspot</h3>
-            </div>
-            <button type="button" aria-label="Close hotspot details" onClick={() => setSelectedHotspot(null)}>
-              X
-            </button>
-          </div>
-          <table className="cesium-info-table">
-            <tbody>
-              <tr><th>Sensor</th><td>{selectedHotspot.sensor}</td></tr>
-              <tr><th>Satellite</th><td>{selectedHotspot.satellite}</td></tr>
-              <tr><th>Date</th><td>{selectedHotspot.acq_date}</td></tr>
-              <tr><th>Time</th><td>{formatTime(selectedHotspot.acq_time)}</td></tr>
-              <tr><th>Latitude</th><td>{selectedHotspot.latitude.toFixed(4)}</td></tr>
-              <tr><th>Longitude</th><td>{selectedHotspot.longitude.toFixed(4)}</td></tr>
-              <tr><th>FRP</th><td>{selectedHotspot.frp === null ? "Not provided" : `${selectedHotspot.frp} MW`}</td></tr>
-              <tr><th>Confidence</th><td>{selectedHotspot.confidence}</td></tr>
-              <tr><th>Day/Night</th><td>{selectedHotspot.day_night === "D" ? "Day" : "Night"}</td></tr>
-              <tr>
-                <th>Merge Status</th>
-                <td>
-                  {selectedHotspot.cross_sensor_confirmed
-                    ? `MODIS + VIIRS nearby (${selectedHotspot.merge_distance_km} km, ${selectedHotspot.merge_time_minutes} min)`
-                    : `${selectedHotspot.sensor} only`}
-                </td>
-              </tr>
-              <tr><th>Grid Cell</th><td>{selectedHotspot.grid_id}</td></tr>
-              <tr><th>Anomaly</th><td>{selectedHotspot.anomaly_score.toFixed(1)} ({statusForZ(selectedHotspot.anomaly_score)})</td></tr>
-            </tbody>
-          </table>
-          <div className="fire-validation-panel">
-            <div className="validation-header">
-              <div>
-                <p className="eyebrow">Fire Validation</p>
-                <h4>{hotspotEvidence?.fusion.final_status ?? "Checking evidence..."}</h4>
-              </div>
-              <button type="button" onClick={() => loadEvidence(true)} disabled={evidenceLoading}>
-                {evidenceLoading ? "..." : "Refresh Evidence"}
-              </button>
-            </div>
-            {hotspotEvidence && (
-              <div className="evidence-score">
-                <span>System Evidence Score</span>
-                <strong>{hotspotEvidence.fusion.system_evidence_score} / 100</strong>
-              </div>
-            )}
-            {evidenceError && <p className="evidence-error">{evidenceError}</p>}
-            <div className="validation-stages">
-              {(hotspotEvidence?.stages ?? [
-                { name: "Satellite Validation", status: "checking" },
-                { name: "Regional Source Validation", status: "waiting" },
-                { name: "Government Check", status: "waiting" },
-                { name: "News Validation", status: "waiting" },
-                { name: "NLP Analysis", status: "waiting" },
-                { name: "Final Evidence Score", status: "waiting" },
-              ]).map((stage) => (
-                <div key={stage.name}>
-                  <span>{stage.status === "completed" ? "OK" : stage.status === "checking" ? "..." : "O"}</span>
-                  <p>{stage.name}</p>
-                  {stage.detail && <small>{stage.detail}</small>}
-                </div>
-              ))}
-            </div>
-            {hotspotEvidence && (
-              <>
-                <section>
-                  <h4>Location</h4>
-                  <p>{String(hotspotEvidence.place.locality ?? hotspotEvidence.place.country ?? "Unknown location")}</p>
-                  <small>{String(hotspotEvidence.place.admin_level_1 ?? "")} {String(hotspotEvidence.place.country ?? "")}</small>
-                </section>
-                <section>
-                  <h4>Evidence</h4>
-                  <ul>
-                    {hotspotEvidence.fusion.why.map((reason) => <li key={reason}>{reason}</li>)}
-                    {hotspotEvidence.fusion.uncertainty.map((item) => <li key={item} className="uncertain">{item}</li>)}
-                  </ul>
-                </section>
-                <section>
-                  <h4>Local News</h4>
-                  {hotspotEvidence.news_evidence.articles.length === 0 ? (
-                    <p>No matching local/national report returned yet.</p>
-                  ) : hotspotEvidence.news_evidence.articles.slice(0, 3).map((article) => (
-                    <article key={`${article.headline}-${article.url}`} className="news-evidence-card">
-                      <strong>{article.headline}</strong>
-                      <span>{article.publication} - {article.country}</span>
-                      <dl>
-                        <div><dt>Event</dt><dd>{article.event_type}</dd></div>
-                        <div><dt>Relevance</dt><dd>{article.relevance_score}/100</dd></div>
-                        <div><dt>Location</dt><dd>{article.location_score}/100</dd></div>
-                        <div><dt>Time</dt><dd>{article.time_score}/100</dd></div>
-                      </dl>
-                      <p>{article.summary}</p>
-                      {article.url && <a href={article.url} target="_blank" rel="noreferrer">Open original source</a>}
-                    </article>
-                  ))}
-                </section>
-                <section>
-                  <h4>AI Analysis</h4>
-                  <p>{hotspotEvidence.fusion.ai_analysis}</p>
-                </section>
-                <section>
-                  <h4>Source Transparency</h4>
-                  <p>{hotspotEvidence.source_transparency.generated_summary_notice}</p>
-                  <small>Satellite: {hotspotEvidence.source_transparency.satellite_sources.slice(0, 4).join(", ")}</small>
-                  <small>Government: {hotspotEvidence.source_transparency.government_sources.slice(0, 3).join(", ") || "Not yet available"}</small>
-                </section>
-              </>
-            )}
-          </div>
-          <p>Live NASA FIRMS MODIS/VIIRS record. Cesium imagery and terrain are visual basemap content only.</p>
-        </aside>
+      {selectedEvent && (
+        <EventPanel
+          event={selectedEvent}
+          detection={selectedDetection}
+          onClose={() => { setSelectedEvent(null); setForecast({ horizon: null, size: 0 }); setExposure([]); }}
+          onForecast={(horizon, size) => setForecast({ horizon, size })}
+          onExposure={setExposure}
+        />
       )}
     </section>
   );

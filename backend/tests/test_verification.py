@@ -20,10 +20,10 @@ def _row(**overrides):
     return row
 
 
-def test_high_confidence_night_viirs_hotspot_is_confirmed():
+def test_high_confidence_night_viirs_hotspot_is_strong_signal_not_confirmation():
     verified = verify_hotspot(_row())
 
-    assert verified["verification"]["verdict"] == "confirmed_fire"
+    assert verified["verification"]["verdict"] == "strong_satellite_signal"
     assert verified["verification"]["score"] >= 6
     assert "worldview.earthdata.nasa.gov" in verified["verification"]["imagery_url"]
     assert "gdeltproject.org" in verified["verification"]["news_url"]
@@ -32,5 +32,5 @@ def test_high_confidence_night_viirs_hotspot_is_confirmed():
 def test_low_signal_day_hotspot_needs_false_positive_review():
     verified = verify_hotspot(_row(confidence_pct=25.0, frp=1.2, sensor="modis", daynight="D"))
 
-    assert verified["verification"]["verdict"] == "likely_false_positive"
+    assert verified["verification"]["verdict"] == "weak_satellite_signal"
     assert verified["verification"]["warnings"]

@@ -1,192 +1,77 @@
-# FireHarmony
+# Burning_Activity
 
-FireHarmony is a global, evidence-driven fire intelligence platform. It harmonizes NASA MODIS and VIIRS active-fire observations, visualizes current hotspots on a 3D Earth, analyzes historical burning patterns, and helps validate whether a thermal anomaly is likely to represent a real fire.
+A global, evidence-driven fire monitoring, verification and forecasting platform built on NASA MODIS and VIIRS active-fire observations.
 
-The project is designed to answer more than "Where did a satellite detect heat?"
+**Past → Present → Identify → Verify → Compare → Forecast → Exposure**
+(Fire Memory → Fire Now → Fire Identity → Fire Evidence → Fire Past → Fire Future → Exposure)
 
-- Is this likely to be a real fire?
-- Is this activity normal for this place and season?
-- Do other satellite or regional sources support the detection?
-- Are local authorities or newspapers reporting the same event?
-- How strong is the combined evidence?
+A satellite hotspot is an observation, not automatically a confirmed wildfire, and the absence of a hotspot is not proof that no fire exists. Every result is labelled as one of four things:
 
-## Core Workflow
+| Layer | Meaning |
+|---|---|
+| **Observation** | What MODIS/VIIRS actually detected (sensor, time, footprint, FRP, confidence) |
+| **Inference** | What the system concludes (harmonized activity, anomalies, events, behaviour, evidence status) |
+| **External evidence** | What independent satellites, agencies and news report, always with the original link |
+| **Forecast** | Where new satellite-observed activity may appear in the next 6–24 h, or `FORECAST WITHHELD` |
 
-```text
-MODIS + VIIRS
-      ->
-Data Harmonization
-      ->
-Historical Fire Database
-      ->
-3D Interactive Globe
-      ->
-Area of Interest Selection
-      ->
-Burning Activity Calendar
-      ->
-Current vs Historical Comparison
-      ->
-Unusual Activity Detection
-      ->
-Hotspot Selection
-      ->
-Reverse Geocoding
-      ->
-Regional Satellite / Government Sources
-      ->
-Country-Specific English News Sources
-      ->
-NLP Event Extraction
-      ->
-Geographic Matching
-      ->
-Temporal Matching
-      ->
-Evidence Fusion
-      ->
-Fire Validation Status
-      ->
-Explainable Evidence + News Sources
-```
-
-## Main Capabilities
-
-### 3D Fire Globe
-
-The app plots MODIS and VIIRS hotspots directly on a Cesium 3D globe using real latitude and longitude values from NASA FIRMS. Hotspots on the far side of the Earth are hidden so the globe behaves like a solid planet rather than a transparent sphere.
-
-The globe can show:
-
-- MODIS-only detections in green
-- VIIRS-only detections in yellow
-- Nearby MODIS + VIIRS cross-sensor detections in red
-
-Cross-sensor merging currently uses a configurable proximity concept: MODIS and VIIRS detections are treated as nearby confirmation when they occur close together in space and time.
-
-### Burning Activity Calendar
-
-For a selected area of interest, the backend fetches historical MODIS and VIIRS observations and builds a daily activity series. This supports analysis of seasonal burning patterns, recurring fire windows, unusually active periods, and current activity compared with expected historical behavior.
-
-### Fire Confirmation and Evidence
-
-MODIS or VIIRS detecting a hotspot does not automatically prove there is a wildfire. Heat signatures can come from wildfires, agricultural burning, controlled burns, industrial heat, gas flares, volcanoes, bare heated land, or other sources.
-
-When a user clicks a hotspot, the app starts a second-stage evidence workflow:
-
-1. Show original satellite detection details
-2. Reverse-geocode the hotspot location
-3. Select relevant regional satellite, environmental, and government sources
-4. Search country-specific English-language news sources
-5. Classify article/event relevance with rule-based NLP scoring
-6. Compare article location and time against the hotspot
-7. Fuse evidence into a final validation status
-8. Show transparent reasoning and source links
-
-### Validation Statuses
-
-The evidence engine returns one of:
-
-- `CONFIRMED FIRE`
-- `HIGHLY LIKELY FIRE`
-- `POSSIBLE FIRE - NEEDS VERIFICATION`
-- `LIKELY NON-FIRE THERMAL ANOMALY`
-- `NO EXTERNAL CONFIRMATION`
-
-The score shown in the UI is a `System Evidence Score`, not a scientifically validated probability.
-
-## Evidence Panel
-
-The hotspot evidence panel can show:
-
-- Satellite information: sensor, satellite, confidence, FRP, date/time, day/night
-- Location information: country, region, locality, coordinates
-- Validation stages
-- Final status and evidence score
-- Why the status was assigned
-- Uncertainty notes
-- Regional satellite/source checklist
-- Government source checklist
-- Local/national news cards
-- AI-generated interpretation, clearly separated from original source links
-
-Each news card may include:
-
-- Headline
-- Publication
-- Country
-- Published time
-- Mentioned location
-- Event type
-- Location/time/relevance scores
-- AI summary
-- Original article URL
-
-## Real Data vs Current Prototype Logic
-
-Currently implemented as real/live:
-
-- NASA FIRMS MODIS and VIIRS hotspot fetching
-- 3D globe plotting from live hotspot coordinates
-- FIRMS confidence, FRP, satellite, time, and day/night fields
-- NASA Worldview links
-- NewsAPI integration
-- GDELT fallback search
-- Evidence endpoint and cached evidence responses
-
-Currently implemented as prototype/rule-based:
-
-- Reverse geocoding uses fast approximate country/region bounding boxes
-- Regional satellite and government source checks are configured source lists, not full live integrations for every agency
-- NLP is keyword/location/time scoring, not a trained NER or semantic model
-- Evidence fusion weights are heuristic and not scientifically validated
-
-## Backend
-
-The backend is a FastAPI service.
-
-Key endpoints:
-
-- `GET /api/current_hotspots`
-- `GET /api/verified_hotspots`
-- `POST /api/hotspot_evidence`
-- `POST /api/generate_calendar`
-- `POST /api/critical_periods`
-
-Environment variables are stored in `backend/.env`:
-
-```env
-FIRMS_MAP_KEY=your_nasa_firms_key
-NEWS_API_KEY=your_newsapi_key
-```
-
-## Frontend
-
-The frontend is a React + Vite app using Cesium for the 3D globe.
-
-Useful commands:
+## Running it
 
 ```bash
-cd frontend
-npm install
-npm run dev
-npm run build
-```
-
-## Backend Commands
-
-```bash
+# backend (Python 3.11+)
 cd backend
 pip install -r requirements.txt
 python -m uvicorn main:app --host 127.0.0.1 --port 8000
 python -m pytest
+
+# frontend
+cd frontend
+npm install
+npm run dev          # http://127.0.0.1:5173
 ```
 
-## Product Principle
+`backend/.env`:
 
-FireHarmony preserves two separate ideas:
+```env
+FIRMS_MAP_KEY=your_nasa_firms_key      # required: https://firms.modaps.eosdis.nasa.gov/api/map_key/
+NEWS_API_KEY=your_newsapi_key          # optional: adds NewsAPI articles to GDELT
+```
 
-1. Original satellite detection: what MODIS or VIIRS observed.
-2. Validation status: what the broader evidence suggests.
+`frontend/.env.local` (optional): `VITE_API_BASE_URL`, `VITE_CESIUM_ION_TOKEN` (terrain and imagery), `VITE_GOOGLE_MAPS_API_KEY` (photorealistic tiles).
 
-The app should never silently convert a thermal anomaly into a confirmed wildfire. Users should always be able to inspect the underlying evidence, uncertainty, and original sources.
+All other data sources are free and keyless. Responses are cached under `backend/cache/`; FIRMS science archives are cached permanently, so the first Fire Memory or event outlook for an area takes minutes and later runs take seconds. The FIRMS key allows 5000 transactions per 10 minutes. The backend reads the key's live usage: interactive requests fail fast with a clear message when the budget is nearly spent, and long jobs wait for the window to roll over.
+
+## Where each capability lives
+
+| Spec section | Implementation |
+|---|---|
+| 1–2 MODIS/VIIRS integration, sensor harmonization | `firms_client.py` (NRT and science archives, GOES, Landsat), `harmonize.py` (median MODIS/VIIRS ratio on co-observed day-blocks yields the *Harmonized Observed Burning Activity*) |
+| 3 Footprint-aware mapping | `geo.py`: FIRMS scan × track footprints, fractional attribution to the ~1 km grid, location uncertainty. The globe draws the footprints of the selected event |
+| 4 Observation quality | `quality.py`: six observation classes, Observation Sufficiency Score, `UNKNOWN` / `AMBIGUOUS` / `INSUFFICIENT OBSERVATION`, provenance |
+| 5 3D globe (Fire Now) | `CesiumFireGlobe.tsx`: far-side occlusion; last 24 h / 48 h / 5 days or any historical date; event, corridor and exposure layers |
+| 6 Area of interest | Country, state, district, forest or protected-area search (OSM Nominatim), rectangle, custom polygon, radius (`AOISelector.tsx`, globe AOI tools, `geo.AOI`) |
+| 7–9 Calendar, seasonal profile, current vs historical | `routers/memory.py`, `seasonal.py`, Fire Memory page |
+| 10 Anomalies | Robust median/MAD z: Normal, Above Normal, Unusual, Highly Unusual |
+| 11 Change points | `changepoint.py`: PELT, reported as *statistically detected changes* |
+| 12–13 Fire events and behaviour | `events.py`: spatio-temporal linking, event attributes, association confidence, *Inferred Fire Behaviour States* |
+| 14 Reverse geocoding | `geocode.py`: country to village, nearest settlement, forests and protected areas, nearby non-fire heat sources |
+| 15 Regional satellites | `corroboration.py`: other MODIS/VIIRS platforms, GOES (Americas), Landsat (US/CA), Sentinel-2 scenes, EFFIS (Europe/MENA), CWFIS M3 (Canada); Himawari and Meteosat as review links |
+| 16 Government sources | GDACS (global), NIFC WFIGS (US, including prescribed burns), NSW RFS; per-country agency directory (`source_directory.py`) |
+| 17–20 News, NLP, geographic and temporal matching | `evidence.py`, `nlp.py`: GDELT (plus optional NewsAPI), event-type classification, cause, impact, area, infrastructure; geocoded distance and time-to-detection scoring |
+| 21–25 Fusion, status, score, explanation, news panel | `evidence.fuse`: component breakdown, status labels, generated explanation; original source vs system summary vs system interpretation in the UI |
+| 26–27 Historical analogues | `history.py`, `analogues.py`: same-age truncation, KNN with shrinkage-regularized Mahalanobis distance, outcomes |
+| 28–31 Forecast | `forecast.py`: persistence, seasonal and wind-only baselines vs LightGBM on temporal and spatial holdouts (Brier, BSS, POD, FAR, CSI, footprint IoU, calibration); probability corridor or `FORECAST WITHHELD` |
+| 32 Exposure | `exposure.py`: WorldPop population and OSM settlements, roads, farmland, forests, protected areas, schools, hospitals, power, critical facilities |
+| 33 Event side panel | `EventPanel.tsx`: Satellite, Event, Quality, Evidence, Past, Future and Exposure tabs; `/fire-map?event=EV-…` deep links |
+
+## Honest limits
+
+- **Evidence score** weights are expert-set, so the score is evidence strength, not a probability. "Confirmed Fire" is used only when an official incident report lies within 15 km and matches in time, and no controlled burn is reported.
+- **Cloud cover** comes from ERA5 reanalysis and is a proxy for the satellites' own cloud masks.
+- **NLP** is transparent rule-based extraction, not a trained language model. News summaries are generated from extracted facts and are labelled as system-generated.
+- **Himawari, Meteosat and most national agencies** have no public machine-readable fire feed, so they are linked for manual review and never counted as checked.
+- **Forecasts** predict *satellite-observed activity*, not fire spread. They do not use land cover or fuel moisture. Training uses reanalysis winds for the forecast window (perfect-prognosis), so live skill may be lower than the holdout scores. When the chosen model's skill against climatology is negative, the UI says so.
+- **Fire Memory** accepts areas up to 20° across. Histories longer than about 10 years make thousands of FIRMS requests the first time.
+
+## API
+
+`GET /api/current_hotspots` · `GET /api/events` · `GET /api/events/{id}` · `POST /api/events/{id}/evidence` (job) · `POST /api/events/{id}/outlook` (job: analogues, forecast, exposure) · `POST /api/fire_memory` (job) · `GET /api/jobs/{id}` · `GET /api/places/search` · `GET /api/places/reverse` · `POST /api/generate_calendar` · `POST /api/critical_periods` · `GET /api/verified_hotspots` · `GET /data-sources`. Interactive docs are at `/docs`.

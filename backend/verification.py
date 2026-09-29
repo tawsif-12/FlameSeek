@@ -1,4 +1,8 @@
-"""Rule-based active-fire verification helpers."""
+"""Fast metadata screening of FIRMS rows.
+
+This only grades the strength of the satellite signal itself. It never confirms a
+fire; confirmation needs external evidence (see evidence.py).
+"""
 
 from __future__ import annotations
 
@@ -122,9 +126,9 @@ def verify_hotspot(row: dict[str, Any]) -> dict[str, Any]:
         evidence.append({"source": "Sensor resolution", "signal": "VIIRS 375 m detection is finer than MODIS 1 km", "weight": 1})
 
     if score >= 6:
-        verdict = "confirmed_fire"
+        verdict = "strong_satellite_signal"
     elif score <= 2:
-        verdict = "likely_false_positive"
+        verdict = "weak_satellite_signal"
     else:
         verdict = "needs_review"
 
@@ -141,7 +145,7 @@ def verify_hotspot(row: dict[str, Any]) -> dict[str, Any]:
             "country_code": country_context["country_code"],
             "country_name": country_context["country_name"],
             "place_name": country_context["place"],
-            "next_step": "Open imagery/news links for smoke, burn scar, or local report confirmation." if verdict == "needs_review" else "Use imagery/news links as audit trail.",
+            "next_step": "Open the event on the Fire Globe to run regional satellite, official and news verification. A strong satellite signal alone is not a confirmed fire.",
             "sensor_family": _sensor_label(str(row.get("sensor", ""))),
         },
     }

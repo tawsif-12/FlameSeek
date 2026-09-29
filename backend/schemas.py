@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -11,7 +11,19 @@ from config import DEFAULT_SENSORS
 
 
 SensorName = Literal["modis", "viirs_snpp", "viirs_noaa20", "viirs_noaa21"]
+AnySensor = Literal["modis", "viirs_snpp", "viirs_noaa20", "viirs_noaa21", "goes", "landsat"]
 BBox = tuple[float, float, float, float]
+
+
+class AOIModel(BaseModel):
+    """Area of interest: bbox, polygon (GeoJSON geometry from drawing or place search), or radius."""
+
+    bbox: BBox | None = Field(default=None, description="west, south, east, north")
+    geometry: dict[str, Any] | None = Field(default=None, description="GeoJSON Polygon or MultiPolygon")
+    center: tuple[float, float] | None = Field(default=None, description="lon, lat for radius search")
+    radius_km: float | None = Field(default=None, gt=0, le=500)
+    name: str | None = None
+    kind: Literal["bbox", "polygon", "radius", "place"] | None = None
 
 
 class GenerateCalendarRequest(BaseModel):
@@ -19,6 +31,15 @@ class GenerateCalendarRequest(BaseModel):
     start_date: date
     end_date: date
     sensors: list[SensorName] = Field(default_factory=lambda: list(DEFAULT_SENSORS))
+    geometry: dict[str, Any] | None = None
+
+
+class FireMemoryRequest(BaseModel):
+    aoi: AOIModel
+    history_years: int = Field(default=10, ge=1, le=26)
+    end_date: date | None = None
+    sensors: list[SensorName] = Field(default_factory=lambda: ["modis", "viirs_snpp", "viirs_noaa20", "viirs_noaa21"])
+    comparison_window_days: int = Field(default=30, ge=7, le=120)
 
 
 class DailyRecord(BaseModel):
@@ -29,13 +50,27 @@ class DailyRecord(BaseModel):
     active_cell_count: int
     anomaly_score: float
     baseline_method: str = "flat"
-    anomaly_basis: str = "fire_power_index"
+    anomaly_basis: str = "harmonized_activity"
+    anomaly_category: str = "Normal"
+    harmonized_activity: float = 0.0
+    harmonized_low: float = 0.0
+    harmonized_high: float = 0.0
+    modis_count: int = 0
+    viirs_count: int = 0
+    modis_active_cells: float = 0.0
+    viirs_active_cells: float = 0.0
+    max_frp: float | None = None
+    sensor_agreement: str = ""
+    baseline_median: float = 0.0
+    observation: dict[str, Any] = Field(default_factory=dict)
 
 
 class CalendarSummary(BaseModel):
     total_hotspots: int
     peak_day: date | None = None
     high_anomaly_days: int
+    total_harmonized_activity: float = 0.0
+    category_counts: dict[str, int] = Field(default_factory=dict)
 
 
 class GenerateCalendarResponse(BaseModel):
@@ -64,9 +99,16 @@ class HotspotRecord(BaseModel):
     acq_datetime: datetime
     confidence_pct: float
     frp: float | None = None
-    sensor: SensorName
+    sensor: AnySensor
     satellite: str = ""
     daynight: str = ""
+    scan_km: float | None = None
+    track_km: float | None = None
+    brightness_k: float | None = None
+    brightness_2_k: float | None = None
+    version: str = ""
+    source: str = ""
+    location_uncertainty_km: float | None = None
 
 
 class VerificationEvidence(BaseModel):
@@ -77,7 +119,7 @@ class VerificationEvidence(BaseModel):
 
 class HotspotVerification(BaseModel):
     score: int
-    verdict: Literal["confirmed_fire", "needs_review", "likely_false_positive"]
+    verdict: Literal["strong_satellite_signal", "needs_review", "weak_satellite_signal"]
     evidence: list[VerificationEvidence]
     warnings: list[str]
     imagery_url: str
@@ -108,13 +150,13 @@ class HotspotEvidenceRequest(HotspotRecord):
     refresh: bool = False
 
 
-class HotspotEvidenceResponse(BaseModel):
-    hotspot: HotspotRecord
-    place: dict
-    stages: list[dict]
-    satellite_evidence: dict
-    government_evidence: dict
-    news_evidence: dict
-    fusion: dict
-    source_transparency: dict
-    cache: dict
+class JobResponse(BaseModel):
+    id: str
+    kind: str
+    status: str
+    progress: float
+    message: str
+    error: str | None = None
+    created_at: str
+    finished_at: str | None = None
+    result: Any = None
