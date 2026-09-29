@@ -378,19 +378,46 @@ async def fetch_hotspots_for_window(
     return rows
 
 
+_FIRMS_DOWN_UNTIL: float = 0.0
+_FIRMS_DOWN_TTL_SECONDS = 120.0
+
+
 async def fetch_recent_hotspots(
     bbox: tuple[float, float, float, float] | None = None,
     sensors: list[str] = DEFAULT_SENSORS,
     days: int = 1,
 ) -> list[dict[str, Any]]:
+    global _FIRMS_DOWN_UNTIL
     area = "world" if bbox is None else _bbox_string(bbox)
     semaphore = asyncio.Semaphore(4)
 
     async def guarded(sensor: str) -> list[dict[str, Any]]:
         async with semaphore:
-            async with httpx.AsyncClient(timeout=60.0, headers={"User-Agent": HTTP_USER_AGENT}, verify=SSL_CONTEXT) as client:
+            async with httpx.AsyncClient(timeout=20.0, headers={"User-Agent": HTTP_USER_AGENT}, verify=SSL_CONTEXT) as client:
                 text, source = await _fetch_recent_csv(client, sensor, area, days)
             return _parse_csv(text, sensor, source)
 
-    results = await asyncio.gather(*(guarded(sensor) for sensor in sensors))
-    return [row for batch in results for row in batch]
+    # Demo overlay: dense Dhaka (Ashulia) cluster for hackathon walkthroughs.
+    from demo_data import bbox_covers_dhaka, dhaka_demo_hotspots
+    demo_rows: list[dict[str, Any]] = []
+    if bbox_covers_dhaka(bbox):
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        demo_rows = [row for row in dhaka_demo_hotspots() if row["sensor"] in sensors and row["acq_datetime"] >= cutoff]
+
+    # Negative cache: after a recent FIRMS failure, skip live calls for a short window
+    # so the UI returns instantly from cached/demo data instead of waiting on retries.
+    now_ts = time.time()
+    firms_down = now_ts < _FIRMS_DOWN_UNTIL
+
+    rows: list[dict[str, Any]] = []
+    if not firms_down:
+        try:
+            results = await asyncio.gather(*(guarded(sensor) for sensor in sensors))
+            rows = [row for batch in results for row in batch]
+        except (FirmsAPIError, httpx.HTTPError, asyncio.TimeoutError) as exc:
+            _FIRMS_DOWN_UNTIL = now_ts + _FIRMS_DOWN_TTL_SECONDS
+            print(f"firms_unavailable reason={type(exc).__name__} muted_for_seconds={_FIRMS_DOWN_TTL_SECONDS}")
+            if not demo_rows:
+                raise
+    rows.extend(demo_rows)
+    return rows

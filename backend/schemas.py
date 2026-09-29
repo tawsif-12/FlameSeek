@@ -109,6 +109,7 @@ class HotspotRecord(BaseModel):
     version: str = ""
     source: str = ""
     location_uncertainty_km: float | None = None
+    place_hint: str | None = None
 
 
 class VerificationEvidence(BaseModel):

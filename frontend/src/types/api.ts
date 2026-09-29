@@ -41,6 +41,7 @@ export interface HotspotRecord {
   version?: string;
   source?: string;
   location_uncertainty_km?: number | null;
+  place_hint?: string | null;
 }
 
 export interface CurrentHotspotsResponse {

@@ -101,6 +101,21 @@ function hotspotColor(h: HotspotRecord, confirmed: Set<string>, sensorColors: bo
   return Cesium.Color.fromCssColorString("#fde68a");
 }
 
+const HIGHLIGHT_COLOR = Cesium.Color.fromCssColorString("#facc15");
+function isHighlightedHotspot(h: HotspotRecord) {
+  return typeof h.place_hint === "string" && h.place_hint.length > 0;
+}
+
+function aoiIsBangladesh(aoi: AOI | null): boolean {
+  if (!aoi) return false;
+  const name = (aoi.name ?? "").toLowerCase();
+  if (name.includes("bangladesh") || name.includes("dhaka") || name.includes("ashulia")) return true;
+  const bbox = aoiBBox(aoi);
+  if (!bbox) return false;
+  const [w, s, e, n] = bbox;
+  return w <= 90.38 && 90.38 <= e && s <= 23.85 && 23.85 <= n;
+}
+
 function themeClass(theme: ThemeMode) {
   return `theme-${theme.toLowerCase()}`;
 }
@@ -218,6 +233,37 @@ export default function CesiumFireGlobe() {
     [events, filterToAoi, aoi],
   );
   const confirmed = useMemo(() => crossSensorSet(hotspots), [hotspots]);
+  const highlightRegion = useMemo(() => aoiIsBangladesh(aoi), [aoi]);
+  // Find events whose centroid sits on top of one of our highlighted point clusters.
+  const highlightedEventIds = useMemo(() => {
+    if (!highlightRegion) return new Set<string>();
+    const clusters = hotspots.filter(isHighlightedHotspot);
+    if (clusters.length === 0) return new Set<string>();
+    const ids = new Set<string>();
+    for (const e of events) {
+      for (const h of clusters) {
+        if (distanceKm(e.centroid.lat, e.centroid.lon, h.lat, h.lon) <= 4) {
+          ids.add(e.event_id);
+          break;
+        }
+      }
+    }
+    return ids;
+  }, [events, hotspots, highlightRegion]);
+  // Map an event centroid to the nearest highlighted place name for pop-up labels.
+  const placeForEvent = useMemo(() => {
+    const clusters = hotspots.filter(isHighlightedHotspot);
+    const lookup: Record<string, string> = {};
+    for (const e of events) {
+      let best: { d: number; name: string } | null = null;
+      for (const h of clusters) {
+        const d = distanceKm(e.centroid.lat, e.centroid.lon, h.lat, h.lon);
+        if (d <= 6 && (!best || d < best.d)) best = { d, name: h.place_hint as string };
+      }
+      if (best) lookup[e.event_id] = best.name;
+    }
+    return lookup;
+  }, [events, hotspots]);
 
   const stats = useMemo(() => {
     const modis = visibleHotspots.filter((h) => h.sensor === "modis").length;
@@ -331,7 +377,9 @@ export default function CesiumFireGlobe() {
   }
 
   async function openDetection(h: HotspotRecord) {
-    setSelectionStatus("Finding the fire event this detection belongs to...");
+    setSelectionStatus(h.place_hint
+      ? `${h.place_hint} · loading fire event…`
+      : "Finding the fire event this detection belongs to...");
     try {
       const eventId = await lookupEvent(h.sensor, h.lat, h.lon, h.acq_datetime);
       await openEvent(eventId, h);
@@ -552,12 +600,24 @@ export default function CesiumFireGlobe() {
     visibleHotspots.forEach((h) => {
       const id = hotspotKey(h);
       lookupRef.current.set(id, h);
-      const color = hotspotColor(h, confirmed, sensorColors);
+      const isHighlighted = highlightRegion && isHighlightedHotspot(h);
+      const color = isHighlighted ? HIGHLIGHT_COLOR : hotspotColor(h, confirmed, sensorColors);
+      const basePx = h.sensor === "modis" ? 9 : 7;
+      const entityName = h.place_hint
+        ? `${sensorFamily(h.sensor)} · ${h.place_hint}`
+        : `${sensorFamily(h.sensor)} detection`;
       viewer.entities.add({
         id,
-        name: `${sensorFamily(h.sensor)} detection`,
+        name: entityName,
         position: Cesium.Cartesian3.fromDegrees(h.lon, h.lat, 0),
-        point: { pixelSize: h.sensor === "modis" ? 9 : 7, color, outlineColor: Cesium.Color.BLACK.withAlpha(0.6), outlineWidth: 1, heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance: 0 },
+        point: {
+          pixelSize: isHighlighted ? basePx + 4 : basePx,
+          color,
+          outlineColor: isHighlighted ? HIGHLIGHT_COLOR.withAlpha(0.8) : Cesium.Color.BLACK.withAlpha(0.6),
+          outlineWidth: isHighlighted ? 3 : 1,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: 0,
+        },
         cylinder: layers["FRP Columns"]
           ? { length: Math.max(8000, (h.frp ?? 1) * 1500), topRadius: 9000, bottomRadius: 9000, material: color.withAlpha(0.4), heightReference: Cesium.HeightReference.CLAMP_TO_GROUND }
           : undefined,
@@ -566,19 +626,45 @@ export default function CesiumFireGlobe() {
 
     if (layers["Fire Events"]) {
       visibleEvents.forEach((e) => {
-        const color = Cesium.Color.fromCssColorString(BEHAVIOUR_COLORS[e.behaviour_state] ?? "#e2e8f0");
+        const baseColor = Cesium.Color.fromCssColorString(BEHAVIOUR_COLORS[e.behaviour_state] ?? "#e2e8f0");
         const selected = selectedEvent?.event_id === e.event_id;
+        const isHighlighted = highlightedEventIds.has(e.event_id);
+        const placeLabel = placeForEvent[e.event_id];
+        const color = isHighlighted ? HIGHLIGHT_COLOR : baseColor;
         viewer.entities.add({
           id: `ev:${e.event_id}`,
-          name: `Fire event (${e.behaviour_state})`,
+          name: placeLabel ? `${placeLabel} · ${e.behaviour_state}` : `Fire event (${e.behaviour_state})`,
           position: Cesium.Cartesian3.fromDegrees(e.centroid.lon, e.centroid.lat, 0),
-          point: { pixelSize: Math.min(22, 8 + Math.log2(e.observation_count) * 2), color: color.withAlpha(0.25), outlineColor: color, outlineWidth: selected ? 4 : 2, heightReference: Cesium.HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance: 0 },
+          point: {
+            pixelSize: Math.min(24, 8 + Math.log2(e.observation_count) * 2) + (isHighlighted ? 4 : 0),
+            color: color.withAlpha(isHighlighted ? 0.45 : 0.25),
+            outlineColor: color,
+            outlineWidth: isHighlighted ? 5 : selected ? 4 : 2,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            disableDepthTestDistance: 0,
+          },
+          label: isHighlighted && placeLabel
+            ? {
+                text: placeLabel,
+                font: "bold 12px Inter, sans-serif",
+                fillColor: HIGHLIGHT_COLOR,
+                outlineColor: Cesium.Color.BLACK,
+                outlineWidth: 2,
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                pixelOffset: new Cesium.Cartesian2(0, -22),
+                showBackground: true,
+                backgroundColor: Cesium.Color.fromCssColorString("#0b1220").withAlpha(0.75),
+                backgroundPadding: new Cesium.Cartesian2(6, 3),
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                disableDepthTestDistance: Number.POSITIVE_INFINITY,
+              }
+            : undefined,
         });
         if (e.hull.length >= 3) {
           viewer.entities.add({
             id: `ev:${e.event_id}#hull`,
             position: Cesium.Cartesian3.fromDegrees(e.centroid.lon, e.centroid.lat, 0),
-            polyline: { positions: Cesium.Cartesian3.fromDegreesArray([...e.hull, e.hull[0]].flat()), width: selected ? 3 : 1.5, material: color, clampToGround: true },
+            polyline: { positions: Cesium.Cartesian3.fromDegreesArray([...e.hull, e.hull[0]].flat()), width: isHighlighted ? 4 : selected ? 3 : 1.5, material: color, clampToGround: true },
           });
         }
       });
@@ -648,7 +734,7 @@ export default function CesiumFireGlobe() {
 
     updateHotspotOcclusion(viewer);
     viewer.scene.requestRender();
-  }, [aoi, confirmed, drawPoints, exposure, forecast, layers, selectedEvent, sensorColors, viewerReady, visibleEvents, visibleHotspots]);
+  }, [aoi, confirmed, drawPoints, exposure, forecast, highlightRegion, highlightedEventIds, layers, placeForEvent, selectedEvent, sensorColors, viewerReady, visibleEvents, visibleHotspots]);
 
   function flyToBBox(b: [number, number, number, number]) {
     viewerRef.current?.camera.flyTo({ destination: Cesium.Rectangle.fromDegrees(b[0], b[1], b[2], b[3]), duration: 1.2 });
@@ -906,6 +992,7 @@ export default function CesiumFireGlobe() {
           {aoi && (
             <div className="aoi-current">
               <strong>{describeAoi(aoi)}</strong>
+              {highlightRegion && <small className="aoi-demo-hint">✦ Active industrial clusters highlighted. Click one to see the place and open evidence.</small>}
               <label className="switch-row"><span>Show only this area</span><input type="checkbox" checked={filterToAoi} onChange={(e) => setFilterToAoi(e.target.checked)} /></label>
               <div className="aoi-actions">
                 <button type="button" onClick={() => flyToBBox(aoiBBox(aoi)!)}>Zoom</button>
