@@ -5,7 +5,7 @@ import "cesium/Build/Cesium/Widgets/widgets.css";
 import { getCurrentHotspots, getEvent, getEvents, lookupEvent, normalizeApiError, searchPlaces } from "../api/client";
 import { DEFAULT_SENSORS, aoiBBox, aoiContains, describeAoi, useAppContext } from "../context/AppContext";
 import type { AOI, FireEvent, FireEventSummary, ForecastHorizon, HotspotRecord, PlaceResult } from "../types/api";
-import EventPanel, { BEHAVIOUR_COLORS } from "./EventPanel";
+import EventPanel, { BEHAVIOUR_COLORS, KIND_COLORS, KIND_LABELS, REALITY_WEIGHT } from "./EventPanel";
 
 type LayerKey = "MODIS" | "VIIRS" | "Fire Events" | "FRP Columns" | "Forecast Corridor" | "Exposure";
 type LightingMode = "Dawn" | "Day" | "Dusk" | "Night";
@@ -626,20 +626,25 @@ export default function CesiumFireGlobe() {
 
     if (layers["Fire Events"]) {
       visibleEvents.forEach((e) => {
-        const baseColor = Cesium.Color.fromCssColorString(BEHAVIOUR_COLORS[e.behaviour_state] ?? "#e2e8f0");
+        // Fire Case marker: hollow while unchecked, fill colour = fire type, outline weight = confirmation level, faded once ended.
+        const c = e.case;
+        const baseColor = Cesium.Color.fromCssColorString(KIND_COLORS[c?.kind ?? "unknown"]);
+        const ended = c?.state === "Ended";
+        const fillAlpha = !c?.evidence_checked ? 0 : ended ? 0.12 : c.provisional ? 0.35 : 0.6;
         const selected = selectedEvent?.event_id === e.event_id;
         const isHighlighted = highlightedEventIds.has(e.event_id);
         const placeLabel = placeForEvent[e.event_id];
-        const color = isHighlighted ? HIGHLIGHT_COLOR : baseColor;
+        const color = isHighlighted ? HIGHLIGHT_COLOR : baseColor.withAlpha(ended ? 0.45 : 1);
+        const caseText = c?.evidence_checked ? `${c.reality} · ${KIND_LABELS[c.kind]} · ${c.state}${c.provisional ? " (provisional)" : ""}` : `Case open · ${c?.state ?? e.behaviour_state}`;
         viewer.entities.add({
           id: `ev:${e.event_id}`,
-          name: placeLabel ? `${placeLabel} · ${e.behaviour_state}` : `Fire event (${e.behaviour_state})`,
+          name: placeLabel ? `${placeLabel} · ${caseText}` : caseText,
           position: Cesium.Cartesian3.fromDegrees(e.centroid.lon, e.centroid.lat, 0),
           point: {
             pixelSize: Math.min(24, 8 + Math.log2(e.observation_count) * 2) + (isHighlighted ? 4 : 0),
-            color: color.withAlpha(isHighlighted ? 0.45 : 0.25),
+            color: color.withAlpha(isHighlighted ? 0.45 : fillAlpha),
             outlineColor: color,
-            outlineWidth: isHighlighted ? 5 : selected ? 4 : 2,
+            outlineWidth: (isHighlighted ? 5 : REALITY_WEIGHT[c?.reality ?? ""] ?? 2) + (selected ? 2 : 0),
             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
             disableDepthTestDistance: 0,
           },
@@ -960,10 +965,16 @@ export default function CesiumFireGlobe() {
           <p className="tiles-status">{sensorColors ? "Green MODIS · yellow VIIRS · red = MODIS+VIIRS within 15 km / 6 h" : "Colour by FRP: pale < 10, amber 10–30, orange 30–100, red ≥ 100 MW"}</p>
           {layers["Fire Events"] && (
             <div className="behaviour-legend">
-              {Object.entries(BEHAVIOUR_COLORS).map(([state, color]) => (
-                <span key={state}><i style={{ borderColor: color }} />{state}{behaviourCounts[state] ? ` ${behaviourCounts[state].toLocaleString()}` : ""}</span>
+              {(Object.keys(KIND_COLORS) as Array<keyof typeof KIND_COLORS>).map((kind) => (
+                <span key={kind}><i style={{ borderColor: KIND_COLORS[kind], background: kind === "unknown" ? "transparent" : KIND_COLORS[kind] }} />{KIND_LABELS[kind]}</span>
               ))}
-              <small>Events with 3+ detections are outlined. Click one to open it. States are inferred.</small>
+              <small>
+                Every event with 3+ detections is a Fire Case. Hollow = evidence not yet gathered; fill colour = fire type; thicker outline = stronger confirmation; faded = ended. Click one to open its case.
+              </small>
+              <small>
+                Inferred behaviour:{" "}
+                {Object.keys(BEHAVIOUR_COLORS).filter((s) => behaviourCounts[s]).map((s) => `${s} ${behaviourCounts[s].toLocaleString()}`).join(" · ") || "none"}
+              </small>
             </div>
           )}
         </section>
@@ -1066,6 +1077,7 @@ export default function CesiumFireGlobe() {
           onClose={() => { setSelectedEvent(null); setForecast({ horizon: null, size: 0 }); setExposure([]); }}
           onForecast={(horizon, size) => setForecast({ horizon, size })}
           onExposure={setExposure}
+          onCaseUpdate={(eventId, marker) => setEvents((cur) => cur.map((e) => (e.event_id === eventId ? { ...e, case: marker } : e)))}
         />
       )}
     </section>

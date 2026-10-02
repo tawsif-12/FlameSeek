@@ -18,6 +18,8 @@ import random
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+from witness import nominal_hours
+
 DEMO_TAG = "DEMO_DHAKA"
 DEMO_MATCH_RADIUS_KM = 40.0
 DHAKA_DEMO_SEED = 42
@@ -71,8 +73,26 @@ _FIRMS_SOURCE_BY_SENSOR = {
 }
 
 
-def _row(sensor: str, lat: float, lon: float, when: datetime, frp: float, confidence: float, place_hint: str, rnd: random.Random) -> dict[str, Any]:
+_WITNESS_BY_SATELLITE = {"Aqua": "aqua", "Terra": "terra", "N": "snpp", "N20": "noaa20", "N21": "noaa21"}
+
+
+def _overpass_before(witness: str, lon: float, target: datetime) -> datetime:
+    """Latest nominal overpass of this satellite at or before `target`, so demo times look like real passes."""
+    best = None
+    local_day = (target + timedelta(hours=lon / 15)).date()
+    for back in range(3):
+        day = local_day - timedelta(days=back)
+        for hour in nominal_hours(witness, day):
+            t = datetime(day.year, day.month, day.day, tzinfo=timezone.utc) + timedelta(hours=hour - lon / 15)
+            if t <= target and (best is None or t > best):
+                best = t
+    return best or target
+
+
+def _row(sensor: str, lat: float, lon: float, target: datetime, frp: float, confidence: float, place_hint: str, rnd: random.Random) -> dict[str, Any]:
     sat, scan, track = _sensor_meta(sensor, rnd)
+    when = (_overpass_before(_WITNESS_BY_SATELLITE[sat], lon, target) + timedelta(minutes=rnd.uniform(-3, 3))).replace(second=0, microsecond=0)
+    solar_hour = (when + timedelta(hours=lon / 15)).hour
     return {
         "lat": round(lat, 5),
         "lon": round(lon, 5),
@@ -81,7 +101,7 @@ def _row(sensor: str, lat: float, lon: float, when: datetime, frp: float, confid
         "frp": round(frp, 2),
         "sensor": sensor,
         "satellite": sat,
-        "daynight": "D" if 6 <= when.hour <= 18 else "N",
+        "daynight": "D" if 6 <= solar_hour < 18 else "N",
         "scan_km": scan,
         "track_km": track,
         "brightness_k": round(320 + frp * 0.5 + rnd.uniform(-5, 15), 1),
@@ -123,6 +143,42 @@ def dhaka_demo_hotspots(now: datetime | None = None) -> list[dict[str, Any]]:
             rows.append(_row(sensor, lat, lon, when, frp, confidence, label, rnd))
 
     return rows
+
+
+_ALIGNED: dict[str, list[dict[str, Any]]] = {}
+
+
+async def align_to_overpasses(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Move each demo detection onto the latest real in-swath pass of its satellite (from current TLEs).
+
+    Keeps the demo consistent with the Fire Case, which checks every detection against
+    predicted overpasses. Cached per hour; detections with no earlier pass keep their nominal time.
+    """
+    from overpass import predict_passes
+
+    key = datetime.now(timezone.utc).strftime("%Y%m%d%H")
+    if key in _ALIGNED:
+        return _ALIGNED[key]
+    by_cluster: dict[str, list[dict[str, Any]]] = {}
+    for r in rows:
+        by_cluster.setdefault(r["place_hint"], []).append(r)
+    out = []
+    for members in by_cluster.values():
+        lat, lon = members[0]["lat"], members[0]["lon"]
+        t0 = min(r["acq_datetime"] for r in members) - timedelta(days=1)
+        passes = (await predict_passes(lat, lon, t0, datetime.now(timezone.utc)))["passes"]
+        for r in members:
+            witness = _WITNESS_BY_SATELLITE[r["satellite"]]
+            earlier = [p["time"] for p in passes if p["witness"] == witness and p["in_swath"] and p["time"] <= r["acq_datetime"] + timedelta(minutes=30)]
+            item = dict(r)
+            if earlier:
+                when = max(earlier).replace(second=0, microsecond=0)
+                item["acq_datetime"] = when
+                item["daynight"] = "D" if 6 <= (when + timedelta(hours=lon / 15)).hour < 18 else "N"
+            out.append(item)
+    _ALIGNED.clear()
+    _ALIGNED[key] = out
+    return out
 
 
 def bbox_covers_dhaka(bbox: tuple[float, float, float, float] | None) -> bool:

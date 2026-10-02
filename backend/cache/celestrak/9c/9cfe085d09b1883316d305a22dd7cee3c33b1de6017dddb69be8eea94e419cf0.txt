@@ -1,0 +1,1 @@
+{"@context":"https:\/\/www.w3.org\/ns\/hydra\/context.jsonld","@id":"https:\/\/tle.ivanstanojevic.me\/api\/tle\/27424","@type":"Tle","satelliteId":27424,"name":"AQUA","date":"2026-10-01T22:30:08+00:00","line1":"1 27424U 02022A   26274.93759719  .00000416  00000+0  92452-4 0  9992","line2":"2 27424  98.4423 246.4282 0001170  62.0230 323.3961 14.62219586298876"}

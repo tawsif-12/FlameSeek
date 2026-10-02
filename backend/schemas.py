@@ -55,6 +55,10 @@ class DailyRecord(BaseModel):
     harmonized_activity: float = 0.0
     harmonized_low: float = 0.0
     harmonized_high: float = 0.0
+    detailed_activity: float | None = None
+    fused_fire_cells: float = 0.0
+    frp_aqua_equiv: float = 0.0
+    effort_looks: float = 0.0
     modis_count: int = 0
     viirs_count: int = 0
     modis_active_cells: float = 0.0

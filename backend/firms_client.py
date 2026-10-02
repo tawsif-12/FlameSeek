@@ -236,6 +236,7 @@ def _parse_csv(text: str, sensor: str, source: str = "") -> list[dict[str, Any]]
                 "brightness_k": _float_or_none(row.get("brightness") or row.get("bright_ti4")),
                 "brightness_2_k": _float_or_none(row.get("bright_t31") or row.get("bright_ti5")),
                 "version": row.get("version", ""),
+                "fire_type": int(row["type"]) if str(row.get("type") or "").strip().isdigit() else None,
                 "source": source,
             }
         )
@@ -398,11 +399,11 @@ async def fetch_recent_hotspots(
             return _parse_csv(text, sensor, source)
 
     # Demo overlay: dense Dhaka (Ashulia) cluster for hackathon walkthroughs.
-    from demo_data import bbox_covers_dhaka, dhaka_demo_hotspots
+    from demo_data import align_to_overpasses, bbox_covers_dhaka, dhaka_demo_hotspots
     demo_rows: list[dict[str, Any]] = []
     if bbox_covers_dhaka(bbox):
         cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-        demo_rows = [row for row in dhaka_demo_hotspots() if row["sensor"] in sensors and row["acq_datetime"] >= cutoff]
+        demo_rows = [row for row in await align_to_overpasses(dhaka_demo_hotspots()) if row["sensor"] in sensors and row["acq_datetime"] >= cutoff]
 
     # Negative cache: after a recent FIRMS failure, skip live calls for a short window
     # so the UI returns instantly from cached/demo data instead of waiting on retries.

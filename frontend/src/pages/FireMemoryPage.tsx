@@ -54,7 +54,7 @@ export default function FireMemoryPage() {
           <p className="eyebrow"><span className="dot" /> Stage 1 · Fire Memory</p>
           <h2>What normally happens in this area?</h2>
           <p className="lead">
-            Up to 26 years of MODIS and VIIRS observations are harmonized onto a common ~1 km grid. The result is a burning activity calendar,
+            Up to 26 years of Terra, Aqua, Suomi NPP and NOAA-20 observations are harmonized into one consistent record (what Aqua MODIS would have seen at 13:30, per clear look). The result is a burning activity calendar,
             seasonal profiles, and a comparison of current activity with the area's own history.
           </p>
           <ul className="hero-chips">
@@ -120,16 +120,16 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
       <section className="stats-grid memory-stats">
         <article><span>Area</span><strong className="small">{String(memory.aoi.name ?? describeAoi(memory.aoi as never))}</strong><small>{Number(memory.aoi.area_km2).toLocaleString()} km²</small></article>
         <article><span>Record</span><strong className="small">{memory.period.start} → {memory.period.end}</strong><small>{memory.period.days.toLocaleString()} days</small></article>
-        <article><span>Harmonized activity</span><strong>{Math.round(memory.summary.total_harmonized_activity).toLocaleString()}</strong><small>MODIS-equivalent active-cell days · {memory.summary.total_hotspots.toLocaleString()} raw detections</small></article>
+        <article><span>Harmonized activity</span><strong>{Math.round(memory.summary.total_harmonized_activity).toLocaleString()}</strong><small>Aqua 13:30-equivalent detections per clear look, summed over days · {memory.summary.total_hotspots.toLocaleString()} raw detections</small></article>
         <article><span>Now vs history</span><strong className={`category ${cmp.overall_category?.replace(/\s/g, "-").toLowerCase()}`}>{cmp.overall_category ?? "Not assessed"}</strong><small>{cmp.robust_z !== undefined ? `robust z ${cmp.robust_z}` : cmp.note}</small></article>
       </section>
 
       <section className="memory-grid">
         <article className="viz-panel wide">
           <h3>Burning Activity Calendar</h3>
-          <p className="meta-text">Monthly harmonized burning activity per year. Empty cells are outside the record.</p>
+          <p className="meta-text">Monthly burning activity per year from the consistent record (MODIS-level sensitivity, Aqua 13:30 equivalent), so the 2012 VIIRS start does not create a false jump. Empty cells are outside the record.</p>
           <Plot
-            data={[{ type: "heatmap", x: memory.calendar.months, y: memory.calendar.years.map(String), z: memory.calendar.activity, colorscale: "YlOrRd", reversescale: true, hovertemplate: "%{y} %{x}: %{z:.1f} active-cell days<extra></extra>", xgap: 2, ygap: 2 }]}
+            data={[{ type: "heatmap", x: memory.calendar.months, y: memory.calendar.years.map(String), z: memory.calendar.activity, colorscale: "YlOrRd", reversescale: true, hovertemplate: "%{y} %{x}: %{z:.1f} (consistent record)<extra></extra>", xgap: 2, ygap: 2 }]}
             layout={{ ...plotLayout, height: Math.max(220, 34 * memory.calendar.years.length + 80), margin: { l: 50, r: 10, t: 10, b: 30 }, yaxis: { autorange: "reversed", type: "category" } }}
             config={{ responsive: true, displayModeBar: false }}
             className="plot"
@@ -230,17 +230,7 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
           <p className="meta-text">{memory.observation_quality.method}</p>
         </article>
 
-        <article className="viz-panel">
-          <h3>Sensor harmonization</h3>
-          <dl className="kv">
-            <div><dt>Status</dt><dd>{memory.calibration.status}</dd></div>
-            <div><dt>VIIRS → MODIS factor</dt><dd>{memory.calibration.viirs_to_modis_factor ?? "not estimated"}</dd></div>
-            <div><dt>Factor IQR</dt><dd>{memory.calibration.factor_iqr ? memory.calibration.factor_iqr.join(" – ") : "–"}</dd></div>
-            <div><dt>Co-observed pairs</dt><dd>{memory.calibration.pairs}</dd></div>
-          </dl>
-          <p className="meta-text">{memory.calibration.note}</p>
-          <p className="meta-text">Harmonized Observed Burning Activity is the best comparable estimate from the satellites. It is not ground truth.</p>
-        </article>
+        <FourWitness memory={memory} />
 
         <article className="viz-panel wide">
           <h3>Critical periods</h3>
@@ -273,6 +263,125 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
   );
 }
 
+const SENSOR_CHANGES = [
+  { date: "2012-01-20", label: "Suomi NPP VIIRS" },
+  { date: "2018-04-01", label: "NOAA-20 VIIRS" },
+  { date: "2021-07-01", label: "Aqua drift" },
+];
+
+function FourWitness({ memory }: { memory: FireMemoryResult }) {
+  const w = memory.witness;
+  const profile = w.summary.detection_profile;
+  const curve = w.summary.diurnal.overall;
+  const hidden = w.validation.hide_one_witness;
+  const monthly = useMemo(() => {
+    const by = new Map<string, { raw: number; consistent: number; detailed: number; detailedDays: number }>();
+    memory.daily.forEach((r) => {
+      const key = r.date.slice(0, 7);
+      const m = by.get(key) ?? { raw: 0, consistent: 0, detailed: 0, detailedDays: 0 };
+      m.raw += r.hotspot_count;
+      m.consistent += r.harmonized_activity;
+      if (r.detailed_activity !== null) {
+        m.detailed += r.detailed_activity;
+        m.detailedDays += 1;
+      }
+      by.set(key, m);
+    });
+    const keys = [...by.keys()].sort();
+    return { x: keys.map((k) => `${k}-01`), rows: keys.map((k) => by.get(k)!) };
+  }, [memory]);
+  const start = memory.daily[0]?.date ?? "";
+  const end = memory.daily[memory.daily.length - 1]?.date ?? "";
+  const shapes = SENSOR_CHANGES.filter((c) => c.date > start && c.date < end).map((c) => ({ type: "line" as const, x0: c.date, x1: c.date, yref: "paper" as const, y0: 0, y1: 1, line: { color: "#64748b", width: 1, dash: "dot" as const } }));
+  const annotations = SENSOR_CHANGES.filter((c) => c.date > start && c.date < end).map((c) => ({ x: c.date, y: 1, yref: "paper" as const, text: c.label, showarrow: false, font: { size: 10, color: "#64748b" }, yanchor: "bottom" as const }));
+  return (
+    <>
+      <article className="viz-panel">
+        <h3>Four witnesses</h3>
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Witness</th><th>Detections</th><th>Chance per look</th><th>Looks / pass here</th></tr></thead>
+            <tbody>
+              {Object.entries(w.summary.witnesses).filter(([, v]) => v.detections > 0).map(([k, v]) => (
+                <tr key={k}><td>{v.label}</td><td>{v.detections.toLocaleString()}</td><td>{Math.round(v.sensitivity_per_look * 100)}%</td><td>{v.looks_per_pass_at_aoi}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <dl className="kv">
+          <div><dt>Detection profile</dt><dd>{profile.source === "learned" ? `learned from ${profile.matchups.toLocaleString()} Aqua/S-NPP matchups` : "published prior"}</dd></div>
+          <div><dt>MODIS 50% detection</dt><dd>{profile.frp50_nadir_mw ?? "–"} MW at nadir · {profile.frp50_scan_edge_mw ?? "–"} MW at scan edge</dd></div>
+          <div><dt>VIIRS fires MODIS would see</dt><dd>{Math.round(w.summary.modis_fraction_of_viirs_fires * 100)}%</dd></div>
+          <div><dt>MODIS / VIIRS FRP</dt><dd>{profile.modis_frp_per_viirs_frp} ({profile.frp_relation_source})</dd></div>
+          <div><dt>MODIS duplicates removed</dt><dd>{(w.summary.cleaning.modis_duplicates_removed ?? 0).toLocaleString()}</dd></div>
+          <div><dt>Daily fire curve</dt><dd>peak {curve.peak_hour.toFixed(1)} h local, width {curve.width_h} h ({w.summary.diurnal.source})</dd></div>
+        </dl>
+        <p className="meta-text">{profile.note}</p>
+        <p className="meta-text">{w.summary.diurnal.note}</p>
+        <p className="meta-text">{w.summary.effort.method} Cloud: {w.summary.effort.cloud_source}.</p>
+        <p className="meta-text">{w.summary.fusion.method}</p>
+      </article>
+
+      <article className="viz-panel wide">
+        <h3>Two tiers: consistent record vs raw detections</h3>
+        <p className="meta-text">
+          Raw detection counts jump when a new sensor starts. The consistent record keeps MODIS-level sensitivity across 2000 to today, so trends and anomalies stay comparable. The detailed
+          layer keeps every VIIRS detection for the globe and live hotspots.
+        </p>
+        <Plot
+          data={[
+            { type: "bar", x: monthly.x, y: monthly.rows.map((m) => m.raw), name: "raw detections (all sensors)", marker: { color: "rgba(100,116,139,0.35)" }, yaxis: "y2" },
+            { type: "scatter", mode: "lines", x: monthly.x, y: monthly.rows.map((m) => m.consistent), name: "consistent record", line: { color: "#c2410c", width: 2 } },
+            { type: "scatter", mode: "lines", x: monthly.x, y: monthly.rows.map((m) => (m.detailedDays ? m.detailed : null)), name: "detailed VIIRS layer", line: { color: "#0ea5e9", width: 1.2, dash: "dash" } },
+          ] as never}
+          layout={{
+            ...plotLayout,
+            height: 300,
+            margin: { l: 50, r: 50, t: 24, b: 40 },
+            legend: { orientation: "h", y: -0.18 },
+            shapes,
+            annotations,
+            yaxis: { title: { text: "per clear look, summed by month" } },
+            yaxis2: { overlaying: "y", side: "right", title: { text: "raw detections" }, showgrid: false },
+          }}
+          config={{ responsive: true, displayModeBar: false }}
+          className="plot"
+        />
+      </article>
+
+      <article className="viz-panel wide">
+        <h3>Validation</h3>
+        <h4>Continuity test</h4>
+        {(w.validation.continuity ?? []).length === 0 ? (
+          <p className="meta-text">Needs at least a year of record on both sides of a sensor change (Suomi NPP start 2012-01-20 or NOAA-20 start 2018-04-01).</p>
+        ) : (
+          <ul className="flag-list">
+            {(w.validation.continuity ?? []).map((c) => (
+              <li key={c.change}>
+                <strong>{c.change} · {c.verdict ?? "not assessed"}</strong>
+                <span>
+                  {c.window_months} months after vs before: raw count ×{c.raw_count_ratio ?? "–"}, consistent record ×{c.consistent_record_ratio ?? "–"}. Real year-to-year change moves both, so compare them with each other.
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <h4>Hide-one-witness test</h4>
+        {hidden?.status === "ok" ? (
+          <dl className="kv">
+            <div><dt>Hidden</dt><dd>{hidden.hidden} ({hidden.hidden_detections?.toLocaleString()} detected cell-days)</dd></div>
+            <div><dt>AUC, fused probability</dt><dd>{hidden.auc_fused ?? "–"}</dd></div>
+            <div><dt>AUC, historical rate only</dt><dd>{hidden.auc_prior_only ?? "–"}</dd></div>
+            <div><dt>AUC, hard cases</dt><dd>{hidden.auc_fused_where_other_witnesses_detected ?? "–"}</dd></div>
+            <div><dt>Brier (fused vs prior)</dt><dd>{hidden.brier_fused} vs {hidden.brier_prior_only}</dd></div>
+          </dl>
+        ) : null}
+        <p className="meta-text">{hidden?.note ?? "Not run."}</p>
+      </article>
+    </>
+  );
+}
+
 function DailySeries({ memory }: { memory: FireMemoryResult }) {
   const traces = useMemo(() => {
     const d = memory.daily;
@@ -291,7 +400,7 @@ function DailySeries({ memory }: { memory: FireMemoryResult }) {
   return (
     <article className="viz-panel wide">
       <h3>Harmonized daily activity and anomalies</h3>
-      <p className="meta-text">MODIS-equivalent active ~1 km cells per day. Markers show Above Normal / Unusual / Highly Unusual days (robust median/MAD). Grey ticks mark days where absence of fire cannot be claimed.</p>
+      <p className="meta-text">Consistent record: Aqua 13:30-equivalent detections per clear-sky look, with a 95% range from the detection profile. Markers show Above Normal / Unusual / Highly Unusual days (robust median/MAD). Grey ticks mark days where absence of fire cannot be claimed.</p>
       <Plot
         data={traces as never}
         layout={{ ...plotLayout, height: 340, margin: { l: 50, r: 10, t: 10, b: 40 }, legend: { orientation: "h", y: -0.2 }, xaxis: { rangeslider: { visible: true } } }}

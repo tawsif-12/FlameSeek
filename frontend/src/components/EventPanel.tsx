@@ -1,10 +1,49 @@
 import { useEffect, useState } from "react";
 import Plot from "react-plotly.js";
 import { normalizeApiError, runJob, startEvidence, startOutlook } from "../api/client";
-import type { EvidenceCheck, EvidenceResult, FireEvent, ForecastHorizon, HotspotRecord, Job, ModelMetrics, OutlookResult } from "../types/api";
+import type { CaseKind, CaseMarker, EvidenceCheck, EvidenceResult, FireCase, FireEvent, ForecastHorizon, HotspotRecord, Job, ModelMetrics, OutlookResult } from "../types/api";
 
-type Tab = "Satellite" | "Event" | "Quality" | "Evidence" | "Past" | "Future" | "Exposure";
-const TABS: Tab[] = ["Satellite", "Event", "Quality", "Evidence", "Past", "Future", "Exposure"];
+type Tab = "Case" | "Satellite" | "Event" | "Quality" | "Evidence" | "Past" | "Future" | "Exposure";
+const TABS: Tab[] = ["Case", "Satellite", "Event", "Quality", "Evidence", "Past", "Future", "Exposure"];
+const CASE_REFRESH_MS = 10 * 60 * 1000;
+export const KIND_COLORS: Record<CaseKind, string> = {
+  agricultural_burn: "#eab308",
+  wildfire: "#ef4444",
+  controlled_burn: "#a855f7",
+  industrial_source: "#22d3ee",
+  building_fire: "#f97316",
+  volcanic: "#be123c",
+  not_a_fire: "#94a3b8",
+  unknown: "#e2e8f0",
+};
+export const KIND_LABELS: Record<CaseKind, string> = {
+  agricultural_burn: "Agricultural burn",
+  wildfire: "Forest or wildfire",
+  controlled_burn: "Controlled burn",
+  industrial_source: "Industrial heat / gas flare",
+  building_fire: "Building or industrial fire",
+  volcanic: "Volcanic activity",
+  not_a_fire: "Not a fire",
+  unknown: "Type not yet known",
+};
+export const REALITY_WEIGHT: Record<string, number> = {
+  "Confirmed fire": 5,
+  "Highly likely fire": 4,
+  "Possible fire (needs verification)": 2,
+  "No external confirmation yet": 2,
+  "Likely non-fire thermal anomaly": 1,
+};
+const OUTCOME_TONE: Record<string, string> = {
+  first_detection: "seen",
+  seen: "seen",
+  seen_stronger: "seen",
+  seen_weaker: "seen",
+  spread: "seen",
+  clear_no_fire: "clear",
+  cloud_or_smoke: "cloud",
+  not_covered: "none",
+  expected: "expected",
+};
 export const BEHAVIOUR_COLORS: Record<string, string> = {
   Onset: "#38bdf8",
   Intensifying: "#f43f5e",
@@ -42,10 +81,11 @@ interface Props {
   onClose: () => void;
   onForecast: (horizon: ForecastHorizon | null, cellSize: number) => void;
   onExposure: (items: Array<{ lat: number; lon: number; name: string; category: string }>) => void;
+  onCaseUpdate: (eventId: string, marker: CaseMarker) => void;
 }
 
-export default function EventPanel({ event, detection, onClose, onForecast, onExposure }: Props) {
-  const [tab, setTab] = useState<Tab>("Satellite");
+export default function EventPanel({ event, detection, onClose, onForecast, onExposure, onCaseUpdate }: Props) {
+  const [tab, setTab] = useState<Tab>("Case");
   const [evidence, setEvidence] = useState<EvidenceResult | null>(null);
   const [evidenceJob, setEvidenceJob] = useState<Job<EvidenceResult> | null>(null);
   const [evidenceError, setEvidenceError] = useState<string | null>(null);
@@ -58,7 +98,10 @@ export default function EventPanel({ event, detection, onClose, onForecast, onEx
     setEvidenceError(null);
     try {
       const result = await runJob(startEvidence(event.event_id, refresh), setEvidenceJob, signal);
-      if (!signal?.cancelled) setEvidence(result);
+      if (!signal?.cancelled) {
+        setEvidence(result);
+        onCaseUpdate(event.event_id, { ...result.fire_case.marker, evidence_checked: true, updated_at: result.generated_at });
+      }
     } catch (err) {
       if (!signal?.cancelled) setEvidenceError(normalizeApiError(err));
     } finally {
@@ -95,6 +138,19 @@ export default function EventPanel({ event, detection, onClose, onForecast, onEx
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [event.event_id]);
 
+  // An open case is provisional: re-gather evidence periodically so the answer and map marker follow new passes.
+  const caseOpen = evidence?.fire_case.status === "open";
+  useEffect(() => {
+    if (!caseOpen) return;
+    const signal = { cancelled: false };
+    const timer = window.setInterval(() => void loadEvidence(true, signal), CASE_REFRESH_MS);
+    return () => {
+      signal.cancelled = true;
+      window.clearInterval(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caseOpen, event.event_id]);
+
   useEffect(() => {
     if (!outlook) return;
     const h = outlook.forecast.horizons[horizon];
@@ -103,6 +159,7 @@ export default function EventPanel({ event, detection, onClose, onForecast, onEx
   }, [outlook, horizon]);
 
   const status = evidence?.inference.final_status;
+  const fireCase = evidence?.fire_case;
   const det = detection ?? event.detections[event.detections.length - 1];
 
   return (
@@ -114,9 +171,16 @@ export default function EventPanel({ event, detection, onClose, onForecast, onEx
             <span className="state-dot" style={{ background: BEHAVIOUR_COLORS[event.behaviour.state] }} />
             {event.behaviour.state} · {event.observation_count} detection{event.observation_count > 1 ? "s" : ""}
           </h3>
-          <p className={`validation-chip ${status ? STATUS_TONE[status] ?? "" : ""}`}>
-            {status ? `${status} · ${evidence?.inference.system_evidence_score}/100` : evidenceJob ? "Checking evidence..." : "Evidence pending"}
-          </p>
+          {fireCase ? (
+            <p className="case-chip">
+              <span style={{ background: KIND_COLORS[fireCase.answer.kind.category] }} />
+              {fireCase.answer.is_real.label} · {fireCase.answer.kind.decided ? fireCase.answer.kind.label : "type uncertain"} · {fireCase.answer.now.label}
+              {fireCase.provisional && <em>provisional</em>}
+            </p>
+          ) : (
+            <p className="validation-chip">{evidenceJob ? "Case open: gathering evidence..." : "Case open: evidence pending"}</p>
+          )}
+          {status && <p className={`validation-chip ${STATUS_TONE[status] ?? ""}`}>{status} · {evidence?.inference.system_evidence_score}/100</p>}
         </div>
         <button type="button" aria-label="Close event details" onClick={onClose}>X</button>
       </header>
@@ -126,6 +190,7 @@ export default function EventPanel({ event, detection, onClose, onForecast, onEx
         ))}
       </nav>
       <div className="event-panel-body">
+        {tab === "Case" && <CaseTab fireCase={fireCase ?? null} job={evidenceJob} error={evidenceError} onRefresh={() => loadEvidence(true)} />}
         {tab === "Satellite" && <SatelliteTab det={det} event={event} />}
         {tab === "Event" && <EventTab event={event} />}
         {tab === "Quality" && <QualityTab event={event} evidence={evidence} />}
@@ -141,6 +206,117 @@ export default function EventPanel({ event, detection, onClose, onForecast, onEx
         <span className="obs">Observation</span> what satellites recorded · <span className="inf">Inference</span> what the system concludes · <span className="ext">External</span> what independent sources report · <span className="fc">Forecast</span> what may be observed next
       </footer>
     </aside>
+  );
+}
+
+function CaseTab({ fireCase, job, error, onRefresh }: { fireCase: FireCase | null; job: Job<EvidenceResult> | null; error: string | null; onRefresh: () => void }) {
+  if (!fireCase) {
+    return (
+      <section>
+        <h4>Fire Case</h4>
+        <p className="note">This detection opened a case. Later satellite passes, geostationary satellites, news and official reports are being gathered into one evidence block.</p>
+        {job && <JobProgress job={job} />}
+        {error && <p className="evidence-error">{error}</p>}
+      </section>
+    );
+  }
+  const a = fireCase.answer;
+  const rules = fireCase.decision_rules;
+  const pastPasses = fireCase.passes.filter((p) => p.outcome !== "expected");
+  return (
+    <>
+      <section className="tag-inf">
+        <div className="validation-header">
+          <div>
+            <p className="eyebrow">Fire Case · {fireCase.status === "open" ? `open until ${fmtTime(fireCase.closes_at)}` : "closed"}</p>
+            <h4>The answer {fireCase.provisional && <small>(provisional)</small>}</h4>
+          </div>
+          <button type="button" onClick={onRefresh} disabled={Boolean(job)}>{job ? "..." : "Recheck"}</button>
+        </div>
+        <ol className="case-answer">
+          <li><span>Is it real?</span><strong>{a.is_real.label}</strong><small>{a.is_real.basis}</small></li>
+          <li>
+            <span>What kind?</span>
+            <strong><i style={{ background: KIND_COLORS[a.kind.category] }} />{a.kind.label}</strong>
+            <small>{a.kind.basis}</small>
+          </li>
+          <li><span>What is it doing now?</span><strong>{a.now.label}</strong><small>{a.now.basis}</small></li>
+        </ol>
+        {fireCase.pending_witnesses.length > 0 && fireCase.status === "open" && <p className="note">Still waiting for: {fireCase.pending_witnesses.join(", ")}.</p>}
+        <h4>Category evidence scores</h4>
+        <ul className="category-bars">
+          {fireCase.category_scores.map((c) => (
+            <li key={c.category} className={c.category === rules.top && rules.passed ? "top" : ""}>
+              <span>{c.label}</span>
+              <div><i style={{ width: `${c.score}%`, background: KIND_COLORS[c.category] }} /></div>
+              <b>{c.score}%</b>
+            </li>
+          ))}
+        </ul>
+        <p className="note">
+          Decision rules: the top category must score above {rules.min_top_score}% and lead the next by {rules.min_lead} points. The top scores {rules.top_score}% with a {rules.lead}-point lead, so{" "}
+          {rules.passed ? "the type is named" : "no type is named"}. {fireCase.score_note}
+        </p>
+        <p className="note">
+          Satellite fire probability (fused from every look within 12 h): <strong>{Math.round(fireCase.satellite_fire_probability.probability * 100)}%</strong> from{" "}
+          {fireCase.satellite_fire_probability.passes_used} pass(es), prior {Math.round(fireCase.satellite_fire_probability.prior * 100)}%.
+        </p>
+        <h4>Plain-language explanation</h4>
+        <p className="explanation">{fireCase.explanation}</p>
+      </section>
+      <section className="tag-obs">
+        <h4>Stream A · later satellite passes</h4>
+        <ul className="pass-list">
+          {pastPasses.map((p, i) => (
+            <li key={`${p.witness}-${p.time}-${i}`} className={`pass ${OUTCOME_TONE[p.outcome] ?? ""}`}>
+              <time>{fmtTime(p.time)}</time>
+              <strong>{p.label}</strong>
+              <span>
+                {p.outcome_label}
+                {p.frp_mw !== undefined ? ` · ${p.frp_mw} MW` : ""}
+                {p.cloud_cover_pct !== undefined && p.cloud_cover_pct !== null ? ` · cloud ${Math.round(p.cloud_cover_pct)}%` : ""}
+              </span>
+              {p.swath_position !== "unknown" && <small>{p.swath_position}</small>}
+            </li>
+          ))}
+        </ul>
+        {fireCase.next_passes.length > 0 && <p className="note">Next passes: {fireCase.next_passes.map((p) => `${p.label} ${fmtTime(p.time)}`).join(" · ")}</p>}
+        <p className="note">Overpasses: {fireCase.overpass_method}. {fireCase.overpass_errors.join(" ")}</p>
+      </section>
+      <section className="tag-ext">
+        <h4>Stream B · geostationary satellites</h4>
+        <p className="note">
+          {fireCase.geostationary.status === "seen"
+            ? `${fireCase.geostationary.satellite} saw it from ${fmtTime(fireCase.geostationary.started)} to ${fmtTime(fireCase.geostationary.last_seen)} (${fireCase.geostationary.duration_hours} h).`
+            : fireCase.geostationary.detail}
+        </p>
+        {fireCase.geostationary.review_links.map((l) => l.review_url && <a key={l.name} href={l.review_url} target="_blank" rel="noreferrer">{l.name}</a>)}
+        <p className="note">Stream C (news and official reports) is listed in the evidence block below and in full on the Evidence tab.</p>
+      </section>
+      <section>
+        <h4>Evidence block (time-ordered)</h4>
+        <ul className="evidence-block">
+          {fireCase.evidence_block.map((item, i) => (
+            <li key={i} className={`ev-${item.kind}`}>
+              <div>
+                <b className={`stream stream-${item.stream}`}>{item.stream === "background" ? "Background" : item.stream === "trigger" ? "Trigger" : `Stream ${item.stream}`}</b>
+                <span>{item.source}</span>
+                {item.time && <time>{fmtTime(item.time)}</time>}
+              </div>
+              <p>{item.summary}</p>
+              {Object.keys(item.votes).length > 0 && (
+                <small>
+                  Votes (reliability {item.reliability}): {Object.entries(item.votes).map(([k, v]) => `${KIND_LABELS[k as CaseKind] ?? k} +${v}`).join(", ")}
+                </small>
+              )}
+              {item.link && <a href={item.link} target="_blank" rel="noreferrer">Original source</a>}
+            </li>
+          ))}
+        </ul>
+        {fireCase.burning_season.status === "ok" && <p className="note">Burning calendar: {fireCase.burning_season.window}. {fireCase.burning_season.note}</p>}
+        <ul className="note-list">{Object.values(fireCase.situations).map((t) => <li key={t}>{t}</li>)}</ul>
+      </section>
+    </>
   );
 }
 

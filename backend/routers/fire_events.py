@@ -30,6 +30,7 @@ from routers.analysis import _parse_bbox
 router = APIRouter()
 _EVENTS: dict[str, dict[str, Any]] = {}
 _DETECTION_INDEX: dict[str, str] = {}
+_CASES: dict[str, dict[str, Any]] = {}
 _SET_CACHE: dict[str, tuple[float, dict[str, Any]]] = {}
 SET_TTL = 15 * 60
 
@@ -46,10 +47,19 @@ def _store(events: list[dict[str, Any]]) -> None:
             _DETECTION_INDEX[detection_key(d["sensor"], d["lat"], d["lon"], d["acq_datetime"])] = ev["event_id"]
 
 
+def _provisional_marker(ev: dict[str, Any]) -> dict[str, Any]:
+    """Marker for an event whose case has not gathered external evidence yet."""
+    since = ev["behaviour"]["metrics"]["hours_since_last_detection"]
+    state = "Ended" if since > 48 else "Growing" if ev["behaviour"]["state"] in {"Expanding", "Intensifying"} else "Weakening" if ev["behaviour"]["state"] == "Decaying" else "Active"
+    return {"kind": "unknown", "reality": "No external confirmation yet", "state": state, "provisional": True, "evidence_checked": False}
+
+
 def _layer_row(ev: dict[str, Any]) -> dict[str, Any]:
     s = event_summary(ev)
     s["behaviour_state"] = ev["behaviour"]["state"]
     s["behaviour"] = {"state": ev["behaviour"]["state"], "label_type": ev["behaviour"]["label_type"]}
+    case = _CASES.get(ev["event_id"])
+    s["case"] = {**case["marker"], "evidence_checked": True, "updated_at": case["updated_at"]} if case else _provisional_marker(ev)
     if ev["observation_count"] == 1:
         s["hull"] = []
     return s
@@ -162,7 +172,18 @@ async def _run_evidence(job: Job, ev: dict[str, Any], refresh: bool) -> dict[str
     await job.update("Reverse geocoding and querying satellites, agencies and news", 0.1)
     subject = subject_from_event(ev)
     subject["observation_quality"] = await _observation_quality(ev)
-    return await build_evidence(subject, refresh=refresh)
+    result = await build_evidence(subject, refresh=refresh)
+    _CASES[ev["event_id"]] = {**result["fire_case"], "updated_at": result["generated_at"]}
+    return result
+
+
+@router.get("/events/{event_id}/case")
+async def get_case(event_id: str) -> dict[str, Any]:
+    case = _CASES.get(event_id)
+    if not case:
+        ev = _get(event_id)
+        return {"case_id": event_id, "status": "open", "provisional": True, "marker": _provisional_marker(ev), "note": "No evidence gathered yet; run POST /events/{id}/evidence."}
+    return case
 
 
 @router.post("/events/{event_id}/evidence")

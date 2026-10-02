@@ -1,0 +1,5 @@
+latitude,longitude,brightness,scan,track,acq_date,acq_time,satellite,instrument,confidence,version,bright_t31,frp,daynight,type
+22.3029,91.8705,326.7,1.1,1,2011-02-23,720,Aqua,MODIS,80,6.03,305.1,18.4,D,0
+22.3916,92.1342,318.1,1.1,1,2011-02-23,720,Aqua,MODIS,69,6.03,307.3,7.3,D,0
+22.393,92.1446,318.6,1.1,1,2011-02-23,720,Aqua,MODIS,70,6.03,306.1,8.1,D,0
+22.3616,92.1735,320,1,1,2011-02-25,708,Aqua,MODIS,72,6.03,305.7,9.6,D,0

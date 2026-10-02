@@ -63,7 +63,9 @@ async def _calendar(payload: GenerateCalendarRequest) -> GenerateCalendarRespons
     except FirmsAPIError as exc:
         raise HTTPException(status_code=502, detail={"error": "firms_api_error", "message": exc.message, "detail": {"status_code": exc.status_code, "url": exc.url}}) from exc
     hotspots = aoi.filter(hotspots)
-    daily, calibration = build_harmonized_series(hotspots, payload.start_date, payload.end_date, [str(s) for s in payload.sensors])
+    west, south, east, north = aoi.bbox
+    daily, calibration = build_harmonized_series(hotspots, payload.start_date, payload.end_date, [str(s) for s in payload.sensors], area_km2=aoi.area_km2(), lat_center=(south + north) / 2)
+    calibration.pop("witness")
     summary = summarize_daily_series(daily)
     return GenerateCalendarResponse(
         daily_series=daily,

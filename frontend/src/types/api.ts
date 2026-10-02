@@ -157,6 +157,18 @@ export interface FireEventSummary {
   association_note: string;
   behaviour: Behaviour;
   behaviour_state: Behaviour["state"];
+  case?: CaseMarker;
+}
+
+export type CaseKind = "agricultural_burn" | "wildfire" | "controlled_burn" | "industrial_source" | "building_fire" | "volcanic" | "not_a_fire" | "unknown";
+
+export interface CaseMarker {
+  kind: CaseKind;
+  reality: string;
+  state: "Active" | "Growing" | "Weakening" | "Ended";
+  provisional: boolean;
+  evidence_checked: boolean;
+  updated_at?: string;
 }
 
 export interface TimelineBin {
@@ -259,8 +271,64 @@ export interface EvidenceResult {
     explanation: string;
     confirmed_label_policy: string;
   };
+  fire_case: FireCase;
   source_transparency: Record<string, string>;
   generated_at: string;
+}
+
+export interface CasePass {
+  witness: string;
+  label: string;
+  time: string;
+  off_nadir_km: number | null;
+  in_swath: boolean;
+  swath_position: string;
+  local_solar_hour: number | null;
+  method: string;
+  outcome: string;
+  outcome_label: string;
+  frp_mw?: number;
+  detections?: number;
+  cloud_cover_pct?: number | null;
+}
+
+export interface CaseEvidenceItem {
+  time: string | null;
+  stream: "trigger" | "background" | "A" | "B" | "C";
+  source: string;
+  kind: "observation" | "background" | "external" | "note";
+  summary: string;
+  reliability: number;
+  votes: Record<string, number>;
+  link: string | null;
+}
+
+export interface FireCase {
+  case_id: string;
+  opened_at: string;
+  closes_at: string;
+  status: "open" | "closed";
+  provisional: boolean;
+  pending_witnesses: string[];
+  answer: {
+    is_real: { label: string; basis: string };
+    kind: { category: CaseKind; label: string; decided: boolean; basis: string };
+    now: { label: CaseMarker["state"]; basis: string };
+  };
+  category_scores: Array<{ category: CaseKind; label: string; score: number; raw_score: number }>;
+  decision_rules: { min_top_score: number; min_lead: number; top: CaseKind; top_score: number; lead: number; passed: boolean };
+  satellite_fire_probability: { probability: number; prior: number; passes_used: number; method: string };
+  passes: CasePass[];
+  next_passes: Array<{ label: string; time: string; swath_position: string }>;
+  overpass_method: string;
+  overpass_errors: string[];
+  geostationary: { status: string; satellite?: string; started?: string; last_seen?: string; duration_hours?: number; detail?: string | null; review_links: EvidenceCheck[] };
+  burning_season: { status: string; years_checked?: number; years_with_fire_within_5km?: number; years_with_heat_within_1km?: number; window?: string; note?: string };
+  evidence_block: CaseEvidenceItem[];
+  explanation: string;
+  marker: Omit<CaseMarker, "evidence_checked">;
+  situations: Record<string, string>;
+  score_note: string;
 }
 
 // --- Outlook: analogues, forecast, exposure ----------------------------------------------------
@@ -382,6 +450,10 @@ export interface MemoryDay {
   harmonized_activity: number;
   harmonized_low: number;
   harmonized_high: number;
+  detailed_activity: number | null;
+  fused_fire_cells: number;
+  frp_aqua_equiv: number;
+  effort_looks: number;
   hotspot_count: number;
   modis_count: number;
   viirs_count: number;
@@ -446,7 +518,50 @@ export interface FireMemoryResult {
   };
   critical_periods: Array<{ start_date: string; end_date: string; duration_days: number; max_anomaly: number; avg_hotspot_count: number; total_hotspots: number }>;
   calibration: { status: string; viirs_to_modis_factor: number | null; factor_iqr: [number, number] | null; pairs: number; note: string };
+  witness: WitnessResult;
   observation_quality: { counts: Record<string, number>; labels: Record<string, string>; mean_sufficiency_score: number; pct_days_unobservable: number; method: string };
   events: { count: number; multi_detection: number };
   provenance: Record<string, unknown>;
+}
+
+export interface WitnessResult {
+  summary: {
+    witnesses: Record<string, { label: string; detections: number; sensitivity_per_look: number; swath_km: number; looks_per_pass_at_aoi: number }>;
+    cleaning: Record<string, number>;
+    detection_profile: {
+      source: "learned" | "prior";
+      profile: { intercept: number; coef_log_frp: number; coef_log_area: number };
+      frp50_nadir_mw: number | null;
+      frp50_scan_edge_mw: number | null;
+      matchups: number;
+      matchups_detected_by_modis: number;
+      matchup_window: string | null;
+      modis_frp_per_viirs_frp: number;
+      frp_relation_source: string;
+      note: string;
+      viirs_noaa_treatment: string;
+    };
+    modis_fraction_of_viirs_fires: number;
+    diurnal: { overall: { peak_hour: number; width_h: number; base: number }; by_month: Record<string, { peak_hour: number; width_h: number; base: number }>; source: string; reference: string; note: string };
+    effort: { method: string; cloud_source: string };
+    tiers: { consistent_record: string; detailed_layer: string };
+    fusion: { method: string; false_alarm_per_look: number; cells_in_aoi: number };
+    local_day: string;
+  };
+  validation: {
+    continuity?: Array<{ change: string; date: string; window_months: number; raw_count_ratio: number | null; consistent_record_ratio: number | null; verdict: string | null }>;
+    hide_one_witness?: {
+      status: string;
+      hidden: string;
+      note: string;
+      cell_days_evaluated?: number;
+      hidden_detections?: number;
+      auc_fused?: number | null;
+      auc_prior_only?: number | null;
+      auc_fused_where_other_witnesses_detected?: number | null;
+      brier_fused?: number;
+      brier_prior_only?: number;
+    };
+  };
+  cell_days_recent: Array<{ cell_lat: number; cell_lon: number; local_day: string; sensors_seen: string[]; detections: Record<string, number>; fire_probability: number; frp_aqua_equiv: number }>;
 }

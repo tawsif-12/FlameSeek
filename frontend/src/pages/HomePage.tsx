@@ -7,21 +7,21 @@ type LiveStat = { detections: number | null; events: number | null; area: number
 type Insight = { kind: string; title: string; detail: string; badge: string; tone: "warn" | "info" | "ok" };
 
 const STORY = [
-  { n: "01", title: "Fire Memory", q: "What normally happened in this area in the past?", where: "/fire-memory", how: "26-year harmonized MODIS/VIIRS calendar, seasonal profiles, robust anomalies, change points" },
+  { n: "01", title: "Fire Memory", q: "What normally happened in this area in the past?", where: "/fire-memory", how: "Four-Witness consistent record (no 2012 VIIRS jump), seasonal profiles, robust anomalies, change points" },
   { n: "02", title: "Fire Now", q: "What are satellites observing right now?", where: "/fire-map", how: "Live FIRMS detections on a 3D globe, with footprint uncertainty and observation quality" },
   { n: "03", title: "Fire Identity", q: "Which observations belong to the same evolving fire?", where: "/fire-map", how: "Spatio-temporal event reconstruction and inferred behaviour states" },
-  { n: "04", title: "Fire Evidence", q: "Do other satellites, agencies or local reports support it?", where: "/fire-map", how: "GOES, Landsat, Sentinel-2, EFFIS, CWFIS, GDACS, NIFC, NSW RFS and news NLP, fused into an explainable status" },
+  { n: "04", title: "Fire Evidence", q: "Do other satellites, agencies or local reports support it?", where: "/fire-map", how: "A Fire Case per detection: later passes, geostationary satellites, agencies and news NLP give one answer: real? what kind? still burning?" },
   { n: "05", title: "Fire Past", q: "How did similar historical fires behave?", where: "/fire-map", how: "Same-age analogue search (KNN, Mahalanobis) over past seasons in the region" },
   { n: "06", title: "Fire Future", q: "Where might new satellite-observed activity appear next?", where: "/fire-map", how: "6/12/24 h corridor from validated baselines or LightGBM, or FORECAST WITHHELD" },
   { n: "07", title: "Exposure", q: "What lies inside the possible activity corridor?", where: "/fire-map", how: "WorldPop population plus OpenStreetMap roads, villages, farmland, forests, schools, hospitals and power" },
 ];
 
 const WORKFLOW = [
-  "MODIS + VIIRS", "Historical and current collection", "Spatial harmonization", "Sensor calibration", "Harmonized Observed Burning Activity",
-  "Observation sufficiency and uncertainty", "Burning activity calendar", "Current vs historical", "Anomaly detection", "3D globe",
+  "MODIS + VIIRS", "Clean, tag, de-duplicate", "Sensor detection profile", "Time-of-day correction", "Consistent record and detailed layer",
+  "Observation effort", "Fused fire probability", "Burning activity calendar", "Current vs historical", "Anomaly detection", "3D globe",
   "Fire event reconstruction", "Behaviour analysis", "Reverse geocoding", "Regional satellite verification", "Government sources",
-  "Country-specific news", "NLP event extraction", "Geographic matching", "Temporal matching", "Evidence fusion",
-  "Explainable validation", "Historical analogues", "Short-term forecast", "Forecast corridor", "Exposure analysis",
+  "Country-specific news", "NLP event extraction", "Geographic matching", "Temporal matching", "Fire Case evidence block",
+  "Three-part answer", "Historical analogues", "Short-term forecast", "Forecast corridor", "Exposure analysis",
 ];
 
 export default function HomePage() {

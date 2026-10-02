@@ -10,6 +10,7 @@ _VERIFIED = "2026-09-29"
 SOURCES = [
     ("Observation", "NASA FIRMS Area API", "MODIS (MCD14) and VIIRS 375 m (SNPP, NOAA-20, NOAA-21) active fire detections, NRT and science-quality archives since Nov 2000.", "https://firms.modaps.eosdis.nasa.gov/", "automated"),
     ("Observation", "FIRMS data availability", "Per-source archive date ranges; used to tell a missing observation opportunity from a valid 'no fire' day.", "https://firms.modaps.eosdis.nasa.gov/api/data_availability/", "automated"),
+    ("Observation", "CelesTrak orbital elements (skyfield)", "Current TLEs for Terra, Aqua, Suomi NPP, NOAA-20 and NOAA-21; predict each Fire Case's overpasses and whether the spot was inside the swath. A public mirror is used when CelesTrak is unreachable.", "https://celestrak.org/", "automated"),
     ("Observation quality", "Open-Meteo / ERA5", "Reanalysis cloud cover (observation sufficiency proxy), wind, humidity and temperature for analogues and forecasts.", "https://open-meteo.com/", "automated"),
     ("Regional satellite", "GOES-East/West fire product (FIRMS)", "Geostationary detections for the Americas every 10 minutes; independent confirmation of polar-orbiter detections.", "https://firms.modaps.eosdis.nasa.gov/", "automated"),
     ("Regional satellite", "Landsat 8/9 active fire (FIRMS)", "30 m detections over the US and Canada.", "https://firms.modaps.eosdis.nasa.gov/", "automated"),

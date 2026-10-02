@@ -8,3 +8,4 @@ scikit-learn
 lightgbm
 pytest
 pytest-mock
+skyfield

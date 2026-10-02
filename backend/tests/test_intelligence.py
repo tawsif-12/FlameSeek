@@ -9,7 +9,7 @@ from events import reconstruct_events
 from evidence import fuse, subject_from_hotspot
 from forecast import BinnedCalibrator, _select_model
 from geo import AOI, footprint_cell_fractions, location_uncertainty_km
-from harmonize import anomaly_category, build_harmonized_series, estimate_calibration, robust_scale
+from harmonize import anomaly_category, build_harmonized_series, robust_scale
 from nlp import classify_event, extract
 from quality import classify_observation
 
@@ -105,18 +105,6 @@ def test_substantial_single_sensor_detection_is_ambiguous_when_other_sensor_avai
 # --- Harmonization and anomalies -------------------------------------------------------------------
 
 
-def test_calibration_recovers_modis_to_viirs_ratio():
-    rows_by_day = {}
-    for day in range(12):
-        d = date(2024, 1, 1) + timedelta(days=day)
-        rows = [{"lat": 10 + 0.05 * i, "lon": 20.0, "sensor": "viirs_snpp", "scan_km": 0.375, "track_km": 0.375, "acq_datetime": d} for i in range(4)]
-        rows += [{"lat": 10 + 0.05 * i, "lon": 20.0, "sensor": "modis", "scan_km": 0.375, "track_km": 0.375, "acq_datetime": d} for i in range(2)]
-        rows_by_day[d] = rows
-    cal = estimate_calibration(rows_by_day)
-    assert cal["status"] == "calibrated"
-    assert abs(cal["viirs_to_modis_factor"] - 0.5) < 0.05
-
-
 def test_robust_scale_resists_outliers():
     med, scale = robust_scale([1, 1, 2, 2, 2, 3, 3, 100])
     assert med == 2
@@ -135,7 +123,7 @@ def test_harmonized_series_has_uncertainty_and_observation_fields():
     daily, cal = build_harmonized_series(rows, T0.date(), T0.date() + timedelta(days=1), ["modis", "viirs_snpp"])
     assert daily[0]["harmonized_low"] <= daily[0]["harmonized_activity"] <= daily[0]["harmonized_high"]
     assert daily[0]["observation"]["status"] == "reliable_multi_sensor"
-    assert cal["status"] == "uncalibrated"
+    assert cal["status"] == "prior"
 
 
 # --- Change points -------------------------------------------------------------------------

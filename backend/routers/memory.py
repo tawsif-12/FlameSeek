@@ -23,6 +23,7 @@ from jobs import Job, start_job
 from quality import summarize_observations
 from schemas import FireMemoryRequest
 from seasonal import calendar_grid, compare_current, monthly_series, seasonal_profile
+from witness import continuity_test
 
 
 router = APIRouter()
@@ -35,6 +36,10 @@ def _compact_daily(row: dict[str, Any]) -> dict[str, Any]:
         "harmonized_activity": row["harmonized_activity"],
         "harmonized_low": round(row["harmonized_low"], 2),
         "harmonized_high": round(row["harmonized_high"], 2),
+        "detailed_activity": row["detailed_activity"],
+        "fused_fire_cells": row["fused_fire_cells"],
+        "frp_aqua_equiv": row["frp_aqua_equiv"],
+        "effort_looks": row["effort_looks"],
         "hotspot_count": row["hotspot_count"],
         "modis_count": row["modis_count"],
         "viirs_count": row["viirs_count"],
@@ -102,7 +107,7 @@ async def run_fire_memory(job: Job, payload: FireMemoryRequest) -> dict[str, Any
     end_ref = datetime.combine(end + timedelta(days=1), datetime.min.time(), tzinfo=timezone.utc)
 
     def analyse():
-        daily, calibration = build_harmonized_series(rows, start, end, sensors, availability, cloud)
+        daily, calibration = build_harmonized_series(rows, start, end, sensors, availability, cloud, area_km2=aoi.area_km2(), lat_center=lat_c, validate=True)
         confident = filter_low_confidence(rows)
         events = reconstruct_events(confident, reference_time=end_ref)
         monthly = monthly_series(daily, confident)
@@ -110,6 +115,8 @@ async def run_fire_memory(job: Job, payload: FireMemoryRequest) -> dict[str, Any
         return daily, calibration, events, monthly, profile
 
     daily, calibration, events, monthly, profile = await asyncio.to_thread(analyse)
+    witness = calibration.pop("witness")
+    witness["validation"]["continuity"] = continuity_test(daily)
     comparison = compare_current(daily, profile, payload.comparison_window_days)
     change_points = detect_monthly_change_points(monthly)
     periods = find_critical_periods(daily)[:25]
@@ -126,6 +133,7 @@ async def run_fire_memory(job: Job, payload: FireMemoryRequest) -> dict[str, Any
         "change_points": change_points,
         "critical_periods": [{**p, "start_date": p["start_date"].isoformat(), "end_date": p["end_date"].isoformat()} for p in periods],
         "calibration": calibration,
+        "witness": witness,
         "observation_quality": summarize_observations(daily),
         "events": {"count": len(events), "multi_detection": sum(1 for e in events if e["observation_count"] > 1)},
         "provenance": {
@@ -135,8 +143,9 @@ async def run_fire_memory(job: Job, payload: FireMemoryRequest) -> dict[str, Any
             "failed_chunks": report["failed_chunks"][:50],
             "raw_detections_in_aoi": len(rows),
             "confidence_threshold_pct": 30,
-            "grid": "0.01 deg (~1 km, MODIS-scale) with footprint-weighted attribution from FIRMS scan/track",
+            "grid": "0.1 deg (~11 km) cells on local solar days for the consistent record and fused probability; 0.01 deg footprint-weighted cells for active-cell counts",
             "harmonization": calibration["note"],
+            "harmonized_unit": "Aqua MODIS 13:30-equivalent detections per clear-sky look",
             "anomaly_method": "Robust z = (x - median) / (1.4826 * MAD) against the same +/-7-day window in other years (>= 3 years), else a rolling 31-day window.",
             "anomaly_categories": {"Normal": "< 2", "Above Normal": "2 to 3.5", "Unusual": "3.5 to 5", "Highly Unusual": ">= 5"},
             "cloud_cover": f"ERA5 daily mean via Open-Meteo at AOI centre ({lat_c:.2f}, {lon_c:.2f}); {cloud_status}",
