@@ -51,37 +51,37 @@ export default function FireMemoryPage() {
       <div className="space-hero-strip">
         <div className="space-hero-orbit" aria-hidden="true"><span /><span /></div>
         <header className="memory-intro nasa-page-intro">
-          <p className="eyebrow"><span className="dot" /> Stage 1 · Fire Memory</p>
+          <p className="eyebrow"><span className="dot" /> Fire Memory</p>
           <h2>What normally happens in this area?</h2>
           <p className="lead">
-            Up to 26 years of Terra, Aqua, Suomi NPP and NOAA-20 observations are harmonized into one consistent record (what Aqua MODIS would have seen at 13:30, per clear look). The result is a burning activity calendar,
-            seasonal profiles, and a comparison of current activity with the area's own history.
+            Pick a place and we look back through up to 26 years of NASA satellite records to show when it usually burns, how this year compares, and whether fires are becoming more or less common.
+            Older and newer satellites see fires differently, so we first correct their records to make all years comparable.
           </p>
           <ul className="hero-chips">
-            <li><span className="dot" />26-year record</li>
-            <li><span className="dot" />Harmonized MODIS + VIIRS</li>
-            <li><span className="dot" />Robust anomalies</li>
-            <li><span className="dot" />PELT change points</li>
+            <li><span className="dot" />Up to 26 years</li>
+            <li><span className="dot" />Four satellites, one fair record</li>
+            <li><span className="dot" />Spots unusual years</li>
+            <li><span className="dot" />Finds long-term changes</li>
           </ul>
         </header>
       </div>
       <section className="memory-setup glass-card">
         <div className="memory-setup-map">
-          <h3>1. Area of interest</h3>
+          <h3>1. Choose a place</h3>
           <AOISelector />
         </div>
         <div className="memory-setup-controls">
-          <h3>2. Record and sensors</h3>
+          <h3>2. How far back, and which satellites</h3>
           <label>
-            History length
+            How many years to look back
             <select value={years} onChange={(e) => setYears(Number(e.target.value))}>
               {[1, 2, 3, 5, 10, 15, 20, 26].map((y) => (
-                <option key={y} value={y}>{y} year{y > 1 ? "s" : ""}{y >= 10 ? " (slow on first run)" : ""}</option>
+                <option key={y} value={y}>{y} year{y > 1 ? "s" : ""}{y >= 10 ? " (slow the first time)" : ""}</option>
               ))}
             </select>
           </label>
           <label>
-            Current-vs-history window
+            Compare the recent
             <select value={windowDays} onChange={(e) => setWindowDays(Number(e.target.value))}>
               {[14, 30, 60, 90].map((d) => <option key={d} value={d}>Last {d} days</option>)}
             </select>
@@ -95,7 +95,7 @@ export default function FireMemoryPage() {
             ))}
           </div>
           <button className="primary-button" type="button" disabled={!aoi || running || sensors.length === 0} onClick={run}>
-            {running ? "Building Fire Memory..." : "Build Fire Memory"}
+            {running ? "Looking back through the records..." : "Show this place's fire history"}
           </button>
           {job && (
             <div className="job-progress" role="status">
@@ -104,11 +104,64 @@ export default function FireMemoryPage() {
             </div>
           )}
           {error && <p className="error-text">{error}</p>}
-          <p className="meta-text">The archive is downloaded once per area and cached, so later runs are fast. FIRMS allows about 5000 requests per 10 minutes, which covers 26 years of four sensors.</p>
+          <p className="meta-text">The first time for a place can take a few minutes, because the records are downloaded from NASA. After that the same place opens in about a second.</p>
         </div>
       </section>
       {memory && <MemoryResults memory={memory} />}
     </main>
+  );
+}
+
+const CATEGORY_PLAIN: Record<string, string> = {
+  Normal: "About normal",
+  "Above Normal": "More fire than usual",
+  Unusual: "Unusually high",
+  "Highly Unusual": "Far above usual",
+};
+const VERDICT_PLAIN: Record<string, string> = {
+  "step removed": "Passed: the false jump is gone",
+  "step reduced": "Partly: the false jump is smaller",
+  "no improvement": "Not passed: the jump is still there",
+};
+
+function listWords(items: string[]) {
+  if (items.length <= 1) return items.join("");
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
+const OBS_PLAIN: Record<string, string> = {
+  reliable_multi_sensor: "Fire seen by more than one type of satellite",
+  valid_no_fire: "Clear view, no fire seen",
+  limited_evidence: "Fire seen by only one type of satellite",
+  sensor_disagreement: "Satellites disagreed",
+  cloud_obscured: "Too cloudy to see",
+  missing_observation: "No satellite passed over",
+};
+
+function MemorySummary({ memory }: { memory: FireMemoryResult }) {
+  const profile = memory.seasonal_profile;
+  const cmp = memory.current_vs_historical;
+  const name = String(memory.aoi.name ?? "this place").split(",")[0];
+  const step = (memory.witness.validation.continuity ?? []).find((c) => c.raw_count_ratio && c.consistent_record_ratio);
+  const changes = memory.change_points.change_points ?? [];
+  const quiet = profile.quiet_months.filter((m) => !profile.peak_months.includes(m) && !profile.active_months.includes(m));
+  const now: Record<string, string> = {
+    Normal: "Right now, fire activity is about normal for this time of year.",
+    "Above Normal": "Right now, there is more fire than usual for this time of year.",
+    Unusual: "Right now, fire activity is unusually high for this time of year.",
+    "Highly Unusual": "Right now, fire activity is far above anything usual for this time of year.",
+  };
+  return (
+    <section className="page-plain glass-card" aria-label="Summary in plain words">
+      In {name}, fires are most common in {listWords(profile.peak_months) || "no particular month"}
+      {quiet.length ? `, and rare in ${listWords(quiet.slice(0, 4))}${quiet.length > 4 ? " and other months" : ""}` : ""}.{" "}
+      {now[cmp.overall_category ?? ""] ?? "There is not enough history yet to say whether this year is unusual."}{" "}
+      {changes.length ? `Over the years, the level of fire ${changes[changes.length - 1].direction === "increase" ? "went up" : "went down"} around ${changes[changes.length - 1].date}.` : "Over these years, the overall level of fire has not clearly changed."}
+      <small>
+        Based on {memory.summary.total_hotspots.toLocaleString()} satellite fire sightings from {memory.period.start.slice(0, 4)} to {memory.period.end.slice(0, 4)}.
+        {step ? ` When sharper satellites started in ${step.date.slice(0, 4)}, raw sightings became about ${Number(step.raw_count_ratio).toFixed(1)} times as many. That jump is not real: after our correction the record stays level.` : ""}
+      </small>
+    </section>
   );
 }
 
@@ -117,17 +170,18 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
   const bbox = aoiBBox(memory.aoi as never) ?? (memory.aoi.bbox as [number, number, number, number]);
   return (
     <>
+      <MemorySummary memory={memory} />
       <section className="stats-grid memory-stats">
-        <article><span>Area</span><strong className="small">{String(memory.aoi.name ?? describeAoi(memory.aoi as never))}</strong><small>{Number(memory.aoi.area_km2).toLocaleString()} km²</small></article>
-        <article><span>Record</span><strong className="small">{memory.period.start} → {memory.period.end}</strong><small>{memory.period.days.toLocaleString()} days</small></article>
-        <article><span>Harmonized activity</span><strong>{Math.round(memory.summary.total_harmonized_activity).toLocaleString()}</strong><small>Aqua 13:30-equivalent detections per clear look, summed over days · {memory.summary.total_hotspots.toLocaleString()} raw detections</small></article>
-        <article><span>Now vs history</span><strong className={`category ${cmp.overall_category?.replace(/\s/g, "-").toLowerCase()}`}>{cmp.overall_category ?? "Not assessed"}</strong><small>{cmp.robust_z !== undefined ? `robust z ${cmp.robust_z}` : cmp.note}</small></article>
+        <article><span>Place</span><strong className="small">{String(memory.aoi.name ?? describeAoi(memory.aoi as never))}</strong><small>{Number(memory.aoi.area_km2).toLocaleString()} km²</small></article>
+        <article><span>Years covered</span><strong className="small">{memory.period.start} → {memory.period.end}</strong><small>{memory.period.days.toLocaleString()} days</small></article>
+        <article><span>Fire activity (corrected)</span><strong>{Math.round(memory.summary.total_harmonized_activity).toLocaleString()}</strong><small>fire sightings after correcting for satellite differences · {memory.summary.total_hotspots.toLocaleString()} raw sightings</small></article>
+        <article><span>This year compared with usual</span><strong className={`category ${cmp.overall_category?.replace(/\s/g, "-").toLowerCase()}`}>{CATEGORY_PLAIN[cmp.overall_category ?? ""] ?? "Not enough data"}</strong><small>{cmp.robust_z !== undefined ? `unusualness score ${Number(cmp.robust_z).toFixed(1)} (above 2 is more than usual)` : cmp.note}</small></article>
       </section>
 
       <section className="memory-grid">
         <article className="viz-panel wide">
-          <h3>Burning Activity Calendar</h3>
-          <p className="meta-text">Monthly burning activity per year from the consistent record (MODIS-level sensitivity, Aqua 13:30 equivalent), so the 2012 VIIRS start does not create a false jump. Empty cells are outside the record.</p>
+          <h3>When does this place burn?</h3>
+          <p className="meta-text">Each square is one month of one year. Darker red means more fire. Read across a row to see that year's fire season; read down a column to compare the same month in different years.</p>
           <Plot
             data={[{ type: "heatmap", x: memory.calendar.months, y: memory.calendar.years.map(String), z: memory.calendar.activity, colorscale: "YlOrRd", reversescale: true, hovertemplate: "%{y} %{x}: %{z:.1f} (consistent record)<extra></extra>", xgap: 2, ygap: 2 }]}
             layout={{ ...plotLayout, height: Math.max(220, 34 * memory.calendar.years.length + 80), margin: { l: 50, r: 10, t: 10, b: 30 }, yaxis: { autorange: "reversed", type: "category" } }}
@@ -137,9 +191,9 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
         </article>
 
         <article className="viz-panel">
-          <h3>Seasonal Fire Profile</h3>
+          <h3>The fire season</h3>
           <p className="meta-text">
-            Peak: <strong>{memory.seasonal_profile.peak_months.join(", ") || "none"}</strong> · Active: {memory.seasonal_profile.active_months.join(", ") || "none"} · Quiet: {memory.seasonal_profile.quiet_months.join(", ") || "none"}
+            Most fire in <strong>{memory.seasonal_profile.peak_months.join(", ") || "no clear month"}</strong>. Some fire in {memory.seasonal_profile.active_months.join(", ") || "no other months"}. Almost none in {memory.seasonal_profile.quiet_months.join(", ") || "no months"}. Bars show a typical year; the thin lines show how much it varies.
           </p>
           <Plot
             data={[
@@ -158,22 +212,22 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
                 hovertemplate: "%{x}: median %{y:.1f}<extra></extra>",
               },
             ]}
-            layout={{ ...plotLayout, height: 280, margin: { l: 50, r: 10, t: 10, b: 30 }, yaxis: { title: { text: "median monthly activity" } } }}
+            layout={{ ...plotLayout, height: 280, margin: { l: 50, r: 10, t: 10, b: 30 }, yaxis: { title: { text: "typical fire activity" } } }}
             config={{ responsive: true, displayModeBar: false }}
             className="plot"
           />
         </article>
 
         <article className="viz-panel">
-          <h3>Current vs Historical</h3>
+          <h3>Is this year unusual?</h3>
           {cmp.status === "ok" ? (
             <>
               <p className="meta-text">
-                {cmp.window?.start} → {cmp.window?.end}, compared with the same window in {cmp.history_years?.length} earlier years. Current {cmp.current?.harmonized_activity} vs median{" "}
-                {cmp.historical?.median_harmonized_activity}, higher than {cmp.percentile_rank}% of years.
+                From {cmp.window?.start} to {cmp.window?.end}, this place had more fire than {cmp.percentile_rank}% of the {cmp.history_years?.length} earlier years over the same dates (activity {cmp.current?.harmonized_activity} now,{" "}
+                {cmp.historical?.median_harmonized_activity} in a typical year).
               </p>
               {cmp.flags.length === 0 ? (
-                <p className="empty-state">No unusual conditions flagged for this window.</p>
+                <p className="empty-state">Nothing unusual in this period.</p>
               ) : (
                 <ul className="flag-list">
                   {cmp.flags.map((f) => (
@@ -191,11 +245,11 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
         <DailySeries memory={memory} />
 
         <article className="viz-panel wide">
-          <h3>Seasonal statistics</h3>
+          <h3>Month-by-month numbers</h3>
           <div className="table-wrap">
             <table>
               <thead>
-                <tr><th>Month</th><th>Level</th><th>Median activity</th><th>Hotspots</th><th>Active days</th><th>Median FRP (MW)</th><th>Spread (10 km cells)</th><th>Event duration (h)</th><th>Events / yr</th><th>Share of year</th></tr>
+                <tr><th>Month</th><th>Season</th><th>Typical activity</th><th>Sightings</th><th>Days with fire</th><th>Typical fire power (MW)</th><th>Area affected (10 km squares)</th><th>How long fires last (h)</th><th>Fires per year</th><th>Share of the year's fire</th></tr>
               </thead>
               <tbody>
                 {memory.seasonal_profile.months.map((m) => (
@@ -220,24 +274,24 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
         <ChangePoints memory={memory} />
 
         <article className="viz-panel">
-          <h3>Observation quality</h3>
-          <p className="meta-text">Mean Observation Sufficiency Score {memory.observation_quality.mean_sufficiency_score}/100 · {memory.observation_quality.pct_days_unobservable}% of days unobservable (so "no fire" cannot be claimed).</p>
+          <h3>How often could satellites see the ground?</h3>
+          <p className="meta-text">On {memory.observation_quality.pct_days_unobservable}% of days, clouds or missing passes hid this place. On those days "no fire seen" does not mean "no fire". Average viewing score: {memory.observation_quality.mean_sufficiency_score} out of 100.</p>
           <ul className="obs-list">
             {Object.entries(memory.observation_quality.counts).map(([key, count]) => (
-              <li key={key}><span style={{ background: OBS_COLORS[key] }} />{memory.observation_quality.labels[key]}<strong>{count.toLocaleString()} days</strong></li>
+              <li key={key}><span style={{ background: OBS_COLORS[key] }} />{OBS_PLAIN[key] ?? memory.observation_quality.labels[key]}<strong>{count.toLocaleString()} days</strong></li>
             ))}
           </ul>
-          <p className="meta-text">{memory.observation_quality.method}</p>
+          <details className="tech"><summary>Technical details</summary><p className="meta-text">{memory.observation_quality.method}</p></details>
         </article>
 
         <FourWitness memory={memory} />
 
         <article className="viz-panel wide">
-          <h3>Critical periods</h3>
-          <p className="meta-text">Runs of consecutive days with robust anomaly above 2 (Above Normal or higher).</p>
+          <h3>Periods with unusually many fires</h3>
+          <p className="meta-text">Stretches of days in a row with clearly more fire than normal for that time of year.</p>
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Start</th><th>End</th><th>Days</th><th>Max robust z</th><th>Total hotspots</th><th>Imagery</th></tr></thead>
+              <thead><tr><th>Start</th><th>End</th><th>Days</th><th>How unusual (score)</th><th>Fire sightings</th><th>Satellite picture</th></tr></thead>
               <tbody>
                 {memory.critical_periods.map((p) => (
                   <tr key={`${p.start_date}-${p.end_date}`}>
@@ -251,12 +305,16 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
         </article>
 
         <article className="viz-panel wide provenance">
-          <h3>Provenance</h3>
+          <h3>Where the data comes from</h3>
+          <p className="meta-text">All fire sightings come from NASA's FIRMS service (MODIS and VIIRS satellite cameras). Cloud cover comes from the ERA5 weather record.</p>
+          <details className="tech">
+            <summary>Technical details</summary>
           <dl className="kv">
             {Object.entries(memory.provenance).filter(([k]) => k !== "failed_chunks").map(([k, v]) => (
               <div key={k}><dt>{k.replace(/_/g, " ")}</dt><dd>{typeof v === "object" ? JSON.stringify(v) : String(v)}</dd></div>
             ))}
           </dl>
+          </details>
         </article>
       </section>
     </>
@@ -297,10 +355,11 @@ function FourWitness({ memory }: { memory: FireMemoryResult }) {
   return (
     <>
       <article className="viz-panel">
-        <h3>Four witnesses</h3>
+        <h3>The satellites, and how well each one sees</h3>
+        <p className="meta-text">Four satellites watch for fires. The newer VIIRS cameras are sharper and catch small fires that the older MODIS cameras miss, so their counts cannot simply be added together.</p>
         <div className="table-wrap">
           <table>
-            <thead><tr><th>Witness</th><th>Detections</th><th>Chance per look</th><th>Looks / pass here</th></tr></thead>
+            <thead><tr><th>Satellite</th><th>Fire sightings</th><th>Chance it spots a fire</th><th>Views per pass</th></tr></thead>
             <tbody>
               {Object.entries(w.summary.witnesses).filter(([, v]) => v.detections > 0).map(([k, v]) => (
                 <tr key={k}><td>{v.label}</td><td>{v.detections.toLocaleString()}</td><td>{Math.round(v.sensitivity_per_look * 100)}%</td><td>{v.looks_per_pass_at_aoi}</td></tr>
@@ -308,6 +367,9 @@ function FourWitness({ memory }: { memory: FireMemoryResult }) {
             </tbody>
           </table>
         </div>
+        <p className="meta-text">Of the fires the sharper cameras saw here, the older cameras would have caught about <strong>{Math.round(w.summary.modis_fraction_of_viirs_fires * 100)}%</strong>. We use that to put every year on the same footing.</p>
+        <details className="tech">
+          <summary>Technical details</summary>
         <dl className="kv">
           <div><dt>Detection profile</dt><dd>{profile.source === "learned" ? `learned from ${profile.matchups.toLocaleString()} Aqua/S-NPP matchups` : "published prior"}</dd></div>
           <div><dt>MODIS 50% detection</dt><dd>{profile.frp50_nadir_mw ?? "–"} MW at nadir · {profile.frp50_scan_edge_mw ?? "–"} MW at scan edge</dd></div>
@@ -320,19 +382,20 @@ function FourWitness({ memory }: { memory: FireMemoryResult }) {
         <p className="meta-text">{w.summary.diurnal.note}</p>
         <p className="meta-text">{w.summary.effort.method} Cloud: {w.summary.effort.cloud_source}.</p>
         <p className="meta-text">{w.summary.fusion.method}</p>
+        </details>
       </article>
 
       <article className="viz-panel wide">
-        <h3>Two tiers: consistent record vs raw detections</h3>
+        <h3>Why raw satellite counts are misleading</h3>
         <p className="meta-text">
-          Raw detection counts jump when a new sensor starts. The consistent record keeps MODIS-level sensitivity across 2000 to today, so trends and anomalies stay comparable. The detailed
-          layer keeps every VIIRS detection for the globe and live hotspots.
+          Grey bars: every fire sighting, counted as-is. They jump when a sharper satellite starts work (dotted lines), which looks like more fire but is only better eyesight. Orange line: our
+          corrected record, which counts fires the same way in every year, so real changes stand out. Blue dashes: everything the sharper cameras see, used for the live map.
         </p>
         <Plot
           data={[
-            { type: "bar", x: monthly.x, y: monthly.rows.map((m) => m.raw), name: "raw detections (all sensors)", marker: { color: "rgba(100,116,139,0.35)" }, yaxis: "y2" },
-            { type: "scatter", mode: "lines", x: monthly.x, y: monthly.rows.map((m) => m.consistent), name: "consistent record", line: { color: "#c2410c", width: 2 } },
-            { type: "scatter", mode: "lines", x: monthly.x, y: monthly.rows.map((m) => (m.detailedDays ? m.detailed : null)), name: "detailed VIIRS layer", line: { color: "#0ea5e9", width: 1.2, dash: "dash" } },
+            { type: "bar", x: monthly.x, y: monthly.rows.map((m) => m.raw), name: "all sightings, uncorrected", marker: { color: "rgba(100,116,139,0.35)" }, yaxis: "y2" },
+            { type: "scatter", mode: "lines", x: monthly.x, y: monthly.rows.map((m) => m.consistent), name: "corrected record (fair across years)", line: { color: "#c2410c", width: 2 } },
+            { type: "scatter", mode: "lines", x: monthly.x, y: monthly.rows.map((m) => (m.detailedDays ? m.detailed : null)), name: "sharper cameras only", line: { color: "#0ea5e9", width: 1.2, dash: "dash" } },
           ] as never}
           layout={{
             ...plotLayout,
@@ -341,8 +404,8 @@ function FourWitness({ memory }: { memory: FireMemoryResult }) {
             legend: { orientation: "h", y: -0.18 },
             shapes,
             annotations,
-            yaxis: { title: { text: "per clear look, summed by month" } },
-            yaxis2: { overlaying: "y", side: "right", title: { text: "raw detections" }, showgrid: false },
+            yaxis: { title: { text: "corrected activity" } },
+            yaxis2: { overlaying: "y", side: "right", title: { text: "raw sightings" }, showgrid: false },
           }}
           config={{ responsive: true, displayModeBar: false }}
           className="plot"
@@ -350,23 +413,30 @@ function FourWitness({ memory }: { memory: FireMemoryResult }) {
       </article>
 
       <article className="viz-panel wide">
-        <h3>Validation</h3>
-        <h4>Continuity test</h4>
+        <h3>Did the correction work?</h3>
+        <h4>Test 1: does the record stay level when a new satellite starts?</h4>
         {(w.validation.continuity ?? []).length === 0 ? (
-          <p className="meta-text">Needs at least a year of record on both sides of a sensor change (Suomi NPP start 2012-01-20 or NOAA-20 start 2018-04-01).</p>
+          <p className="meta-text">This test needs at least a year of records before and after a new satellite started (January 2012 or April 2018). Choose a longer history to see it.</p>
         ) : (
           <ul className="flag-list">
             {(w.validation.continuity ?? []).map((c) => (
               <li key={c.change}>
-                <strong>{c.change} · {c.verdict ?? "not assessed"}</strong>
+                <strong>{VERDICT_PLAIN[c.verdict ?? ""] ?? "Not assessed"}</strong>
                 <span>
-                  {c.window_months} months after vs before: raw count ×{c.raw_count_ratio ?? "–"}, consistent record ×{c.consistent_record_ratio ?? "–"}. Real year-to-year change moves both, so compare them with each other.
+                  When {c.change.replace(" start", "")} began in {c.date.slice(0, 4)}, raw sightings became about {c.raw_count_ratio ? Number(c.raw_count_ratio).toFixed(1) : "–"} times as many. Our corrected record changed by only ×{c.consistent_record_ratio ? Number(c.consistent_record_ratio).toFixed(2) : "–"} (1.00 would be perfectly level).
                 </span>
               </li>
             ))}
           </ul>
         )}
-        <h4>Hide-one-witness test</h4>
+        <h4>Test 2: can we predict what a hidden satellite saw?</h4>
+        {hidden?.status === "ok" ? (
+          <p className="meta-text">
+            We hid {hidden.hidden} and tried to predict where it saw fire, using only the other satellites. Score: <strong>{hidden.auc_fused ?? "–"}</strong> out of 1 (0.5 would be pure guessing, 1 is perfect).
+          </p>
+        ) : null}
+        <details className="tech">
+          <summary>Technical details</summary>
         {hidden?.status === "ok" ? (
           <dl className="kv">
             <div><dt>Hidden</dt><dd>{hidden.hidden} ({hidden.hidden_detections?.toLocaleString()} detected cell-days)</dd></div>
@@ -377,6 +447,7 @@ function FourWitness({ memory }: { memory: FireMemoryResult }) {
           </dl>
         ) : null}
         <p className="meta-text">{hidden?.note ?? "Not run."}</p>
+        </details>
       </article>
     </>
   );
@@ -390,17 +461,17 @@ function DailySeries({ memory }: { memory: FireMemoryResult }) {
     const unobservable = d.filter((r) => r.observation_status === "cloud_obscured" || r.observation_status === "missing_observation");
     return [
       { type: "scatter", mode: "lines", x, y: d.map((r) => r.harmonized_high), line: { width: 0 }, hoverinfo: "skip", showlegend: false },
-      { type: "scatter", mode: "lines", x, y: d.map((r) => r.harmonized_low), fill: "tonexty", fillcolor: "rgba(234,88,12,0.18)", line: { width: 0 }, name: "uncertainty range", hoverinfo: "skip" },
-      { type: "scatter", mode: "lines", x, y: d.map((r) => r.harmonized_activity), line: { color: "#c2410c", width: 1.4 }, name: "harmonized activity", customdata: d.map((r) => [r.hotspot_count, r.modis_count, r.viirs_count, r.anomaly_category, r.observation_display, r.sufficiency_score]), hovertemplate: "%{x}<br>activity %{y:.2f}<br>detections %{customdata[0]} (MODIS %{customdata[1]}, VIIRS %{customdata[2]})<br>%{customdata[3]}<br>observation: %{customdata[4]} (%{customdata[5]}/100)<extra></extra>" },
-      { type: "scatter", mode: "lines", x, y: d.map((r) => r.baseline_median), line: { color: "#475569", width: 1, dash: "dot" }, name: "historical median" },
-      { type: "scatter", mode: "markers", x: flagged.map((r) => r.date), y: flagged.map((r) => r.harmonized_activity), marker: { color: flagged.map((r) => CATEGORY_COLORS[r.anomaly_category]), size: 7 }, name: "anomaly", text: flagged.map((r) => r.anomaly_category), hovertemplate: "%{x}: %{text}<extra></extra>" },
-      { type: "scatter", mode: "markers", x: unobservable.map((r) => r.date), y: unobservable.map(() => 0), marker: { symbol: "line-ns-open", color: "#64748b", size: 8 }, name: "UNKNOWN / insufficient observation", text: unobservable.map((r) => r.observation_display), hovertemplate: "%{x}: %{text}<extra></extra>" },
+      { type: "scatter", mode: "lines", x, y: d.map((r) => r.harmonized_low), fill: "tonexty", fillcolor: "rgba(234,88,12,0.18)", line: { width: 0 }, name: "possible range", hoverinfo: "skip" },
+      { type: "scatter", mode: "lines", x, y: d.map((r) => r.harmonized_activity), line: { color: "#c2410c", width: 1.4 }, name: "fire activity (corrected)", customdata: d.map((r) => [r.hotspot_count, r.modis_count, r.viirs_count, r.anomaly_category, r.observation_display, r.sufficiency_score]), hovertemplate: "%{x}<br>activity %{y:.2f}<br>detections %{customdata[0]} (MODIS %{customdata[1]}, VIIRS %{customdata[2]})<br>%{customdata[3]}<br>observation: %{customdata[4]} (%{customdata[5]}/100)<extra></extra>" },
+      { type: "scatter", mode: "lines", x, y: d.map((r) => r.baseline_median), line: { color: "#475569", width: 1, dash: "dot" }, name: "usual for this time of year" },
+      { type: "scatter", mode: "markers", x: flagged.map((r) => r.date), y: flagged.map((r) => r.harmonized_activity), marker: { color: flagged.map((r) => CATEGORY_COLORS[r.anomaly_category]), size: 7 }, name: "unusually many fires", text: flagged.map((r) => r.anomaly_category), hovertemplate: "%{x}: %{text}<extra></extra>" },
+      { type: "scatter", mode: "markers", x: unobservable.map((r) => r.date), y: unobservable.map(() => 0), marker: { symbol: "line-ns-open", color: "#64748b", size: 8 }, name: "clouds hid the ground", text: unobservable.map((r) => r.observation_display), hovertemplate: "%{x}: %{text}<extra></extra>" },
     ];
   }, [memory]);
   return (
     <article className="viz-panel wide">
-      <h3>Harmonized daily activity and anomalies</h3>
-      <p className="meta-text">Consistent record: Aqua 13:30-equivalent detections per clear-sky look, with a 95% range from the detection profile. Markers show Above Normal / Unusual / Highly Unusual days (robust median/MAD). Grey ticks mark days where absence of fire cannot be claimed.</p>
+      <h3>Fire activity, day by day</h3>
+      <p className="meta-text">Orange line: fire activity each day, counted the same way for every satellite. Dotted line: what is usual for that time of year. Coloured dots: days with clearly more fire than usual. Grey ticks: days when clouds hid the ground, so we cannot say there was no fire.</p>
       <Plot
         data={traces as never}
         layout={{ ...plotLayout, height: 340, margin: { l: 50, r: 10, t: 10, b: 40 }, legend: { orientation: "h", y: -0.2 }, xaxis: { rangeslider: { visible: true } } }}
@@ -417,7 +488,7 @@ function ChangePoints({ memory }: { memory: FireMemoryResult }) {
   const shapes = cp.change_points.map((c) => ({ type: "line" as const, x0: `${c.date}-01`, x1: `${c.date}-01`, yref: "paper" as const, y0: 0, y1: 1, line: { color: "#7c3aed", width: 2, dash: "dash" as const } }));
   return (
     <article className="viz-panel wide">
-      <h3>Long-term change points</h3>
+      <h3>Has fire activity changed over the years?</h3>
       {cp.status !== "ok" ? (
         <p className="empty-state">{cp.note}</p>
       ) : (
@@ -429,7 +500,7 @@ function ChangePoints({ memory }: { memory: FireMemoryResult }) {
             className="plot"
           />
           {cp.change_points.length === 0 ? (
-            <p className="meta-text">No statistically detected change in the long-term level.</p>
+            <p className="meta-text">No lasting change found: fire activity has stayed at about the same level over these years.</p>
           ) : (
             <ul className="flag-list">
               {cp.change_points.map((c) => <li key={c.date}><strong>{c.date}</strong><span>{c.description}</span></li>)}

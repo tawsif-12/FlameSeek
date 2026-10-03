@@ -15,11 +15,12 @@ from __future__ import annotations
 import asyncio
 import time
 from datetime import datetime, timedelta, timezone
-from typing import Any
+from typing import Any, Awaitable, Callable
 from urllib.parse import quote_plus
 
 from config import NEWS_API_KEY
 from corroboration import official_evidence, regional_satellite_evidence
+from demo_data import scenario_evidence, scenario_for
 from fire_case import build_fire_case
 from geo import haversine_km, location_uncertainty_km
 from geocode import geocode_place_name, reverse_geocode
@@ -210,12 +211,26 @@ async def news_evidence(subject: dict[str, Any], place: dict[str, Any]) -> dict[
     country_code = place.get("country_code")
     domains = sources_for_country(country_code).get("news", [])
     (gdelt, gdelt_url, gdelt_error), newsapi = await asyncio.gather(_gdelt_articles(place, subject["t_start"], subject["t_end"]), _newsapi_articles(place, subject["t_start"], subject["t_end"], domains))
+    cards = await score_articles(subject, place, newsapi + gdelt)
+    return {
+        "articles": cards[:12],
+        "searched": {"gdelt_url": gdelt_url, "gdelt_error": gdelt_error, "newsapi_enabled": bool(NEWS_API_KEY), "preferred_outlets": domains},
+        "note": NEWS_NOTE,
+    }
+
+
+NEWS_NOTE = "Only articles whose text describes a fire-type event are kept. Summaries are system-generated from extracted facts, not article text."
+
+
+async def score_articles(subject: dict[str, Any], place: dict[str, Any], articles: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """NLP-classify articles and score how well each matches the subject by distance and time."""
+    country_code = place.get("country_code")
     gazetteer = _gazetteer(place)
     names = [n for n, _ in gazetteer]
     seen: set[str] = set()
     cards = []
     geocode_budget = 6
-    for art in newsapi + gdelt:
+    for art in articles:
         key = " ".join((art["title"] or "").lower().split())
         if not key or key in seen:
             continue
@@ -230,9 +245,9 @@ async def news_evidence(subject: dict[str, Any], place: dict[str, Any]) -> dict[
             if name in facts["locations"]["gazetteer_matches"]:
                 admin_level = level
                 break
-        distance = None
+        distance = art.get("distance_km")
         located = None
-        if admin_level == "village":
+        if distance is None and admin_level == "village":
             ns = next(((n, lvl) for n, lvl in gazetteer if n in facts["locations"]["gazetteer_matches"]), None)
             if ns and place.get("nearest_settlement") and ns[0] == place["nearest_settlement"].get("name"):
                 distance = place["nearest_settlement"]["distance_km"]
@@ -281,11 +296,7 @@ async def news_evidence(subject: dict[str, Any], place: dict[str, Any]) -> dict[
             }
         )
     cards.sort(key=lambda c: c["relevance_score"], reverse=True)
-    return {
-        "articles": cards[:12],
-        "searched": {"gdelt_url": gdelt_url, "gdelt_error": gdelt_error, "newsapi_enabled": bool(NEWS_API_KEY), "preferred_outlets": domains},
-        "note": "Only articles whose text describes a fire-type event are kept. Summaries are system-generated from extracted facts, not article text.",
-    }
+    return cards
 
 
 # --- Fusion -------------------------------------------------------------------------------------
@@ -487,16 +498,74 @@ def _observation_block(subject: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-async def build_evidence(subject: dict[str, Any], refresh: bool = False) -> dict[str, Any]:
+EMPTY_REGIONAL = {"checks": [], "corroborating_sources": [], "geostationary_or_highres_match": False, "other_platform_match": False}
+EMPTY_OFFICIAL = {"checks": [], "matches": [], "has_official_match": False, "controlled_burn_reported": False, "note": ""}
+EMPTY_NEWS = {"articles": [], "searched": {}, "note": ""}
+
+PartialCallback = Callable[[dict[str, Any]], Awaitable[None]]
+
+
+async def _after(delay: float, value: Any) -> Any:
+    await asyncio.sleep(delay)
+    return value
+
+
+async def _gather_streams(
+    subject: dict[str, Any],
+    place: dict[str, Any],
+    on_partial: PartialCallback | None,
+    scripted: dict[str, Any] | None = None,
+    overrides: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """Run the evidence streams in parallel and re-answer the case each time one of them finishes."""
+    if scripted:
+        # Demo scenario: the streams arrive a few seconds apart so the case can be seen updating.
+        streams = {"regional": _after(2.5, scripted["regional"]), "official": _after(4.5, scripted["official"]), "news": _after(7.0, scripted["news"])}
+    else:
+        streams = {"regional": regional_satellite_evidence(subject, place), "official": official_evidence(subject, place), "news": news_evidence(subject, place)}
+    tasks = {name: asyncio.create_task(coro) for name, coro in streams.items()}
+    done: dict[str, dict[str, Any]] = {}
+
+    async def publish() -> None:
+        if on_partial is None:
+            return
+        regional = done.get("regional", EMPTY_REGIONAL)
+        official = done.get("official", EMPTY_OFFICIAL)
+        news = done.get("news", EMPTY_NEWS)
+        pending = [s for s, names in (("B", ["regional"]), ("C", ["official", "news"])) if any(n not in done for n in names)]
+        case = await build_fire_case(subject, place, regional, official, news, fuse(subject, place, regional, official, news), pending_streams=pending, overrides=overrides)
+        await on_partial(case)
+
+    await publish()
+    pending = set(tasks.values())
+    while pending:
+        finished, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+        for name, task in tasks.items():
+            if task in finished:
+                done[name] = task.result()
+        if pending:
+            await publish()
+    return done["regional"], done["official"], done["news"]
+
+
+async def build_evidence(subject: dict[str, Any], refresh: bool = False, on_partial: PartialCallback | None = None) -> dict[str, Any]:
     key = f"{subject['kind']}:{subject.get('event_id') or ''}:{subject['lat']:.4f}:{subject['lon']:.4f}:{subject['t_start'].isoformat()}:{subject['t_end'].isoformat()}:{len(subject['detections'])}"
     cached = _EVIDENCE_CACHE.get(key)
     if cached and not refresh and (time.time() - cached[0]) < CACHE_TTL_SECONDS:
         return {**cached[1], "cache": {"hit": True, "ttl_seconds": CACHE_TTL_SECONDS}}
 
-    place = await reverse_geocode(subject["lat"], subject["lon"])
-    regional, official, news = await asyncio.gather(regional_satellite_evidence(subject, place), official_evidence(subject, place), news_evidence(subject, place))
+    scenario = scenario_for(subject)
+    overrides = None
+    if scenario:
+        demo = scenario_evidence(scenario, subject)
+        place, overrides = demo["place"], demo["case_overrides"]
+        news = {"articles": await score_articles(subject, place, demo["articles"]), "searched": {"gdelt_url": None, "gdelt_error": None, "newsapi_enabled": False, "preferred_outlets": []}, "note": NEWS_NOTE}
+        regional, official, news = await _gather_streams(subject, place, on_partial, scripted={"regional": demo["regional"], "official": demo["official"], "news": news}, overrides=overrides)
+    else:
+        place = await reverse_geocode(subject["lat"], subject["lon"])
+        regional, official, news = await _gather_streams(subject, place, on_partial)
     fusion = fuse(subject, place, regional, official, news)
-    case = await build_fire_case(subject, place, regional, official, news, fusion)
+    case = await build_fire_case(subject, place, regional, official, news, fusion, overrides=overrides)
     fusion["satellite_fire_probability"] = case["satellite_fire_probability"]["probability"]
     stages = [
         {"name": "Satellite observation", "status": "completed", "detail": f"{len(subject['detections'])} detection(s)"},
@@ -516,6 +585,7 @@ async def build_evidence(subject: dict[str, Any], refresh: bool = False) -> dict
         "external_evidence": {"regional_satellite": regional, "official": official, "news": news},
         "inference": fusion,
         "fire_case": case,
+        "demo_scenario": scenario["key"] if scenario else None,
         "source_transparency": {
             "original_sources": "Headline, outlet, link and publication time come from the source.",
             "system_generated": "Summaries, event classifications, distances and match scores are generated by this system.",

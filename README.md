@@ -40,6 +40,14 @@ Fire Memory reports the **continuity test** (raw vs consistent ratio across the 
 
 Each item votes for categories weighted by its reliability. The answer has three parts: **Is it real? What kind? What is it doing now?** A type is named only when the top category scores above 50% and leads the next by 20 points. Cases stay provisional until every satellite has passed or 24 h have elapsed. The open panel re-gathers evidence every 10 minutes. On the globe, a case marker is hollow until evidence is gathered; its fill colour shows the fire type, its outline weight the confirmation level, and it fades once the fire has ended.
 
+### Demo scenarios
+
+`backend/demo_data.py` scripts three complete Fire Cases in Bangladesh for walkthroughs and videos: a garment factory fire at Ashulia (Dhaka), paddy-straw burning at Shibganj (Bogura) and a forest fire in the Sundarbans' Chandpai range. Each has a fire-power curve and a cloud curve, sampled at realistic overpass times to produce the detections. The matching pass schedule, Himawari timeline, official report, news items, place, land use and burning-season history feed the case without any external calls, so the answer appears in stages over about 7 seconds. On Fire Now, choose the **Bangladesh** location: the three cases verify themselves and their markers fill in.
+
+`backend/demo_outlook.py` scripts the **Past, Future and Exposure** tabs for the same three fires: five historical analogues each, a 6/12/24 h probability corridor stretched downwind with model-validation tables, and population, roads and facilities inside the corridor. "Run analysis" finishes in about 6 seconds.
+
+All of this is synthetic. Outlets, reports and figures are invented (marked "(demo)"), have no links, and results carry `demo_scenario`. Edit `SCENARIOS` to change a story, or empty the list to run on live data only.
+
 ## Running it
 
 ```bash

@@ -91,3 +91,37 @@ def test_mixed_evidence_does_not_name_a_type_and_stays_provisional(monkeypatch):
     assert case["answer"]["kind"]["category"] == "unknown"
     assert case["provisional"] and case["status"] == "open"
     assert case["marker"]["provisional"]
+
+
+def test_pending_streams_are_not_treated_as_missing_evidence(monkeypatch):
+    _stub(monkeypatch, [_pass("snpp", 0)], {"status": "unavailable"})
+    subject = {"lat": 23.85, "lon": 90.38, "detections": [_det()], "radius_km": 0.5, "behaviour": {"state": "Onset"}}
+    case = asyncio.run(build_fire_case(subject, {"land_context": {}}, EMPTY_REGIONAL, EMPTY_OFFICIAL, EMPTY_NEWS, {"final_status": "No External Corroboration Yet"}, now=T0 + timedelta(hours=1), pending_streams=["B", "C"]))
+    assert case["streams"]["pending"] == ["B", "C"]
+    assert case["geostationary"]["status"] == "pending"
+    assert not any("No matching report" in i["summary"] for i in case["evidence_block"])
+
+
+def test_evidence_publishes_a_new_answer_after_each_stream(monkeypatch):
+    import evidence
+
+    async def slow(value, delay):
+        await asyncio.sleep(delay)
+        return value
+
+    monkeypatch.setattr(evidence, "regional_satellite_evidence", lambda s, p: slow(EMPTY_REGIONAL, 0.05))
+    monkeypatch.setattr(evidence, "official_evidence", lambda s, p: slow(EMPTY_OFFICIAL, 0.2))
+    monkeypatch.setattr(evidence, "news_evidence", lambda s, p: slow(EMPTY_NEWS, 0.4))
+
+    async def fake_case(*args, pending_streams=None, **kwargs):
+        return {"streams": {"pending": pending_streams or []}}
+
+    monkeypatch.setattr(evidence, "build_fire_case", fake_case)
+    seen = []
+
+    async def on_partial(case):
+        seen.append(case["streams"]["pending"])
+
+    subject = {"kind": "hotspot", "lat": 23.85, "lon": 90.38, "detections": [_det()], "t_start": T0, "t_end": T0, "radius_km": 0.5, "sensors": ["viirs_snpp"]}
+    asyncio.run(evidence._gather_streams(subject, {}, on_partial))
+    assert seen == [["B", "C"], ["C"], ["C"]]

@@ -1,0 +1,30 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-03T06:30:06Z",
+    "timestamp_areas_base": "2026-10-02T05:18:35Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "area",
+  "id": 3608340969,
+  "tags": {
+    "boundary": "protected_area",
+    "communication:amateur_radio:pota": "AU-1571",
+    "iucn_level": "V",
+    "leisure": "nature_reserve",
+    "name": "Judbarra / Gregory National Park",
+    "protect_class": "5",
+    "protection_title": "National Park",
+    "ref:capad:pa_id": "NT_PA92",
+    "source": "CAPAD 2016 - Terrestrial",
+    "type": "boundary",
+    "wikidata": "Q1229653"
+  }
+}
+
+  ]
+}

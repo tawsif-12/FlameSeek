@@ -12,6 +12,8 @@ from fastapi import APIRouter, HTTPException, Query
 
 from analogues import find_analogues
 from config import DEFAULT_SENSORS, HISTORY_SENSORS
+from demo_data import cloud_at, scenario_for
+from demo_outlook import scenario_outlook
 from environment import daily_weather, hourly_weather
 from events import event_summary, reconstruct_events
 from evidence import build_evidence, subject_from_event
@@ -31,6 +33,7 @@ router = APIRouter()
 _EVENTS: dict[str, dict[str, Any]] = {}
 _DETECTION_INDEX: dict[str, str] = {}
 _CASES: dict[str, dict[str, Any]] = {}
+STREAM_NAMES = {"B": "regional satellites", "C": "news and official reports"}
 _SET_CACHE: dict[str, tuple[float, dict[str, Any]]] = {}
 SET_TTL = 15 * 60
 
@@ -60,6 +63,8 @@ def _layer_row(ev: dict[str, Any]) -> dict[str, Any]:
     s["behaviour"] = {"state": ev["behaviour"]["state"], "label_type": ev["behaviour"]["label_type"]}
     case = _CASES.get(ev["event_id"])
     s["case"] = {**case["marker"], "evidence_checked": True, "updated_at": case["updated_at"]} if case else _provisional_marker(ev)
+    s["featured"] = any(d.get("place_hint") for d in ev["detections"])
+    s["place_hint"] = next((d["place_hint"] for d in ev["detections"] if d.get("place_hint")), None)
     if ev["observation_count"] == 1:
         s["hull"] = []
     return s
@@ -88,6 +93,8 @@ async def list_events(
         result = {"events": events, "detections": len(rows), "elapsed_ms": round((time.perf_counter() - started) * 1000)}
         _SET_CACHE[key] = (time.time(), result)
     events = [e for e in result["events"] if e["observation_count"] >= min_detections]
+    # Featured (demo scenario) events are always returned, ahead of the strongest-by-FRP cut.
+    events.sort(key=lambda e: not any(d.get("place_hint") for d in e["detections"]))
     return {
         "events": [_layer_row(e) for e in events[:limit]],
         "metadata": {
@@ -129,10 +136,14 @@ async def _observation_quality(ev: dict[str, Any]) -> dict[str, Any]:
     c = ev["centroid"]
     now = datetime.now(timezone.utc)
     cloud_rows = []
-    try:
-        cloud_rows = [r for r in await hourly_weather(c["lat"], c["lon"], (now - timedelta(days=1)).date(), now.date()) if r["time"] <= now.strftime("%Y-%m-%dT%H:00")][-24:]
-    except ExternalServiceError:
-        pass
+    scenario = scenario_for({"lat": c["lat"], "lon": c["lon"], "detections": ev["detections"]})
+    if scenario:
+        cloud_rows = [{"cloud_cover": cloud_at(scenario, now - timedelta(hours=h), now)} for h in range(24)]
+    else:
+        try:
+            cloud_rows = [r for r in await hourly_weather(c["lat"], c["lon"], (now - timedelta(days=1)).date(), now.date()) if r["time"] <= now.strftime("%Y-%m-%dT%H:00")][-24:]
+        except ExternalServiceError:
+            pass
     clouds = [r["cloud_cover"] for r in cloud_rows if r.get("cloud_cover") is not None]
     cloud = round(sum(clouds) / len(clouds), 1) if clouds else None
     available = [s for s in DEFAULT_SENSORS if sensor_available(s, now.date())]
@@ -172,7 +183,16 @@ async def _run_evidence(job: Job, ev: dict[str, Any], refresh: bool) -> dict[str
     await job.update("Reverse geocoding and querying satellites, agencies and news", 0.1)
     subject = subject_from_event(ev)
     subject["observation_quality"] = await _observation_quality(ev)
-    result = await build_evidence(subject, refresh=refresh)
+
+    async def on_partial(case: dict[str, Any]) -> None:
+        # Publish each provisional answer so the map marker updates after every stream.
+        now = datetime.now(timezone.utc).isoformat()
+        _CASES[ev["event_id"]] = {**case, "updated_at": now}
+        job.partial = {"fire_case": case, "updated_at": now}
+        pending = case["streams"]["pending"]
+        await job.update("Waiting for " + ", ".join(STREAM_NAMES[s] for s in pending) if pending else "Combining all evidence", 0.2 + 0.6 * (2 - len(pending)) / 2)
+
+    result = await build_evidence(subject, refresh=refresh, on_partial=on_partial)
     _CASES[ev["event_id"]] = {**result["fire_case"], "updated_at": result["generated_at"]}
     return result
 
@@ -194,6 +214,14 @@ async def event_evidence(event_id: str, refresh: bool = False) -> dict[str, Any]
 
 async def _run_outlook(job: Job, ev: dict[str, Any], years: int) -> dict[str, Any]:
     c = ev["centroid"]
+    scenario = scenario_for({"lat": c["lat"], "lon": c["lon"], "detections": ev["detections"]})
+    if scenario:
+        # Demo scenario: scripted analogues, forecast and exposure, staged so the progress bar is visible.
+        steps = [("Fetching the same season in earlier years from the FIRMS archive", 0.25), ("Searching historical analogues", 0.5), ("Training and validating forecast models", 0.75), ("Overlaying the corridor with population and infrastructure", 0.93)]
+        for message, fraction in steps:
+            await job.update(message, fraction)
+            await asyncio.sleep(1.4)
+        return scenario_outlook(scenario, ev)
     today = datetime.now(timezone.utc).date()
 
     async def progress(message: str, fraction: float) -> None:

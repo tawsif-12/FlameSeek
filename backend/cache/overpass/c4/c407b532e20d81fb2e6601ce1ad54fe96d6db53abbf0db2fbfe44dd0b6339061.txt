@@ -1,0 +1,212 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-02T22:22:30Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 11301534768,
+  "lat": 22.2936177,
+  "lon": 91.7756369,
+  "tags": {
+    "man_made": "works",
+    "name": "Bonshoe Bangladesh Limited, CEPZ Rd Number 1, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11301536457,
+  "lat": 22.2997466,
+  "lon": 91.7768393,
+  "tags": {
+    "man_made": "works",
+    "name": "JB-Q & Q Equipment International Ltd., Kolshir Dighir Par, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11301543464,
+  "lat": 22.2942856,
+  "lon": 91.7803327,
+  "tags": {
+    "man_made": "works",
+    "name": "K&T Logistics, CEPZ Connecting Rd, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11301550257,
+  "lat": 22.2952669,
+  "lon": 91.7747087,
+  "tags": {
+    "man_made": "works",
+    "name": "PACIFIC JEANS LIMITED, Plot -14, Pacific Jeans Ltd, 19 CEPZ Entry Rd, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11301552262,
+  "lat": 22.2931255,
+  "lon": 91.7741639,
+  "tags": {
+    "man_made": "works",
+    "name": "ACE BICYCLE (DB) LTD."
+  }
+},
+{
+  "type": "node",
+  "id": 11301553037,
+  "lat": 22.2941454,
+  "lon": 91.7741370,
+  "tags": {
+    "man_made": "works",
+    "name": "Young International limited by Akram vai"
+  }
+},
+{
+  "type": "node",
+  "id": 11301561378,
+  "lat": 22.2930684,
+  "lon": 91.7748559,
+  "tags": {
+    "man_made": "works",
+    "name": "Dream Bengal Garments Ltd, CEPZ Rd Number 1, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11301565296,
+  "lat": 22.2957078,
+  "lon": 91.7781476,
+  "tags": {
+    "man_made": "works",
+    "name": "Patenga Footwear (Pvt.) Ltd., CEPZ Connecting Rd, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11301566402,
+  "lat": 22.2956744,
+  "lon": 91.7728685,
+  "tags": {
+    "man_made": "works",
+    "name": "RTT Textile Industries Pvt. Ltd, CEPZ, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11301570869,
+  "lat": 22.2936201,
+  "lon": 91.7808550,
+  "tags": {
+    "man_made": "works",
+    "name": "Bidi Apparels Ltd"
+  }
+},
+{
+  "type": "node",
+  "id": 11301574409,
+  "lat": 22.2950321,
+  "lon": 91.7726584,
+  "tags": {
+    "man_made": "works",
+    "name": "Pacific Accessories Ltd., Plot - 7, Sector -5/A Export Processing Zone, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11301583835,
+  "lat": 22.2943291,
+  "lon": 91.7748988,
+  "tags": {
+    "man_made": "works",
+    "name": "NHT Fashions Ltd."
+  }
+},
+{
+  "type": "node",
+  "id": 11306687728,
+  "lat": 22.2976494,
+  "lon": 91.7772674,
+  "tags": {
+    "man_made": "works",
+    "name": "Intimate Creations Limited, Chittagong Export Processing Zone, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11306715997,
+  "lat": 22.2971219,
+  "lon": 91.7727290,
+  "tags": {
+    "man_made": "works",
+    "name": "CEPZ Central Effluent Treatment Plant, Chittagong Coastal Rd, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11306717967,
+  "lat": 22.2970902,
+  "lon": 91.7781221,
+  "tags": {
+    "man_made": "works",
+    "name": "M.N.C. Apparels Ltd., CEPZ Connecting Rd, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11306722455,
+  "lat": 22.2983802,
+  "lon": 91.7754781,
+  "tags": {
+    "man_made": "works",
+    "name": "Modiste (CEPZ) Ltd., Chittagong Export Processing Zone, South Halishahar, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11306733703,
+  "lat": 22.2970430,
+  "lon": 91.7772745,
+  "tags": {
+    "man_made": "works",
+    "name": "M.N.C. Apparels Ltd., CEPZ Connecting Rd, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11306738281,
+  "lat": 22.2981511,
+  "lon": 91.7765036,
+  "tags": {
+    "man_made": "works",
+    "name": "B.M.S Rope Co. Ltd., Chittagong Export Processing Zone, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11306741262,
+  "lat": 22.2982024,
+  "lon": 91.7746056,
+  "tags": {
+    "man_made": "works",
+    "name": "HKD INTERNATIONAL (BD) Ltd, Sector 7,HKD International, Chattogram"
+  }
+},
+{
+  "type": "node",
+  "id": 11306744963,
+  "lat": 22.3014245,
+  "lon": 91.7722120,
+  "tags": {
+    "man_made": "works",
+    "name": "Sagor Par, EPZ No. 3 Pocket Gate, Unnamed Road, Chattogram"
+  }
+}
+
+  ]
+}

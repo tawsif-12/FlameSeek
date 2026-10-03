@@ -240,16 +240,17 @@ def classify_passes(predicted: list[dict[str, Any]], detections: list[dict[str, 
 
 
 def geostationary_stream(regional: dict[str, Any]) -> dict[str, Any]:
-    goes = next((c for c in regional["checks"] if "GOES" in c["name"]), None)
+    goes = next((c for c in regional["checks"] if "GOES" in c["name"] or c.get("geostationary")), None)
+    sat_name = (goes or {}).get("satellite", "GOES")
     links = [c for c in regional["checks"] if c.get("kind") == "manual_review" and any(k in c["name"] for k in ("Himawari", "Meteosat"))]
     if goes and goes.get("status") == "corroborating":
         times = sorted(_utc(m["acq_datetime"]) for m in goes.get("matches", []))
         start, end = times[0], times[-1]
-        return {"status": "seen", "satellite": "GOES", "started": _iso(start), "last_seen": _iso(end), "duration_hours": round((end - start).total_seconds() / 3600, 2), "observations": len(times), "detail": goes["detail"], "review_links": links}
+        return {"status": "seen", "satellite": sat_name, "started": _iso(start), "last_seen": _iso(end), "duration_hours": round((end - start).total_seconds() / 3600, 2), "observations": len(times), "detail": goes["detail"], "review_links": links}
     if goes and goes.get("status") == "no_match":
-        return {"status": "not_seen", "satellite": "GOES", "detail": goes["detail"], "review_links": links}
+        return {"status": "not_seen", "satellite": sat_name, "detail": goes["detail"], "review_links": links}
     if goes:
-        return {"status": "unavailable", "satellite": "GOES", "detail": goes.get("detail"), "review_links": links}
+        return {"status": "unavailable", "satellite": sat_name, "detail": goes.get("detail"), "review_links": links}
     if links:
         return {"status": "manual_review", "satellite": " / ".join(c["name"].split(" ")[0] for c in links), "detail": "Himawari and Meteosat have no public fire-detection API, so the start, duration and end of this fire cannot be measured automatically here. Use the review links.", "review_links": links}
     return {"status": "no_coverage", "detail": "No geostationary fire product covers this location.", "review_links": []}
@@ -289,7 +290,7 @@ def case_fire_probability(passes: list[dict[str, Any]], season: dict[str, Any], 
 def _reality(fusion: dict[str, Any], top: str, decided: bool, sat_prob: float) -> tuple[str, str]:
     status = fusion["final_status"]
     if status == "Confirmed Fire":
-        return "Confirmed fire", "An official incident report matches in place and time."
+        return "Confirmed fire", "An official report describes a fire at this place and time."
     if status == "Likely Non-Fire Thermal Source" or (decided and top in NON_FIRE_HEAT):
         return "Likely non-fire thermal anomaly", f"The evidence favours '{CATEGORY_LABEL[top]}' over a burning fire." if decided and top in NON_FIRE_HEAT else "A known non-fire heat source or a non-vegetation report matches."
     if status in {"Strong Multi-Source Fire Evidence", "Externally Corroborated Fire Event", "Highly Likely Fire"}:
@@ -297,8 +298,8 @@ def _reality(fusion: dict[str, Any], top: str, decided: bool, sat_prob: float) -
     if sat_prob >= 0.9 and status != "Insufficient Evidence":
         return "Highly likely fire", f"Repeated satellite looks give a fused fire probability of {sat_prob:.0%}, but no independent source confirms it yet."
     if status == "No External Corroboration Yet":
-        return "No external confirmation yet", "A strong satellite detection that no other source has confirmed yet."
-    return "Possible fire (needs verification)", "Satellite evidence alone is weak or mixed."
+        return "No external confirmation yet", "Satellites saw strong heat, but no other source has confirmed it yet."
+    return "Possible fire (needs verification)", "The satellite evidence on its own is weak or mixed."
 
 
 def _now_state(passes: list[dict[str, Any]], behaviour: dict[str, Any] | None, last_det: datetime, now: datetime) -> tuple[str, str]:
@@ -311,16 +312,27 @@ def _now_state(passes: list[dict[str, Any]], behaviour: dict[str, Any] | None, l
         basis = f"Last detected {since:.0f} h ago" + (f"; {len(clear_after)} later clear pass(es) saw no fire." if clear_after else ".")
         return "Ended", basis
     if any(p["outcome"] == "spread" for p in passes) or state in {"Expanding", "Intensifying"}:
-        return "Growing", "Detections spread to neighbouring cells or fire power rose across passes."
+        return "Growing", "On later passes, satellites saw the fire in new places or burning more strongly."
     seen = [p for p in passes if p.get("frp_mw") is not None]
     if state == "Decaying" or (seen and seen[-1]["outcome"] == "seen_weaker"):
-        return "Weakening", "Fire radiative power fell on the latest pass."
+        return "Weakening", "The fire was burning less strongly on the latest satellite pass."
     if cloudy_after and not clear_after:
         return "Active", f"Last detected {since:.0f} h ago; {len(cloudy_after)} later pass(es) were blocked by cloud or smoke, so it may still be burning."
     return "Active", f"Last detected {since:.1f} h ago."
 
 
-async def build_fire_case(subject: dict[str, Any], place: dict[str, Any], regional: dict[str, Any], official: dict[str, Any], news: dict[str, Any], fusion: dict[str, Any], now: datetime | None = None) -> dict[str, Any]:
+async def build_fire_case(
+    subject: dict[str, Any],
+    place: dict[str, Any],
+    regional: dict[str, Any],
+    official: dict[str, Any],
+    news: dict[str, Any],
+    fusion: dict[str, Any],
+    now: datetime | None = None,
+    pending_streams: list[str] | None = None,
+    overrides: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    pending_streams = pending_streams or []
     now = now or datetime.now(timezone.utc)
     dets = sorted(subject["detections"], key=lambda d: _utc(d["acq_datetime"]))
     first, last = _utc(dets[0]["acq_datetime"]), _utc(dets[-1]["acq_datetime"])
@@ -333,14 +345,23 @@ async def build_fire_case(subject: dict[str, Any], place: dict[str, Any], region
         except ExternalServiceError:
             return []
 
-    overpasses, hourly, season = await asyncio.gather(
-        predict_passes(lat, lon, first - timedelta(minutes=30), max(closes, now + timedelta(hours=12)), first.date()),
-        cloud(),
-        burning_season(lat, lon, first),
-    )
+    if overrides:
+        overpasses, hourly, season = overrides["overpasses"], overrides["hourly"], overrides["season"]
+    else:
+        overpasses, hourly, season = await asyncio.gather(
+            predict_passes(lat, lon, first - timedelta(minutes=30), max(closes, now + timedelta(hours=12)), first.date()),
+            cloud(),
+            burning_season(lat, lon, first),
+        )
+    window_start, window_end = first - timedelta(minutes=30), max(closes, now + timedelta(hours=12))
+    overpasses = {**overpasses, "passes": [p for p in overpasses["passes"] if window_start <= p["time"] <= window_end]}
     passes = classify_passes(overpasses["passes"], dets, hourly, (lat, lon), subject.get("radius_km", 1.0), now)
     max_frp = max((float(d.get("frp") or 0) for d in dets), default=0.0)
     best_conf = max((float(d.get("confidence_pct") or 0) for d in dets), default=0.0)
+    for p in passes:
+        # How likely this pass was to see a fire like this one: time of day, view position and sensor eyesight.
+        if p.get("local_solar_hour") is not None:
+            p["detection_chance"] = round(pass_detection_chance(p["witness"], p["local_solar_hour"], max_frp, p.get("swath_position", "unknown")), 2)
     sat = case_fire_probability(passes, season, first, max_frp, best_conf)
     ballot = Ballot()
 
@@ -385,7 +406,7 @@ async def build_fire_case(subject: dict[str, Any], place: dict[str, Any], region
             ballot.add("background", "Burning calendar (MODIS archive)", f"Fires within 5 km in only {yrs} of {n} previous years at this time of year: outside the usual burning season.", 0.8, {"wildfire": 0.4, "not_a_fire": 0.3}, kind="background")
 
     # Stream A.
-    nights = {(_utc(d["acq_datetime"]) + timedelta(hours=lon / 15)).date() for d in dets if str(d.get("daynight", "")).upper() == "N"}
+    nights = {(_utc(d["acq_datetime"]) + timedelta(hours=lon / 15 - 12)).date() for d in dets if str(d.get("daynight", "")).upper() == "N"}
     span_km = max((haversine_km(a["lat"], a["lon"], b["lat"], b["lon"]) for a in dets[:100] for b in dets[:100]), default=0.0)
     behaviour = subject.get("behaviour") or {}
     for p in passes:
@@ -395,14 +416,24 @@ async def build_fire_case(subject: dict[str, Any], place: dict[str, Any], region
         hours_after = (p["time"] - first).total_seconds() / 3600
         votes: dict[str, float] = {}
         if p["outcome"] in {"seen", "seen_stronger", "seen_weaker"}:
-            votes = {c: 0.25 for c in FIRE_CATEGORIES + ["industrial_source"]}
+            votes = {c: 0.05 for c in FIRE_CATEGORIES + ["industrial_source"]}
         elif p["outcome"] == "spread":
             votes = {"wildfire": 1.5, "agricultural_burn": 0.3}
-        elif p["outcome"] == "clear_no_fire" and hours_after <= 14 and WITNESS_FAMILY[p["witness"]] == "VIIRS" and len(dets) == 1:
-            votes = {"not_a_fire": 1.5, "agricultural_burn": 0.5, "controlled_burn": 0.3}
         elif p["outcome"] == "clear_no_fire":
-            votes = {"agricultural_burn": 0.3, "controlled_burn": 0.2}
-        summary = f"{p['label']}: {p['outcome_label'].lower()}" + (f" ({p.get('frp_mw')} MW)" if p.get("frp_mw") is not None else "") + (f", {p['swath_position']}" if p.get("swath_position") not in (None, "unknown") else "") + (f", cloud {p['cloud_cover_pct']:.0f}%" if p.get("cloud_cover_pct") is not None else "") + "."
+            # A miss only counts as much as this pass could have seen the fire.
+            sharp = min(1.0, p.get("detection_chance", 0.5) / 0.6)
+            if hours_after <= 14 and len(dets) == 1:
+                votes = {"not_a_fire": 1.5 * sharp, "agricultural_burn": 0.5, "controlled_burn": 0.3}
+            else:
+                votes = {"agricultural_burn": 0.3, "controlled_burn": 0.2}
+        summary = (
+            f"{p['label']}: {p['outcome_label'].lower()}"
+            + (f" ({p.get('frp_mw')} MW)" if p.get("frp_mw") is not None else "")
+            + (f", {p['swath_position']}" if p.get("swath_position") not in (None, "unknown") else "")
+            + (f", cloud {p['cloud_cover_pct']:.0f}%" if p.get("cloud_cover_pct") is not None else "")
+            + (f", {p['detection_chance']:.0%} chance to see this fire" if p.get("detection_chance") is not None else "")
+            + "."
+        )
         ballot.add("A", p["label"], summary, rel if p["outcome"] not in {"cloud_or_smoke", "not_covered"} else 0.0, votes, p["time"])
     if len(nights) >= 2 and span_km <= 1.5:
         ballot.add("A", "Polar passes", f"Heat at the same spot on {len(nights)} different nights with no movement.", 0.9, {"industrial_source": 2.0}, last)
@@ -410,40 +441,42 @@ async def build_fire_case(subject: dict[str, Any], place: dict[str, Any], region
         votes = {"wildfire": 2.0 + (1.0 if forests or land_use & WILDLAND else 0.0)}
         ballot.add("A", "Fire event reconstruction", f"{behaviour['state']}: {' '.join(behaviour.get('reasons', [])[:1])}", 0.8, votes, last)
     duration_h = (last - first).total_seconds() / 3600
-    if len(dets) <= 3 and duration_h < 6 and any(p["outcome"] == "clear_no_fire" for p in passes):
+    if duration_h < 6 and any(p["outcome"] == "clear_no_fire" and p["time"] > last for p in passes):
         ballot.add("A", "Polar passes", f"Short burn: all detections within {duration_h:.1f} h, then no fire on a clear pass. Short fires often end before the next pass, so this is not proof of a false alarm.", 0.7, {"agricultural_burn": 1.0, "controlled_burn": 0.5}, last)
 
     # Stream B.
-    geo = geostationary_stream(regional)
-    if geo["status"] == "seen":
+    geo = geostationary_stream(regional) if "B" not in pending_streams else {"status": "pending", "detail": "Waiting for the regional satellite check.", "review_links": []}
+    if geo["status"] == "pending":
+        pass
+    elif geo["status"] == "seen":
         votes = {c: 0.5 for c in FIRE_CATEGORIES}
         if geo["duration_hours"] < 4:
             votes.update({"agricultural_burn": 1.5, "controlled_burn": 0.8})
-        elif geo["duration_hours"] > 12:
+        elif geo["duration_hours"] > 12 and (forests or land_use & WILDLAND):
             votes.update({"wildfire": 1.5})
-        ballot.add("B", "GOES geostationary", f"Seen {geo['observations']} times from {geo['started'][11:16]} to {geo['last_seen'][11:16]} UTC ({geo['duration_hours']} h).", 0.85, votes, _utc(geo["started"]))
+        ballot.add("B", f"{geo['satellite']} geostationary", f"Seen {geo['observations']} times from {geo['started'][11:16]} to {geo['last_seen'][11:16]} UTC ({geo['duration_hours']} h).", 0.85, votes, _utc(geo["started"]))
     elif geo["status"] == "not_seen":
-        ballot.add("B", "GOES geostationary", "No geostationary heat at this spot (small fires are often below GOES sensitivity).", 0.6, {"not_a_fire": 0.8 if len(dets) == 1 else 0.2}, first)
+        ballot.add("B", f"{geo['satellite']} geostationary", "No geostationary heat at this spot (small fires are often below GOES sensitivity).", 0.6, {"not_a_fire": 0.8 if len(dets) == 1 else 0.2}, first)
     else:
         ballot.add("B", geo.get("satellite") or "Geostationary", geo["detail"], 0.0, None, first, kind="note")
 
     # Other independent platforms and Sentinel-2 review.
     for c in regional["checks"]:
-        if c.get("status") == "corroborating" and "GOES" not in c["name"]:
+        if c.get("status") == "corroborating" and "GOES" not in c["name"] and not c.get("geostationary"):
             ballot.add("B" if "Landsat" in c["name"] or "M3" in c["name"] or "EFFIS" in c["name"] else "A", c["name"], c.get("detail") or "Corroborating detection.", 0.85, {cat: 0.5 for cat in FIRE_CATEGORIES}, first)
 
     # Stream C.
     for m in official["matches"][:3]:
-        cat = "controlled_burn" if m.get("incident_type") == "CONTROLLED_BURN" else "wildfire" if m.get("incident_type") == "WILDFIRE" else None
+        cat = NEWS_CATEGORY.get(str(m.get("incident_type")))
         when = _utc(m["discovered"]) if m.get("discovered") else None
-        ballot.add("C", "Official source", f"'{m.get('title') or 'Incident'}' ({str(m.get('incident_type') or '').replace('_', ' ').lower()}), {m.get('distance_km')} km away.", 0.95, {cat: 3.0} if cat else {c: 0.6 for c in FIRE_CATEGORIES}, when, m.get("url"), kind="external")
+        ballot.add("C", m.get("source") or "Official source", f"'{m.get('title') or 'Incident'}' ({str(m.get('incident_type') or '').replace('_', ' ').lower()}), {m.get('distance_km')} km away.", 0.95, {cat: 3.0} if cat else {c: 0.6 for c in FIRE_CATEGORIES}, when, m.get("url"), kind="external")
     for a in [a for a in news["articles"] if a["relevance_score"] >= 55][:4]:
         cat = NEWS_CATEGORY.get(a["event_type"])
         rel = 0.5 + 0.5 * a["source_reliability_score"] / 100
         weight = 2.5 * a["relevance_score"] / 100
         when = _utc(a["published_at"]) if a.get("published_at") else None
         ballot.add("C", a["publication"] or a["domain"], f"News ({a['match_label'].lower()}): {a['headline']}", rel, {cat: weight} if cat else {c: weight / 4 for c in FIRE_CATEGORIES}, when, a.get("url"), kind="external")
-    if not news["articles"] and not official["matches"]:
+    if "C" not in pending_streams and not news["articles"] and not official["matches"]:
         ballot.add("C", "News and official reports", "No matching report found. Small rural fires are rarely reported, so this is weak evidence.", 0.3, {"not_a_fire": 0.3, "agricultural_burn": 0.3}, now, kind="note")
 
     scores = ballot.scores()
@@ -502,6 +535,12 @@ async def build_fire_case(subject: dict[str, Any], place: dict[str, Any], region
             "spreading_fires": "Later passes are checked across the whole event area, not just the first point.",
             "short_fires": "A clear miss after a short burn is weighted as weak evidence, not proof of a false alarm.",
             "merged_alerts": f"{len(dets)} detection(s) linked into this one case.",
+        },
+        "streams": {
+            "pending": pending_streams,
+            "A": {"status": "done", "passes_observed": sum(1 for p in passes if p["outcome"] not in {"expected", "not_covered"}), "passes_expected": len(future)},
+            "B": {"status": "pending" if "B" in pending_streams else geo["status"]},
+            "C": {"status": "pending" if "C" in pending_streams else "done", "reports": len(official["matches"]) + sum(1 for a in news["articles"] if a["relevance_score"] >= 55)},
         },
         "score_note": "Category percentages are evidence scores that sum to 100. They are not calibrated probabilities until the system is tested on labelled fires.",
     }

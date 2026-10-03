@@ -92,6 +92,7 @@ export interface Job<T> {
   message: string;
   error: string | null;
   result: T | null;
+  partial?: { fire_case: FireCase; updated_at: string } | null;
 }
 
 // --- Places ------------------------------------------------------------------------
@@ -158,6 +159,8 @@ export interface FireEventSummary {
   behaviour: Behaviour;
   behaviour_state: Behaviour["state"];
   case?: CaseMarker;
+  featured?: boolean;
+  place_hint?: string | null;
 }
 
 export type CaseKind = "agricultural_burn" | "wildfire" | "controlled_burn" | "industrial_source" | "building_fire" | "volcanic" | "not_a_fire" | "unknown";
@@ -290,6 +293,7 @@ export interface CasePass {
   frp_mw?: number;
   detections?: number;
   cloud_cover_pct?: number | null;
+  detection_chance?: number;
 }
 
 export interface CaseEvidenceItem {
@@ -328,6 +332,12 @@ export interface FireCase {
   explanation: string;
   marker: Omit<CaseMarker, "evidence_checked">;
   situations: Record<string, string>;
+  streams: {
+    pending: Array<"B" | "C">;
+    A: { status: string; passes_observed: number; passes_expected: number };
+    B: { status: string };
+    C: { status: string; reports: number };
+  };
   score_note: string;
 }
 

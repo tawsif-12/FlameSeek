@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import { getCurrentHotspots, getEvent, getEvents, lookupEvent, normalizeApiError, searchPlaces } from "../api/client";
+import { getCurrentHotspots, getEvent, getEvents, lookupEvent, normalizeApiError, runJob, searchPlaces, startEvidence } from "../api/client";
 import { DEFAULT_SENSORS, aoiBBox, aoiContains, describeAoi, useAppContext } from "../context/AppContext";
-import type { AOI, FireEvent, FireEventSummary, ForecastHorizon, HotspotRecord, PlaceResult } from "../types/api";
-import EventPanel, { BEHAVIOUR_COLORS, KIND_COLORS, KIND_LABELS, REALITY_WEIGHT } from "./EventPanel";
+import type { AOI, CaseMarker, FireEvent, FireEventSummary, ForecastHorizon, HotspotRecord, PlaceResult } from "../types/api";
+import EventPanel, { BEHAVIOUR_COLORS, BEHAVIOUR_PLAIN, KIND_COLORS, KIND_LABELS, REALITY_WEIGHT } from "./EventPanel";
 
 type LayerKey = "MODIS" | "VIIRS" | "Fire Events" | "FRP Columns" | "Forecast Corridor" | "Exposure";
 type LightingMode = "Dawn" | "Day" | "Dusk" | "Night";
@@ -13,6 +13,16 @@ type ThemeMode = "Default" | "Faded" | "Mono" | "Ocean" | "Warm" | "Vivid";
 type EarthMode = "Map" | "3D Terrain" | "Photorealistic";
 type Period = "1" | "2" | "5" | "historical";
 type ExposureMarker = { lat: number; lon: number; name: string; category: string };
+
+// Fire Case marker fill: more solid as the confirmation level rises.
+const REALITY_FILL: Record<string, number> = {
+  "Confirmed fire": 0.8,
+  "Highly likely fire": 0.6,
+  "Possible fire (needs verification)": 0.35,
+  "No external confirmation yet": 0.3,
+  "Likely non-fire thermal anomaly": 0.25,
+};
+const AUTO_VERIFY_COUNT = 3;
 
 const daylightBackgrounds: Record<LightingMode, string> = { Dawn: "#061f36", Day: "#031529", Dusk: "#071a30", Night: "#020817" };
 const globeBaseColor = Cesium.Color.fromCssColorString("#0b2f63");
@@ -35,7 +45,8 @@ const obliqueOrientation = { heading: Cesium.Math.toRadians(18), pitch: Cesium.M
 const layerDefaults: Record<LayerKey, boolean> = { MODIS: true, VIIRS: true, "Fire Events": true, "FRP Columns": false, "Forecast Corridor": true, Exposure: true };
 const lightingModes: LightingMode[] = ["Dawn", "Day", "Dusk", "Night"];
 const themeModes: ThemeMode[] = ["Default", "Faded", "Mono", "Ocean", "Warm", "Vivid"];
-const periodLabels: Record<Period, string> = { "1": "Last 24 h", "2": "Last 48 h", "5": "Last 5 days", historical: "Historical date" };
+const periodLabels: Record<Period, string> = { "1": "Last 24 hours", "2": "Last 2 days", "5": "Last 5 days", historical: "Pick a past date" };
+const LAYER_LABEL: Record<LayerKey, string> = { MODIS: "MODIS satellites", VIIRS: "VIIRS satellites", "Fire Events": "Fires (grouped)", "FRP Columns": "Fire power bars", "Forecast Corridor": "Forecast area", Exposure: "Places nearby" };
 const EXPOSURE_COLORS: Record<string, string> = {
   settlements: "#f8fafc",
   schools: "#60a5fa",
@@ -198,6 +209,24 @@ export default function CesiumFireGlobe() {
   const [historicalDate, setHistoricalDate] = useState(() => new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10));
   const [hotspots, setHotspots] = useState<HotspotRecord[]>([]);
   const [events, setEvents] = useState<FireEventSummary[]>([]);
+  const [autoVerify, setAutoVerify] = useState(true);
+  const [verifying, setVerifying] = useState<Set<string>>(new Set());
+  const [verifyStatus, setVerifyStatus] = useState<string | null>(null);
+  // Events already auto-verified this session, and how many of this data load's budget are used.
+  const attemptedRef = useRef<Set<string>>(new Set());
+  const loadBudgetUsedRef = useRef(0);
+  const verifyRunningRef = useRef(false);
+  const autoVerifyRef = useRef(autoVerify);
+  autoVerifyRef.current = autoVerify;
+  const eventsRef = useRef(events);
+  eventsRef.current = events;
+  const unmountedRef = useRef(false);
+  useEffect(() => {
+    unmountedRef.current = false;
+    return () => {
+      unmountedRef.current = true;
+    };
+  }, []);
   const [eventMeta, setEventMeta] = useState<Record<string, unknown>>({});
   const [dataStatus, setDataStatus] = useState("Loading live FIRMS MODIS/VIIRS data...");
   const [eventStatus, setEventStatus] = useState<string | null>(null);
@@ -261,6 +290,7 @@ export default function CesiumFireGlobe() {
         if (d <= 6 && (!best || d < best.d)) best = { d, name: h.place_hint as string };
       }
       if (best) lookup[e.event_id] = best.name;
+      else if (e.place_hint) lookup[e.event_id] = e.place_hint;
     }
     return lookup;
   }, [events, hotspots]);
@@ -302,13 +332,13 @@ export default function CesiumFireGlobe() {
   async function loadData() {
     const historical = period === "historical";
     const days = historical ? 1 : Number(period);
-    setDataStatus(historical ? `Loading archived detections for ${historicalDate}...` : `Loading FIRMS detections (${periodLabels[period].toLowerCase()})...`);
+    setDataStatus(historical ? `Loading what satellites saw on ${historicalDate}...` : `Loading what NASA satellites saw (${periodLabels[period].toLowerCase()})...`);
     try {
       const response = await getCurrentHotspots(DEFAULT_SENSORS, days, 4000, historical ? historicalDate : undefined);
       setHotspots(response.hotspots);
       const m = response.metadata as Record<string, number | string>;
       setDataStatus(
-        `${historical ? `Archive ${historicalDate}` : periodLabels[period]}: ${Number(m.filtered_hotspot_count).toLocaleString()} detections, showing the ${Number(m.returned_hotspot_count).toLocaleString()} strongest by FRP.`,
+        `${historical ? `On ${historicalDate}` : periodLabels[period]}: satellites saw heat at ${Number(m.filtered_hotspot_count).toLocaleString()} spots worldwide. The map shows the ${Number(m.returned_hotspot_count).toLocaleString()} strongest.`,
       );
     } catch (error) {
       setHotspots([]);
@@ -316,15 +346,16 @@ export default function CesiumFireGlobe() {
     }
     if (historical) {
       setEvents([]);
-      setEventStatus("Event reconstruction runs on recent data. Use Fire Memory for historical events in an area.");
+      setEventStatus("Fires are grouped only for recent days. Use Fire Memory to look at past years in one area.");
       return;
     }
-    setEventStatus("Reconstructing fire events...");
+    setEventStatus("Grouping heat spots into separate fires...");
     try {
       const response = await getEvents(Math.max(2, days));
+      loadBudgetUsedRef.current = 0;
       setEvents(response.events);
       setEventMeta(response.metadata);
-      setEventStatus(`${Number(response.metadata.multi_detection_events).toLocaleString()} multi-detection events from ${Number(response.metadata.detections).toLocaleString()} detections.`);
+      setEventStatus(`${Number(response.metadata.multi_detection_events).toLocaleString()} fires were seen more than once (from ${Number(response.metadata.detections).toLocaleString()} heat spots).`);
     } catch (error) {
       setEvents([]);
       setEventStatus(`Event reconstruction unavailable: ${normalizeApiError(error)}`);
@@ -630,7 +661,9 @@ export default function CesiumFireGlobe() {
         const c = e.case;
         const baseColor = Cesium.Color.fromCssColorString(KIND_COLORS[c?.kind ?? "unknown"]);
         const ended = c?.state === "Ended";
-        const fillAlpha = !c?.evidence_checked ? 0 : ended ? 0.12 : c.provisional ? 0.35 : 0.6;
+        const fillAlpha = !c?.evidence_checked ? 0 : ended ? 0.12 : REALITY_FILL[c.reality] ?? 0.3;
+        // Pulse while the case is still collecting evidence.
+        const pulsing = verifying.has(e.event_id) || Boolean(c?.evidence_checked && c.provisional && !ended);
         const selected = selectedEvent?.event_id === e.event_id;
         const isHighlighted = highlightedEventIds.has(e.event_id);
         const placeLabel = placeForEvent[e.event_id];
@@ -644,7 +677,9 @@ export default function CesiumFireGlobe() {
             pixelSize: Math.min(24, 8 + Math.log2(e.observation_count) * 2) + (isHighlighted ? 4 : 0),
             color: color.withAlpha(isHighlighted ? 0.45 : fillAlpha),
             outlineColor: color,
-            outlineWidth: (isHighlighted ? 5 : REALITY_WEIGHT[c?.reality ?? ""] ?? 2) + (selected ? 2 : 0),
+            outlineWidth: pulsing
+              ? new Cesium.CallbackProperty(() => (REALITY_WEIGHT[c?.reality ?? ""] ?? 2) + (selected ? 2 : 0) + 2.5 * (1 + Math.sin(Date.now() / 220)), false)
+              : (isHighlighted ? 5 : REALITY_WEIGHT[c?.reality ?? ""] ?? 2) + (selected ? 2 : 0),
             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
             disableDepthTestDistance: 0,
           },
@@ -739,7 +774,71 @@ export default function CesiumFireGlobe() {
 
     updateHotspotOcclusion(viewer);
     viewer.scene.requestRender();
-  }, [aoi, confirmed, drawPoints, exposure, forecast, highlightRegion, highlightedEventIds, layers, placeForEvent, selectedEvent, sensorColors, viewerReady, visibleEvents, visibleHotspots]);
+  }, [aoi, confirmed, drawPoints, exposure, forecast, highlightRegion, highlightedEventIds, layers, placeForEvent, selectedEvent, sensorColors, verifying, viewerReady, visibleEvents, visibleHotspots]);
+
+  // The scene renders on demand, so keep it ticking while any case marker pulses.
+  const anyPulsing = useMemo(() => verifying.size > 0 || visibleEvents.some((e) => e.case?.evidence_checked && e.case.provisional && e.case.state !== "Ended"), [verifying, visibleEvents]);
+  useEffect(() => {
+    if (!anyPulsing || !layers["Fire Events"]) return;
+    const timer = window.setInterval(() => viewerRef.current?.scene.requestRender(), 90);
+    return () => window.clearInterval(timer);
+  }, [anyPulsing, layers]);
+
+  function applyCaseMarker(eventId: string, marker: CaseMarker) {
+    setEvents((cur) => cur.map((e) => (e.event_id === eventId ? { ...e, case: marker } : e)));
+  }
+
+  // A detection opens a case at once: gather evidence for the strongest events without waiting for a click.
+  // Runs once per data load; marker updates must not restart it.
+  const candidateKey = useMemo(() => {
+    const budget = AUTO_VERIFY_COUNT - loadBudgetUsedRef.current;
+    if (!autoVerify || period === "historical" || budget <= 0) return "";
+    // When scripted demo cases are on the map, verify only those; otherwise the strongest events.
+    const pool = visibleEvents.some((e) => e.featured) ? visibleEvents.filter((e) => e.featured) : visibleEvents;
+    return [...pool]
+      .filter((e) => !e.case?.evidence_checked && !attemptedRef.current.has(e.event_id))
+      .sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)) || Number(highlightedEventIds.has(b.event_id)) - Number(highlightedEventIds.has(a.event_id)) || b.total_frp - a.total_frp)
+      .slice(0, budget)
+      .map((e) => e.event_id)
+      .join(",");
+  }, [autoVerify, period, visibleEvents, highlightedEventIds]);
+
+  useEffect(() => {
+    if (!candidateKey || verifyRunningRef.current) return;
+    verifyRunningRef.current = true;
+    const ids = candidateKey.split(",");
+    ids.forEach((id) => attemptedRef.current.add(id));
+    loadBudgetUsedRef.current += ids.length;
+    (async () => {
+      for (const [i, id] of ids.entries()) {
+        if (unmountedRef.current || !autoVerifyRef.current) break;
+        const e = eventsRef.current.find((x) => x.event_id === id);
+        setVerifying((cur) => new Set(cur).add(id));
+        setVerifyStatus(`Checking fire ${i + 1} of ${ids.length}${e ? `: ${placeForEvent[id] ?? `${e.centroid.lat.toFixed(2)}°, ${e.centroid.lon.toFixed(2)}°`}` : ""}`);
+        try {
+          const result = await runJob(
+            startEvidence(id),
+            (job) => {
+              if (job.partial?.fire_case && !unmountedRef.current) applyCaseMarker(id, { ...job.partial.fire_case.marker, evidence_checked: true, updated_at: job.partial.updated_at });
+            },
+            unmountedRef.current ? { cancelled: true } : undefined,
+          );
+          if (!unmountedRef.current) applyCaseMarker(id, { ...result.fire_case.marker, evidence_checked: true, updated_at: result.generated_at });
+        } catch {
+          // A failed check leaves the marker hollow; the case can still be opened by clicking it.
+        } finally {
+          setVerifying((cur) => {
+            const next = new Set(cur);
+            next.delete(id);
+            return next;
+          });
+        }
+      }
+      verifyRunningRef.current = false;
+      if (!unmountedRef.current) setVerifyStatus(`Checked ${ids.length} fire${ids.length > 1 ? "s" : ""}. Click any circle to see what we found.`);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [candidateKey]);
 
   function flyToBBox(b: [number, number, number, number]) {
     viewerRef.current?.camera.flyTo({ destination: Cesium.Rectangle.fromDegrees(b[0], b[1], b[2], b[3]), duration: 1.2 });
@@ -748,9 +847,15 @@ export default function CesiumFireGlobe() {
   function flyToLocation(name: keyof typeof locations) {
     setSelectedLocation(name);
     const d = locations[name];
-    viewerRef.current?.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(d.lon, d.lat, name === "Atlantic View" || earthMode === "Map" ? d.height : Math.min(d.height, 1250000)),
-      orientation: name === "Atlantic View" || earthMode === "Map" ? nadirOrientation : obliqueOrientation,
+    const camera = viewerRef.current?.camera;
+    if (!camera) return;
+    if (name === "Atlantic View" || earthMode === "Map") {
+      camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(d.lon, d.lat, d.height), orientation: nadirOrientation, duration: 1.2 });
+      return;
+    }
+    // Oblique view that keeps the named place in the centre of the screen.
+    camera.flyToBoundingSphere(new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(d.lon, d.lat, 0), 0), {
+      offset: new Cesium.HeadingPitchRange(obliqueOrientation.heading, obliqueOrientation.pitch, Math.min(d.height, 1250000) * 1.25),
       duration: 1.2,
     });
   }
@@ -809,10 +914,10 @@ export default function CesiumFireGlobe() {
 
       <nav className="insight-dock" aria-label="Data insights">
         {([
-          { key: "snapshot", label: "Snapshot" },
-          { key: "intensity", label: "FRP Mix" },
-          { key: "timeline", label: "24 h Timeline" },
-          { key: "events", label: "Top Events" },
+          { key: "snapshot", label: "At a glance" },
+          { key: "intensity", label: "How strong" },
+          { key: "timeline", label: "Last 24 hours" },
+          { key: "events", label: "Biggest fires" },
         ] as const).map((o) => (
           <button
             key={o.key}
@@ -833,9 +938,9 @@ export default function CesiumFireGlobe() {
               <p className="mission-kicker">
                 <span className="hud-dot" />{" "}
                 {activeInsight === "snapshot" && "Live snapshot"}
-                {activeInsight === "intensity" && "FRP intensity mix"}
-                {activeInsight === "timeline" && "Detections · last 24 h"}
-                {activeInsight === "events" && "Top active events"}
+                {activeInsight === "intensity" && "How strong are the fires?"}
+                {activeInsight === "timeline" && "Satellite sightings · last 24 hours"}
+                {activeInsight === "events" && "Biggest fires right now"}
               </p>
               <small className="insight-context">{periodLabels[period]}{period === "historical" ? ` · ${historicalDate}` : ""}</small>
             </div>
@@ -845,24 +950,24 @@ export default function CesiumFireGlobe() {
           {activeInsight === "snapshot" && (
             <div className="insight-body snapshot-body">
               <div className="hud-stat">
-                <span>Detections</span>
+                <span>Heat spots seen</span>
                 <strong>{visibleHotspots.length.toLocaleString()}</strong>
                 <small>MODIS {stats.modis.toLocaleString()} · VIIRS {stats.viirs.toLocaleString()}</small>
               </div>
               <div className="hud-stat tone-warn">
-                <span>Cross-confirmed</span>
+                <span>Seen by two satellite types</span>
                 <strong>{stats.crossConfirmed.toLocaleString()}</strong>
-                <small>MODIS ∩ VIIRS within 15 km / 6 h</small>
+                <small>Both MODIS and VIIRS, close in place and time</small>
               </div>
               <div className="hud-stat">
-                <span>Fire events</span>
+                <span>Separate fires</span>
                 <strong>{stats.eventCount.toLocaleString()}</strong>
-                <small>{Math.round(stats.eventArea).toLocaleString()} km² footprint</small>
+                <small>{Math.round(stats.eventArea).toLocaleString()} km² covered</small>
               </div>
               <div className="hud-stat tone-hot">
-                <span>Peak FRP</span>
+                <span>Strongest fire</span>
                 <strong>{Math.round(stats.maxFrp).toLocaleString()}<i>MW</i></strong>
-                <small>Total {Math.round(stats.totalFrp).toLocaleString()} MW</small>
+                <small>All fires together: {Math.round(stats.totalFrp).toLocaleString()} MW of heat</small>
               </div>
             </div>
           )}
@@ -873,9 +978,9 @@ export default function CesiumFireGlobe() {
                 {(() => {
                   const total = Math.max(1, stats.weak + stats.mild + stats.strong + stats.intense);
                   const rows = [
-                    { key: "Intense", n: stats.intense, hint: "≥100 MW", color: "#b91c1c" },
+                    { key: "Very strong", n: stats.intense, hint: "≥100 MW", color: "#b91c1c" },
                     { key: "Strong", n: stats.strong, hint: "30–100", color: "#ea580c" },
-                    { key: "Mild", n: stats.mild, hint: "10–30", color: "#f59e0b" },
+                    { key: "Medium", n: stats.mild, hint: "10–30", color: "#f59e0b" },
                     { key: "Weak", n: stats.weak, hint: "<10", color: "#fde68a" },
                   ];
                   return rows.map((r) => (
@@ -888,7 +993,7 @@ export default function CesiumFireGlobe() {
                   ));
                 })()}
               </ul>
-              <p className="insight-note">Distribution of visible detections by Fire Radiative Power.</p>
+              <p className="insight-note">Fire power is the heat a fire gives off, in megawatts (MW). A cooking stove is about 0.002 MW; a large forest fire can exceed 100 MW per spot.</p>
             </div>
           )}
 
@@ -900,14 +1005,14 @@ export default function CesiumFireGlobe() {
                 ))}
               </div>
               <ul className="axis-mini"><li>-24h</li><li>-12h</li><li>now</li></ul>
-              <p className="insight-note">12 bins × 2 h each. Peak bin: {Math.max(...stats.hours).toLocaleString()} detections.</p>
+              <p className="insight-note">Each bar is two hours. The busiest two hours had {Math.max(...stats.hours).toLocaleString()} sightings. Bars rise when satellites pass over, not only when fires grow.</p>
             </div>
           )}
 
           {activeInsight === "events" && (
             <div className="insight-body">
               {stats.topEvents.length === 0 ? (
-                <p className="hud-empty">No multi-detection events yet.</p>
+                <p className="hud-empty">No fire has been seen more than once yet.</p>
               ) : (
                 <ul className="hud-events">
                   {stats.topEvents.map((e) => {
@@ -916,8 +1021,8 @@ export default function CesiumFireGlobe() {
                       <li key={e.event_id}>
                         <span className="hud-event-dot" style={{ background: color }} />
                         <div>
-                          <strong>EV-{e.event_id.slice(-6).toUpperCase()}</strong>
-                          <em>{e.centroid.lat.toFixed(2)}°, {e.centroid.lon.toFixed(2)}° · {e.behaviour_state}</em>
+                          <strong>{placeForEvent[e.event_id] ?? `Fire near ${e.centroid.lat.toFixed(1)}°, ${e.centroid.lon.toFixed(1)}°`}</strong>
+                          <em>{BEHAVIOUR_PLAIN[e.behaviour_state] ?? e.behaviour_state} · seen {e.observation_count} times</em>
                         </div>
                         <b>{e.observation_count}</b>
                       </li>
@@ -929,7 +1034,7 @@ export default function CesiumFireGlobe() {
                 {Object.entries(BEHAVIOUR_COLORS).map(([state, color]) => (
                   <li key={state}>
                     <i style={{ background: color }} />
-                    <span>{state}</span>
+                    <span>{BEHAVIOUR_PLAIN[state] ?? state}</span>
                     <b>{(stats.behaviour[state] ?? 0).toLocaleString()}</b>
                   </li>
                 ))}
@@ -941,7 +1046,8 @@ export default function CesiumFireGlobe() {
 
       <aside className="scene-panel globe-left">
         <section>
-          <p className="panel-title">Fire Now · time period</p>
+          <p className="panel-title">Fires seen from space</p>
+          <p className="map-howto">Each dot is heat seen by a satellite. A circle groups dots into one fire. Click a circle to find out if it is real, what kind it is and whether it is still burning.</p>
           <div className="option-grid">
             {(Object.keys(periodLabels) as Period[]).map((p) => (
               <button key={p} type="button" className={period === p ? "option-card active" : "option-card"} onClick={() => setPeriod(p)}>{periodLabels[p]}</button>
@@ -953,33 +1059,37 @@ export default function CesiumFireGlobe() {
           <button className="option-card refresh-live-data" type="button" onClick={loadData}>Refresh FIRMS</button>
           <p className="tiles-status">{dataStatus}</p>
           {eventStatus && <p className="tiles-status">{eventStatus}</p>}
+          {verifyStatus && <p className="tiles-status verify-status">{verifying.size > 0 && <span className="pulse-dot" />}{verifyStatus}</p>}
         </section>
         <section>
-          <p className="panel-title">Layers</p>
+          <p className="panel-title">Show on the map</p>
           <div className="compact-layer-grid">
             {(Object.keys(layerDefaults) as LayerKey[]).map((layer) => (
-              <button key={layer} className={layers[layer] ? "active" : ""} type="button" onClick={() => setLayers((cur) => ({ ...cur, [layer]: !cur[layer] }))}>{layer}</button>
+              <button key={layer} className={layers[layer] ? "active" : ""} type="button" onClick={() => setLayers((cur) => ({ ...cur, [layer]: !cur[layer] }))}>{LAYER_LABEL[layer]}</button>
             ))}
           </div>
-          <label className="switch-row"><span>Sensor colours</span><input type="checkbox" checked={sensorColors} onChange={(e) => setSensorColors(e.target.checked)} /></label>
-          <p className="tiles-status">{sensorColors ? "Green MODIS · yellow VIIRS · red = MODIS+VIIRS within 15 km / 6 h" : "Colour by FRP: pale < 10, amber 10–30, orange 30–100, red ≥ 100 MW"}</p>
+          <label className="switch-row"><span>Colour dots by satellite</span><input type="checkbox" checked={sensorColors} onChange={(e) => setSensorColors(e.target.checked)} /></label>
+          <p className="tiles-status">{sensorColors ? "Green dots: MODIS satellites. Yellow: VIIRS satellites. Red: both saw the same place." : "Dot colour shows fire strength: pale = weak, amber = medium, orange = strong, red = very strong."}</p>
           {layers["Fire Events"] && (
             <div className="behaviour-legend">
               {(Object.keys(KIND_COLORS) as Array<keyof typeof KIND_COLORS>).map((kind) => (
                 <span key={kind}><i style={{ borderColor: KIND_COLORS[kind], background: kind === "unknown" ? "transparent" : KIND_COLORS[kind] }} />{KIND_LABELS[kind]}</span>
               ))}
               <small>
-                Every event with 3+ detections is a Fire Case. Hollow = evidence not yet gathered; fill colour = fire type; thicker outline = stronger confirmation; faded = ended. Click one to open its case.
+                Circles are fires seen at least 3 times. Empty circle = not checked yet. Pulsing = being checked now. Colour = type of fire. Bolder = more certain. Faded = the fire
+                has ended.
               </small>
+              <label className="switch-row"><span>Check the {AUTO_VERIFY_COUNT} main fires automatically</span><input type="checkbox" checked={autoVerify} onChange={(e) => setAutoVerify(e.target.checked)} /></label>
+
               <small>
-                Inferred behaviour:{" "}
-                {Object.keys(BEHAVIOUR_COLORS).filter((s) => behaviourCounts[s]).map((s) => `${s} ${behaviourCounts[s].toLocaleString()}`).join(" · ") || "none"}
+                What the fires are doing:{" "}
+                {Object.keys(BEHAVIOUR_COLORS).filter((s) => behaviourCounts[s]).map((s) => `${(BEHAVIOUR_PLAIN[s] ?? s).toLowerCase()} ${behaviourCounts[s].toLocaleString()}`).join(" · ") || "none"}
               </small>
             </div>
           )}
         </section>
         <section>
-          <p className="panel-title">Area of interest</p>
+          <p className="panel-title">Choose a place</p>
           <form className="aoi-search dark" onSubmit={runPlaceSearch}>
             <input value={placeQuery} onChange={(e) => setPlaceQuery(e.target.value)} placeholder="Country, state, district, forest..." aria-label="Search place" />
             <button type="submit">Go</button>
@@ -1077,7 +1187,7 @@ export default function CesiumFireGlobe() {
           onClose={() => { setSelectedEvent(null); setForecast({ horizon: null, size: 0 }); setExposure([]); }}
           onForecast={(horizon, size) => setForecast({ horizon, size })}
           onExposure={setExposure}
-          onCaseUpdate={(eventId, marker) => setEvents((cur) => cur.map((e) => (e.event_id === eventId ? { ...e, case: marker } : e)))}
+          onCaseUpdate={applyCaseMarker}
         />
       )}
     </section>

@@ -138,7 +138,8 @@ async def current_hotspots(
     for row in filtered:
         row["location_uncertainty_km"] = location_uncertainty_km(row)
     # Sample evenly by FRP rank rather than only newest, so a limit keeps the strongest fires visible.
-    sorted_filtered = sorted(filtered, key=lambda row: (row.get("frp") or 0), reverse=True)
+    # Demo-scenario detections always stay in the returned set.
+    sorted_filtered = sorted(filtered, key=lambda row: (bool(row.get("place_hint")), row.get("frp") or 0), reverse=True)
     returned = sorted_filtered[:limit]
     return CurrentHotspotsResponse(
         hotspots=[HotspotRecord(**row) for row in returned],

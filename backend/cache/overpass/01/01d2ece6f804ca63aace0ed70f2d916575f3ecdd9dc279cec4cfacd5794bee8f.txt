@@ -1,0 +1,80 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-02T22:23:33Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 8994325262,
+  "lat": 20.9731793,
+  "lon": 86.0000866,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 8994325263,
+  "lat": 20.9739838,
+  "lon": 86.0001183,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 14090583542,
+  "lat": 20.9720060,
+  "lon": 86.0002521,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "way",
+  "id": 376405494,
+  "center": {
+    "lat": 20.9710485,
+    "lon": 86.0097568
+  },
+  "tags": {
+    "landuse": "industrial",
+    "name": "TATA Steel"
+  }
+},
+{
+  "type": "way",
+  "id": 971787011,
+  "center": {
+    "lat": 20.9735683,
+    "lon": 85.9999117
+  },
+  "tags": {
+    "landuse": "industrial",
+    "name": "IEL Kalinganagar Tata Steel Power Station",
+    "power": "plant",
+    "source": "https://www.tatapower.com/plants-projects/waste-heat-recovery-generation/iel-kalinganagar-135mw.aspx;https://www.tatapower.com/energy-solutions/thermal-energy"
+  }
+},
+{
+  "type": "way",
+  "id": 1508890366,
+  "center": {
+    "lat": 20.9787925,
+    "lon": 86.0156215
+  },
+  "tags": {
+    "floating": "yes",
+    "plant:method": "photovoltaic",
+    "plant:output:electricity": "yes",
+    "plant:source": "solar",
+    "power": "plant"
+  }
+}
+
+  ]
+}

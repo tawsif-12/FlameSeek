@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 
 from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
@@ -15,10 +17,10 @@ from config import MAX_AOI_DEGREES_SPAN, SENSOR_START_DATES
 from critical_periods import find_critical_periods
 from environment import daily_weather
 from events import reconstruct_events
-from firms_client import fetch_hotspots_with_report, sensor_available
+from firms_client import fetch_hotspots_with_report, quota_wait_status, sensor_available
 from geo import AOI
 from harmonize import build_harmonized_series, filter_low_confidence, summarize_daily_series
-from http_utils import ExternalServiceError
+from http_utils import ExternalServiceError, disk_read, disk_write
 from jobs import Job, start_job
 from quality import summarize_observations
 from schemas import FireMemoryRequest
@@ -27,6 +29,9 @@ from witness import continuity_test
 
 
 router = APIRouter()
+# Bump when the analysis changes so saved results are recomputed.
+RESULT_CACHE_VERSION = 1
+RESULT_CACHE_TTL_SECONDS = 7 * 86400
 
 
 def _compact_daily(row: dict[str, Any]) -> dict[str, Any]:
@@ -73,11 +78,39 @@ async def run_fire_memory(job: Job, payload: FireMemoryRequest) -> dict[str, Any
     start = max(start, SENSOR_START_DATES["modis"])
     sensors = [str(s) for s in payload.sensors]
 
+    # A finished analysis for the same area, period and settings is reused from disk.
+    cache_key = hashlib.sha1(
+        json.dumps([RESULT_CACHE_VERSION, payload.aoi.model_dump(mode="json"), start.isoformat(), end.isoformat(), sorted(sensors), payload.comparison_window_days], sort_keys=True).encode()
+    ).hexdigest()
+    if not payload.refresh:
+        cached = disk_read("fire_memory", cache_key, ".json", RESULT_CACHE_TTL_SECONDS)
+        if cached is not None:
+            await job.update("Loaded saved analysis for this area", 0.95)
+            result = json.loads(cached)
+            result["provenance"]["served_from_cache"] = True
+            return result
+
+    counts = {"done": 0, "total": 0}
+
     async def on_progress(done: int, total: int) -> None:
+        counts.update(done=done, total=total)
         await job.update(f"Downloading MODIS/VIIRS archive: {done}/{total} FIRMS requests", 0.05 + 0.75 * done / max(total, 1))
 
+    async def quota_notice() -> None:
+        # The download is not stuck when NASA's request limit is reached: say so while it waits.
+        while True:
+            await asyncio.sleep(3)
+            wait = quota_wait_status()
+            if wait:
+                used = f" ({wait['usage'][0]:,} of {wait['usage'][1]:,} used)" if wait["usage"] else ""
+                await job.update(f"Waiting for NASA FIRMS request quota{used}: 5,000 requests per 10 minutes. Resumes automatically. {counts['done']}/{counts['total']} requests done", None)
+
     await job.update("Planning FIRMS archive requests", 0.02)
-    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+    notice = asyncio.create_task(quota_notice())
+    try:
+        rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+    finally:
+        notice.cancel()
     rows = aoi.filter(rows)
 
     await job.update("Fetching ERA5 cloud cover for observation sufficiency", 0.82)
@@ -121,7 +154,7 @@ async def run_fire_memory(job: Job, payload: FireMemoryRequest) -> dict[str, Any
     change_points = detect_monthly_change_points(monthly)
     periods = find_critical_periods(daily)[:25]
 
-    return {
+    result = {
         "aoi": aoi.describe(),
         "period": {"start": start.isoformat(), "end": end.isoformat(), "years": payload.history_years, "days": len(daily)},
         "summary": summarize_daily_series(daily),
@@ -152,6 +185,9 @@ async def run_fire_memory(job: Job, payload: FireMemoryRequest) -> dict[str, Any
             "generated_at": datetime.now(timezone.utc).isoformat(),
         },
     }
+    if not report["failed_chunks"]:
+        disk_write("fire_memory", cache_key, json.dumps(result, default=str), ".json")
+    return result
 
 
 @router.post("/fire_memory")

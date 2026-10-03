@@ -40,6 +40,7 @@ class FireMemoryRequest(BaseModel):
     end_date: date | None = None
     sensors: list[SensorName] = Field(default_factory=lambda: ["modis", "viirs_snpp", "viirs_noaa20", "viirs_noaa21"])
     comparison_window_days: int = Field(default=30, ge=7, le=120)
+    refresh: bool = False
 
 
 class DailyRecord(BaseModel):

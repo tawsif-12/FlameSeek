@@ -55,6 +55,17 @@ FIRMS_STATUS_URL = "https://firms.modaps.eosdis.nasa.gov/mapserver/mapkey_status
 FIRMS_WAIT_SECONDS: contextvars.ContextVar[float] = contextvars.ContextVar("firms_wait_seconds", default=0.0)
 
 
+# Set while a request is being held back by the MAP_KEY transaction limit.
+_quota_wait: dict[str, Any] = {"since": None, "usage": None}
+
+
+def quota_wait_status() -> dict[str, Any] | None:
+    """Seconds a FIRMS request has been waiting for transaction budget, or None when nothing is waiting."""
+    if _quota_wait["since"] is None:
+        return None
+    return {"seconds": round(time.monotonic() - _quota_wait["since"]), "usage": _quota_wait["usage"]}
+
+
 def _redact_url(url: str) -> str:
     if FIRMS_MAP_KEY and FIRMS_MAP_KEY in url:
         return url.replace(FIRMS_MAP_KEY, "REDACTED_MAP_KEY")
@@ -98,7 +109,10 @@ async def _spend_transaction() -> None:
                 _transactions.append(now)
                 if usage is not None:
                     _usage = (usage[0] + 1, usage[1])
+                _quota_wait["since"] = None
                 return
+            _quota_wait["since"] = _quota_wait["since"] or time.monotonic()
+            _quota_wait["usage"] = usage
         # Sleep outside the lock so interactive requests can fail fast meanwhile.
         if time.monotonic() - started >= wait_budget:
             raise FirmsAPIError(429, "FIRMS MAP_KEY transaction limit reached (5000 per 10 minutes); try again in a few minutes.", "limit")
@@ -324,7 +338,7 @@ async def fetch_hotspots_with_report(
     end_date: date,
     sensors: list[str] = DEFAULT_SENSORS,
     progress: ProgressCallback | None = None,
-    concurrency: int = 6,
+    concurrency: int = 16,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Fetch every sensor/chunk in a window. Failed chunks are reported, not fatal,
     so observation sufficiency can mark those days as missing opportunities."""
@@ -347,8 +361,7 @@ async def fetch_hotspots_with_report(
         nonlocal done
         async with semaphore:
             try:
-                async with httpx.AsyncClient(timeout=45.0, headers={"User-Agent": HTTP_USER_AGENT}, verify=SSL_CONTEXT) as client:
-                    text, source = await _fetch_csv(client, sensor, bbox, chunk_start, days)
+                text, source = await _fetch_csv(client, sensor, bbox, chunk_start, days)
                 sources_used.add(source)
                 return _parse_csv(text, sensor, source)
             except FirmsAPIError as exc:
@@ -361,7 +374,11 @@ async def fetch_hotspots_with_report(
                     if asyncio.iscoroutine(result):
                         await result
 
-    results = await asyncio.gather(*(guarded(*job) for job in jobs))
+    # One pooled client for the whole window: connections and TLS sessions are reused across chunks.
+    limits = httpx.Limits(max_connections=concurrency, max_keepalive_connections=concurrency)
+    # Most archive chunks answer in under a second; a short read timeout lets a stalled one be retried quickly.
+    async with httpx.AsyncClient(timeout=httpx.Timeout(20.0, connect=10.0), headers={"User-Agent": HTTP_USER_AGENT}, verify=SSL_CONTEXT, limits=limits) as client:
+        results = await asyncio.gather(*(guarded(*job) for job in jobs))
     rows = [row for batch in results for row in batch]
     if jobs and len(failures) == len(jobs):
         first = failures[0]
@@ -398,12 +415,12 @@ async def fetch_recent_hotspots(
                 text, source = await _fetch_recent_csv(client, sensor, area, days)
             return _parse_csv(text, sensor, source)
 
-    # Demo overlay: dense Dhaka (Ashulia) cluster for hackathon walkthroughs.
-    from demo_data import align_to_overpasses, bbox_covers_dhaka, dhaka_demo_hotspots
+    # Demo overlay: three scripted Bangladesh fires for walkthroughs (see demo_data.py).
+    from demo_data import bbox_covers_dhaka, dhaka_demo_hotspots
     demo_rows: list[dict[str, Any]] = []
     if bbox_covers_dhaka(bbox):
         cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-        demo_rows = [row for row in await align_to_overpasses(dhaka_demo_hotspots()) if row["sensor"] in sensors and row["acq_datetime"] >= cutoff]
+        demo_rows = [row for row in dhaka_demo_hotspots() if row["sensor"] in sensors and row["acq_datetime"] >= cutoff]
 
     # Negative cache: after a recent FIRMS failure, skip live calls for a short window
     # so the UI returns instantly from cached/demo data instead of waiting on retries.

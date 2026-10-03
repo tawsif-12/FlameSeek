@@ -27,6 +27,7 @@ class Job:
         self.progress = 0.0
         self.message = "Queued"
         self.result: Any = None
+        self.partial: Any = None
         self.error: str | None = None
         self.created_at = datetime.now(timezone.utc)
         self.finished_at: datetime | None = None
@@ -47,6 +48,7 @@ class Job:
             "created_at": self.created_at.isoformat(),
             "finished_at": self.finished_at.isoformat() if self.finished_at else None,
             "result": self.result if include_result and self.status == "completed" else None,
+            "partial": self.partial if include_result and self.status != "completed" else None,
         }
 
 

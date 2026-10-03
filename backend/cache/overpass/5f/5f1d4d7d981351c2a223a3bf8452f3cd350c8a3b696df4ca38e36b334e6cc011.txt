@@ -1,0 +1,501 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-02T22:23:33Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 245691518,
+  "lat": 20.8821978,
+  "lon": 85.8334076,
+  "tags": {
+    "name": "Bhuban",
+    "place": "town",
+    "postal_code": "759017",
+    "wikidata": "Q796742",
+    "wikipedia": "en:Bhuban"
+  }
+},
+{
+  "type": "node",
+  "id": 245692259,
+  "lat": 20.9885855,
+  "lon": 85.9889574,
+  "tags": {
+    "name": "Duburi",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 1494045317,
+  "lat": 20.9298964,
+  "lon": 86.0641799,
+  "tags": {
+    "name": "Jakhapura",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 1686916215,
+  "lat": 20.8028151,
+  "lon": 86.1480882,
+  "tags": {
+    "name": "Barabati",
+    "place": "village",
+    "population": "1538",
+    "postal_code": "755008"
+  }
+},
+{
+  "type": "node",
+  "id": 1686916240,
+  "lat": 20.8215810,
+  "lon": 86.1971748,
+  "tags": {
+    "name": "Kuakhia",
+    "place": "village",
+    "population": "88"
+  }
+},
+{
+  "type": "node",
+  "id": 1891006794,
+  "lat": 20.9605003,
+  "lon": 85.8236110,
+  "tags": {
+    "name": "Bambilo",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 2276469420,
+  "lat": 20.9139363,
+  "lon": 86.2301865,
+  "tags": {
+    "name": "Panikoili",
+    "name:or": "ପାଣିକୋଇଲି",
+    "place": "village",
+    "population": "2579",
+    "postal_code": "755043"
+  }
+},
+{
+  "type": "node",
+  "id": 2419930712,
+  "lat": 21.1242629,
+  "lon": 85.9243888,
+  "tags": {
+    "district": "Sambalpur",
+    "name": "Brahmanipal",
+    "place": "village",
+    "tehsil": "Jujomura"
+  }
+},
+{
+  "type": "node",
+  "id": 2467312527,
+  "lat": 20.9587602,
+  "lon": 86.1226688,
+  "tags": {
+    "alt_name": "Jajapur Road",
+    "name": "Byasanagar",
+    "place": "town",
+    "postal_code": "755019",
+    "wikidata": "Q861897",
+    "wikipedia": "en:Byasanagar"
+  }
+},
+{
+  "type": "node",
+  "id": 2935034884,
+  "lat": 20.8367136,
+  "lon": 86.0622244,
+  "tags": {
+    "name": "Charagotha",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 2935036056,
+  "lat": 20.8342870,
+  "lon": 86.0636406,
+  "tags": {
+    "name": "Sahanidiha",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 2943163561,
+  "lat": 20.8118980,
+  "lon": 86.0587936,
+  "tags": {
+    "name": "Ichhapur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 2943172357,
+  "lat": 20.8168629,
+  "lon": 86.0817330,
+  "tags": {
+    "name": "Bharatpur",
+    "name:hi": "भरतपुर",
+    "name:pa": "ਭਰਤਪੁਰ",
+    "name:ta": "பரத்பூர்",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 2959639193,
+  "lat": 20.8850923,
+  "lon": 86.2011448,
+  "tags": {
+    "name": "Goleipur",
+    "name:or": "ଗୋଲେଇପୁର",
+    "place": "village",
+    "population": "1420"
+  }
+},
+{
+  "type": "node",
+  "id": 2959639198,
+  "lat": 20.9030639,
+  "lon": 86.2210976,
+  "tags": {
+    "name": "Manipur",
+    "name:or": "ମଣିପୁର",
+    "name:ta": "மணிப்பூர்",
+    "place": "village",
+    "population": "499"
+  }
+},
+{
+  "type": "node",
+  "id": 2959639200,
+  "lat": 20.7922066,
+  "lon": 86.1430423,
+  "tags": {
+    "name": "Odanga",
+    "place": "village",
+    "population": "951"
+  }
+},
+{
+  "type": "node",
+  "id": 2959639202,
+  "lat": 20.8775523,
+  "lon": 86.2013063,
+  "tags": {
+    "name": "Sana Biruan",
+    "name:or": "ସାନ ବିରୁଆଁ",
+    "place": "village",
+    "population": "833"
+  }
+},
+{
+  "type": "node",
+  "id": 2959639204,
+  "lat": 20.8379513,
+  "lon": 86.1944392,
+  "tags": {
+    "name": "Suansahi",
+    "place": "village",
+    "population": "1666"
+  }
+},
+{
+  "type": "node",
+  "id": 2959940732,
+  "lat": 20.9067611,
+  "lon": 86.2309690,
+  "tags": {
+    "name": "Alatiri",
+    "name:or": "ଅଳତିରି",
+    "place": "village",
+    "population": "2794"
+  }
+},
+{
+  "type": "node",
+  "id": 2959941933,
+  "lat": 20.7833099,
+  "lon": 86.1527171,
+  "tags": {
+    "name": "Bhalukhai",
+    "place": "village",
+    "population": "398"
+  }
+},
+{
+  "type": "node",
+  "id": 2959941940,
+  "lat": 20.8002934,
+  "lon": 86.1587389,
+  "tags": {
+    "name": "Durgapur",
+    "name:hi": "दुर्गापुर",
+    "name:pa": "ਦੁਰਗਾਪੁਰ",
+    "place": "village",
+    "population": "555"
+  }
+},
+{
+  "type": "node",
+  "id": 2959941941,
+  "lat": 20.8016810,
+  "lon": 86.1737828,
+  "tags": {
+    "name": "Gopalpur",
+    "name:hi": "गोपालपुर",
+    "name:pa": "ਗੋਪਾਲਪੁਰ",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 2959941945,
+  "lat": 20.8540687,
+  "lon": 86.2061624,
+  "tags": {
+    "name": "Keutanaguan",
+    "place": "village",
+    "population": "627"
+  }
+},
+{
+  "type": "node",
+  "id": 2959941947,
+  "lat": 20.8859118,
+  "lon": 86.2027266,
+  "tags": {
+    "name": "Mirzapur",
+    "name:or": "ମିର୍ଜାପୁର",
+    "place": "village",
+    "population": "1578",
+    "postal_code": "755008"
+  }
+},
+{
+  "type": "node",
+  "id": 2959941951,
+  "lat": 20.9193055,
+  "lon": 86.2410679,
+  "tags": {
+    "name": "Pathara Pada",
+    "name:or": "ପଥରପଡ଼ା",
+    "place": "village",
+    "population": "2087"
+  }
+},
+{
+  "type": "node",
+  "id": 2959941953,
+  "lat": 20.8006872,
+  "lon": 86.1682993,
+  "tags": {
+    "name": "Sadamba",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3015077522,
+  "lat": 20.7426695,
+  "lon": 86.0088778,
+  "tags": {
+    "name": "Lethaka",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3063725065,
+  "lat": 20.7657629,
+  "lon": 86.0857955,
+  "tags": {
+    "name": "Bribati",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3063725066,
+  "lat": 20.8238351,
+  "lon": 86.0839852,
+  "tags": {
+    "name": "Kamagarh",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3063725067,
+  "lat": 20.8079670,
+  "lon": 86.0556173,
+  "tags": {
+    "name": "Purunaboualmal",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3063741270,
+  "lat": 20.8220886,
+  "lon": 86.0509780,
+  "tags": {
+    "name": "KC Pur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6301785749,
+  "lat": 20.8841145,
+  "lon": 85.9536838,
+  "tags": {
+    "name": "Hatibari",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6838270862,
+  "lat": 20.8620601,
+  "lon": 86.0701131,
+  "tags": {
+    "name": "Jenapur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7150875786,
+  "lat": 21.1185721,
+  "lon": 86.1375331,
+  "tags": {
+    "name": "Sainkul",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7150875787,
+  "lat": 21.0875633,
+  "lon": 85.9551215,
+  "tags": {
+    "name": "Tomka",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7150875788,
+  "lat": 20.9687332,
+  "lon": 85.9143733,
+  "tags": {
+    "name": "Sukinda",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7150875789,
+  "lat": 20.7978835,
+  "lon": 85.9928226,
+  "tags": {
+    "name": "Nihalprasad",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7150890396,
+  "lat": 20.9649262,
+  "lon": 86.1782169,
+  "tags": {
+    "name": "Korai",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 10168165918,
+  "lat": 20.9601190,
+  "lon": 85.8691166,
+  "tags": {
+    "name": "Mangalpur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 10168178306,
+  "lat": 20.9069970,
+  "lon": 85.8726816,
+  "tags": {
+    "name": "Balibo",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 10169139543,
+  "lat": 20.8819963,
+  "lon": 85.8986167,
+  "tags": {
+    "name": "Murdanga",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 10169160530,
+  "lat": 20.9257208,
+  "lon": 85.8619010,
+  "tags": {
+    "name": "Kankhai",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 10712782376,
+  "lat": 20.9978235,
+  "lon": 86.2047923,
+  "tags": {
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 10712876351,
+  "lat": 21.0115328,
+  "lon": 86.1903378,
+  "tags": {
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 12255474401,
+  "lat": 20.9356299,
+  "lon": 86.1671561,
+  "tags": {
+    "name": "Benapur",
+    "place": "village"
+  }
+}
+
+  ]
+}
