@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, Query
 from config import ANOMALY_THRESHOLD, CONFIDENCE_THRESHOLD, MAX_AOI_DEGREES_SPAN, MAX_DATE_RANGE_DAYS
 from critical_periods import find_critical_periods
 from evidence import build_hotspot_evidence
-from firms_client import FirmsAPIError, fetch_hotspots_with_report, fetch_recent_hotspots
+from firms_client import FirmsAPIError, fetch_hotspots_with_report, fetch_recent_hotspots, recent_source_status
 from geo import AOI, location_uncertainty_km
 from harmonize import build_harmonized_series, filter_low_confidence, summarize_daily_series
 from schemas import (
@@ -122,11 +122,12 @@ async def current_hotspots(
     limit: int = Query(default=3000, ge=1, le=20000),
     sensors: list[str] = Query(default=["modis", "viirs_snpp", "viirs_noaa20", "viirs_noaa21"]),
     date_: date | None = Query(default=None, alias="date", description="Historical start date (UTC). Omit for the most recent days."),
+    include_demo: bool = Query(default=True, description="Include scripted demo detections when the request covers Bangladesh."),
 ) -> CurrentHotspotsResponse:
     bbox_tuple = _parse_bbox(bbox)
     try:
         if date_ is None:
-            rows = await fetch_recent_hotspots(bbox_tuple, [str(sensor) for sensor in sensors], days)
+            rows = await fetch_recent_hotspots(bbox_tuple, [str(sensor) for sensor in sensors], days, include_demo=include_demo)
             failed = []
         else:
             rows, report = await fetch_hotspots_with_report(bbox_tuple or "world", date_, date_ + timedelta(days=days - 1), [str(s) for s in sensors])
@@ -155,6 +156,8 @@ async def current_hotspots(
             "mode": "historical" if date_ else "recent",
             "scope": "world" if bbox_tuple is None else "bbox",
             "sensors": sensors,
+            "include_demo": include_demo,
+            "data_source": recent_source_status() if date_ is None else "historical",
             "selection": f"strongest {len(returned)} by FRP" if len(returned) < len(filtered) else "all",
             "failed_chunks": failed,
         },

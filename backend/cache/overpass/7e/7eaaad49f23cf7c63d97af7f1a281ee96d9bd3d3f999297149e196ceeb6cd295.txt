@@ -1,0 +1,452 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-07T05:14:18Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 1308281804,
+  "lat": -3.2081740,
+  "lon": 105.1650330,
+  "tags": {
+    "admin_level": "7",
+    "name": "Darat",
+    "place": "village",
+    "ref": "16.02.19.2007",
+    "wikidata": "Q13511999"
+  }
+},
+{
+  "type": "node",
+  "id": 1308284466,
+  "lat": -3.1722969,
+  "lon": 105.1896152,
+  "tags": {
+    "name": "Pulawan",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 1308300212,
+  "lat": -3.2505544,
+  "lon": 105.3124195,
+  "tags": {
+    "admin_level": "7",
+    "description": "Tulung Selapan Ilir, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Tulung Selapan Ilir",
+    "official_name": "Desa Tulung Selapan Ilir",
+    "place": "village",
+    "ref": "16.02.11.2009",
+    "wikidata": "Q14753255"
+  }
+},
+{
+  "type": "node",
+  "id": 1308303452,
+  "lat": -3.2514754,
+  "lon": 105.2298030,
+  "tags": {
+    "admin_level": "7",
+    "description": "Tanjung Batu, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Tanjung Batu",
+    "official_name": "Desa Tanjung Batu",
+    "place": "village",
+    "ref": "16.02.11.2004",
+    "wikidata": "Q14750655"
+  }
+},
+{
+  "type": "node",
+  "id": 1308312199,
+  "lat": -3.5070365,
+  "lon": 105.4248299,
+  "tags": {
+    "admin_level": "7",
+    "description": "Cengal, Cengal, Ogan Komering Ilir",
+    "name": "Cengal",
+    "official_name": "Desa Cengal",
+    "place": "village",
+    "ref": "16.02.18.2007",
+    "wikidata": "Q13493811"
+  }
+},
+{
+  "type": "node",
+  "id": 1308334597,
+  "lat": -3.1946929,
+  "lon": 105.3524977,
+  "tags": {
+    "admin_level": "7",
+    "description": "Tulung Seluang, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Tulung Seluang",
+    "official_name": "Desa Tulung Seluang",
+    "place": "village",
+    "ref": "16.02.11.2019",
+    "wikidata": "Q14753257"
+  }
+},
+{
+  "type": "node",
+  "id": 1308338744,
+  "lat": -3.3363141,
+  "lon": 105.4576278,
+  "tags": {
+    "admin_level": "7",
+    "description": "Simpang Tiga, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Simpang Tiga",
+    "official_name": "Desa Simpang Tiga",
+    "place": "village",
+    "ref": "16.02.11.2001",
+    "wikidata": "Q14725788"
+  }
+},
+{
+  "type": "node",
+  "id": 1308341712,
+  "lat": -3.2463876,
+  "lon": 105.2694410,
+  "tags": {
+    "admin_level": "7",
+    "alt_name": "Kayu Ara",
+    "description": "Kayuara, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Kayuara",
+    "official_name": "Desa Kayuara",
+    "place": "village",
+    "ref": "16.02.11.2007",
+    "wikidata": "Q14634247"
+  }
+},
+{
+  "type": "node",
+  "id": 1308342149,
+  "lat": -3.4401560,
+  "lon": 105.1852500,
+  "tags": {
+    "admin_level": "7",
+    "name": "Kayu Labu",
+    "place": "village",
+    "ref": "16.02.24.2007",
+    "wikidata": "Q14634260"
+  }
+},
+{
+  "type": "node",
+  "id": 1308343121,
+  "lat": -3.2460030,
+  "lon": 105.2372761,
+  "tags": {
+    "admin_level": "7",
+    "description": "Cambai, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Cambai",
+    "official_name": "Desa Cambai",
+    "place": "village",
+    "ref": "16.02.11.2006",
+    "wikidata": "Q13493617"
+  }
+},
+{
+  "type": "node",
+  "id": 1308349259,
+  "lat": -3.2142279,
+  "lon": 105.0996772,
+  "tags": {
+    "name": "Pangkalan Lampam",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 1308364233,
+  "lat": -3.1576823,
+  "lon": 105.2269604,
+  "tags": {
+    "admin_level": "7",
+    "description": "Jerambah Rengas, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Jerambah Rengas",
+    "official_name": "Desa Jerambah Rengas",
+    "place": "village",
+    "ref": "16.02.11.2014",
+    "wikidata": "Q14632848"
+  }
+},
+{
+  "type": "node",
+  "id": 1308365214,
+  "lat": -3.2022137,
+  "lon": 105.1174149,
+  "tags": {
+    "admin_level": "7",
+    "name": "Lebung Batang",
+    "place": "village",
+    "ref": "16.02.19.2004",
+    "wikidata": "Q14636594"
+  }
+},
+{
+  "type": "node",
+  "id": 1308368774,
+  "lat": -3.4355601,
+  "lon": 105.0970351,
+  "tags": {
+    "name": "Tanjung Makmur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 1308374971,
+  "lat": -3.2313055,
+  "lon": 105.2129455,
+  "tags": {
+    "name": "Suka Raja",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 1308375088,
+  "lat": -3.5104481,
+  "lon": 105.0827804,
+  "tags": {
+    "name": "Gading Rejo",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 1308378294,
+  "lat": -3.2557949,
+  "lon": 105.2443630,
+  "tags": {
+    "admin_level": "7",
+    "description": "Penyandingan, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Penyandingan",
+    "official_name": "Desa Penyandingan",
+    "place": "village",
+    "ref": "16.02.11.2003",
+    "wikidata": "Q14656038"
+  }
+},
+{
+  "type": "node",
+  "id": 1308388301,
+  "lat": -3.2468698,
+  "lon": 105.3056999,
+  "tags": {
+    "admin_level": "7",
+    "description": "Petaling, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Petaling",
+    "official_name": "Desa Petaling",
+    "place": "village",
+    "ref": "16.02.11.2008",
+    "wikidata": "Q14657404"
+  }
+},
+{
+  "type": "node",
+  "id": 1308392632,
+  "lat": -3.2374162,
+  "lon": 105.3384102,
+  "tags": {
+    "admin_level": "7",
+    "description": "Ujung Tanjung, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Ujung Tanjung",
+    "official_name": "Desa Ujung Tanjung",
+    "place": "village",
+    "ref": "16.02.11.2010",
+    "wikidata": "Q24034987"
+  }
+},
+{
+  "type": "node",
+  "id": 1308392700,
+  "lat": -3.5081874,
+  "lon": 105.1060456,
+  "tags": {
+    "admin_level": "7",
+    "name": "Pulau Geronggang",
+    "place": "village",
+    "ref": "16.02.24.2001",
+    "wikidata": "Q14673569"
+  }
+},
+{
+  "type": "node",
+  "id": 1308398449,
+  "lat": -3.2470265,
+  "lon": 105.3105083,
+  "tags": {
+    "admin_level": "7",
+    "description": "Tulung Selapan Ulu, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Tulung Selapan Ulu",
+    "official_name": "Kelurahan Tulung Selapan Ulu",
+    "place": "village",
+    "ref": "16.02.11.1016",
+    "wikidata": "Q14753256"
+  }
+},
+{
+  "type": "node",
+  "id": 1308401575,
+  "lat": -3.1658268,
+  "lon": 105.2525276,
+  "tags": {
+    "admin_level": "7",
+    "description": "Penanggoan Duren, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Penanggoan Duren",
+    "official_name": "Desa Penanggoan Duren",
+    "place": "village",
+    "ref": "16.02.11.2013",
+    "wikidata": "Q14655781"
+  }
+},
+{
+  "type": "node",
+  "id": 1308407144,
+  "lat": -3.2573984,
+  "lon": 105.2818649,
+  "tags": {
+    "admin_level": "7",
+    "alt_name": "Pulau Beruang",
+    "description": "Pulu Beruang, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Pulu Beruang",
+    "official_name": "Desa Pulu Beruang",
+    "old_name": "Pulau Beruwang",
+    "place": "village",
+    "ref": "16.02.11.2002",
+    "wikidata": "Q14674045"
+  }
+},
+{
+  "type": "node",
+  "id": 1308450902,
+  "lat": -3.1991716,
+  "lon": 105.1990043,
+  "tags": {
+    "admin_level": "7",
+    "description": "Toman, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Toman",
+    "official_name": "Desa Toman",
+    "place": "village",
+    "ref": "16.02.11.2005",
+    "wikidata": "Q14752512"
+  }
+},
+{
+  "type": "node",
+  "id": 1308454469,
+  "lat": -3.4761297,
+  "lon": 105.4170459,
+  "tags": {
+    "admin_level": "7",
+    "description": "Talang Rimba, Cengal, Ogan Komering Ilir",
+    "name": "Talang Rimba",
+    "official_name": "Desa Talang Rimba",
+    "place": "village",
+    "ref": "16.02.18.2008",
+    "wikidata": "Q14750188"
+  }
+},
+{
+  "type": "node",
+  "id": 1308468049,
+  "lat": -3.2099001,
+  "lon": 105.3541963,
+  "tags": {
+    "admin_level": "7",
+    "description": "Lebung Gajah, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Lebung Gajah",
+    "official_name": "Desa Lebung Gajah",
+    "place": "village",
+    "ref": "16.02.11.2011",
+    "wikidata": "Q14636595"
+  }
+},
+{
+  "type": "node",
+  "id": 1308470436,
+  "lat": -3.3138933,
+  "lon": 105.1097376,
+  "tags": {
+    "admin_level": "7",
+    "name": "Jungkal",
+    "place": "village",
+    "ref": "16.02.12.2017",
+    "wikidata": "Q12488185"
+  }
+},
+{
+  "type": "node",
+  "id": 1308475143,
+  "lat": -3.2965456,
+  "lon": 105.1895176,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sungai Bungin",
+    "place": "village",
+    "ref": "16.02.19.2005",
+    "wikidata": "Q14749002"
+  }
+},
+{
+  "type": "node",
+  "id": 1308476523,
+  "lat": -3.1626428,
+  "lon": 105.2844309,
+  "tags": {
+    "admin_level": "7",
+    "description": "Lebung Itam, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Lebung Itam",
+    "nat_name": "Lebung Hitam",
+    "official_name": "Desa Lebung Itam",
+    "place": "village",
+    "ref": "16.02.11.2012",
+    "wikidata": "Q14636596"
+  }
+},
+{
+  "type": "node",
+  "id": 1308477174,
+  "lat": -3.4243550,
+  "lon": 105.0598824,
+  "tags": {
+    "admin_level": "7",
+    "name": "Pancawarna",
+    "place": "village",
+    "ref": "16.02.24.2005",
+    "wikidata": "Q14652963"
+  }
+},
+{
+  "type": "node",
+  "id": 12880777040,
+  "lat": -3.2499849,
+  "lon": 105.3179391,
+  "tags": {
+    "admin_level": "7",
+    "description": "Tulung Selapan Timur, Tulung Selapan, Ogan Komering Ilir",
+    "name": "Tulung Selapan Timur",
+    "official_name": "Desa Tulung Selapan Timur",
+    "place": "village",
+    "ref": "16.02.11.2023",
+    "wikidata": "Q24035018"
+  }
+},
+{
+  "type": "node",
+  "id": 12902171759,
+  "lat": -3.5627160,
+  "lon": 105.3473981,
+  "tags": {
+    "name": "Suka Ramai Mkamur",
+    "place": "hamlet"
+  }
+}
+
+  ]
+}

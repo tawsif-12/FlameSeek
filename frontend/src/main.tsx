@@ -23,7 +23,7 @@ function Header() {
         </span>
         <div>
           <p className="eyebrow">NASA Space Apps Challenge</p>
-          <h1>BURNING_ACTIVITY</h1>
+          <h1>FlameSeek</h1>
         </div>
       </div>
       <nav>

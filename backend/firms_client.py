@@ -15,6 +15,7 @@ import httpx
 
 from config import (
     DEFAULT_SENSORS,
+    CACHE_DIR,
     FIRMS_AVAILABILITY_URL,
     FIRMS_BASE_URL,
     FIRMS_MAP_KEY,
@@ -398,14 +399,75 @@ async def fetch_hotspots_for_window(
 
 _FIRMS_DOWN_UNTIL: float = 0.0
 _FIRMS_DOWN_TTL_SECONDS = 120.0
+_FIRMS_RECENT_LIVE_TIMEOUT_SECONDS = 25.0
+_LAST_RECENT_SOURCE = "live"
+
+
+def recent_source_status() -> str:
+    return _LAST_RECENT_SOURCE
+
+
+def _sensor_for_source(source: str) -> str | None:
+    for source_map in (FIRMS_NRT_SENSOR_SOURCES, FIRMS_SP_SENSOR_SOURCES):
+        for sensor, configured in source_map.items():
+            if configured == source:
+                return sensor
+    return None
+
+
+def _cached_actual_hotspots(
+    bbox: tuple[float, float, float, float] | None,
+    sensors: list[str],
+    days: int,
+    max_files: int = 2000,
+) -> list[dict[str, Any]]:
+    """Newest real FIRMS rows already cached on disk, used only when live FIRMS is unreachable.
+
+    This never reads demo_data.py, and it intentionally ignores `place_hint`.
+    """
+    root = CACHE_DIR / "firms"
+    if not root.exists():
+        return []
+    files = sorted(root.rglob("*.csv"), key=lambda p: p.stat().st_mtime, reverse=True)[:max_files]
+    rows: list[dict[str, Any]] = []
+    for path in files:
+        source = next((part for part in path.name.split("_") if part in {*FIRMS_NRT_SENSOR_SOURCES.values(), *FIRMS_SP_SENSOR_SOURCES.values()}), "")
+        # Filenames start with sources such as MODIS_NRT_...; split matching above can miss because of underscores.
+        if not source:
+            source = next((src for src in [*FIRMS_NRT_SENSOR_SOURCES.values(), *FIRMS_SP_SENSOR_SOURCES.values()] if path.name.startswith(f"{src}_")), "")
+        sensor = _sensor_for_source(source)
+        if not sensor or sensor not in sensors:
+            continue
+        try:
+            parsed = _parse_csv(path.read_text(encoding="utf-8"), sensor, source)
+        except OSError:
+            continue
+        rows.extend(parsed)
+
+    if bbox is not None:
+        west, south, east, north = bbox
+        rows = [row for row in rows if west <= row["lon"] <= east and south <= row["lat"] <= north]
+    if not rows:
+        return []
+
+    newest = max(row["acq_datetime"] for row in rows)
+    cutoff = newest - timedelta(days=days)
+    recent = [row for row in rows if row["acq_datetime"] >= cutoff]
+    # De-duplicate rows that appear in overlapping cache chunks.
+    deduped: dict[tuple[str, float, float, datetime], dict[str, Any]] = {}
+    for row in recent:
+        row.pop("place_hint", None)
+        deduped[(row["sensor"], round(row["lat"], 5), round(row["lon"], 5), row["acq_datetime"])] = row
+    return list(deduped.values())
 
 
 async def fetch_recent_hotspots(
     bbox: tuple[float, float, float, float] | None = None,
     sensors: list[str] = DEFAULT_SENSORS,
     days: int = 1,
+    include_demo: bool = True,
 ) -> list[dict[str, Any]]:
-    global _FIRMS_DOWN_UNTIL
+    global _FIRMS_DOWN_UNTIL, _LAST_RECENT_SOURCE
     area = "world" if bbox is None else _bbox_string(bbox)
     semaphore = asyncio.Semaphore(4)
 
@@ -418,7 +480,7 @@ async def fetch_recent_hotspots(
     # Demo overlay: three scripted Bangladesh fires for walkthroughs (see demo_data.py).
     from demo_data import bbox_covers_dhaka, dhaka_demo_hotspots
     demo_rows: list[dict[str, Any]] = []
-    if bbox_covers_dhaka(bbox):
+    if include_demo and bbox_covers_dhaka(bbox):
         cutoff = datetime.now(timezone.utc) - timedelta(days=days)
         demo_rows = [row for row in dhaka_demo_hotspots() if row["sensor"] in sensors and row["acq_datetime"] >= cutoff]
 
@@ -430,12 +492,22 @@ async def fetch_recent_hotspots(
     rows: list[dict[str, Any]] = []
     if not firms_down:
         try:
-            results = await asyncio.gather(*(guarded(sensor) for sensor in sensors))
+            results = await asyncio.wait_for(
+                asyncio.gather(*(guarded(sensor) for sensor in sensors)),
+                timeout=_FIRMS_RECENT_LIVE_TIMEOUT_SECONDS,
+            )
             rows = [row for batch in results for row in batch]
+            _LAST_RECENT_SOURCE = "live"
         except (FirmsAPIError, httpx.HTTPError, asyncio.TimeoutError) as exc:
             _FIRMS_DOWN_UNTIL = now_ts + _FIRMS_DOWN_TTL_SECONDS
             print(f"firms_unavailable reason={type(exc).__name__} muted_for_seconds={_FIRMS_DOWN_TTL_SECONDS}")
             if not demo_rows:
-                raise
+                rows = _cached_actual_hotspots(bbox, sensors, days)
+                _LAST_RECENT_SOURCE = "cached_actual"
+                if not rows:
+                    raise
+    elif not demo_rows:
+        rows = _cached_actual_hotspots(bbox, sensors, days)
+        _LAST_RECENT_SOURCE = "cached_actual" if rows else "unavailable"
     rows.extend(demo_rows)
     return rows

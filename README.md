@@ -1,4 +1,4 @@
-# Burning_Activity
+# FlameSeek
 
 A global, evidence-driven fire monitoring, verification and forecasting platform built on NASA MODIS and VIIRS active-fire observations.
 

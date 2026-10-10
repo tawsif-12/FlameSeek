@@ -15,7 +15,7 @@ import type {
 } from "../types/api";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "",
   timeout: 180000,
 });
 
@@ -32,8 +32,8 @@ export function normalizeApiError(error: unknown): string {
 
 const repeatParams = { paramsSerializer: { indexes: null } };
 
-export async function getCurrentHotspots(sensors: SensorName[], days = 1, limit = 10000, date?: string): Promise<CurrentHotspotsResponse> {
-  const { data } = await api.get<CurrentHotspotsResponse>("/api/current_hotspots", { params: { days, limit, sensors, date }, ...repeatParams });
+export async function getCurrentHotspots(sensors: SensorName[], days = 1, limit = 10000, date?: string, includeDemo = false): Promise<CurrentHotspotsResponse> {
+  const { data } = await api.get<CurrentHotspotsResponse>("/api/current_hotspots", { params: { days, limit, sensors, date, include_demo: includeDemo }, timeout: 35000, ...repeatParams });
   return data;
 }
 
@@ -47,9 +47,9 @@ export async function getDataSources(): Promise<DataSource[]> {
   return data.sources;
 }
 
-export async function getEvents(days: number, limit = 4000): Promise<EventsResponse> {
+export async function getEvents(days: number, limit = 4000, includeDemo = false): Promise<EventsResponse> {
   // A cold world reconstruction can take a few minutes while other analyses run.
-  const { data } = await api.get<EventsResponse>("/api/events", { params: { days, limit }, timeout: 420000 });
+  const { data } = await api.get<EventsResponse>("/api/events", { params: { days, limit, include_demo: includeDemo }, timeout: 420000 });
   return data;
 }
 

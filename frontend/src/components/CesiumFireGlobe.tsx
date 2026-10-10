@@ -14,6 +14,12 @@ type EarthMode = "Map" | "3D Terrain" | "Photorealistic";
 type Period = "1" | "2" | "5" | "historical";
 type ExposureMarker = { lat: number; lon: number; name: string; category: string };
 
+const DEMO_FALLBACK_HOTSPOTS: HotspotRecord[] = [
+  { lat: 23.8835, lon: 90.3345, acq_datetime: new Date().toISOString(), confidence_pct: 92, frp: 188, sensor: "viirs_snpp", satellite: "N", daynight: "N", source: "demo_fallback", place_hint: "Ashulia DEPZ garment factory fire (Dhaka)" },
+  { lat: 24.962, lon: 89.332, acq_datetime: new Date().toISOString(), confidence_pct: 72, frp: 15, sensor: "viirs_noaa20", satellite: "N20", daynight: "D", source: "demo_fallback", place_hint: "Bogura paddy-straw burning (Shibganj)" },
+  { lat: 22.318, lon: 89.746, acq_datetime: new Date().toISOString(), confidence_pct: 88, frp: 205, sensor: "viirs_noaa21", satellite: "N21", daynight: "N", source: "demo_fallback", place_hint: "Sundarbans forest fire (Chandpai range, Bagerhat)" },
+];
+
 // Fire Case marker fill: more solid as the confirmation level rises.
 const REALITY_FILL: Record<string, number> = {
   "Confirmed fire": 0.8,
@@ -332,17 +338,23 @@ export default function CesiumFireGlobe() {
   async function loadData() {
     const historical = period === "historical";
     const days = historical ? 1 : Number(period);
-    setDataStatus(historical ? `Loading what satellites saw on ${historicalDate}...` : `Loading what NASA satellites saw (${periodLabels[period].toLowerCase()})...`);
+    if (!historical) {
+      setHotspots(DEMO_FALLBACK_HOTSPOTS);
+      setDataStatus("Showing demo fire points while NASA FIRMS loads...");
+    } else {
+      setDataStatus(`Loading what satellites saw on ${historicalDate}...`);
+    }
     try {
-      const response = await getCurrentHotspots(DEFAULT_SENSORS, days, 4000, historical ? historicalDate : undefined);
+      const response = await getCurrentHotspots(DEFAULT_SENSORS, days, 4000, historical ? historicalDate : undefined, true);
       setHotspots(response.hotspots);
       const m = response.metadata as Record<string, number | string>;
+      const sourceLabel = m.data_source === "live" ? "LIVE FIRMS" : m.data_source === "cached_actual" ? "cached FIRMS fallback" : String(m.data_source ?? "FIRMS");
       setDataStatus(
-        `${historical ? `On ${historicalDate}` : periodLabels[period]}: satellites saw heat at ${Number(m.filtered_hotspot_count).toLocaleString()} spots worldwide. The map shows the ${Number(m.returned_hotspot_count).toLocaleString()} strongest.`,
+        `${sourceLabel} · ${historical ? `On ${historicalDate}` : periodLabels[period]}: satellites saw heat at ${Number(m.filtered_hotspot_count).toLocaleString()} spots worldwide. The map shows the ${Number(m.returned_hotspot_count).toLocaleString()} strongest.`,
       );
     } catch (error) {
-      setHotspots([]);
-      setDataStatus(`FIRMS unavailable: ${normalizeApiError(error)}`);
+      setHotspots(DEMO_FALLBACK_HOTSPOTS);
+      setDataStatus(`Live FIRMS request failed: ${normalizeApiError(error)}. Showing demo fire points.`);
     }
     if (historical) {
       setEvents([]);
@@ -351,11 +363,12 @@ export default function CesiumFireGlobe() {
     }
     setEventStatus("Grouping heat spots into separate fires...");
     try {
-      const response = await getEvents(Math.max(2, days));
+      const response = await getEvents(Math.max(2, days), 4000, true);
       loadBudgetUsedRef.current = 0;
       setEvents(response.events);
       setEventMeta(response.metadata);
-      setEventStatus(`${Number(response.metadata.multi_detection_events).toLocaleString()} fires were seen more than once (from ${Number(response.metadata.detections).toLocaleString()} heat spots).`);
+      const sourceLabel = response.metadata.data_source === "live" ? "LIVE FIRMS" : response.metadata.data_source === "cached_actual" ? "cached FIRMS fallback" : "FIRMS";
+      setEventStatus(`${sourceLabel} · ${Number(response.metadata.multi_detection_events).toLocaleString()} fires were seen more than once (from ${Number(response.metadata.detections).toLocaleString()} heat spots).`);
     } catch (error) {
       setEvents([]);
       setEventStatus(`Event reconstruction unavailable: ${normalizeApiError(error)}`);

@@ -18,7 +18,7 @@ from environment import daily_weather, hourly_weather
 from events import event_summary, reconstruct_events
 from evidence import build_evidence, subject_from_event
 from exposure import analyze_exposure
-from firms_client import FirmsAPIError, fetch_recent_hotspots, sensor_available
+from firms_client import FirmsAPIError, fetch_recent_hotspots, recent_source_status, sensor_available
 from forecast import forecast_event
 from harmonize import filter_low_confidence
 from history import regional_history
@@ -36,6 +36,7 @@ _CASES: dict[str, dict[str, Any]] = {}
 STREAM_NAMES = {"B": "regional satellites", "C": "news and official reports"}
 _SET_CACHE: dict[str, tuple[float, dict[str, Any]]] = {}
 SET_TTL = 15 * 60
+MAX_EVENT_RECONSTRUCTION_DETECTIONS = 5000
 
 
 def detection_key(sensor: str, lat: float, lon: float, when: Any) -> str:
@@ -48,6 +49,13 @@ def _store(events: list[dict[str, Any]]) -> None:
         _EVENTS[ev["event_id"]] = ev
         for d in ev["detections"]:
             _DETECTION_INDEX[detection_key(d["sensor"], d["lat"], d["lon"], d["acq_datetime"])] = ev["event_id"]
+
+
+def _event_reconstruction_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Keep world-scale event grouping bounded while preserving demo and strong fire signals."""
+    if len(rows) <= MAX_EVENT_RECONSTRUCTION_DETECTIONS:
+        return rows
+    return sorted(rows, key=lambda r: (bool(r.get("place_hint")), float(r.get("frp") or 0)), reverse=True)[:MAX_EVENT_RECONSTRUCTION_DETECTIONS]
 
 
 def _provisional_marker(ev: dict[str, Any]) -> dict[str, Any]:
@@ -76,21 +84,23 @@ async def list_events(
     days: int = Query(default=2, ge=1, le=5),
     limit: int = Query(default=2500, ge=1, le=20000),
     min_detections: int = Query(default=1, ge=1),
+    include_demo: bool = Query(default=True, description="Include scripted demo detections when the request covers Bangladesh."),
 ) -> dict[str, Any]:
-    key = f"{bbox}|{days}"
+    key = f"{bbox}|{days}|demo={include_demo}"
     cached = _SET_CACHE.get(key)
     if cached and time.time() - cached[0] < SET_TTL:
         result = cached[1]
     else:
         try:
-            rows = await fetch_recent_hotspots(_parse_bbox(bbox), DEFAULT_SENSORS, days)
+            rows = await fetch_recent_hotspots(_parse_bbox(bbox), DEFAULT_SENSORS, days, include_demo=include_demo)
         except FirmsAPIError as exc:
             raise HTTPException(status_code=502, detail={"error": "firms_api_error", "message": exc.message}) from exc
         rows = filter_low_confidence(rows)
+        reconstruction_rows = _event_reconstruction_rows(rows)
         started = time.perf_counter()
-        events = await asyncio.to_thread(reconstruct_events, rows)
+        events = await asyncio.to_thread(reconstruct_events, reconstruction_rows)
         _store(events)
-        result = {"events": events, "detections": len(rows), "elapsed_ms": round((time.perf_counter() - started) * 1000)}
+        result = {"events": events, "detections": len(rows), "reconstructed_detections": len(reconstruction_rows), "elapsed_ms": round((time.perf_counter() - started) * 1000)}
         _SET_CACHE[key] = (time.time(), result)
     events = [e for e in result["events"] if e["observation_count"] >= min_detections]
     # Featured (demo scenario) events are always returned, ahead of the strongest-by-FRP cut.
@@ -99,11 +109,14 @@ async def list_events(
         "events": [_layer_row(e) for e in events[:limit]],
         "metadata": {
             "detections": result["detections"],
+            "reconstructed_detections": result.get("reconstructed_detections", result["detections"]),
             "events_total": len(result["events"]),
             "events_returned": min(limit, len(events)),
             "multi_detection_events": sum(1 for e in result["events"] if e["observation_count"] > 1),
             "behaviour_counts": dict(Counter(e["behaviour"]["state"] for e in result["events"])),
             "days": days,
+            "include_demo": include_demo,
+            "data_source": recent_source_status(),
             "clustering": "Linked if <= 48 h apart and within both pixels' location uncertainty + 0.5 km + 2 km/day spread allowance (max 6 km).",
             "reconstruction_ms": result["elapsed_ms"],
         },

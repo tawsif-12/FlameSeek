@@ -46,7 +46,7 @@ async def lifespan(_: FastAPI):
         task.cancel()
 
 
-app = FastAPI(title="Burning_Activity API", version=APP_VERSION, lifespan=lifespan)
+app = FastAPI(title="FlameSeek API", version=APP_VERSION, lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -65,7 +65,7 @@ app.include_router(sources_router, tags=["sources"])
 
 @app.get("/")
 async def root() -> dict[str, str]:
-    return {"service": APP_NAME, "message": "Burning_Activity API", "version": APP_VERSION}
+    return {"service": APP_NAME, "message": "FlameSeek API", "version": APP_VERSION}
 
 
 @app.get("/health")

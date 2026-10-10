@@ -78,7 +78,7 @@ export default function HomePage() {
         <div className="hero-inner">
           <div className="hero-main">
             <p className="mission-kicker"><span className="dot" /> Global Fire Intelligence</p>
-            <h2 id="mission-title">BURNING_ACTIVITY</h2>
+            <h2 id="mission-title">FlameSeek</h2>
             <p className="mission-statement">
               Past → Present → Identify → Verify → Compare → Forecast → Exposure.<br />
               A satellite hotspot is an observation, not automatically a confirmed wildfire.
