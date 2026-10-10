@@ -48,6 +48,24 @@ Each item votes for categories weighted by its reliability. The answer has three
 
 All of this is synthetic. Outlets, reports and figures are invented (marked "(demo)"), have no links, and results carry `demo_scenario`. Edit `SCENARIOS` to change a story, or empty the list to run on live data only.
 
+## Demo UI (current frontend)
+
+The frontend currently ships as a **self-contained demo**: 16 screens under `frontend/src/demo/` that follow the seven-stage story for one scripted fire event (`FS-BD-2026-0412`, East Sundarbans). Every number, chart, map and news item is illustrative and hard-coded in `demo/data.ts` and the page files. The demo makes **no API calls**, so only `npm run dev` is needed; the backend does not have to run. The header carries a "Demo · illustrative data" badge.
+
+| Nav | Screens (route) |
+|---|---|
+| Overview | Seven-stage story (`/`) |
+| 01 Fire Memory | Burning calendar (`/fire-memory`), current vs. historical: anomaly and change point (`/fire-memory/anomaly`) |
+| 02 Fire Now | 3D globe (`/fire-now`), area of interest (`/fire-now/area`), observation quality (`/fire-now/quality`) |
+| 03 Fire Identity | Event reconstruction (`/fire-identity`) |
+| 04 Fire Evidence | Independent sources (`/fire-evidence`), local news & NLP (`/fire-evidence/news`), fusion & validation (`/fire-evidence/fusion`), full fire case (`/fire-evidence/case`) |
+| 05 Fire Past | Historical analogues (`/fire-past`) |
+| 06 Fire Future | Forecast corridor (`/fire-future`) |
+| 07 Exposure | Exposure analysis (`/exposure`) |
+| Data & Methods | Full workflow (`/methods`), sensor harmonization (`/methods/harmonization`) |
+
+The globe uses Cesium with its bundled Natural Earth imagery (no token); the Bangladesh and Sundarbans maps are hand-drawn schematics. The live pages (`src/pages`, `src/components`, `src/api`) and the backend described below are still in the repository but are not routed; to bring them back, restore the routes in `src/main.tsx`.
+
 ## Running it
 
 ```bash
