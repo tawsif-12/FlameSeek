@@ -399,7 +399,7 @@ async def fetch_hotspots_for_window(
 
 _FIRMS_DOWN_UNTIL: float = 0.0
 _FIRMS_DOWN_TTL_SECONDS = 120.0
-_FIRMS_RECENT_LIVE_TIMEOUT_SECONDS = 25.0
+_FIRMS_RECENT_LIVE_TIMEOUT_SECONDS = 90.0
 _LAST_RECENT_SOURCE = "live"
 
 
@@ -450,9 +450,9 @@ def _cached_actual_hotspots(
     if not rows:
         return []
 
-    newest = max(row["acq_datetime"] for row in rows)
-    cutoff = newest - timedelta(days=days)
-    recent = [row for row in rows if row["acq_datetime"] >= cutoff]
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(days=days)
+    recent = [row for row in rows if cutoff <= row["acq_datetime"] <= now]
     # De-duplicate rows that appear in overlapping cache chunks.
     deduped: dict[tuple[str, float, float, datetime], dict[str, Any]] = {}
     for row in recent:
@@ -465,7 +465,7 @@ async def fetch_recent_hotspots(
     bbox: tuple[float, float, float, float] | None = None,
     sensors: list[str] = DEFAULT_SENSORS,
     days: int = 1,
-    include_demo: bool = True,
+    include_demo: bool = False,
 ) -> list[dict[str, Any]]:
     global _FIRMS_DOWN_UNTIL, _LAST_RECENT_SOURCE
     area = "world" if bbox is None else _bbox_string(bbox)
@@ -473,19 +473,12 @@ async def fetch_recent_hotspots(
 
     async def guarded(sensor: str) -> list[dict[str, Any]]:
         async with semaphore:
-            async with httpx.AsyncClient(timeout=20.0, headers={"User-Agent": HTTP_USER_AGENT}, verify=SSL_CONTEXT) as client:
+            async with httpx.AsyncClient(timeout=60.0, headers={"User-Agent": HTTP_USER_AGENT}, verify=SSL_CONTEXT) as client:
                 text, source = await _fetch_recent_csv(client, sensor, area, days)
             return _parse_csv(text, sensor, source)
 
-    # Demo overlay: three scripted Bangladesh fires for walkthroughs (see demo_data.py).
-    from demo_data import bbox_covers_dhaka, dhaka_demo_hotspots
-    demo_rows: list[dict[str, Any]] = []
-    if include_demo and bbox_covers_dhaka(bbox):
-        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-        demo_rows = [row for row in dhaka_demo_hotspots() if row["sensor"] in sensors and row["acq_datetime"] >= cutoff]
-
     # Negative cache: after a recent FIRMS failure, skip live calls for a short window
-    # so the UI returns instantly from cached/demo data instead of waiting on retries.
+    # so the UI returns from current cached observations instead of waiting on retries.
     now_ts = time.time()
     firms_down = now_ts < _FIRMS_DOWN_UNTIL
 
@@ -501,13 +494,13 @@ async def fetch_recent_hotspots(
         except (FirmsAPIError, httpx.HTTPError, asyncio.TimeoutError) as exc:
             _FIRMS_DOWN_UNTIL = now_ts + _FIRMS_DOWN_TTL_SECONDS
             print(f"firms_unavailable reason={type(exc).__name__} muted_for_seconds={_FIRMS_DOWN_TTL_SECONDS}")
-            if not demo_rows:
-                rows = _cached_actual_hotspots(bbox, sensors, days)
-                _LAST_RECENT_SOURCE = "cached_actual"
-                if not rows:
-                    raise
-    elif not demo_rows:
+            rows = _cached_actual_hotspots(bbox, sensors, days)
+            _LAST_RECENT_SOURCE = "cached_actual" if rows else "unavailable"
+            if not rows:
+                raise FirmsAPIError(502, "Live FIRMS is unavailable and no cached observations cover the requested time window.", area) from exc
+    else:
         rows = _cached_actual_hotspots(bbox, sensors, days)
         _LAST_RECENT_SOURCE = "cached_actual" if rows else "unavailable"
-    rows.extend(demo_rows)
+    if firms_down and not rows:
+        raise FirmsAPIError(502, "Live FIRMS is temporarily unavailable; no current cached observations are available.", area)
     return rows

@@ -122,7 +122,7 @@ async def current_hotspots(
     limit: int = Query(default=3000, ge=1, le=20000),
     sensors: list[str] = Query(default=["modis", "viirs_snpp", "viirs_noaa20", "viirs_noaa21"]),
     date_: date | None = Query(default=None, alias="date", description="Historical start date (UTC). Omit for the most recent days."),
-    include_demo: bool = Query(default=True, description="Include scripted demo detections when the request covers Bangladesh."),
+    include_demo: bool = Query(default=False, description="Deprecated compatibility parameter. Synthetic data is always disabled."),
 ) -> CurrentHotspotsResponse:
     bbox_tuple = _parse_bbox(bbox)
     try:
@@ -156,7 +156,7 @@ async def current_hotspots(
             "mode": "historical" if date_ else "recent",
             "scope": "world" if bbox_tuple is None else "bbox",
             "sensors": sensors,
-            "include_demo": include_demo,
+            "include_demo": False,
             "data_source": recent_source_status() if date_ is None else "historical",
             "selection": f"strongest {len(returned)} by FRP" if len(returned) < len(filtered) else "all",
             "failed_chunks": failed,

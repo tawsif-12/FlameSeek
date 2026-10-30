@@ -256,8 +256,7 @@ def _detections(sc: dict[str, Any], now: datetime) -> list[dict[str, Any]]:
 
 def dhaka_demo_hotspots(now: datetime | None = None) -> list[dict[str, Any]]:
     """Detections of the three scripted Bangladesh fires, at realistic overpass times."""
-    now = (now or datetime.now(timezone.utc)).replace(microsecond=0)
-    return [row for sc in SCENARIOS for row in _detections(sc, now)]
+    return []
 
 
 def bbox_covers_dhaka(bbox: tuple[float, float, float, float] | None) -> bool:
@@ -272,10 +271,8 @@ def bbox_covers_dhaka(bbox: tuple[float, float, float, float] | None) -> bool:
 
 
 def scenario_for(subject: dict[str, Any]) -> dict[str, Any] | None:
-    if not any(d.get("place_hint") for d in subject.get("detections", [])):
-        return None
-    best = min(SCENARIOS, key=lambda sc: haversine_km(subject["lat"], subject["lon"], sc["lat"], sc["lon"]))
-    return best if haversine_km(subject["lat"], subject["lon"], best["lat"], best["lon"]) <= SCENARIO_MATCH_KM else None
+    # Never replace real observations with a scripted case, even at a scenario location.
+    return None
 
 
 def _iso(t: datetime) -> str:

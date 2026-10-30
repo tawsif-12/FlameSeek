@@ -12,8 +12,6 @@ from fastapi import APIRouter, HTTPException, Query
 
 from analogues import find_analogues
 from config import DEFAULT_SENSORS, HISTORY_SENSORS
-from demo_data import cloud_at, scenario_for
-from demo_outlook import scenario_outlook
 from environment import daily_weather, hourly_weather
 from events import event_summary, reconstruct_events
 from evidence import build_evidence, subject_from_event
@@ -84,7 +82,7 @@ async def list_events(
     days: int = Query(default=2, ge=1, le=5),
     limit: int = Query(default=2500, ge=1, le=20000),
     min_detections: int = Query(default=1, ge=1),
-    include_demo: bool = Query(default=True, description="Include scripted demo detections when the request covers Bangladesh."),
+    include_demo: bool = Query(default=False, description="Deprecated compatibility parameter. Synthetic data is always disabled."),
 ) -> dict[str, Any]:
     key = f"{bbox}|{days}|demo={include_demo}"
     cached = _SET_CACHE.get(key)
@@ -115,7 +113,7 @@ async def list_events(
             "multi_detection_events": sum(1 for e in result["events"] if e["observation_count"] > 1),
             "behaviour_counts": dict(Counter(e["behaviour"]["state"] for e in result["events"])),
             "days": days,
-            "include_demo": include_demo,
+            "include_demo": False,
             "data_source": recent_source_status(),
             "clustering": "Linked if <= 48 h apart and within both pixels' location uncertainty + 0.5 km + 2 km/day spread allowance (max 6 km).",
             "reconstruction_ms": result["elapsed_ms"],
@@ -149,14 +147,10 @@ async def _observation_quality(ev: dict[str, Any]) -> dict[str, Any]:
     c = ev["centroid"]
     now = datetime.now(timezone.utc)
     cloud_rows = []
-    scenario = scenario_for({"lat": c["lat"], "lon": c["lon"], "detections": ev["detections"]})
-    if scenario:
-        cloud_rows = [{"cloud_cover": cloud_at(scenario, now - timedelta(hours=h), now)} for h in range(24)]
-    else:
-        try:
-            cloud_rows = [r for r in await hourly_weather(c["lat"], c["lon"], (now - timedelta(days=1)).date(), now.date()) if r["time"] <= now.strftime("%Y-%m-%dT%H:00")][-24:]
-        except ExternalServiceError:
-            pass
+    try:
+        cloud_rows = [r for r in await hourly_weather(c["lat"], c["lon"], (now - timedelta(days=1)).date(), now.date()) if r["time"] <= now.strftime("%Y-%m-%dT%H:00")][-24:]
+    except ExternalServiceError:
+        pass
     clouds = [r["cloud_cover"] for r in cloud_rows if r.get("cloud_cover") is not None]
     cloud = round(sum(clouds) / len(clouds), 1) if clouds else None
     available = [s for s in DEFAULT_SENSORS if sensor_available(s, now.date())]
@@ -227,14 +221,6 @@ async def event_evidence(event_id: str, refresh: bool = False) -> dict[str, Any]
 
 async def _run_outlook(job: Job, ev: dict[str, Any], years: int) -> dict[str, Any]:
     c = ev["centroid"]
-    scenario = scenario_for({"lat": c["lat"], "lon": c["lon"], "detections": ev["detections"]})
-    if scenario:
-        # Demo scenario: scripted analogues, forecast and exposure, staged so the progress bar is visible.
-        steps = [("Fetching the same season in earlier years from the FIRMS archive", 0.25), ("Searching historical analogues", 0.5), ("Training and validating forecast models", 0.75), ("Overlaying the corridor with population and infrastructure", 0.93)]
-        for message, fraction in steps:
-            await job.update(message, fraction)
-            await asyncio.sleep(1.4)
-        return scenario_outlook(scenario, ev)
     today = datetime.now(timezone.utc).date()
 
     async def progress(message: str, fraction: float) -> None:
