@@ -1,0 +1,192 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-02T21:26:36Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 5658206010,
+  "lat": 23.8947914,
+  "lon": 90.3333161,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5659977923,
+  "lat": 23.8948638,
+  "lon": 90.3377733,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5659977924,
+  "lat": 23.8931238,
+  "lon": 90.3371604,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5659977925,
+  "lat": 23.8921895,
+  "lon": 90.3384452,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5659977926,
+  "lat": 23.8906322,
+  "lon": 90.3333744,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5659977927,
+  "lat": 23.8914906,
+  "lon": 90.3333423,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5659977928,
+  "lat": 23.8876648,
+  "lon": 90.3376016,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5659977929,
+  "lat": 23.8892074,
+  "lon": 90.3351393,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5659977930,
+  "lat": 23.8911779,
+  "lon": 90.3365435,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5660052632,
+  "lat": 23.8915273,
+  "lon": 90.3474252,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5660052680,
+  "lat": 23.8878046,
+  "lon": 90.3407854,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5660111778,
+  "lat": 23.8814428,
+  "lon": 90.3403240,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5660111779,
+  "lat": 23.8800388,
+  "lon": 90.3475704,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5660111780,
+  "lat": 23.8796772,
+  "lon": 90.3467156,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5660111781,
+  "lat": 23.8803538,
+  "lon": 90.3440745,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5660111782,
+  "lat": 23.8808719,
+  "lon": 90.3423895,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5660113257,
+  "lat": 23.8825115,
+  "lon": 90.3448885,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5660113258,
+  "lat": 23.8829240,
+  "lon": 90.3432962,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5660113259,
+  "lat": 23.8833694,
+  "lon": 90.3417038,
+  "tags": {
+    "man_made": "chimney"
+  }
+},
+{
+  "type": "node",
+  "id": 5660113260,
+  "lat": 23.8845037,
+  "lon": 90.3413835,
+  "tags": {
+    "man_made": "chimney"
+  }
+}
+
+  ]
+}

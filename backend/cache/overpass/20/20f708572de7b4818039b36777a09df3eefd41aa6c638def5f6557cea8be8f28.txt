@@ -1,0 +1,57 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-07T05:21:23Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 4456590772,
+  "lat": -2.9622200,
+  "lon": -54.2310167,
+  "tags": {
+    "is_in:municipality": "Santarém",
+    "is_in:state": "Pará",
+    "name": "Lagoa Azul",
+    "place": "hamlet",
+    "population": "57"
+  }
+},
+{
+  "type": "node",
+  "id": 5576429842,
+  "lat": -2.8834228,
+  "lon": -54.1968871,
+  "tags": {
+    "name": "Bela Vista",
+    "place": "hamlet",
+    "population": "52"
+  }
+},
+{
+  "type": "node",
+  "id": 5576429843,
+  "lat": -2.8682499,
+  "lon": -54.2361975,
+  "tags": {
+    "name": "Bom Futuro",
+    "place": "hamlet",
+    "population": "64"
+  }
+},
+{
+  "type": "node",
+  "id": 13790875706,
+  "lat": -2.9034271,
+  "lon": -54.1583717,
+  "tags": {
+    "name": "Chapadão",
+    "place": "hamlet"
+  }
+}
+
+  ]
+}

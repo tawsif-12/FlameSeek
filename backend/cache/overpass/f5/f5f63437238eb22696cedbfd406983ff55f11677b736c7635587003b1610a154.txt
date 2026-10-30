@@ -1,0 +1,803 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-29T20:18:45Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 339167585,
+  "lat": 23.6236732,
+  "lon": 90.4988075,
+  "tags": {
+    "name": "নারায়ণগঞ্জ",
+    "name:bn": "নারায়ণগঞ্জ",
+    "name:en": "Narayanganj",
+    "name:fr": "Narayanganj",
+    "name:hi": "नारायणगंज",
+    "name:kn": "ನಾರಾಯಣಗಂಜ್",
+    "name:ne": "नारायणगन्ज",
+    "place": "city",
+    "population": "286330",
+    "population:date": "2011",
+    "source": "lged.gov.bd",
+    "wikidata": "Q1990163",
+    "wikipedia": "bn:নারায়ণগঞ্জ"
+  }
+},
+{
+  "type": "node",
+  "id": 821928816,
+  "lat": 23.7021484,
+  "lon": 90.5256138,
+  "tags": {
+    "name": "কাঁচপুর",
+    "name:bn": "কাঁচপুর",
+    "name:en": "Katchpur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 825618800,
+  "lat": 23.6249561,
+  "lon": 90.5023340,
+  "tags": {
+    "name": "মিশন পারা",
+    "name:bn": "মিশন পারা",
+    "name:en": "Mission Para",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 826125224,
+  "lat": 23.6318552,
+  "lon": 90.5199687,
+  "tags": {
+    "name": "নবীগঞ্জ",
+    "name:bn": "নবীগঞ্জ",
+    "name:en": "Nobigonj",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 1619815583,
+  "lat": 23.5373475,
+  "lon": 90.7152458,
+  "tags": {
+    "name": "দাউদকান্দি",
+    "name:bn": "দাউদকান্দি",
+    "name:en": "Daudkandi",
+    "place": "town"
+  }
+},
+{
+  "type": "node",
+  "id": 1749595668,
+  "lat": 23.5483797,
+  "lon": 90.5349722,
+  "tags": {
+    "name": "মুন্সিগঞ্জ",
+    "name:af": "Munshiganj",
+    "name:ar": "مونشيجاني",
+    "name:bn": "মুন্সিগঞ্জ",
+    "name:de": "Munsiganj",
+    "name:en": "Munshiganj",
+    "name:es": "Munsiganj",
+    "name:et": "Munshiganj",
+    "name:fr": "Munsiganj",
+    "name:gan": "蒙希甘杰",
+    "name:hi": "मुंशीगंज",
+    "name:kn": "ಮುಂಶಿಗಂಜ್",
+    "name:ko": "문시 간지",
+    "name:uk": "Муншіґандж",
+    "place": "city",
+    "population": "53202",
+    "population:date": "2011",
+    "wikidata": "Q256060",
+    "wikipedia": "bn:মুন্সীগঞ্জ"
+  }
+},
+{
+  "type": "node",
+  "id": 2481944868,
+  "lat": 23.5576927,
+  "lon": 90.6523837,
+  "tags": {
+    "name": "গজারিয়া",
+    "name:bn": "গজারিয়া",
+    "name:en": "Gazaria",
+    "place": "town"
+  }
+},
+{
+  "type": "node",
+  "id": 2481944874,
+  "lat": 23.5378563,
+  "lon": 90.2844689,
+  "tags": {
+    "name": "শ্রীনগর",
+    "name:bn": "শ্রীনগর",
+    "name:en": "Sreenagar",
+    "name:hi": "श्रीनगर",
+    "place": "town"
+  }
+},
+{
+  "type": "node",
+  "id": 2481947622,
+  "lat": 23.7926714,
+  "lon": 90.6531527,
+  "tags": {
+    "name": "আড়াইহাজার",
+    "name:bn": "আড়াইহাজার",
+    "name:en": "Araihazar",
+    "name:hi": "अरैहाज़ार",
+    "place": "town"
+  }
+},
+{
+  "type": "node",
+  "id": 2481947626,
+  "lat": 23.6349302,
+  "lon": 90.7060152,
+  "tags": {
+    "name": "মানিকারচর",
+    "name:bn": "মানিকারচর",
+    "name:en": "Manikarchar",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 2481947629,
+  "lat": 23.7923670,
+  "lon": 90.5203342,
+  "tags": {
+    "name": "রূপগঞ্জ",
+    "name:bn": "রূপগঞ্জ",
+    "name:en": "Rupganj",
+    "name:hi": "रूपगंज",
+    "place": "town"
+  }
+},
+{
+  "type": "node",
+  "id": 2481947630,
+  "lat": 23.6382482,
+  "lon": 90.5992301,
+  "tags": {
+    "name": "সোনারগাঁও",
+    "name:bn": "সোনারগাঁও",
+    "name:en": "Sonargaon",
+    "name:hi": "सोनारगांव",
+    "place": "town"
+  }
+},
+{
+  "type": "node",
+  "id": 3442474911,
+  "lat": 23.7643863,
+  "lon": 90.3890144,
+  "tags": {
+    "ISO3166-1:alpha2": "BD",
+    "admin_level": "2",
+    "capital": "yes",
+    "capital_ISO3166-1": "yes",
+    "is_capital": "country",
+    "is_in:country_code": "BD",
+    "name": "ঢাকা",
+    "name:af": "Dhaka",
+    "name:am": "ዳካ",
+    "name:an": "Dhaka",
+    "name:ar": "دكا",
+    "name:arz": "داكا",
+    "name:az": "Dəkkə",
+    "name:ba": "Дакка",
+    "name:bat-smg": "Daka",
+    "name:be": "Дака",
+    "name:bg": "Дака",
+    "name:bh": "ढाका",
+    "name:bn": "ঢাকা",
+    "name:bo": "དྷ་ཁ།",
+    "name:br": "Dhaka",
+    "name:bs": "Dhaka",
+    "name:ca": "Dacca",
+    "name:ce": "Дакка",
+    "name:ch": "Dhaka",
+    "name:ckb": "داکا",
+    "name:co": "Dacca",
+    "name:crh": "Dakka",
+    "name:cs": "Dháka",
+    "name:cy": "Dhaka",
+    "name:da": "Dhaka",
+    "name:de": "Dhaka",
+    "name:diq": "Deka",
+    "name:dv": "ޑާކާ",
+    "name:el": "Ντάκα",
+    "name:en": "Dhaka",
+    "name:eo": "Dako",
+    "name:es": "Daca",
+    "name:et": "Dhaka",
+    "name:eu": "Dhaka",
+    "name:ext": "Dacca",
+    "name:fa": "داکا",
+    "name:fi": "Dhaka",
+    "name:fr": "Dacca",
+    "name:fy": "Daka",
+    "name:ga": "Dacca",
+    "name:gd": "Dhaka",
+    "name:gl": "Dacca - ঢাকা",
+    "name:gn": "Ndáka",
+    "name:gu": "ઢાકા",
+    "name:ha": "Dhaka",
+    "name:he": "דאקה",
+    "name:hi": "ढाका",
+    "name:hr": "Dhaka",
+    "name:ht": "Daka",
+    "name:hu": "Dakka",
+    "name:hy": "Դաքքա",
+    "name:ia": "Dhaka",
+    "name:id": "Dhaka",
+    "name:ie": "Dhaka",
+    "name:io": "Dhaka",
+    "name:is": "Daka",
+    "name:it": "Dacca",
+    "name:ja": "ダッカ",
+    "name:ka": "დაკა",
+    "name:kab": "Dakka",
+    "name:kg": "Dhaka",
+    "name:ki": "Dhaka",
+    "name:kk": "Дакка",
+    "name:km": "ដាក្កា",
+    "name:kn": "ಢಾಕಾ",
+    "name:ko": "다카",
+    "name:ks": "ڈھاکہ",
+    "name:ku": "Daka",
+    "name:kw": "Dhaka",
+    "name:ky": "Дакка",
+    "name:la": "Dacca",
+    "name:lb": "Dhaka",
+    "name:lo": "ທາກາ",
+    "name:lt": "Daka",
+    "name:lv": "Daka",
+    "name:mhr": "Дакка",
+    "name:mi": "Dhaka",
+    "name:mk": "Дака",
+    "name:ml": "ഢാക്ക",
+    "name:mn": "Дака",
+    "name:mr": "ढाका",
+    "name:ms": "Dhaka",
+    "name:mt": "Dhaka",
+    "name:my": "ဒါကာမြို့",
+    "name:nah": "Daca",
+    "name:nb": "Dhaka",
+    "name:ne": "ढाका",
+    "name:new": "ढाका",
+    "name:nl": "Dhaka",
+    "name:nn": "Dhaka",
+    "name:nov": "Daka",
+    "name:ny": "Dhaka",
+    "name:oc": "Dhaka",
+    "name:or": "ଢାକା",
+    "name:os": "Даккæ",
+    "name:pa": "ਢਾਕਾ",
+    "name:pl": "Dhaka",
+    "name:pms": "Dacca",
+    "name:pnb": "ڈھاکہ",
+    "name:ps": "ډاکه",
+    "name:pt": "Daca",
+    "name:rm": "Dhaka",
+    "name:ro": "Dacca",
+    "name:ru": "Дакка",
+    "name:rue": "Дгака",
+    "name:sa": "ढाका",
+    "name:sah": "Дака",
+    "name:sc": "Daca",
+    "name:scn": "Dacca",
+    "name:sd": "ڍاڪا",
+    "name:si": "ඩාකා",
+    "name:sk": "Dháka",
+    "name:sl": "Daka",
+    "name:sn": "Dhaka",
+    "name:sq": "Dhaka",
+    "name:sr": "Дака",
+    "name:su": "Dhaka",
+    "name:sv": "Dhaka",
+    "name:sw": "Dhaka",
+    "name:ta": "டாக்கா",
+    "name:te": "ఢాకా",
+    "name:tg": "Дакка",
+    "name:th": "ธากา",
+    "name:tk": "Dakka",
+    "name:tl": "Dhaka",
+    "name:tr": "Dakka",
+    "name:tt": "Dakka",
+    "name:udm": "Дакка",
+    "name:ug": "داككا",
+    "name:uk": "Дакка",
+    "name:ur": "ڈھاکہ",
+    "name:uz": "Dakka",
+    "name:vep": "Dakk",
+    "name:vi": "Dhaka",
+    "name:vo": "Dhaka",
+    "name:yi": "דאקא",
+    "name:yo": "Dhaka",
+    "name:yue": "達卡",
+    "name:zh": "達卡;达卡",
+    "name:zh-Hans": "达卡",
+    "name:zh-Hant": "達卡",
+    "old_name:bn:1610-1792": "জাহাঙ্গীরনগর",
+    "old_name:en:1610-1792": "Jahangirnagar",
+    "old_name:en:1793-1982": "Dacca",
+    "old_name:eo": "Dakko",
+    "old_name:es": "Dacca",
+    "place": "city",
+    "population": "21741000",
+    "population:date": "2021",
+    "source:name:oc": "Microtrends",
+    "source:population": "https://www.macrotrends.net/cities/20119/dhaka/population",
+    "wikidata": "Q1354",
+    "wikipedia": "en:Dhaka"
+  }
+},
+{
+  "type": "node",
+  "id": 4483434414,
+  "lat": 23.5491080,
+  "lon": 90.6489781,
+  "tags": {
+    "name": "বাগান বাড়ি",
+    "name:en": "Bagan Bari",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4696480257,
+  "lat": 23.5729062,
+  "lon": 90.3802202,
+  "tags": {
+    "name": "সিরাজদীখান",
+    "name:bn": "সিরাজদীখান",
+    "name:en": "Sirajdikhan",
+    "name:hi": "सिराजदीखान",
+    "place": "town"
+  }
+},
+{
+  "type": "node",
+  "id": 5540947373,
+  "lat": 23.5826708,
+  "lon": 90.5062133,
+  "tags": {
+    "name": "চর সৈয়দপুর",
+    "name:bn": "চর সৈয়দপুর",
+    "name:en": "Char Syedpur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6051468399,
+  "lat": 23.5349340,
+  "lon": 90.4515865,
+  "tags": {
+    "name": "দক্ষিণ বেতকা",
+    "name:bn": "দক্ষিণ বেতকা",
+    "name:en": "South Betka",
+    "place": "village",
+    "wikidata": "Q22346730",
+    "wikipedia": "bn:বেতকা ইউনিয়ন",
+    "wikipedia:en": "Betka Union"
+  }
+},
+{
+  "type": "node",
+  "id": 6051468400,
+  "lat": 23.5393160,
+  "lon": 90.4521659,
+  "tags": {
+    "name": "মামুদাতপুর",
+    "name:bn": "মামুদাতপুর",
+    "name:en": "Mamudatpur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6051468402,
+  "lat": 23.5446815,
+  "lon": 90.4600086,
+  "tags": {
+    "name": "উত্তর বেতকা",
+    "name:bn": "উত্তর বেতকা",
+    "name:en": "Uttar Betka",
+    "place": "village",
+    "wikidata": "Q24907431",
+    "wikipedia": "bn:উত্তর বেতকা",
+    "wikipedia:en": "Betka Union"
+  }
+},
+{
+  "type": "node",
+  "id": 6051472868,
+  "lat": 23.5102866,
+  "lon": 90.4659685,
+  "tags": {
+    "name": "টঙ্গীবাড়ী",
+    "name:bn": "টঙ্গীবাড়ী",
+    "name:en": "Tongibari",
+    "name:hi": "टंगीबाड़ी",
+    "place": "town",
+    "population": "176881",
+    "website": "https://tongibari.munshiganj.gov.bd/",
+    "wikidata": "Q4460478",
+    "wikipedia": "en:Tongibari Upazila"
+  }
+},
+{
+  "type": "node",
+  "id": 6052300240,
+  "lat": 23.5245710,
+  "lon": 90.4630228,
+  "tags": {
+    "name": "সোনারং",
+    "name:bn": "সোনারং",
+    "name:en": "Shonarong",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6052300261,
+  "lat": 23.5509122,
+  "lon": 90.4703935,
+  "tags": {
+    "name": "বিন্দুসার",
+    "name:bn": "বিন্দুসার",
+    "name:en": "Bindusar",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6052301309,
+  "lat": 23.5542881,
+  "lon": 90.4738670,
+  "tags": {
+    "name": "আবদুল্লাহপুর",
+    "name:bn": "আবদুল্লাহপুর",
+    "name:en": "Abdullahpur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6060994265,
+  "lat": 23.5275153,
+  "lon": 90.4492511,
+  "tags": {
+    "name": "নোয়াড্ডা",
+    "name:en": "Noadda",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6060994266,
+  "lat": 23.5253684,
+  "lon": 90.4397292,
+  "tags": {
+    "name": "আউটশাহী",
+    "name:en": "Autshahi",
+    "place": "village",
+    "wikidata": "Q22346729",
+    "wikipedia": "bn:আউটশাহী ইউনিয়ন"
+  }
+},
+{
+  "type": "node",
+  "id": 6063955668,
+  "lat": 23.5578154,
+  "lon": 90.4851829,
+  "tags": {
+    "name": "মুরমা",
+    "name:en": "Murma",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6064117498,
+  "lat": 23.5611935,
+  "lon": 90.4860094,
+  "tags": {
+    "name": "এনায়েতনগর",
+    "name:bn": "এনায়েতনগর",
+    "name:en": "Enayetnagar",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6064117500,
+  "lat": 23.5574515,
+  "lon": 90.4830750,
+  "tags": {
+    "name": "মিরকাদিম",
+    "name:bn": "মিরকাদিম",
+    "name:en": "Mirkadim",
+    "name:hi": "मिरकादिम",
+    "place": "town",
+    "website": "http://www.mirkadimpaurashava.com/welcome/tender"
+  }
+},
+{
+  "type": "node",
+  "id": 6064176163,
+  "lat": 23.5588167,
+  "lon": 90.4791308,
+  "tags": {
+    "name": "সুদার চর",
+    "name:bn": "সুদার চর",
+    "name:en": "Sudan Chor",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6064211990,
+  "lat": 23.5588044,
+  "lon": 90.4886795,
+  "tags": {
+    "name": "চন্দনতলা",
+    "name:en": "Chandantala",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6064232290,
+  "lat": 23.5630543,
+  "lon": 90.4867467,
+  "tags": {
+    "name": "দফা বাড়ি",
+    "name:bn": "দফা বাড়ি",
+    "name:en": "Dofa Bari",
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 6064232291,
+  "lat": 23.5650899,
+  "lon": 90.4890427,
+  "tags": {
+    "name": "নগর কাসবা",
+    "name:bn": "নগর কাসবা",
+    "name:en": "Nagar Kasba",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6064232293,
+  "lat": 23.5695939,
+  "lon": 90.4884633,
+  "tags": {
+    "name": "কামলাঘাট",
+    "name:bn": "কামলাঘাট",
+    "name:en": "Kamlaghat",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6068528778,
+  "lat": 23.5319225,
+  "lon": 90.4596458,
+  "tags": {
+    "name": "খিলপাড়া",
+    "name:en": "Khilpara",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6083172917,
+  "lat": 23.5347155,
+  "lon": 90.4458175,
+  "tags": {
+    "name": "চাংগুরী",
+    "name:bn": "চাংগুরী",
+    "name:en": "Changuri",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6106513995,
+  "lat": 23.4684697,
+  "lon": 90.4299312,
+  "tags": {
+    "name": "ভাটনিসার",
+    "name:en": "Bhatnisar",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6106577879,
+  "lat": 23.4644421,
+  "lon": 90.4218591,
+  "tags": {
+    "name": "বসিরা",
+    "name:en": "Basira",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6106732471,
+  "lat": 23.5089256,
+  "lon": 90.4356007,
+  "tags": {
+    "name": "বলই",
+    "name:bn": "বলই",
+    "name:en": "Balai",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6106732473,
+  "lat": 23.4978865,
+  "lon": 90.4410510,
+  "tags": {
+    "name": "কুরমিরা",
+    "name:bn": "কুরমিরা",
+    "name:en": "Kurmira",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6162865807,
+  "lat": 23.6171401,
+  "lon": 90.5767393,
+  "tags": {
+    "name": "মুগার চর",
+    "name:bn": "মুগার চর",
+    "name:en": "Mugar Chor",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6162865808,
+  "lat": 23.6193027,
+  "lon": 90.5724048,
+  "tags": {
+    "name": "মেনিখালী",
+    "name:bn": "মেনিখালী",
+    "name:en": "Menikhali",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6162865809,
+  "lat": 23.6236598,
+  "lon": 90.5744889,
+  "tags": {
+    "name": "চৌধুরীগাঁও",
+    "name:bn": "চৌধুরীগাঁও",
+    "name:en": "Chowdhuri Gao",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6162919836,
+  "lat": 23.6154689,
+  "lon": 90.5561399,
+  "tags": {
+    "name": "মীরকুন্ডি",
+    "name:en": "Mirkundi",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6162919837,
+  "lat": 23.6168403,
+  "lon": 90.5520469,
+  "tags": {
+    "name": "বিবি জোহরা",
+    "name:bn": "বিবি জোহরা",
+    "name:en": "Bibijhora",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6165175451,
+  "lat": 23.6922509,
+  "lon": 90.5470311,
+  "tags": {
+    "name": "মদনপুর",
+    "name:bn": "মদনপুর",
+    "name:en": "Madanpur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6177715123,
+  "lat": 23.6013026,
+  "lon": 90.5162984,
+  "tags": {
+    "name": "কলাগাছিয়া",
+    "name:bn": "কলাগাছিয়া",
+    "name:en": "Kalagachhia",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6177715124,
+  "lat": 23.5995330,
+  "lon": 90.5140024,
+  "tags": {
+    "name": "কদমরসুল",
+    "name:bn": "কদমরসুল",
+    "name:en": "Kadamrasul",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6178523531,
+  "lat": 23.5327220,
+  "lon": 90.4597256,
+  "tags": {
+    "name": "খিলপাড়া",
+    "name:bn": "খিলপাড়া",
+    "name:en": "Khilpara",
+    "place": "village",
+    "population": "3172",
+    "wikipedia": "en:Khilpara"
+  }
+},
+{
+  "type": "node",
+  "id": 6548854563,
+  "lat": 23.6563691,
+  "lon": 90.7257897,
+  "tags": {
+    "name": "তালতলী",
+    "name:en": "Taltoli",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 6920825200,
+  "lat": 23.8287403,
+  "lon": 90.4750876,
+  "tags": {
+    "alt_name:bn": "বেপারি পাড়া",
+    "name": "বেপারী পাড়া",
+    "name:en": "Bepari Para",
+    "place": "hamlet"
+  }
+}
+
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-02T22:11:09Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 2481964380,
+  "lat": 22.5051095,
+  "lon": 91.8088601,
+  "tags": {
+    "name": "হাটহাজারী",
+    "name:bn": "হাটহাজারী",
+    "name:en": "Hathazari",
+    "place": "town",
+    "wikidata": "Q3347430",
+    "wikipedia": "bn:হাটহাজারী উপজেলা"
+  }
+},
+{
+  "type": "node",
+  "id": 2481965303,
+  "lat": 22.2251510,
+  "lon": 91.9022234,
+  "tags": {
+    "name": "আনোয়ারা",
+    "name:bn": "আনোয়ারা",
+    "name:en": "Anwara",
+    "place": "town"
+  }
+},
+{
+  "type": "node",
+  "id": 2481965305,
+  "lat": 22.3717421,
+  "lon": 91.9095044,
+  "tags": {
+    "name": "বোয়ালখালী",
+    "name:bn": "বোয়ালখালী",
+    "name:en": "Boalkhali",
+    "place": "town",
+    "wikidata": "Q3346618",
+    "wikipedia": "bn:বোয়ালখালী উপজেলা"
+  }
+},
+{
+  "type": "node",
+  "id": 2481965308,
+  "lat": 22.2990557,
+  "lon": 91.9776525,
+  "tags": {
+    "name": "পটিয়া",
+    "name:bn": "পটিয়া",
+    "name:en": "Patiya",
+    "place": "town"
+  }
+},
+{
+  "type": "node",
+  "id": 7562554603,
+  "lat": 22.1548165,
+  "lon": 91.8378065,
+  "tags": {
+    "name": "রায়পুর",
+    "name:en": "Raypur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7562554621,
+  "lat": 22.2209397,
+  "lon": 92.0115278,
+  "tags": {
+    "name": "জোয়ারা",
+    "name:en": "Joara",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7562554622,
+  "lat": 22.2589146,
+  "lon": 91.9476698,
+  "tags": {
+    "name": "আশিয়া",
+    "name:en": "Asia",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7562554623,
+  "lat": 22.2781365,
+  "lon": 91.8949698,
+  "tags": {
+    "name": "জিরি",
+    "name:en": "Jiri",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7562554624,
+  "lat": 22.1896304,
+  "lon": 91.8584059,
+  "tags": {
+    "name": "বটতলী",
+    "name:en": "Battoli",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7562554626,
+  "lat": 22.1460720,
+  "lon": 91.9330786,
+  "tags": {
+    "name": "পুকুরিয়া",
+    "name:en": "Pukuria",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 8541366252,
+  "lat": 22.3337780,
+  "lon": 91.8344348,
+  "tags": {
+    "alt_name:en": "Chittagong",
+    "alt_name:fr": "Chattogram",
+    "alt_name:ur": "چٹاگانگ",
+    "capital": "4",
+    "name": "চট্টগ্রাম",
+    "name:ar": "شيتاغونغ",
+    "name:be": "Чытагонг",
+    "name:be-tarask": "Чытагонг",
+    "name:bg": "Читагонг",
+    "name:bn": "চট্টগ্রাম",
+    "name:bxr": "Читтагонг",
+    "name:de": "Chittagong",
+    "name:el": "Τσιταγκόνγκ",
+    "name:en": "Chattogram",
+    "name:es": "Chittagong",
+    "name:et": "Chattogram",
+    "name:eu": "Chattogram",
+    "name:fa": "چیتاگونگ",
+    "name:fr": "Chittagong",
+    "name:he": "צ'יטגונג",
+    "name:hi": "चट्टग्राम",
+    "name:hr": "Chittagong",
+    "name:it": "Cittagong",
+    "name:ja": "チッタゴン",
+    "name:kk": "Читтагонг",
+    "name:kk-Arab": "تشىيتتاگونگ",
+    "name:kn": "ಚಟ್ಟಗ್ರಾಮ",
+    "name:ko": "치타공",
+    "name:ky": "Читтагонг",
+    "name:ml": "ചിറ്റഗോങ്",
+    "name:ne": "चट्टोग्राम",
+    "name:nl": "Chittagong",
+    "name:oc": "Chottogam",
+    "name:pnb": "چٹگاؤں",
+    "name:ru": "Читтагонг",
+    "name:sr": "Читагонг",
+    "name:ta": "சிட்டகொங்",
+    "name:uk": "Читтагонг",
+    "name:ur": "چٹاگانگ",
+    "name:zh": "吉大港市",
+    "old_name": "ইসলামাবাদ",
+    "old_name:ar": "إسلام آباد",
+    "old_name:en": "Islamabad",
+    "old_name:ur": "اسلام آباد",
+    "place": "city",
+    "population": "2592439",
+    "population:date": "2023",
+    "source:name:oc": "Lo Congrès",
+    "website": "http://www.ccc.org.bd/",
+    "wikidata": "Q376749",
+    "wikipedia": "bn:চট্টগ্রাম"
+  }
+}
+
+  ]
+}

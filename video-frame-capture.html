@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #050914;
+      }
+
+      canvas {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        object-fit: contain;
+      }
+    </style>
+  </head>
+  <body>
+    <video id="video" src="./screen-recording-reference.mp4" muted playsinline preload="auto"></video>
+    <canvas id="canvas" width="1365" height="768"></canvas>
+    <script>
+      const params = new URLSearchParams(location.search);
+      const targetTime = Number(params.get("t") || "0");
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+      const context = canvas.getContext("2d");
+
+      function drawFrame() {
+        context.fillStyle = "#050914";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        const scale = Math.min(canvas.width / video.videoWidth, canvas.height / video.videoHeight);
+        const width = video.videoWidth * scale;
+        const height = video.videoHeight * scale;
+        const x = (canvas.width - width) / 2;
+        const y = (canvas.height - height) / 2;
+        context.drawImage(video, x, y, width, height);
+      }
+
+      video.addEventListener("loadedmetadata", () => {
+        video.currentTime = Math.min(targetTime, Math.max(0, video.duration - 0.25));
+      });
+
+      video.addEventListener("seeked", () => {
+        drawFrame();
+        document.body.dataset.ready = "true";
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,785 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-02T21:35:50Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 141466273,
+  "lat": 23.8477000,
+  "lon": 90.2587000,
+  "tags": {
+    "alt_name:en": "Shabhar",
+    "name": "সাভার",
+    "name:bn": "সাভার",
+    "name:de": "Sabhar",
+    "name:en": "Savar",
+    "name:es": "Savar",
+    "name:fr": "Sabhar",
+    "name:ja": "シャバール",
+    "name:kn": "ಸಾಭಾರ್",
+    "name:ru": "Савар",
+    "place": "town",
+    "population": "296851",
+    "population:date": "2011",
+    "source:population": "বিবিএস",
+    "wikidata": "Q23958347",
+    "wikimedia_commons": "Category:Savar",
+    "wikipedia": "bn:সাভার"
+  }
+},
+{
+  "type": "node",
+  "id": 262297782,
+  "lat": 23.9084932,
+  "lon": 90.3980037,
+  "tags": {
+    "name": "টঙ্গী",
+    "name:bn": "টঙ্গী",
+    "name:en": "Tongi",
+    "name:hi": "टंगी",
+    "name:ja": "トゥンギ",
+    "name:ru": "Тонги",
+    "place": "town",
+    "population": "406420",
+    "population:date": "2011"
+  }
+},
+{
+  "type": "node",
+  "id": 349638933,
+  "lat": 23.8705328,
+  "lon": 90.1509762,
+  "tags": {
+    "name": "Rowha",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 352375250,
+  "lat": 23.8704720,
+  "lon": 90.1508690,
+  "tags": {
+    "name": "Rowha",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 388898812,
+  "lat": 23.8690465,
+  "lon": 90.1476495,
+  "tags": {
+    "name": "Fultola",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 388901350,
+  "lat": 23.8755610,
+  "lon": 90.1345603,
+  "tags": {
+    "name": "Suapur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 388902950,
+  "lat": 23.9199764,
+  "lon": 90.1273935,
+  "tags": {
+    "name": "শ্রীরামপুর",
+    "name:bn": "শ্রীরামপুর",
+    "name:en": "Srirampur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 388903419,
+  "lat": 23.9183438,
+  "lon": 90.1549357,
+  "tags": {
+    "name": "কালামপুর",
+    "name:bn": "কালামপুর",
+    "name:en": "Kalampur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 388904287,
+  "lat": 23.9119341,
+  "lon": 90.1864021,
+  "tags": {
+    "name": "Joypura",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 388906792,
+  "lat": 23.9108749,
+  "lon": 90.2272146,
+  "tags": {
+    "name:bn": "ইসলামপুর",
+    "name:en": "Islampur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 388908026,
+  "lat": 23.9123657,
+  "lon": 90.2605169,
+  "tags": {
+    "name": "নবীনগর",
+    "name:bn": "নবীনগর",
+    "name:en": "Nabinagar",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 616139829,
+  "lat": 23.9183476,
+  "lon": 90.2142069,
+  "tags": {
+    "name": "ধামরাই",
+    "name:ar": "دامراي",
+    "name:bn": "ধামরাই",
+    "name:de": "Dhamrai",
+    "name:en": "Dhamrai",
+    "name:es": "Dhamrai",
+    "name:fr": "Dhamrai",
+    "name:ja": "ダムライ",
+    "name:kn": "ಧಮ್ರೈ",
+    "place": "town",
+    "population": "56777",
+    "population:date": "2011",
+    "source:population": "http://www.citypopulation.info/Bangladesh-Mun.html",
+    "wikidata": "Q3345155",
+    "wikipedia": "en:Dhamrai Upazila"
+  }
+},
+{
+  "type": "node",
+  "id": 1736192865,
+  "lat": 23.8044483,
+  "lon": 90.3564042,
+  "tags": {
+    "name": "ব্লক এফ",
+    "name:bn": "ব্লক এফ",
+    "name:en": "Block F",
+    "place": "city_block"
+  }
+},
+{
+  "type": "node",
+  "id": 2481944872,
+  "lat": 23.8152051,
+  "lon": 90.1384254,
+  "tags": {
+    "name": "সিংগাইর",
+    "name:bn": "সিংগাইর",
+    "name:bpy": "সিংগাইর",
+    "name:en": "Singair",
+    "place": "town"
+  }
+},
+{
+  "type": "node",
+  "id": 2481947624,
+  "lat": 23.9997166,
+  "lon": 90.4184036,
+  "tags": {
+    "name": "গাজীপুর",
+    "name:bn": "গাজীপুর",
+    "name:de": "Gazipur",
+    "name:el": "Γκαζιπούρ",
+    "name:en": "Gazipur",
+    "name:fr": "Gazipur",
+    "name:he": "גזיפור",
+    "name:hi": "गाज़ीपुर",
+    "name:hr": "Gazipur",
+    "name:ne": "गाजीपुर",
+    "name:ru": "Газипур",
+    "name:sl": "Gazipur",
+    "name:sr": "Рангпур",
+    "name:uk": "Газіпур",
+    "place": "city",
+    "population": "213061",
+    "population:date": "2011",
+    "wikidata": "Q2460416",
+    "wikimedia_commons": "Category:Gazipur",
+    "wikipedia": "bn:গাজীপুর"
+  }
+},
+{
+  "type": "node",
+  "id": 2481947629,
+  "lat": 23.7923670,
+  "lon": 90.5203342,
+  "tags": {
+    "name": "রূপগঞ্জ",
+    "name:bn": "রূপগঞ্জ",
+    "name:en": "Rupganj",
+    "name:hi": "रूपगंज",
+    "place": "town"
+  }
+},
+{
+  "type": "node",
+  "id": 2895149455,
+  "lat": 24.0472727,
+  "lon": 90.2384011,
+  "tags": {
+    "name": "চন্দ্রা",
+    "name:bn": "চন্দ্রা",
+    "name:en": "Chandra",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3442474911,
+  "lat": 23.7643863,
+  "lon": 90.3890144,
+  "tags": {
+    "ISO3166-1:alpha2": "BD",
+    "admin_level": "2",
+    "capital": "yes",
+    "capital_ISO3166-1": "yes",
+    "is_capital": "country",
+    "is_in:country_code": "BD",
+    "name": "ঢাকা",
+    "name:af": "Dhaka",
+    "name:am": "ዳካ",
+    "name:an": "Dhaka",
+    "name:ar": "دكا",
+    "name:arz": "داكا",
+    "name:az": "Dəkkə",
+    "name:ba": "Дакка",
+    "name:bat-smg": "Daka",
+    "name:be": "Дака",
+    "name:bg": "Дака",
+    "name:bh": "ढाका",
+    "name:bn": "ঢাকা",
+    "name:bo": "དྷ་ཁ།",
+    "name:br": "Dhaka",
+    "name:bs": "Dhaka",
+    "name:ca": "Dacca",
+    "name:ce": "Дакка",
+    "name:ch": "Dhaka",
+    "name:ckb": "داکا",
+    "name:co": "Dacca",
+    "name:crh": "Dakka",
+    "name:cs": "Dháka",
+    "name:cy": "Dhaka",
+    "name:da": "Dhaka",
+    "name:de": "Dhaka",
+    "name:diq": "Deka",
+    "name:dv": "ޑާކާ",
+    "name:el": "Ντάκα",
+    "name:en": "Dhaka",
+    "name:eo": "Dako",
+    "name:es": "Daca",
+    "name:et": "Dhaka",
+    "name:eu": "Dhaka",
+    "name:ext": "Dacca",
+    "name:fa": "داکا",
+    "name:fi": "Dhaka",
+    "name:fr": "Dacca",
+    "name:fy": "Daka",
+    "name:ga": "Dacca",
+    "name:gd": "Dhaka",
+    "name:gl": "Dacca - ঢাকা",
+    "name:gn": "Ndáka",
+    "name:gu": "ઢાકા",
+    "name:ha": "Dhaka",
+    "name:he": "דאקה",
+    "name:hi": "ढाका",
+    "name:hr": "Dhaka",
+    "name:ht": "Daka",
+    "name:hu": "Dakka",
+    "name:hy": "Դաքքա",
+    "name:ia": "Dhaka",
+    "name:id": "Dhaka",
+    "name:ie": "Dhaka",
+    "name:io": "Dhaka",
+    "name:is": "Daka",
+    "name:it": "Dacca",
+    "name:ja": "ダッカ",
+    "name:ka": "დაკა",
+    "name:kab": "Dakka",
+    "name:kg": "Dhaka",
+    "name:ki": "Dhaka",
+    "name:kk": "Дакка",
+    "name:km": "ដាក្កា",
+    "name:kn": "ಢಾಕಾ",
+    "name:ko": "다카",
+    "name:ks": "ڈھاکہ",
+    "name:ku": "Daka",
+    "name:kw": "Dhaka",
+    "name:ky": "Дакка",
+    "name:la": "Dacca",
+    "name:lb": "Dhaka",
+    "name:lo": "ທາກາ",
+    "name:lt": "Daka",
+    "name:lv": "Daka",
+    "name:mhr": "Дакка",
+    "name:mi": "Dhaka",
+    "name:mk": "Дака",
+    "name:ml": "ഢാക്ക",
+    "name:mn": "Дака",
+    "name:mr": "ढाका",
+    "name:ms": "Dhaka",
+    "name:mt": "Dhaka",
+    "name:my": "ဒါကာမြို့",
+    "name:nah": "Daca",
+    "name:nb": "Dhaka",
+    "name:ne": "ढाका",
+    "name:new": "ढाका",
+    "name:nl": "Dhaka",
+    "name:nn": "Dhaka",
+    "name:nov": "Daka",
+    "name:ny": "Dhaka",
+    "name:oc": "Dhaka",
+    "name:or": "ଢାକା",
+    "name:os": "Даккæ",
+    "name:pa": "ਢਾਕਾ",
+    "name:pl": "Dhaka",
+    "name:pms": "Dacca",
+    "name:pnb": "ڈھاکہ",
+    "name:ps": "ډاکه",
+    "name:pt": "Daca",
+    "name:rm": "Dhaka",
+    "name:ro": "Dacca",
+    "name:ru": "Дакка",
+    "name:rue": "Дгака",
+    "name:sa": "ढाका",
+    "name:sah": "Дака",
+    "name:sc": "Daca",
+    "name:scn": "Dacca",
+    "name:sd": "ڍاڪا",
+    "name:si": "ඩාකා",
+    "name:sk": "Dháka",
+    "name:sl": "Daka",
+    "name:sn": "Dhaka",
+    "name:sq": "Dhaka",
+    "name:sr": "Дака",
+    "name:su": "Dhaka",
+    "name:sv": "Dhaka",
+    "name:sw": "Dhaka",
+    "name:ta": "டாக்கா",
+    "name:te": "ఢాకా",
+    "name:tg": "Дакка",
+    "name:th": "ธากา",
+    "name:tk": "Dakka",
+    "name:tl": "Dhaka",
+    "name:tr": "Dakka",
+    "name:tt": "Dakka",
+    "name:udm": "Дакка",
+    "name:ug": "داككا",
+    "name:uk": "Дакка",
+    "name:ur": "ڈھاکہ",
+    "name:uz": "Dakka",
+    "name:vep": "Dakk",
+    "name:vi": "Dhaka",
+    "name:vo": "Dhaka",
+    "name:yi": "דאקא",
+    "name:yo": "Dhaka",
+    "name:yue": "達卡",
+    "name:zh": "達卡;达卡",
+    "name:zh-Hans": "达卡",
+    "name:zh-Hant": "達卡",
+    "old_name:bn:1610-1792": "জাহাঙ্গীরনগর",
+    "old_name:en:1610-1792": "Jahangirnagar",
+    "old_name:en:1793-1982": "Dacca",
+    "old_name:eo": "Dakko",
+    "old_name:es": "Dacca",
+    "place": "city",
+    "population": "21741000",
+    "population:date": "2021",
+    "source:name:oc": "Microtrends",
+    "source:population": "https://www.macrotrends.net/cities/20119/dhaka/population",
+    "wikidata": "Q1354",
+    "wikipedia": "en:Dhaka"
+  }
+},
+{
+  "type": "node",
+  "id": 3977920851,
+  "lat": 24.0215032,
+  "lon": 90.2153854,
+  "tags": {
+    "name": "Atabaha",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3977928774,
+  "lat": 24.0381546,
+  "lon": 90.1595515,
+  "tags": {
+    "name": "ঢালজোড়া",
+    "name:bn": "ঢালজোড়া",
+    "name:en": "Dhaljora",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3977928798,
+  "lat": 24.0812599,
+  "lon": 90.3107752,
+  "tags": {
+    "name": "Madhyapara",
+    "name:bn": "মধ্যপাড়া",
+    "name:en": "Madhyapara",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3977928803,
+  "lat": 24.0273773,
+  "lon": 90.2958494,
+  "tags": {
+    "name": "মৌচাক",
+    "name:bn": "মৌচাক",
+    "name:en": "Mouchak",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3977928811,
+  "lat": 24.0672894,
+  "lon": 90.2183155,
+  "tags": {
+    "name": "শ্রীফলতলী",
+    "name:bn": "শ্রীফলতলী",
+    "name:en": "Srifoltoli",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3977965249,
+  "lat": 23.8759275,
+  "lon": 90.0988523,
+  "tags": {
+    "name": "Atigram",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3977965251,
+  "lat": 23.9999090,
+  "lon": 90.1534396,
+  "tags": {
+    "name": "Baisakanda",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3977965252,
+  "lat": 23.7926931,
+  "lon": 90.1123632,
+  "tags": {
+    "name": "Baldhara",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3977978761,
+  "lat": 23.7620065,
+  "lon": 90.1320597,
+  "tags": {
+    "name": "Charigram",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3977978772,
+  "lat": 23.9879493,
+  "lon": 90.3171133,
+  "tags": {
+    "name": "কাশিমপুর",
+    "name:bn": "কাশিমপুর",
+    "name:en": "Kashimpur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3977978776,
+  "lat": 23.9702646,
+  "lon": 90.1252229,
+  "tags": {
+    "name": "কুশুরা",
+    "name:en": "Kushura",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3991994803,
+  "lat": 23.8771402,
+  "lon": 90.2138357,
+  "tags": {
+    "name": "কুল্লা",
+    "name:bn": "কুল্লা",
+    "name:en": "Kulla",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3991994810,
+  "lat": 23.8833918,
+  "lon": 90.1759077,
+  "tags": {
+    "name": "Nannar",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 3991994815,
+  "lat": 23.8454314,
+  "lon": 90.1794889,
+  "tags": {
+    "name": "Rowail",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4254543517,
+  "lat": 23.9365557,
+  "lon": 90.2339028,
+  "tags": {
+    "name": "নলাম",
+    "name:bn": "নলাম",
+    "name:en": "Nalām",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4556198675,
+  "lat": 23.8020146,
+  "lon": 90.3555966,
+  "tags": {
+    "name": "ব্লক ডি",
+    "name:bn": "ব্লক ডি",
+    "name:en": "Block D",
+    "place": "city_block"
+  }
+},
+{
+  "type": "node",
+  "id": 6905005797,
+  "lat": 23.8605315,
+  "lon": 90.4569710,
+  "tags": {
+    "name": "বেপারী বাড়ী",
+    "name:en": "Bepari Bari",
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 6920825200,
+  "lat": 23.8287403,
+  "lon": 90.4750876,
+  "tags": {
+    "alt_name:bn": "বেপারি পাড়া",
+    "name": "বেপারী পাড়া",
+    "name:en": "Bepari Para",
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 7559147600,
+  "lat": 23.6868965,
+  "lon": 90.2491664,
+  "tags": {
+    "name": "কৈলাইল",
+    "name:en": "Kailail",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7559147601,
+  "lat": 23.7436160,
+  "lon": 90.2461221,
+  "tags": {
+    "name": "হযরতপুর",
+    "name:bn": "হযরতপুর",
+    "name:en": "Hazratpur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7559147603,
+  "lat": 23.8173854,
+  "lon": 90.3110503,
+  "tags": {
+    "name": "বনগ্রাম",
+    "name:bn": "বনগ্রাম",
+    "name:en": "Banagram",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7559147605,
+  "lat": 23.9309557,
+  "lon": 90.1764678,
+  "tags": {
+    "name": "সোমভাগ",
+    "name:en": "Sombhag",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7559147606,
+  "lat": 23.9447626,
+  "lon": 90.1452254,
+  "tags": {
+    "name": "সানোড়া",
+    "name:en": "Sanora",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7559147607,
+  "lat": 23.9554696,
+  "lon": 90.2013159,
+  "tags": {
+    "name": "ভাড়ারিয়া",
+    "name:en": "Bhararia",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7562554650,
+  "lat": 23.7261120,
+  "lon": 90.2367209,
+  "tags": {
+    "name": "চান্দহর",
+    "name:en": "Chandhar",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7562554651,
+  "lat": 23.7695770,
+  "lon": 90.2827261,
+  "tags": {
+    "name": "ভাকুর্তা",
+    "name:bn": "ভাকুর্তা",
+    "name:en": "Bhakurta",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 7562554652,
+  "lat": 23.7738775,
+  "lon": 90.1922606,
+  "tags": {
+    "name": "জামির্তা",
+    "name:en": "Jamirta",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 9037174040,
+  "lat": 23.7982893,
+  "lon": 90.3357831,
+  "tags": {
+    "name": "কাউন্দিয়া",
+    "name:bn": "কাউন্দিয়া",
+    "name:en": "Kaundia",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 9037214387,
+  "lat": 23.7837527,
+  "lon": 90.3293907,
+  "tags": {
+    "name": "বরদেশী",
+    "name:bn": "বরদেশী",
+    "name:en": "Bordeshi",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 9040859796,
+  "lat": 23.8534224,
+  "lon": 90.5014224,
+  "tags": {
+    "name": "পূর্বাচল",
+    "name:bn": "পূর্বাচল",
+    "name:en": "Purbachal",
+    "name:hi": "पूर्वाचल",
+    "place": "town",
+    "wikidata": "Q7260863",
+    "wikipedia": "bn:পূর্বাচল নতুন শহর প্রকল্প",
+    "wikipedia:en": "Purbachal Residential Model Town"
+  }
+},
+{
+  "type": "node",
+  "id": 9052558606,
+  "lat": 23.8370450,
+  "lon": 90.3209531,
+  "tags": {
+    "name": "সাদুল্লাপুর",
+    "name:bn": "সাদুল্লাপুর",
+    "name:en": "Sadullapur",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 9052565707,
+  "lat": 23.8471519,
+  "lon": 90.2759737,
+  "tags": {
+    "name": "রাজাসন",
+    "name:bn": "রাজাসন",
+    "name:en": "Rajason",
+    "place": "village"
+  }
+}
+
+  ]
+}

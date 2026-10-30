@@ -1,0 +1,96 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-03T06:26:05Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 416761565,
+  "lat": -11.7279520,
+  "lon": -43.3835130,
+  "tags": {
+    "name": "Pau Seco",
+    "place": "hamlet",
+    "source": "IBGE"
+  }
+},
+{
+  "type": "node",
+  "id": 416761570,
+  "lat": -11.8979430,
+  "lon": -43.6716580,
+  "tags": {
+    "name": "Tamboril",
+    "place": "hamlet",
+    "source": "IBGE"
+  }
+},
+{
+  "type": "node",
+  "id": 416761572,
+  "lat": -11.7057850,
+  "lon": -43.3518140,
+  "tags": {
+    "name": "Barra",
+    "place": "hamlet",
+    "source": "IBGE"
+  }
+},
+{
+  "type": "node",
+  "id": 416761581,
+  "lat": -11.8169830,
+  "lon": -43.4017360,
+  "tags": {
+    "name": "Pedrinha",
+    "place": "hamlet",
+    "source": "IBGE"
+  }
+},
+{
+  "type": "node",
+  "id": 5507212740,
+  "lat": -11.7106953,
+  "lon": -43.3913612,
+  "tags": {
+    "name": "Pedra Negra da Extrema",
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 5507212741,
+  "lat": -11.7857469,
+  "lon": -43.4785652,
+  "tags": {
+    "name": "Passiva",
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 12425495387,
+  "lat": -11.7935208,
+  "lon": -43.6353521,
+  "tags": {
+    "name": "Fazenda Boa Ventura",
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 13740170155,
+  "lat": -11.6159140,
+  "lon": -43.3795590,
+  "tags": {
+    "name": "Igarité",
+    "place": "village"
+  }
+}
+
+  ]
+}

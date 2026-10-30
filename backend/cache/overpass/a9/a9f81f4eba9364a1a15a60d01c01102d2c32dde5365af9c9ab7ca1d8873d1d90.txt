@@ -1,0 +1,75 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-29T16:43:51Z",
+    "timestamp_areas_base": "2026-09-28T16:30:26Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "area",
+  "id": 3601643367,
+  "tags": {
+    "boundary": "protected_area",
+    "contact:city": "Yosemite National Park",
+    "contact:country": "US",
+    "contact:housenumber": "PO Box 577",
+    "contact:postcode": "95389",
+    "contact:state": "CA",
+    "gnis:feature_id": "255923",
+    "heritage": "1",
+    "heritage:operator": "whc",
+    "leisure": "nature_reserve",
+    "name": "Yosemite National Park",
+    "name:de": "Yosemite Nationalpark",
+    "name:tr": "Yosemite Ulusal Parkı",
+    "name:zh": "优胜美地",
+    "network": "National Parks of the United States",
+    "network:wikidata": "Q34918903",
+    "operator": "National Park Service",
+    "operator:short": "NPS",
+    "operator:type": "public",
+    "operator:wikidata": "Q308439",
+    "ownership": "national",
+    "phone": "+1-602-278-8888",
+    "protect_class": "2",
+    "protected": "perpetuity",
+    "protected_area": "national_park",
+    "protection_title": "National Park",
+    "ref:whc": "308",
+    "type": "boundary",
+    "website": "https://www.nps.gov/yose/",
+    "whc:criteria": "(vii)(viii)",
+    "whc:inscription_date": "1984",
+    "wikidata": "Q180402",
+    "wikimedia_commons": "Category:Yosemite National Park",
+    "wikipedia": "en:Yosemite National Park"
+  }
+},
+{
+  "type": "area",
+  "id": 3613824328,
+  "tags": {
+    "boundary": "protected_area",
+    "leisure": "nature_reserve",
+    "name": "Yosemite Wilderness",
+    "operator": "National Park Service",
+    "operator:short": "NPS",
+    "operator:type": "public",
+    "operator:wikidata": "Q308439",
+    "ownership": "national",
+    "protect_class": "1b",
+    "protected": "perpetuity",
+    "protected_area": "wilderness_preserve",
+    "protection_title": "Wilderness Area",
+    "start_date": "1984",
+    "type": "boundary",
+    "website": "https://www.nps.gov/yose/planyourvisit/yosemitewilderness.htm",
+    "wikidata": "Q3572639"
+  }
+}
+
+  ]
+}

@@ -1,0 +1,227 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-07T05:19:21Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 416757973,
+  "lat": -2.7155390,
+  "lon": -54.2135470,
+  "tags": {
+    "is_in:municipality": "Santarém",
+    "is_in:state": "Pará",
+    "name": "Poço Branco",
+    "place": "hamlet",
+    "source": "IBGE"
+  }
+},
+{
+  "type": "node",
+  "id": 4455960501,
+  "lat": -2.7452629,
+  "lon": -54.2278075,
+  "tags": {
+    "is_in:municipality": "Santarém",
+    "is_in:state": "Pará",
+    "name": "Bueru",
+    "place": "hamlet",
+    "population": "223"
+  }
+},
+{
+  "type": "node",
+  "id": 4455960504,
+  "lat": -2.8545341,
+  "lon": -54.2443085,
+  "tags": {
+    "is_in:municipality": "Santarém",
+    "is_in:state": "Pará",
+    "name": "Cicero Mendes",
+    "place": "village",
+    "population": "263"
+  }
+},
+{
+  "type": "node",
+  "id": 4455960505,
+  "lat": -2.8133210,
+  "lon": -54.2967360,
+  "tags": {
+    "is_in:municipality": "Santarém",
+    "is_in:state": "Pará",
+    "name": "Curuá-Una",
+    "place": "village",
+    "population": "53"
+  }
+},
+{
+  "type": "node",
+  "id": 4455960514,
+  "lat": -2.8081483,
+  "lon": -54.2566233,
+  "tags": {
+    "is_in:municipality": "Santarém",
+    "is_in:state": "Pará",
+    "name": "Moria",
+    "place": "hamlet",
+    "population": "72"
+  }
+},
+{
+  "type": "node",
+  "id": 4455960539,
+  "lat": -2.7876050,
+  "lon": -54.2038917,
+  "tags": {
+    "is_in:municipality": "Santarém",
+    "is_in:state": "Pará",
+    "name": "São Francisco do Agua Azul",
+    "place": "hamlet",
+    "population": "54"
+  }
+},
+{
+  "type": "node",
+  "id": 4456590752,
+  "lat": -2.8316117,
+  "lon": -54.3283867,
+  "tags": {
+    "is_in:municipality": "Santarém",
+    "is_in:state": "Pará",
+    "name": "Alter do Chão",
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 4456590772,
+  "lat": -2.9622200,
+  "lon": -54.2310167,
+  "tags": {
+    "is_in:municipality": "Santarém",
+    "is_in:state": "Pará",
+    "name": "Lagoa Azul",
+    "place": "hamlet",
+    "population": "57"
+  }
+},
+{
+  "type": "node",
+  "id": 4456590777,
+  "lat": -2.8397083,
+  "lon": -54.1591283,
+  "tags": {
+    "is_in:municipality": "Santarém",
+    "is_in:state": "Pará",
+    "name": "Novo Horizonte",
+    "place": "hamlet",
+    "population": "75"
+  }
+},
+{
+  "type": "node",
+  "id": 4457920793,
+  "lat": -2.8471383,
+  "lon": -53.9772417,
+  "tags": {
+    "is_in:municipality": "Prainha",
+    "is_in:state": "Pará",
+    "name": "Vila Nova",
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 5576429841,
+  "lat": -2.7813019,
+  "lon": -54.2622256,
+  "tags": {
+    "name": "Santa Helena",
+    "place": "hamlet",
+    "population": "168"
+  }
+},
+{
+  "type": "node",
+  "id": 5576429842,
+  "lat": -2.8834228,
+  "lon": -54.1968871,
+  "tags": {
+    "name": "Bela Vista",
+    "place": "hamlet",
+    "population": "52"
+  }
+},
+{
+  "type": "node",
+  "id": 5576429843,
+  "lat": -2.8682499,
+  "lon": -54.2361975,
+  "tags": {
+    "name": "Bom Futuro",
+    "place": "hamlet",
+    "population": "64"
+  }
+},
+{
+  "type": "node",
+  "id": 5576429845,
+  "lat": -2.8000682,
+  "lon": -54.3145460,
+  "tags": {
+    "name": "Sagrado Coração de Jesus",
+    "place": "hamlet",
+    "population": "33"
+  }
+},
+{
+  "type": "node",
+  "id": 5576429846,
+  "lat": -2.7810233,
+  "lon": -54.3001628,
+  "tags": {
+    "name": "Lagoa",
+    "place": "hamlet",
+    "population": "33"
+  }
+},
+{
+  "type": "node",
+  "id": 5576429847,
+  "lat": -2.7932826,
+  "lon": -54.2808938,
+  "tags": {
+    "name": "Santa Maria",
+    "place": "hamlet",
+    "population": "46"
+  }
+},
+{
+  "type": "node",
+  "id": 5576429848,
+  "lat": -2.6891176,
+  "lon": -54.2175293,
+  "tags": {
+    "name": "São José",
+    "place": "hamlet",
+    "population": "36"
+  }
+},
+{
+  "type": "node",
+  "id": 13790875706,
+  "lat": -2.9034271,
+  "lon": -54.1583717,
+  "tags": {
+    "name": "Chapadão",
+    "place": "hamlet"
+  }
+}
+
+  ]
+}

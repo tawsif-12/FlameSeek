@@ -1,0 +1,298 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-03T06:28:06Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 141032517,
+  "lat": 39.3984102,
+  "lon": -120.1878187,
+  "tags": {
+    "ele": "1794",
+    "gnis:feature_id": "1658762",
+    "name": "Hobart Mills",
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 141033582,
+  "lat": 39.3681370,
+  "lon": -120.0771245,
+  "tags": {
+    "ele": "1660",
+    "gnis:feature_id": "1658760",
+    "name": "Hirschdale",
+    "place": "hamlet",
+    "wikidata": "Q14682269"
+  }
+},
+{
+  "type": "node",
+  "id": 141038415,
+  "lat": 39.7753813,
+  "lon": -120.0396756,
+  "tags": {
+    "ele": "1534",
+    "gnis:feature_id": "1658699",
+    "name": "Hallelujah Junction",
+    "place": "hamlet",
+    "wikidata": "Q5642875"
+  }
+},
+{
+  "type": "node",
+  "id": 141040651,
+  "lat": 39.7565730,
+  "lon": -120.0832574,
+  "tags": {
+    "ele": "1506",
+    "gnis:feature_id": "275979",
+    "name": "Plumas",
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 141043987,
+  "lat": 39.5245852,
+  "lon": -120.0069049,
+  "tags": {
+    "ele": "1565",
+    "gnis:feature_id": "1733189",
+    "name": "Verdi-Sierra Pines",
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 141044686,
+  "lat": 39.3939338,
+  "lon": -120.0216942,
+  "tags": {
+    "ele": "1654",
+    "gnis:feature_id": "1658553",
+    "name": "Floriston",
+    "place": "hamlet",
+    "wikidata": "Q5461916"
+  }
+},
+{
+  "type": "node",
+  "id": 150938302,
+  "lat": 39.6360238,
+  "lon": -119.8432540,
+  "tags": {
+    "ele": "1512",
+    "gnis:feature_id": "850800",
+    "name": "Lemmon Valley",
+    "place": "village",
+    "population": "4987",
+    "population:date": "2020",
+    "source:population": "https://www.leg.state.nv.us/Division/Research/Documents/2020PopulationandRacialDataReport-NevadaCountiesCitiesCDPs.pdf",
+    "wikidata": "Q6521224",
+    "wikipedia": "en:Lemmon Valley, Nevada"
+  }
+},
+{
+  "type": "node",
+  "id": 150939930,
+  "lat": 39.5182427,
+  "lon": -119.9888110,
+  "tags": {
+    "ele": "1493",
+    "gnis:feature_id": "861844",
+    "name": "Verdi",
+    "place": "village",
+    "wikidata": "Q7921102",
+    "wikipedia": "en:Verdi, Nevada"
+  }
+},
+{
+  "type": "node",
+  "id": 150941926,
+  "lat": 39.5923506,
+  "lon": -119.7804374,
+  "tags": {
+    "ele": "1440",
+    "gnis:feature_id": "848697",
+    "name": "Sun Valley",
+    "place": "town",
+    "population": "21179",
+    "population:date": "2020",
+    "source:population": "US Census",
+    "wikidata": "Q513757",
+    "wikipedia": "en:Sun Valley, Nevada"
+  }
+},
+{
+  "type": "node",
+  "id": 150946445,
+  "lat": 39.5137988,
+  "lon": -119.9260300,
+  "tags": {
+    "ele": "1436",
+    "gnis:feature_id": "860618",
+    "name": "Mogul",
+    "place": "hamlet",
+    "population": "1290",
+    "population:date": "2010",
+    "source:population": "US Census",
+    "wikidata": "Q5694773",
+    "wikipedia": "en:Mogul, Nevada"
+  }
+},
+{
+  "type": "node",
+  "id": 150954484,
+  "lat": 39.6801905,
+  "lon": -119.9765840,
+  "tags": {
+    "ele": "1542",
+    "gnis:feature_id": "1852655",
+    "name": "Cold Springs",
+    "place": "village",
+    "population": "10153",
+    "population:date": "2020",
+    "source:population": "https://www.leg.state.nv.us/Division/Research/Documents/2020PopulationandRacialDataReport-NevadaCountiesCitiesCDPs.pdf",
+    "wikidata": "Q2283865",
+    "wikipedia": "en:Cold Springs, Washoe County, Nevada"
+  }
+},
+{
+  "type": "node",
+  "id": 150955915,
+  "lat": 39.6079382,
+  "lon": -119.8259351,
+  "tags": {
+    "ele": "1554",
+    "gnis:feature_id": "850799",
+    "name": "Golden Valley",
+    "place": "village",
+    "population": "1580",
+    "population:date": "2020",
+    "source:population": "https://www.leg.state.nv.us/Division/Research/Documents/2020PopulationandRacialDataReport-NevadaCountiesCitiesCDPs.pdf",
+    "wikidata": "Q5579930",
+    "wikipedia": "en:Golden Valley, Nevada"
+  }
+},
+{
+  "type": "node",
+  "id": 150959273,
+  "lat": 39.5261788,
+  "lon": -119.8126580,
+  "tags": {
+    "capital": "6",
+    "ele": "1373",
+    "gnis:feature_id": "861100",
+    "name": "Reno",
+    "name:en": "Reno",
+    "name:ja": "リノ",
+    "name:ru": "Рино",
+    "name:uk": "Ріно",
+    "place": "city",
+    "population": "283621",
+    "population:date": "2025",
+    "source:population": "US Census",
+    "website": "https://www.reno.gov/",
+    "wikidata": "Q49225",
+    "wikipedia": "en:Reno, Nevada"
+  }
+},
+{
+  "type": "node",
+  "id": 150972387,
+  "lat": 39.5347691,
+  "lon": -119.7552534,
+  "tags": {
+    "ele": "1345",
+    "gnis:feature_id": "856391",
+    "name": "Sparks",
+    "name:en": "Sparks",
+    "place": "city",
+    "population": "111902",
+    "population:date": "2025",
+    "source:population": "US Census",
+    "website": "http://cityofsparks.us/",
+    "wikidata": "Q211629",
+    "wikipedia": "en:Sparks, Nevada"
+  }
+},
+{
+  "type": "node",
+  "id": 4124457081,
+  "lat": 39.5369799,
+  "lon": -119.8173505,
+  "tags": {
+    "name": "Anderson Addition",
+    "place": "city_block"
+  }
+},
+{
+  "type": "node",
+  "id": 4124457082,
+  "lat": 39.5347284,
+  "lon": -119.8185868,
+  "tags": {
+    "name": "Duborg Tract",
+    "place": "city_block"
+  }
+},
+{
+  "type": "node",
+  "id": 4124457085,
+  "lat": 39.5356448,
+  "lon": -119.8189113,
+  "tags": {
+    "name": "McKenna's Addition",
+    "place": "city_block"
+  }
+},
+{
+  "type": "node",
+  "id": 4124457086,
+  "lat": 39.5379160,
+  "lon": -119.8209954,
+  "tags": {
+    "name": "Miller Addition",
+    "place": "city_block"
+  }
+},
+{
+  "type": "node",
+  "id": 4124457087,
+  "lat": 39.5374279,
+  "lon": -119.8190025,
+  "tags": {
+    "name": "University Addition",
+    "place": "city_block"
+  }
+},
+{
+  "type": "node",
+  "id": 7799711782,
+  "lat": 39.4386457,
+  "lon": -120.1421929,
+  "tags": {
+    "name": "Russell Valley",
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 14090871723,
+  "lat": 39.7566228,
+  "lon": -119.8844307,
+  "tags": {
+    "name": "Red Rock Estates",
+    "place": "hamlet"
+  }
+}
+
+  ]
+}

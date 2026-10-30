@@ -1,78 +1,24 @@
-<p align="center"><img src="frontend/public/logo.png" alt="FlameSeek logo" width="120" /></p>
-
 # FlameSeek
 
-A fire intelligence platform built on NASA MODIS and VIIRS active-fire observations, made for the NASA Space Apps Challenge.
+A global, evidence-driven fire monitoring, verification and forecasting platform built on NASA MODIS and VIIRS active-fire observations.
 
 **Past → Present → Identify → Verify → Compare → Forecast → Exposure**
+(Fire Memory → Fire Now → Fire Identity → Fire Evidence → Fire Past → Fire Future → Exposure)
 
-A satellite hotspot is an observation, not automatically a confirmed wildfire, and the absence of a hotspot is not proof that no fire exists. FlameSeek harmonizes fire observations from five satellites, reconstructs evolving fire events, checks them against regional satellites, official sources and local news, and estimates where new activity may be detected next.
-
-Every answer keeps four things apart:
+A satellite hotspot is an observation, not automatically a confirmed wildfire, and the absence of a hotspot is not proof that no fire exists. Every result is labelled as one of four things:
 
 | Layer | Meaning |
 |---|---|
-| **Observation** | What the satellites actually detected (sensor, time, footprint, fire power, confidence) |
-| **Inference** | What FlameSeek concludes (harmonized activity, anomalies, events, behaviour, evidence status) |
-| **Outlook** | A recurrence-based 8-week outlook from the calendar |
+| **Observation** | What MODIS/VIIRS actually detected (sensor, time, footprint, FRP, confidence) |
+| **Inference** | What the system concludes (harmonized activity, anomalies, events, behaviour, evidence status) |
+| **External evidence** | What independent satellites, agencies and news report, always with the original link |
+| **Forecast** | Where new satellite-observed activity may appear in the next 6–24 h, or `FORECAST WITHHELD` |
 
-## What is in this repository
+## Four-Witness Fire Intelligence
 
-| Part | State |
-|---|---|
-| `frontend/` | React app: the Burning Calendar (weekly calendar for any area of interest) and Sources & Methods. No scripted data. |
-| `backend/` | FastAPI service that harmonizes archived NASA FIRMS MODIS/VIIRS records into a consistent multi-decade series (calendar, anomalies, change points). The project is history-only: live detections, fire cases, evidence, analogues, forecasts and exposure were removed. |
+The four fire satellites (Terra and Aqua MODIS, Suomi NPP and NOAA-20 VIIRS, plus NOAA-21) are treated as witnesses with known blind spots, following the *Four-Witness Fire Intelligence* solution report.
 
-## Running it
-
-Start the backend (see below), then:
-
-```bash
-cd frontend
-npm install
-npm run dev          # http://127.0.0.1:5173, proxies /api to port 8003
-```
-
-`frontend/.env.local` accepts `VITE_API_BASE_URL`. `npm run build` type-checks and bundles.
-
-## Fire Memory: the weekly calendar
-
-Choose a place (search, draw, or polygon) and a look-back of 5 to 25 years. The backend downloads MODIS and VIIRS archives, harmonizes them and returns a daily series; the frontend (`utils/weekly.ts`, `components/WeeklyCalendar.tsx`) turns it into:
-
-- a **52-week × years heatmap** of harmonized activity or FRP; click a square for the week's detections, sensor agreement and observation quality;
-- **anomalies**: z-score of each week against the rolling mean and standard deviation of the same week in earlier years (at least 3), flagged at z ≥ 2.0;
-- a **predictive horizon** for the next 8 weeks: how often each upcoming week reached notable burning in earlier years, adjusted by the recent z-scores. This is a recurrence baseline for the whole area, not the ConvLSTM/XGBoost grid forecast, and it uses no weather covariates yet.
-
-Not yet implemented: Himawari diurnal refinement, NLP attribution of calendar weeks to local news, and per-0.1° forecast cells. The drawer says so instead of showing placeholder text.
-
-## Backend: the live pipeline
-
-The backend is independent of the current screens. It is the working implementation of the methods the screens describe.
-
-```bash
-cd backend               # Python 3.11+
-pip install -r requirements.txt
-python -m uvicorn main:app --host 127.0.0.1 --port 8003
-python -m pytest
-```
-
-Port 8003 is the one the Vite dev server proxies `/api` to (`frontend/vite.config.ts`). Interactive API docs are at `/docs`.
-
-`backend/.env`:
-
-```env
-FIRMS_MAP_KEY=your_nasa_firms_key      # required: https://firms.modaps.eosdis.nasa.gov/api/map_key/
-NEWS_API_KEY=your_newsapi_key          # optional: adds NewsAPI articles to GDELT
-```
-
-All other data sources are free and keyless. Responses are cached under `backend/cache/`; FIRMS science archives are cached permanently, so the first Fire Memory or event outlook for an area takes minutes and later runs take seconds. The FIRMS key allows 5000 transactions per 10 minutes. The backend reads the key's live usage: interactive requests fail fast with a clear message when the budget is nearly spent, and long jobs wait for the window to roll over. When FIRMS is slow or unreachable, the backend serves its cached data and marks it as a fallback.
-
-
-### Four-Witness Fire Intelligence
-
-The fire satellites (Terra and Aqua MODIS, Suomi NPP, NOAA-20 and NOAA-21 VIIRS) are treated as witnesses with known blind spots.
-
-**Harmonization (`witness.py`)** runs eight stages:
+**Harmonization (`witness.py`)** runs the report's eight stages:
 
 1. Detections from FIRMS, with observation opportunities from sensor availability and ERA5 cloud cover.
 2. Vegetation fires only (FIRMS `type` 0), confidence filter, local solar time, pixel area, 0.1° cell.
@@ -85,25 +31,102 @@ The fire satellites (Terra and Aqua MODIS, Suomi NPP, NOAA-20 and NOAA-21 VIIRS)
 
 Fire Memory reports the **continuity test** (raw vs consistent ratio across the 2012 and 2018 sensor starts) and the **hide-one-witness test** (remove NOAA-20, then check how well the fused probability predicts its detections: AUC and Brier vs the historical rate alone).
 
-### Where each capability lives
+**Fire Cases (`fire_case.py`, `overpass.py`)** open a case for every event and gather evidence from three streams into one time-ordered evidence block:
 
-| Capability | Implementation |
+- **Stream A:** later polar passes. They are predicted with skyfield from current TLEs and classified as seen stronger/weaker, spread, clear miss, cloud/smoke or not covered.
+- **Stream B:** GOES start/duration/end; Himawari and Meteosat as review links.
+- **Stream C:** NLP-matched news and official reports.
+- **Background facts:** land use, nearby heat sources, the local burning season and repeat heat on the same spot over the previous five years.
+
+Each item votes for categories weighted by its reliability. The answer has three parts: **Is it real? What kind? What is it doing now?** A type is named only when the top category scores above 50% and leads the next by 20 points. Cases stay provisional until every satellite has passed or 24 h have elapsed. The open panel re-gathers evidence every 10 minutes. On the globe, a case marker is hollow until evidence is gathered; its fill colour shows the fire type, its outline weight the confirmation level, and it fades once the fire has ended.
+
+### Demo scenarios
+
+`backend/demo_data.py` scripts three complete Fire Cases in Bangladesh for walkthroughs and videos: a garment factory fire at Ashulia (Dhaka), paddy-straw burning at Shibganj (Bogura) and a forest fire in the Sundarbans' Chandpai range. Each has a fire-power curve and a cloud curve, sampled at realistic overpass times to produce the detections. The matching pass schedule, Himawari timeline, official report, news items, place, land use and burning-season history feed the case without any external calls, so the answer appears in stages over about 7 seconds. On Fire Now, choose the **Bangladesh** location: the three cases verify themselves and their markers fill in.
+
+`backend/demo_outlook.py` scripts the **Past, Future and Exposure** tabs for the same three fires: five historical analogues each, a 6/12/24 h probability corridor stretched downwind with model-validation tables, and population, roads and facilities inside the corridor. "Run analysis" finishes in about 6 seconds.
+
+All of this is synthetic. Outlets, reports and figures are invented (marked "(demo)"), have no links, and results carry `demo_scenario`. Edit `SCENARIOS` to change a story, or empty the list to run on live data only.
+
+## Demo UI (current frontend)
+
+The frontend currently ships as a **self-contained demo**: 16 screens under `frontend/src/demo/` that follow the seven-stage story for one scripted fire event (`FS-BD-2026-0412`, East Sundarbans). Every number, chart, map and news item is illustrative and hard-coded in `demo/data.ts` and the page files. The demo makes **no API calls**, so only `npm run dev` is needed; the backend does not have to run. The header carries a "Demo · illustrative data" badge.
+
+| Nav | Screens (route) |
 |---|---|
-| MODIS/VIIRS integration, sensor harmonization | `firms_client.py` (science archives), `witness.py` (detection profile, time of day, two tiers, effort, fused probability), `harmonize.py` (daily series and anomalies on the consistent record) |
-| Footprint-aware mapping | `geo.py`: FIRMS scan × track footprints, fractional attribution to the ~1 km grid, location uncertainty |
-| Observation quality | `quality.py`: six observation classes, Observation Sufficiency Score, `UNKNOWN` / `AMBIGUOUS` / `INSUFFICIENT OBSERVATION`, provenance |
-| Area of interest | `geo.AOI`, `geocode.py`: country, state, district, forest or protected-area search (OSM Nominatim), rectangle, polygon, radius |
-| Calendar, seasonal profile, current vs historical | `routers/memory.py`, `seasonal.py` |
-| Anomalies | Robust median/MAD z: Normal, Above Normal, Unusual, Highly Unusual |
-| Change points | `changepoint.py`: PELT, reported as *statistically detected changes* |
-| Reverse geocoding | `geocode.py`: country to village, nearest settlement, forests and protected areas, nearby non-fire heat sources |
+| Overview | Seven-stage story (`/`) |
+| 01 Fire Memory | Burning calendar (`/fire-memory`), current vs. historical: anomaly and change point (`/fire-memory/anomaly`) |
+| 02 Fire Now | 3D globe (`/fire-now`), area of interest (`/fire-now/area`), observation quality (`/fire-now/quality`) |
+| 03 Fire Identity | Event reconstruction (`/fire-identity`) |
+| 04 Fire Evidence | Independent sources (`/fire-evidence`), local news & NLP (`/fire-evidence/news`), fusion & validation (`/fire-evidence/fusion`), full fire case (`/fire-evidence/case`) |
+| 05 Fire Past | Historical analogues (`/fire-past`) |
+| 06 Fire Future | Forecast corridor (`/fire-future`) |
+| 07 Exposure | Exposure analysis (`/exposure`) |
+| Data & Methods | Full workflow (`/methods`), sensor harmonization (`/methods/harmonization`) |
 
-### API
+The globe uses Cesium with its bundled Natural Earth imagery (no token); the Bangladesh and Sundarbans maps are hand-drawn schematics. The live pages (`src/pages`, `src/components`, `src/api`) and the backend described below are still in the repository but are not routed; to bring them back, restore the routes in `src/main.tsx`.
 
-`GET /api/places/search` · `GET /api/places/reverse` · `POST /api/fire_memory` (job) · `GET /api/jobs/{id}` · `POST /api/generate_calendar` · `POST /api/critical_periods` · `GET /data-sources`.
+## Running it
 
-### Honest limits of the pipeline
+```bash
+# backend (Python 3.11+)
+cd backend
+pip install -r requirements.txt
+python -m uvicorn main:app --host 127.0.0.1 --port 8000
+python -m pytest
 
+# frontend
+cd frontend
+npm install
+npm run dev          # http://127.0.0.1:5173
+```
+
+`backend/.env`:
+
+```env
+FIRMS_MAP_KEY=your_nasa_firms_key      # required: https://firms.modaps.eosdis.nasa.gov/api/map_key/
+NEWS_API_KEY=your_newsapi_key          # optional: adds NewsAPI articles to GDELT
+```
+
+`frontend/.env.local` (optional): `VITE_API_BASE_URL`, `VITE_CESIUM_ION_TOKEN` (terrain and imagery), `VITE_GOOGLE_MAPS_API_KEY` (photorealistic tiles).
+
+All other data sources are free and keyless. Responses are cached under `backend/cache/`; FIRMS science archives are cached permanently, so the first Fire Memory or event outlook for an area takes minutes and later runs take seconds. The FIRMS key allows 5000 transactions per 10 minutes. The backend reads the key's live usage: interactive requests fail fast with a clear message when the budget is nearly spent, and long jobs wait for the window to roll over.
+
+## Where each capability lives
+
+| Spec section | Implementation |
+|---|---|
+| 1–2 MODIS/VIIRS integration, sensor harmonization | `firms_client.py` (NRT and science archives, GOES, Landsat), `witness.py` (Four-Witness pipeline: detection profile, time of day, two tiers, effort, fused probability), `harmonize.py` (daily series and anomalies on the consistent record) |
+| Fire Cases | `fire_case.py` (streams A/B/C, category votes, decision rules, three-part answer), `overpass.py` (skyfield + CelesTrak TLEs) |
+| 3 Footprint-aware mapping | `geo.py`: FIRMS scan × track footprints, fractional attribution to the ~1 km grid, location uncertainty. The globe draws the footprints of the selected event |
+| 4 Observation quality | `quality.py`: six observation classes, Observation Sufficiency Score, `UNKNOWN` / `AMBIGUOUS` / `INSUFFICIENT OBSERVATION`, provenance |
+| 5 3D globe (Fire Now) | `CesiumFireGlobe.tsx`: far-side occlusion; last 24 h / 48 h / 5 days or any historical date; event, corridor and exposure layers |
+| 6 Area of interest | Country, state, district, forest or protected-area search (OSM Nominatim), rectangle, custom polygon, radius (`AOISelector.tsx`, globe AOI tools, `geo.AOI`) |
+| 7–9 Calendar, seasonal profile, current vs historical | `routers/memory.py`, `seasonal.py`, Fire Memory page |
+| 10 Anomalies | Robust median/MAD z: Normal, Above Normal, Unusual, Highly Unusual |
+| 11 Change points | `changepoint.py`: PELT, reported as *statistically detected changes* |
+| 12–13 Fire events and behaviour | `events.py`: spatio-temporal linking, event attributes, association confidence, *Inferred Fire Behaviour States* |
+| 14 Reverse geocoding | `geocode.py`: country to village, nearest settlement, forests and protected areas, nearby non-fire heat sources |
+| 15 Regional satellites | `corroboration.py`: other MODIS/VIIRS platforms, GOES (Americas), Landsat (US/CA), Sentinel-2 scenes, EFFIS (Europe/MENA), CWFIS M3 (Canada); Himawari and Meteosat as review links |
+| 16 Government sources | GDACS (global), NIFC WFIGS (US, including prescribed burns), NSW RFS; per-country agency directory (`source_directory.py`) |
+| 17–20 News, NLP, geographic and temporal matching | `evidence.py`, `nlp.py`: GDELT (plus optional NewsAPI), event-type classification, cause, impact, area, infrastructure; geocoded distance and time-to-detection scoring |
+| 21–25 Fusion, status, score, explanation, news panel | `evidence.fuse`: component breakdown, status labels, generated explanation; original source vs system summary vs system interpretation in the UI |
+| 26–27 Historical analogues | `history.py`, `analogues.py`: same-age truncation, KNN with shrinkage-regularized Mahalanobis distance, outcomes |
+| 28–31 Forecast | `forecast.py`: persistence, seasonal and wind-only baselines vs LightGBM on temporal and spatial holdouts (Brier, BSS, POD, FAR, CSI, footprint IoU, calibration); probability corridor or `FORECAST WITHHELD` |
+| 32 Exposure | `exposure.py`: WorldPop population and OSM settlements, roads, farmland, forests, protected areas, schools, hospitals, power, critical facilities |
+| 33 Event side panel | `EventPanel.tsx`: Satellite, Event, Quality, Evidence, Past, Future and Exposure tabs; `/fire-map?event=EV-…` deep links |
+
+## Honest limits
+
+- **Evidence score** weights are expert-set, so the score is evidence strength, not a probability. "Confirmed Fire" is used only when an official incident report lies within 15 km and matches in time, and no controlled burn is reported.
 - **Cloud cover** comes from ERA5 reanalysis and is a proxy for the satellites' own cloud masks.
+- **NLP** is transparent rule-based extraction, not a trained language model. News summaries are generated from extracted facts and are labelled as system-generated.
+- **Himawari, Meteosat and most national agencies** have no public machine-readable fire feed, so they are linked for manual review and never counted as checked.
+- **Forecasts** predict *satellite-observed activity*, not fire spread. They do not use land cover or fuel moisture. Training uses reanalysis winds for the forecast window (perfect-prognosis), so live skill may be lower than the holdout scores. When the chosen model's skill against climatology is negative, the UI says so.
 - **Observation effort** uses orbit geometry and ERA5 cloud, not the MOD14A1/MYD14A1/VNP14A1/VJ114A1 daily masks (these need an Earthdata login). Detection profiles are regional and learned per area; land cover is not a profile input because FIRMS carries none.
+- **Fire Case category percentages** are evidence scores, not calibrated probabilities, until they are tested on labelled cases. A clear miss after a short burn is weak evidence, and a missing news report is weaker still.
 - **Fire Memory** accepts areas up to 20° across. Histories longer than about 10 years make thousands of FIRMS requests the first time.
+
+## API
+
+`GET /api/current_hotspots` · `GET /api/events` · `GET /api/events/{id}` · `GET /api/events/{id}/case` · `POST /api/events/{id}/evidence` (job, includes the Fire Case) · `POST /api/events/{id}/outlook` (job: analogues, forecast, exposure) · `POST /api/fire_memory` (job) · `GET /api/jobs/{id}` · `GET /api/places/search` · `GET /api/places/reverse` · `POST /api/generate_calendar` · `POST /api/critical_periods` · `GET /api/verified_hotspots` · `GET /data-sources`. Interactive docs are at `/docs`.

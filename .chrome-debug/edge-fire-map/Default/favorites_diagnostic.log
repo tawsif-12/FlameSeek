@@ -1,0 +1,17 @@
+2026-09-25 19:43:24.349: [INFO] CurrentProfilePath: C:\Users\User\Downloads\nasa space\.chrome-debug\edge-fire-map\Default
+2026-09-25 19:43:24.349: [INFO] Profiles total count: 1
+2026-09-25 19:43:24.349: [INFO] Profile: name=Profile 1 path=C:\Users\User\Downloads\nasa space\.chrome-debug\edge-fire-map\Default lastActive=2026-09-25T19:43:24.286Z
+2026-09-25 19:43:24.349: [INFO] LastUsedProfileDir: C:\Users\User\Downloads\nasa space\.chrome-debug\edge-fire-map\Default
+2026-09-25 19:43:24.349: [INFO] MostRecentlyActiveProfile: name=Profile 1 path=C:\Users\User\Downloads\nasa space\.chrome-debug\edge-fire-map\Default lastActive=2026-09-25T19:43:24.286Z
+2026-09-25 19:43:24.349: [INFO] OnDoneLoading sync enabled: 0
+2026-09-25 19:43:24.349: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-25 19:43:24.349: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-25 19:43:24.349: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-25 19:43:24.353: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-25 19:43:24.726: [INFO] VisibilityChanged: 0
+2026-09-25 19:43:27.065: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-25 19:43:27.078: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-25 19:43:27.093: [INFO] Primary account changed.
+2026-09-25 19:43:27.093: [INFO] OnPrimaryAccountChanged PrimaryAccountChangeEvent::Type::kSet
+2026-09-25 19:43:27.121: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-25 19:43:27.222: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3

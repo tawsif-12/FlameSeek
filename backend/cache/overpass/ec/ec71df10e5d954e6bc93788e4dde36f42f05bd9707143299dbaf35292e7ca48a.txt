@@ -1,0 +1,161 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-29T16:59:11Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "way",
+  "id": 945527003,
+  "bounds": {
+    "minlat": 37.6795600,
+    "minlon": -119.5823461,
+    "maxlat": 37.6803051,
+    "maxlon": -119.5815307
+  },
+  "tags": {
+    "natural": "wood"
+  }
+},
+{
+  "type": "way",
+  "id": 1219653307,
+  "bounds": {
+    "minlat": 37.6734694,
+    "minlon": -119.5884079,
+    "maxlat": 37.6758343,
+    "maxlon": -119.5865089
+  },
+  "tags": {
+    "natural": "wood"
+  }
+},
+{
+  "type": "way",
+  "id": 1219653314,
+  "bounds": {
+    "minlat": 37.6802754,
+    "minlon": -119.5920718,
+    "maxlat": 37.6809292,
+    "maxlon": -119.5906770
+  },
+  "tags": {
+    "natural": "wood"
+  }
+},
+{
+  "type": "way",
+  "id": 1275481769,
+  "bounds": {
+    "minlat": 37.6787002,
+    "minlon": -119.5464528,
+    "maxlat": 37.6805343,
+    "maxlon": -119.5451760
+  },
+  "tags": {
+    "natural": "wood"
+  }
+},
+{
+  "type": "way",
+  "id": 1293560447,
+  "bounds": {
+    "minlat": 37.6658262,
+    "minlon": -119.5596063,
+    "maxlat": 37.6778086,
+    "maxlon": -119.5468068
+  },
+  "tags": {
+    "natural": "wood"
+  }
+},
+{
+  "type": "way",
+  "id": 1295549993,
+  "bounds": {
+    "minlat": 37.6793795,
+    "minlon": -119.6298373,
+    "maxlat": 37.6798381,
+    "maxlon": -119.6293438
+  },
+  "tags": {
+    "natural": "wood"
+  }
+},
+{
+  "type": "relation",
+  "id": 9678245,
+  "bounds": {
+    "minlat": 37.6639493,
+    "minlon": -119.7123903,
+    "maxlat": 37.7386716,
+    "maxlon": -119.5730925
+  },
+  "tags": {
+    "leaf_type": "needleleaved",
+    "natural": "wood",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 16495709,
+  "bounds": {
+    "minlat": 37.6672802,
+    "minlon": -119.5903294,
+    "maxlat": 37.7208138,
+    "maxlon": -119.5691307
+  },
+  "tags": {
+    "natural": "wood",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 16528997,
+  "bounds": {
+    "minlat": 37.6600254,
+    "minlon": -119.5499611,
+    "maxlat": 37.6929643,
+    "maxlon": -119.4855881
+  },
+  "tags": {
+    "natural": "wood",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 16809123,
+  "bounds": {
+    "minlat": 37.4966207,
+    "minlon": -119.6889661,
+    "maxlat": 37.5514556,
+    "maxlon": -119.6182058
+  },
+  "tags": {
+    "natural": "wood",
+    "type": "multipolygon"
+  }
+},
+{
+  "type": "relation",
+  "id": 17500296,
+  "bounds": {
+    "minlat": 37.6748790,
+    "minlon": -119.5717085,
+    "maxlat": 37.6889486,
+    "maxlon": -119.5480299
+  },
+  "tags": {
+    "natural": "wood",
+    "type": "multipolygon"
+  }
+}
+
+  ]
+}

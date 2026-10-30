@@ -1,0 +1,26 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-29T17:01:13Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "way",
+  "id": 1354305373,
+  "bounds": {
+    "minlat": 37.5426742,
+    "minlon": -119.6532794,
+    "maxlat": 37.5453213,
+    "maxlon": -119.6513210
+  },
+  "tags": {
+    "man_made": "wastewater_plant",
+    "name": "Wawona Wastewater Treatment Facility"
+  }
+}
+
+  ]
+}

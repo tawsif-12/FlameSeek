@@ -1,0 +1,495 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-29T19:21:02Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 435668339,
+  "lat": -5.3856439,
+  "lon": 26.9992427,
+  "tags": {
+    "is_in": "Congo-Kinshasa",
+    "is_in:country": "Congo-Kinshasa",
+    "name": "Kongolo",
+    "name:ru": "Конголо",
+    "place": "city",
+    "wikidata": "Q3088094",
+    "wikipedia": "en:Kongolo"
+  }
+},
+{
+  "type": "node",
+  "id": 616369924,
+  "lat": -5.7403556,
+  "lon": 26.9421936,
+  "tags": {
+    "name": "Zanza",
+    "place": "town"
+  }
+},
+{
+  "type": "node",
+  "id": 4476999886,
+  "lat": -5.5197747,
+  "lon": 26.9848048,
+  "tags": {
+    "name": "Mbila",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477000389,
+  "lat": -5.5560797,
+  "lon": 26.7429654,
+  "tags": {
+    "name": "Biwaya",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477000390,
+  "lat": -5.5142266,
+  "lon": 26.9299532,
+  "tags": {
+    "name": "Boki",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477000398,
+  "lat": -5.4166670,
+  "lon": 26.9833331,
+  "tags": {
+    "name": "Buki",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477000438,
+  "lat": -5.6718391,
+  "lon": 26.8974816,
+  "tags": {
+    "name": "Ilunga",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477000486,
+  "lat": -5.7706954,
+  "lon": 26.9637353,
+  "tags": {
+    "name": "Kafina",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477001131,
+  "lat": -5.5666671,
+  "lon": 26.9666669,
+  "tags": {
+    "name": "Kalenga Ya Mai",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477001170,
+  "lat": -5.3866367,
+  "lon": 27.0659637,
+  "tags": {
+    "name": "Kankisi",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477001185,
+  "lat": -5.5496537,
+  "lon": 26.8011228,
+  "tags": {
+    "name": "Kaseya",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477001491,
+  "lat": -5.4426422,
+  "lon": 26.9085792,
+  "tags": {
+    "name": "Kasinge",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477001576,
+  "lat": -5.6333330,
+  "lon": 27.1500001,
+  "tags": {
+    "name": "Kihole",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477001580,
+  "lat": -5.5609498,
+  "lon": 26.8560453,
+  "tags": {
+    "name": "Kikamba",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477002290,
+  "lat": -5.7549794,
+  "lon": 26.8829473,
+  "tags": {
+    "name": "Kilanti",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477002353,
+  "lat": -5.7163268,
+  "lon": 26.9159900,
+  "tags": {
+    "name": "Kitule Congo",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477002907,
+  "lat": -5.4999999,
+  "lon": 26.8666672,
+  "tags": {
+    "name": "Lubanda",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477002932,
+  "lat": -5.7380363,
+  "lon": 26.8335092,
+  "tags": {
+    "name": "Lukala",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477002954,
+  "lat": -5.3896944,
+  "lon": 27.0489974,
+  "tags": {
+    "name": "Luvilo",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477002962,
+  "lat": -5.4110272,
+  "lon": 26.9555755,
+  "tags": {
+    "name": "Makaba",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477003324,
+  "lat": -5.6061981,
+  "lon": 26.9764356,
+  "tags": {
+    "name": "Mukebwe",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477003331,
+  "lat": -5.5423577,
+  "lon": 26.9830251,
+  "tags": {
+    "name": "Mukumbi",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477003695,
+  "lat": -5.6558451,
+  "lon": 26.9308996,
+  "tags": {
+    "name": "Ngolo",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477003728,
+  "lat": -5.6291479,
+  "lon": 27.0216358,
+  "tags": {
+    "name": "Salala",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4477003761,
+  "lat": -5.4313210,
+  "lon": 26.9893642,
+  "tags": {
+    "name": "Tobola",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4486655977,
+  "lat": -5.3910650,
+  "lon": 27.0420762,
+  "tags": {
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4486655978,
+  "lat": -5.3941488,
+  "lon": 27.0311076,
+  "tags": {
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4486655979,
+  "lat": -5.3924058,
+  "lon": 27.0353125,
+  "tags": {
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4486655980,
+  "lat": -5.3845546,
+  "lon": 27.0314518,
+  "tags": {
+    "name": "Lumanisha",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4486655981,
+  "lat": -5.3739625,
+  "lon": 27.0315375,
+  "tags": {
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 4486655982,
+  "lat": -5.3607526,
+  "lon": 27.0291039,
+  "tags": {
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 4486657290,
+  "lat": -5.3851624,
+  "lon": 27.0737925,
+  "tags": {
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 4486657291,
+  "lat": -5.3823890,
+  "lon": 27.0911378,
+  "tags": {
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4587206266,
+  "lat": -5.7621012,
+  "lon": 26.9569931,
+  "tags": {
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4587210095,
+  "lat": -5.7953543,
+  "lon": 26.9799911,
+  "tags": {
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 4589880167,
+  "lat": -5.4211995,
+  "lon": 26.9948989,
+  "tags": {
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 4589880180,
+  "lat": -5.4212562,
+  "lon": 26.9388542,
+  "tags": {
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 4589942470,
+  "lat": -5.4393052,
+  "lon": 26.9338116,
+  "tags": {
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4589942476,
+  "lat": -5.4426905,
+  "lon": 26.9358984,
+  "tags": {
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 4589943303,
+  "lat": -5.4342157,
+  "lon": 26.9309206,
+  "tags": {
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 4589943313,
+  "lat": -5.4311844,
+  "lon": 26.9289580,
+  "tags": {
+    "name": "Luhembwe",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4589943330,
+  "lat": -5.4580754,
+  "lon": 26.8925817,
+  "tags": {
+    "name": "Kito",
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4589943341,
+  "lat": -5.4740922,
+  "lon": 26.8734604,
+  "tags": {
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4589943349,
+  "lat": -5.4795768,
+  "lon": 26.8631981,
+  "tags": {
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4589943355,
+  "lat": -5.4843467,
+  "lon": 26.8562809,
+  "tags": {
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 4589943356,
+  "lat": -5.4874209,
+  "lon": 26.8534793,
+  "tags": {
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 4589943384,
+  "lat": -5.4942589,
+  "lon": 26.8556062,
+  "tags": {
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 4589943392,
+  "lat": -5.5115338,
+  "lon": 26.8282004,
+  "tags": {
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4589966757,
+  "lat": -5.4829727,
+  "lon": 26.8797928,
+  "tags": {
+    "place": "village"
+  }
+},
+{
+  "type": "node",
+  "id": 4589966783,
+  "lat": -5.4647757,
+  "lon": 26.8757219,
+  "tags": {
+    "place": "village"
+  }
+}
+
+  ]
+}

@@ -6,8 +6,11 @@ import numpy as np
 
 from changepoint import detect_monthly_change_points, pelt_mean_shift
 from events import reconstruct_events
+from evidence import fuse, subject_from_hotspot
+from forecast import BinnedCalibrator, _select_model
 from geo import AOI, footprint_cell_fractions, location_uncertainty_km
 from harmonize import anomaly_category, build_harmonized_series, robust_scale
+from nlp import classify_event, extract
 from quality import classify_observation
 
 
@@ -140,3 +143,93 @@ def test_monthly_change_point_on_step_series():
 
 
 # --- NLP -----------------------------------------------------------------------------------------
+
+
+def test_nlp_rejects_non_combustion_fire_idioms():
+    assert classify_event("Ceasefire talks resume as troops open fire near border")["event_type"] == "NOT_A_FIRE_EVENT"
+    assert classify_event("Coach fired after losing streak")["is_fire_related"] is False
+
+
+def test_nlp_classifies_fire_types():
+    assert classify_event("Forest fire spreads near Chittagong hills")["event_type"] == "FOREST_FIRE"
+    assert classify_event("Farmers continue stubble burning in Punjab")["event_type"] == "AGRICULTURAL_BURN"
+    assert classify_event("Prescribed burn planned in national forest")["event_type"] == "CONTROLLED_BURN"
+    assert classify_event("Gas flaring lights up the Niger Delta")["event_type"] == "GAS_FLARE"
+
+
+def test_nlp_extracts_facts():
+    facts = extract("Wildfire near Kalamata burns 1,200 hectares; 300 residents evacuated after lightning strike on September 1", T0, ["Kalamata"])
+    assert facts["locations"]["gazetteer_matches"] == ["Kalamata"]
+    assert "lightning" in facts["causes"]
+    assert facts["affected_area"] and "1,200 hectares" in facts["affected_area"][0]
+    assert "2026-09-01" in facts["dates_mentioned"]
+    assert facts["impact"]["evacuated"] == 300
+
+
+# --- Evidence fusion ----------------------------------------------------------------------------
+
+
+def _fuse(regional=None, official=None, articles=None, heat=None, sufficiency=None):
+    subject = subject_from_hotspot(_det(10.0, 20.0, 0, frp=40))
+    if sufficiency is not None:
+        subject["observation_quality"] = {"observation_sufficiency_score": sufficiency, "recent_cloud_cover_pct": 90}
+    regional = regional or {"checks": [], "corroborating_sources": [], "geostationary_or_highres_match": False, "other_platform_match": False}
+    official = official or {"checks": [], "matches": [], "has_official_match": False, "controlled_burn_reported": False}
+    news = {"articles": articles or []}
+    place = {"land_context": {"nearby_heat_sources": heat or []}}
+    return fuse(subject, place, regional, official, news)
+
+
+def test_strong_satellite_alone_is_not_confirmed():
+    result = _fuse()
+    assert result["final_status"] == "No External Corroboration Yet"
+    assert "not a probability" in result["score_note"]
+
+
+def test_official_report_nearby_allows_confirmed_label():
+    official = {"checks": [], "matches": [{"title": "Oak Fire", "distance_km": 3, "incident_type": "WILDFIRE"}], "has_official_match": True, "controlled_burn_reported": False}
+    regional = {"checks": [], "corroborating_sources": ["GOES"], "geostationary_or_highres_match": True, "other_platform_match": False}
+    assert _fuse(regional=regional, official=official)["final_status"] == "Confirmed Fire"
+
+
+def test_low_observation_sufficiency_is_reported_as_uncertainty():
+    result = _fuse(sufficiency=20)
+    assert result["observation_sufficiency"] == 20
+    assert any("Observation sufficiency is only 20/100" in u for u in result["uncertainty"])
+
+
+def test_unavailable_checks_are_not_reported_as_no_match():
+    regional = {"checks": [{"name": "GOES", "status": "unavailable"}], "corroborating_sources": [], "geostationary_or_highres_match": False, "other_platform_match": False}
+    uncertainty = _fuse(regional=regional)["uncertainty"]
+    assert any("Could not be checked" in u for u in uncertainty)
+    assert not any("No independent satellite detection matched" in u for u in uncertainty)
+
+
+def test_known_gas_flare_nearby_marks_non_fire_source():
+    heat = [{"type": "gas_flare", "name": "Flare stack", "distance_km": 0.4}]
+    assert _fuse(heat=heat)["final_status"] == "Likely Non-Fire Thermal Source"
+
+
+# --- Forecast model selection --------------------------------------------------------------------
+
+
+def _m(brier, csi):
+    return {"brier": brier, "critical_success_index": csi}
+
+
+def test_ml_used_only_when_it_beats_baselines():
+    temporal = {"status": "ok", "models": {"persistence": _m(0.10, 0.3), "seasonal": _m(0.12, 0.2), "wind_only": _m(0.11, 0.25), "lightgbm": _m(0.08, 0.35)}}
+    spatial = {"status": "ok", "models": {"persistence": _m(0.10, 0.3), "seasonal": _m(0.12, 0.2), "wind_only": _m(0.11, 0.25), "lightgbm": _m(0.09, 0.32)}}
+    assert _select_model(temporal, spatial)[0] == "lightgbm"
+    spatial["models"]["lightgbm"] = _m(0.2, 0.1)
+    chosen, why = _select_model(temporal, spatial)
+    assert chosen == "persistence"
+    assert "did not beat" in why
+
+
+def test_binned_calibrator_maps_scores_to_frequencies():
+    score = np.linspace(0, 1, 1000)
+    y = (score > 0.5).astype(int)
+    cal = BinnedCalibrator().fit(score, y, np.ones_like(score))
+    assert cal.predict(np.array([0.05]))[0] < 0.1
+    assert cal.predict(np.array([0.95]))[0] > 0.9

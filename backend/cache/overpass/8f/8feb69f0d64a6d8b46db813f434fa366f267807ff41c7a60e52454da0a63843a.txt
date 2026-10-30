@@ -1,0 +1,280 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-29T17:24:39Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 1308600120,
+  "lat": -1.7233861,
+  "lon": 113.9240141,
+  "tags": {
+    "admin_level": "7",
+    "name": "Ramang",
+    "place": "village",
+    "ref": "62.11.04.2006",
+    "wikidata": "Q26332121"
+  }
+},
+{
+  "type": "node",
+  "id": 1308602163,
+  "lat": -2.1327224,
+  "lon": 113.9266821,
+  "tags": {
+    "admin_level": "7",
+    "name": "Penda Barania",
+    "place": "village",
+    "ref": "62.11.03.2002",
+    "wikidata": "Q12504505"
+  }
+},
+{
+  "type": "node",
+  "id": 1308606510,
+  "lat": -1.8603788,
+  "lon": 113.9532359,
+  "tags": {
+    "admin_level": "7",
+    "name": "Parahangan",
+    "place": "village",
+    "ref": "62.11.03.2013",
+    "wikidata": "Q13095769"
+  }
+},
+{
+  "type": "node",
+  "id": 1308609289,
+  "lat": -1.7887441,
+  "lon": 113.9539248,
+  "tags": {
+    "admin_level": "7",
+    "name": "Manen Paduran",
+    "place": "village",
+    "ref": "62.11.04.2001",
+    "wikidata": "Q12496614"
+  }
+},
+{
+  "type": "node",
+  "id": 1308609922,
+  "lat": -2.0314665,
+  "lon": 113.9453004,
+  "tags": {
+    "admin_level": "7",
+    "name": "Sigi",
+    "place": "village",
+    "ref": "62.11.03.2005",
+    "wikidata": "Q12514647"
+  }
+},
+{
+  "type": "node",
+  "id": 1308610698,
+  "lat": -1.7555401,
+  "lon": 113.9280512,
+  "tags": {
+    "name": "Hurung",
+    "place": "village",
+    "ref": "62.11.04.2004",
+    "wikidata": "Q12485968"
+  }
+},
+{
+  "type": "node",
+  "id": 1308611442,
+  "lat": -1.9572047,
+  "lon": 113.9541067,
+  "tags": {
+    "admin_level": "7",
+    "name": "Bahu Palawa",
+    "place": "village",
+    "ref": "62.11.03.2008",
+    "wikidata": "Q12473519"
+  }
+},
+{
+  "type": "node",
+  "id": 1308613758,
+  "lat": -1.9074486,
+  "lon": 113.9577872,
+  "tags": {
+    "admin_level": "7",
+    "name": "Bukit Bamba",
+    "place": "village",
+    "ref": "62.11.03.2011",
+    "wikidata": "Q12477512"
+  }
+},
+{
+  "type": "node",
+  "id": 1308617453,
+  "lat": -2.0848109,
+  "lon": 113.9491695,
+  "tags": {
+    "admin_level": "7",
+    "name": "Bukit Rawi",
+    "place": "village",
+    "ref": "62.11.03.2003",
+    "wikidata": "Q12477580"
+  }
+},
+{
+  "type": "node",
+  "id": 1308619576,
+  "lat": -1.9926986,
+  "lon": 113.9522218,
+  "tags": {
+    "admin_level": "7",
+    "name": "Petuk Liti",
+    "place": "village",
+    "ref": "62.11.03.2006",
+    "wikidata": "Q13095979"
+  }
+},
+{
+  "type": "node",
+  "id": 1308621786,
+  "lat": -1.7989923,
+  "lon": 113.8969542,
+  "tags": {
+    "admin_level": "7",
+    "name": "Manen Kaleka",
+    "place": "village",
+    "ref": "62.11.04.2002",
+    "wikidata": "Q12496613"
+  }
+},
+{
+  "type": "node",
+  "id": 1308623925,
+  "lat": -1.7357025,
+  "lon": 113.9225306,
+  "tags": {
+    "admin_level": "7",
+    "name": "Hanua",
+    "place": "village",
+    "ref": "62.11.04.2005",
+    "wikidata": "Q12485221"
+  }
+},
+{
+  "type": "node",
+  "id": 1308625195,
+  "lat": -1.9313157,
+  "lon": 113.9554139,
+  "tags": {
+    "admin_level": "7",
+    "name": "Pamarunan",
+    "place": "village",
+    "ref": "62.11.03.2009",
+    "wikidata": "Q12502348"
+  }
+},
+{
+  "type": "node",
+  "id": 1308627260,
+  "lat": -1.8797269,
+  "lon": 113.9532829,
+  "tags": {
+    "admin_level": "7",
+    "name": "Tahawa",
+    "place": "village",
+    "ref": "62.11.03.2012",
+    "wikidata": "Q17452371"
+  }
+},
+{
+  "type": "node",
+  "id": 1308628466,
+  "lat": -1.8106166,
+  "lon": 113.9562785,
+  "tags": {
+    "alt_name": "Bareng Rambang",
+    "name": "Bereng Rambang",
+    "place": "village",
+    "ref": "62.11.03.2014",
+    "wikidata": "Q12475915"
+  }
+},
+{
+  "type": "node",
+  "id": 1308628818,
+  "lat": -2.0583492,
+  "lon": 113.9446060,
+  "tags": {
+    "name": "Tuwung",
+    "place": "village",
+    "ref": "62.11.03.2004",
+    "wikidata": "Q12522847"
+  }
+},
+{
+  "type": "node",
+  "id": 1308629533,
+  "lat": -1.9811134,
+  "lon": 113.9495203,
+  "tags": {
+    "admin_level": "7",
+    "name": "Bukit Liti",
+    "place": "village",
+    "ref": "62.11.03.2007",
+    "wikidata": "Q12477553"
+  }
+},
+{
+  "type": "node",
+  "id": 1308631119,
+  "lat": -1.9252461,
+  "lon": 113.9614116,
+  "tags": {
+    "admin_level": "7",
+    "name": "Balukon",
+    "place": "village",
+    "ref": "62.11.03.2010",
+    "wikidata": "Q12473862"
+  }
+},
+{
+  "type": "node",
+  "id": 1308631273,
+  "lat": -1.7811579,
+  "lon": 113.9134989,
+  "tags": {
+    "admin_level": "7",
+    "name": "Lawang Uru",
+    "place": "village",
+    "ref": "62.11.04.2003",
+    "wikidata": "Q12494128"
+  }
+},
+{
+  "type": "node",
+  "id": 8809214816,
+  "lat": -1.9019483,
+  "lon": 114.1527665,
+  "tags": {
+    "name": "Bagugus",
+    "place": "hamlet"
+  }
+},
+{
+  "type": "node",
+  "id": 8940876228,
+  "lat": -1.8834083,
+  "lon": 114.1376817,
+  "tags": {
+    "admin_level": "7",
+    "name": "Humbang Raya",
+    "place": "village",
+    "ref": "62.03.09.2021",
+    "wikidata": "Q26332139"
+  }
+}
+
+  ]
+}
