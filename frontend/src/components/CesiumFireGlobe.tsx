@@ -447,9 +447,20 @@ export default function CesiumFireGlobe() {
         if (cesiumIonToken) Cesium.Ion.defaultAccessToken = cesiumIonToken;
         const ellipsoidTerrain = new Cesium.EllipsoidTerrainProvider();
         ellipsoidTerrainRef.current = ellipsoidTerrain;
-        const worldImageryProvider = cesiumIonToken
-          ? await Cesium.createWorldImageryAsync({ style: Cesium.IonWorldImageryStyle.AERIAL })
-          : await Cesium.TileMapServiceImageryProvider.fromUrl(Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII"));
+        const localImageryProvider = () =>
+          Cesium.TileMapServiceImageryProvider.fromUrl(Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII"));
+        let worldImageryProvider: Cesium.ImageryProvider;
+        if (cesiumIonToken) {
+          try {
+            worldImageryProvider = await Cesium.createWorldImageryAsync({ style: Cesium.IonWorldImageryStyle.AERIAL });
+          } catch {
+            // An expired, malformed, or restricted ion token must not prevent the
+            // viewer itself from loading. Natural Earth ships with Cesium locally.
+            worldImageryProvider = await localImageryProvider();
+          }
+        } else {
+          worldImageryProvider = await localImageryProvider();
+        }
 
         const viewer = new Cesium.Viewer(containerRef.current, {
           animation: false,
