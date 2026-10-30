@@ -1,0 +1,56 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-30T16:38:36Z",
+    "timestamp_areas_base": "2026-10-30T10:27:18Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "area",
+  "id": 3603618382,
+  "tags": {
+    "boundary": "protected_area",
+    "layer": "3",
+    "leisure": "nature_reserve",
+    "name": "Chobe National Park",
+    "protect_class": "2",
+    "protection_title": "national_park",
+    "source": "NMP HOT Field Survey",
+    "type": "boundary",
+    "wikidata": "Q859389",
+    "wikipedia": "en:Chobe National Park"
+  }
+},
+{
+  "type": "area",
+  "id": 3604626458,
+  "tags": {
+    "boundary": "protected_area",
+    "name": "Kavango Zambezi Transfrontier Conservation Area",
+    "name:fr": "Zone de conservation transfrontalière du Kavango-Zambèze",
+    "protect_class": "98",
+    "protection_title": "Conservation Area",
+    "short_name": "KAZA",
+    "type": "boundary",
+    "website": "https://kavangozambezi.org",
+    "wikidata": "Q603572",
+    "wikipedia": "en:Kavango–Zambezi Transfrontier Conservation Area"
+  }
+},
+{
+  "type": "area",
+  "id": 3606720458,
+  "tags": {
+    "name": "Savuti Marsh",
+    "natural": "wetland",
+    "seasonal": "yes",
+    "type": "multipolygon",
+    "wetland": "wet_meadow"
+  }
+}
+
+  ]
+}

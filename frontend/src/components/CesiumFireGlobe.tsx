@@ -7,7 +7,7 @@ import { DEFAULT_SENSORS, aoiBBox, aoiContains, describeAoi, useAppContext } fro
 import type { AOI, CaseMarker, FireEvent, FireEventSummary, ForecastHorizon, HotspotRecord, PlaceResult } from "../types/api";
 import EventPanel, { BEHAVIOUR_COLORS, BEHAVIOUR_PLAIN, KIND_COLORS, KIND_LABELS, REALITY_WEIGHT } from "./EventPanel";
 
-type LayerKey = "MODIS" | "VIIRS" | "Fire Events" | "FRP Columns" | "Forecast Corridor" | "Exposure";
+type LayerKey = "MODIS" | "VIIRS" | "Fire Events" | "FRP Columns" | "Forecast Corridor" | "Exposure" | "Boundaries";
 type LightingMode = "Dawn" | "Day" | "Dusk" | "Night";
 type ThemeMode = "Default" | "Faded" | "Mono" | "Ocean" | "Warm" | "Vivid";
 type EarthMode = "Map" | "3D Terrain" | "Photorealistic";
@@ -42,11 +42,13 @@ const locations = {
 const nadirOrientation = { heading: 0, pitch: Cesium.Math.toRadians(-90), roll: 0 };
 const obliqueOrientation = { heading: Cesium.Math.toRadians(18), pitch: Cesium.Math.toRadians(-52), roll: 0 };
 
-const layerDefaults: Record<LayerKey, boolean> = { MODIS: true, VIIRS: true, "Fire Events": true, "FRP Columns": false, "Forecast Corridor": true, Exposure: true };
+const layerDefaults: Record<LayerKey, boolean> = { MODIS: true, VIIRS: true, "Fire Events": true, "FRP Columns": false, "Forecast Corridor": true, Exposure: true, Boundaries: true };
+// Esri's free reference overlay: country, state and district lines with place labels.
+const BOUNDARIES_URL = "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer";
 const lightingModes: LightingMode[] = ["Dawn", "Day", "Dusk", "Night"];
 const themeModes: ThemeMode[] = ["Default", "Faded", "Mono", "Ocean", "Warm", "Vivid"];
 const periodLabels: Record<Period, string> = { "1": "Last 24 hours", "2": "Last 2 days", "5": "Last 5 days", historical: "Pick a past date" };
-const LAYER_LABEL: Record<LayerKey, string> = { MODIS: "MODIS satellites", VIIRS: "VIIRS satellites", "Fire Events": "Fires (grouped)", "FRP Columns": "Fire power bars", "Forecast Corridor": "Forecast area", Exposure: "Places nearby" };
+const LAYER_LABEL: Record<LayerKey, string> = { MODIS: "MODIS satellites", VIIRS: "VIIRS satellites", "Fire Events": "Fires (grouped)", "FRP Columns": "Fire power bars", "Forecast Corridor": "Forecast area", Exposure: "Places nearby", Boundaries: "Administrative boundaries" };
 const EXPOSURE_COLORS: Record<string, string> = {
   settlements: "#f8fafc",
   schools: "#60a5fa",
@@ -197,6 +199,8 @@ export default function CesiumFireGlobe() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const [layers, setLayers] = useState<Record<LayerKey, boolean>>(layerDefaults);
+  const layersRef = useRef(layers);
+  layersRef.current = layers;
   const [selectedLocation, setSelectedLocation] = useState<keyof typeof locations>("Atlantic View");
   const [lighting, setLighting] = useState<LightingMode>("Day");
   const [theme, setTheme] = useState<ThemeMode>("Default");
@@ -245,6 +249,7 @@ export default function CesiumFireGlobe() {
   const [viewerError, setViewerError] = useState<string | null>(null);
   const [activeInsight, setActiveInsight] = useState<null | "snapshot" | "intensity" | "timeline" | "events">(null);
   const buildingsRef = useRef<Cesium.Cesium3DTileset | null>(null);
+  const boundariesRef = useRef<Cesium.ImageryLayer | null>(null);
   const photorealisticTilesRef = useRef<Cesium.Cesium3DTileset | null>(null);
   const photorealisticLoadingRef = useRef(false);
   const terrainRef = useRef<Cesium.TerrainProvider | null>(null);
@@ -519,6 +524,16 @@ export default function CesiumFireGlobe() {
         setViewerError(null);
         setViewerReady(true);
 
+        void Cesium.ArcGisMapServerImageryProvider.fromUrl(BOUNDARIES_URL)
+          .then((provider) => {
+            if (disposed || viewer.isDestroyed()) return;
+            const boundaries = viewer.imageryLayers.addImageryProvider(provider);
+            boundaries.show = layersRef.current.Boundaries;
+            boundariesRef.current = boundaries;
+            viewer.scene.requestRender();
+          })
+          .catch(() => undefined);
+
         if (cesiumIonToken) {
           void Cesium.createWorldTerrainAsync()
             .then((terrainProvider) => {
@@ -552,6 +567,7 @@ export default function CesiumFireGlobe() {
       viewerRef.current?.destroy();
       viewerRef.current = null;
       buildingsRef.current = null;
+      boundariesRef.current = null;
       photorealisticTilesRef.current = null;
       photorealisticLoadingRef.current = false;
       terrainRef.current = null;
@@ -615,6 +631,13 @@ export default function CesiumFireGlobe() {
     if (photorealisticTilesRef.current) photorealisticTilesRef.current.show = earthMode === "Photorealistic";
     viewer.scene.requestRender();
   }, [earthMode, lighting, showBuildings, showImagery, theme, viewerReady]);
+
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    if (!viewer || !boundariesRef.current) return;
+    boundariesRef.current.show = layers.Boundaries;
+    viewer.scene.requestRender();
+  }, [layers.Boundaries, viewerReady]);
 
   useEffect(() => {
     const viewer = viewerRef.current;
