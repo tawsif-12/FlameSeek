@@ -1,43 +1,50 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import "./demo/demo.css";
-import { Shell } from "./demo/ui";
-import Overview from "./demo/pages/Overview";
-import { AreaOfInterest, FireNowGlobe, ObservationQuality } from "./demo/pages/FireNow";
-import { Anomaly, BurningCalendar } from "./demo/pages/FireMemory";
-import FireIdentity from "./demo/pages/FireIdentity";
-import { EvidenceFusion, EvidenceNews, EvidenceSources, FireCase } from "./demo/pages/FireEvidence";
-import { Exposure, FireFuture, FirePast } from "./demo/pages/Outlook";
-import { Harmonization, Workflow } from "./demo/pages/Methods";
+import { NavLink, Navigate, Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
+import "leaflet/dist/leaflet.css";
+import "leaflet-draw/dist/leaflet.draw.css";
+import "./styles.css";
+import { AppProvider } from "./context/AppContext";
+import DataSourcesPage from "./pages/DataSourcesPage";
+import FireMemoryPage from "./pages/FireMemoryPage";
 
-// Demo build: every screen under ./demo runs on scripted, illustrative data and makes no API calls.
-// The live pages (./pages, ./components) are kept in the tree but are not routed.
+function Header() {
+  const location = useLocation();
+  const darkRoutes = ["/", "/data-sources"];
+  const isDark = darkRoutes.includes(location.pathname);
+
+  return (
+    <header className={isDark ? "app-header mission-header" : "app-header"}>
+      <div className="brand-mark">
+        <span className="brand-glyph" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="32" height="32"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.6" /><circle cx="16" cy="16" r="4" fill="currentColor" opacity="0.9" /><ellipse cx="16" cy="16" rx="14" ry="5.5" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.5" /></svg>
+        </span>
+        <div>
+          <p className="eyebrow">NASA Space Apps Challenge</p>
+          <h1>FlameSeek</h1>
+        </div>
+      </div>
+      <nav>
+        <NavLink to="/">BURNING CALENDAR</NavLink>
+        <NavLink to="/data-sources">SOURCES & METHODS</NavLink>
+      </nav>
+    </header>
+  );
+}
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <Router>
-      <Routes>
-        <Route element={<Shell />}>
-          <Route path="/" element={<Overview />} />
-          <Route path="/fire-memory" element={<BurningCalendar />} />
-          <Route path="/fire-memory/anomaly" element={<Anomaly />} />
-          <Route path="/fire-now" element={<FireNowGlobe />} />
-          <Route path="/fire-now/area" element={<AreaOfInterest />} />
-          <Route path="/fire-now/quality" element={<ObservationQuality />} />
-          <Route path="/fire-identity" element={<FireIdentity />} />
-          <Route path="/fire-evidence" element={<EvidenceSources />} />
-          <Route path="/fire-evidence/news" element={<EvidenceNews />} />
-          <Route path="/fire-evidence/fusion" element={<EvidenceFusion />} />
-          <Route path="/fire-evidence/case" element={<FireCase />} />
-          <Route path="/fire-past" element={<FirePast />} />
-          <Route path="/fire-future" element={<FireFuture />} />
-          <Route path="/exposure" element={<Exposure />} />
-          <Route path="/methods" element={<Workflow />} />
-          <Route path="/methods/harmonization" element={<Harmonization />} />
-          <Route path="/fire-map" element={<Navigate to="/fire-now" replace />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </Router>
+    <AppProvider>
+      <Router>
+        <Header />
+        <Routes>
+          <Route path="/" element={<FireMemoryPage />} />
+          <Route path="/fire-memory" element={<Navigate to="/" replace />} />
+          <Route path="/fire-map" element={<Navigate to="/" replace />} />
+          <Route path="/critical-periods" element={<Navigate to="/" replace />} />
+          <Route path="/data-sources" element={<DataSourcesPage />} />
+        </Routes>
+      </Router>
+    </AppProvider>
   </React.StrictMode>,
 );

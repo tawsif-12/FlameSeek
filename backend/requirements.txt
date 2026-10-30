@@ -5,7 +5,7 @@ httpx
 python-dotenv
 numpy
 scikit-learn
-lightgbm
 pytest
 pytest-mock
-skyfield
+scipy
+xgboost

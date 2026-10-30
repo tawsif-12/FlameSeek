@@ -7,3 +7,6 @@ frontend/dist/
 logs/
 __pycache__/
 .pytest_cache/
+
+.chrome-debug/
+.tmp-edge-profile/

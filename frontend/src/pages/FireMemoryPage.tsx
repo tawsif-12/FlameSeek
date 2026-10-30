@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import Plot from "react-plotly.js";
 import { normalizeApiError, runJob, startFireMemory } from "../api/client";
+import WeeklyCalendar from "../components/WeeklyCalendar";
 import AOISelector from "../components/AOISelector";
 import WorldviewButton from "../components/WorldviewButton";
 import { DEFAULT_SENSORS, SENSOR_LABELS, aoiBBox, describeAoi, useAppContext } from "../context/AppContext";
@@ -25,7 +26,7 @@ const plotLayout = { autosize: true, paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolo
 
 export default function FireMemoryPage() {
   const { aoi, sensors, setSensors, memory, setMemory } = useAppContext();
-  const [years, setYears] = useState(5);
+  const [years, setYears] = useState(10);
   const [windowDays, setWindowDays] = useState(30);
   const [job, setJob] = useState<Job<FireMemoryResult> | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +76,7 @@ export default function FireMemoryPage() {
           <label>
             How many years to look back
             <select value={years} onChange={(e) => setYears(Number(e.target.value))}>
-              {[1, 2, 3, 5, 10, 15, 20, 26].map((y) => (
+              {[5, 10, 15, 20, 25].map((y) => (
                 <option key={y} value={y}>{y} year{y > 1 ? "s" : ""}{y >= 10 ? " (slow the first time)" : ""}</option>
               ))}
             </select>
@@ -179,16 +180,7 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
       </section>
 
       <section className="memory-grid">
-        <article className="viz-panel wide">
-          <h3>When does this place burn?</h3>
-          <p className="meta-text">Each square is one month of one year. Darker red means more fire. Read across a row to see that year's fire season; read down a column to compare the same month in different years.</p>
-          <Plot
-            data={[{ type: "heatmap", x: memory.calendar.months, y: memory.calendar.years.map(String), z: memory.calendar.activity, colorscale: "YlOrRd", reversescale: true, hovertemplate: "%{y} %{x}: %{z:.1f} (consistent record)<extra></extra>", xgap: 2, ygap: 2 }]}
-            layout={{ ...plotLayout, height: Math.max(220, 34 * memory.calendar.years.length + 80), margin: { l: 50, r: 10, t: 10, b: 30 }, yaxis: { autorange: "reversed", type: "category" } }}
-            config={{ responsive: true, displayModeBar: false }}
-            className="plot"
-          />
-        </article>
+        <WeeklyCalendar memory={memory} />
 
         <article className="viz-panel">
           <h3>The fire season</h3>

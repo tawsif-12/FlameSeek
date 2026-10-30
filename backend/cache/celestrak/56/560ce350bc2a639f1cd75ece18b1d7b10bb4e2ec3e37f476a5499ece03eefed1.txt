@@ -1,1 +1,0 @@
-{"@context":"https:\/\/www.w3.org\/ns\/hydra\/context.jsonld","@id":"https:\/\/tle.ivanstanojevic.me\/api\/tle\/54234","@type":"Tle","satelliteId":54234,"name":"NOAA 21 (JPSS-2)","date":"2026-10-06T14:40:38+00:00","line1":"1 54234U 22150A   26279.61155961  .00000015  00000+0  27746-4 0  9993","line2":"2 54234  98.7134 216.5529 0000922 205.3106 154.8025 14.19552036202355"}

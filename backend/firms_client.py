@@ -423,7 +423,7 @@ def _cached_actual_hotspots(
 ) -> list[dict[str, Any]]:
     """Newest real FIRMS rows already cached on disk, used only when live FIRMS is unreachable.
 
-    This never reads demo_data.py, and it intentionally ignores `place_hint`.
+    It intentionally ignores `place_hint`.
     """
     root = CACHE_DIR / "firms"
     if not root.exists():
@@ -465,7 +465,6 @@ async def fetch_recent_hotspots(
     bbox: tuple[float, float, float, float] | None = None,
     sensors: list[str] = DEFAULT_SENSORS,
     days: int = 1,
-    include_demo: bool = True,
 ) -> list[dict[str, Any]]:
     global _FIRMS_DOWN_UNTIL, _LAST_RECENT_SOURCE
     area = "world" if bbox is None else _bbox_string(bbox)
@@ -477,15 +476,8 @@ async def fetch_recent_hotspots(
                 text, source = await _fetch_recent_csv(client, sensor, area, days)
             return _parse_csv(text, sensor, source)
 
-    # Demo overlay: three scripted Bangladesh fires for walkthroughs (see demo_data.py).
-    from demo_data import bbox_covers_dhaka, dhaka_demo_hotspots
-    demo_rows: list[dict[str, Any]] = []
-    if include_demo and bbox_covers_dhaka(bbox):
-        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-        demo_rows = [row for row in dhaka_demo_hotspots() if row["sensor"] in sensors and row["acq_datetime"] >= cutoff]
-
     # Negative cache: after a recent FIRMS failure, skip live calls for a short window
-    # so the UI returns instantly from cached/demo data instead of waiting on retries.
+    # so the UI returns instantly from cached data instead of waiting on retries.
     now_ts = time.time()
     firms_down = now_ts < _FIRMS_DOWN_UNTIL
 
@@ -501,13 +493,11 @@ async def fetch_recent_hotspots(
         except (FirmsAPIError, httpx.HTTPError, asyncio.TimeoutError) as exc:
             _FIRMS_DOWN_UNTIL = now_ts + _FIRMS_DOWN_TTL_SECONDS
             print(f"firms_unavailable reason={type(exc).__name__} muted_for_seconds={_FIRMS_DOWN_TTL_SECONDS}")
-            if not demo_rows:
-                rows = _cached_actual_hotspots(bbox, sensors, days)
-                _LAST_RECENT_SOURCE = "cached_actual"
-                if not rows:
-                    raise
-    elif not demo_rows:
+            rows = _cached_actual_hotspots(bbox, sensors, days)
+            _LAST_RECENT_SOURCE = "cached_actual"
+            if not rows:
+                raise
+    else:
         rows = _cached_actual_hotspots(bbox, sensors, days)
         _LAST_RECENT_SOURCE = "cached_actual" if rows else "unavailable"
-    rows.extend(demo_rows)
     return rows

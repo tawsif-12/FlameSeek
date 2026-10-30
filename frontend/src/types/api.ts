@@ -1,5 +1,4 @@
 export type SensorName = "modis" | "viirs_snpp" | "viirs_noaa20" | "viirs_noaa21";
-export type AnySensor = SensorName | "goes" | "landsat";
 export type BBox = [number, number, number, number];
 export type LonLat = [number, number];
 
@@ -16,61 +15,6 @@ export interface AOI {
   radius_km?: number;
   name?: string;
   kind?: "bbox" | "polygon" | "radius" | "place";
-}
-
-export interface GenerateCalendarRequest {
-  bbox: BBox;
-  start_date: string;
-  end_date: string;
-  sensors: SensorName[];
-}
-
-export interface HotspotRecord {
-  lat: number;
-  lon: number;
-  acq_datetime: string;
-  confidence_pct: number;
-  frp: number | null;
-  sensor: AnySensor;
-  satellite: string;
-  daynight: string;
-  scan_km?: number | null;
-  track_km?: number | null;
-  brightness_k?: number | null;
-  brightness_2_k?: number | null;
-  version?: string;
-  source?: string;
-  location_uncertainty_km?: number | null;
-  place_hint?: string | null;
-}
-
-export interface CurrentHotspotsResponse {
-  hotspots: HotspotRecord[];
-  metadata: Record<string, unknown>;
-}
-
-export interface HotspotVerification {
-  score: number;
-  verdict: "strong_satellite_signal" | "needs_review" | "weak_satellite_signal";
-  evidence: Array<{ source: string; signal: string; weight: number }>;
-  warnings: string[];
-  imagery_url: string;
-  news_url: string;
-  national_news_url: string;
-  country_code: string | null;
-  country_name: string;
-  place_name: string;
-  next_step: string;
-  sensor_family: string;
-}
-
-export interface VerifiedHotspotRecord extends HotspotRecord {
-  verification: HotspotVerification;
-}
-
-export interface VerifiedHotspotsResponse {
-  hotspots: VerifiedHotspotRecord[];
-  metadata: Record<string, unknown>;
 }
 
 export interface DataSource {
@@ -129,40 +73,6 @@ export interface Place {
 
 // --- Fire events -----------------------------------------------------------------------
 
-export interface Behaviour {
-  state: "Onset" | "Intensifying" | "Expanding" | "Persistent" | "Stable" | "Decaying" | "Uncertain";
-  label_type: string;
-  reasons?: string[];
-  metrics?: Record<string, number | string | null>;
-  caveat?: string;
-}
-
-export interface FireEventSummary {
-  event_id: string;
-  first_detection: string;
-  latest_detection: string;
-  duration_hours: number;
-  observation_count: number;
-  sensors: string[];
-  sensor_families: string[];
-  satellites: string[];
-  total_frp: number;
-  max_frp: number | null;
-  frp_trend: string | null;
-  centroid: { lat: number; lon: number };
-  bbox: BBox;
-  extent_km2: number;
-  max_span_km: number;
-  hull: LonLat[];
-  association_confidence: number | null;
-  association_note: string;
-  behaviour: Behaviour;
-  behaviour_state: Behaviour["state"];
-  case?: CaseMarker;
-  featured?: boolean;
-  place_hint?: string | null;
-}
-
 export type CaseKind = "agricultural_burn" | "wildfire" | "controlled_burn" | "industrial_source" | "building_fire" | "volcanic" | "not_a_fire" | "unknown";
 
 export interface CaseMarker {
@@ -172,38 +82,6 @@ export interface CaseMarker {
   provisional: boolean;
   evidence_checked: boolean;
   updated_at?: string;
-}
-
-export interface TimelineBin {
-  window_start: string;
-  detections: number;
-  total_frp: number;
-  cumulative_extent_km2: number;
-  centroid: [number, number];
-  sensors: string[];
-}
-
-export interface ObservationQuality {
-  sensor_agreement: string;
-  platforms_available: string[];
-  recent_cloud_cover_pct: number | null;
-  observation_sufficiency_score: number;
-  location_uncertainty_km: number | null;
-  uncertainty: string;
-  uncertainty_note: string;
-  status_if_absent: string;
-  provenance: Record<string, unknown>;
-}
-
-export interface FireEvent extends Omit<FireEventSummary, "behaviour_state"> {
-  timeline: TimelineBin[];
-  detections: HotspotRecord[];
-  observation_quality: ObservationQuality;
-}
-
-export interface EventsResponse {
-  events: FireEventSummary[];
-  metadata: Record<string, unknown> & { behaviour_counts?: Record<string, number> };
 }
 
 // --- Evidence ----------------------------------------------------------------------------
@@ -216,67 +94,6 @@ export interface EvidenceCheck {
   review_url?: string | null;
   matches?: Array<Record<string, unknown>>;
   scenes?: Array<{ id: string; datetime: string; cloud_cover_pct: number | null; hours_from_detection: number; thumbnail?: string | null }>;
-}
-
-export interface NewsCard {
-  headline: string;
-  publication: string;
-  domain: string;
-  provider: string;
-  published_at: string | null;
-  url: string;
-  country: string | null;
-  location_mentioned: string | null;
-  distance_km: number | null;
-  event_type: string;
-  geographic_score: number;
-  geographic_match: string;
-  location_confidence: string;
-  temporal_score: number;
-  temporal_match: string;
-  hours_after_detection: number | null;
-  source_reliability_score: number;
-  source_reliability: string;
-  relevance_score: number;
-  match_label: string;
-  system_summary: string;
-  nlp: {
-    event_type: string;
-    causes: string[];
-    impact: Record<string, number | boolean>;
-    affected_area: string[];
-    infrastructure_mentioned: string[];
-    dates_mentioned: string[];
-    times_mentioned: string[];
-    locations: { gazetteer_matches: string[]; other_place_mentions: string[] };
-  };
-}
-
-export interface EvidenceResult {
-  subject: Record<string, unknown>;
-  observation: { sensor_families: string[]; sensor_agreement: string; location_uncertainty_km: number; provenance: Record<string, unknown> };
-  place: Place;
-  stages: Array<{ name: string; status: string; detail?: string }>;
-  external_evidence: {
-    regional_satellite: { checks: EvidenceCheck[]; corroborating_sources: string[] };
-    official: { checks: EvidenceCheck[]; matches: Array<Record<string, unknown>>; has_official_match: boolean; note: string };
-    news: { articles: NewsCard[]; searched: Record<string, unknown>; note: string };
-  };
-  inference: {
-    final_status: string;
-    status_note?: string | null;
-    observation_sufficiency?: number | null;
-    system_evidence_score: number;
-    score_note: string;
-    components: Array<{ signal: string; points: number; max: number; notes: string[] }>;
-    fire_type_note: string | null;
-    uncertainty: string[];
-    explanation: string;
-    confirmed_label_policy: string;
-  };
-  fire_case: FireCase;
-  source_transparency: Record<string, string>;
-  generated_at: string;
 }
 
 export interface CasePass {
@@ -342,116 +159,6 @@ export interface FireCase {
 }
 
 // --- Outlook: analogues, forecast, exposure ----------------------------------------------------
-
-export interface Analogue {
-  event_id: string;
-  year: number;
-  first_detection: string;
-  centroid: { lat: number; lon: number };
-  distance: number;
-  most_similar_on: string[];
-  least_similar_on: string[];
-  outcome: {
-    duration_hours: number;
-    total_detections: number;
-    final_extent_km2: number;
-    extent_at_matched_age_km2: number;
-    expanded_after_matched_age: boolean;
-    peak_frp_window_hours_from_start: number | null;
-    peak_window_frp: number | null;
-    decay_began_hours_from_start: number | null;
-    remaining_hours_after_matched_age: number;
-    frp_timeline: Array<{ hours: number; frp: number }>;
-  };
-}
-
-export interface AnalogueResult {
-  status: string;
-  note?: string;
-  method?: string;
-  matched_age_hours?: number;
-  features_used?: string[];
-  candidates: number;
-  analogues: Analogue[];
-  summary?: Record<string, string | number | number[] | null>;
-  ecological_context?: string;
-  caveat?: string;
-}
-
-export interface ModelMetrics {
-  brier: number;
-  brier_skill_vs_climatology: number | null;
-  auc: number | null;
-  probability_of_detection: number | null;
-  false_alarm_ratio: number | null;
-  critical_success_index: number | null;
-  footprint_iou_mean: number | null;
-  expected_calibration_error: number;
-  reliability: Array<{ bin: string; mean_forecast: number; observed_frequency: number; n: number }>;
-  positives: number;
-  samples: number;
-}
-
-export interface Validation {
-  split?: string;
-  status: string;
-  models?: Record<string, ModelMetrics>;
-  train_positives?: number;
-  test_positives?: number;
-}
-
-export interface ForecastCell {
-  lat: number;
-  lon: number;
-  p: number;
-  level: "low" | "moderate" | "high";
-}
-
-export interface ForecastHorizon {
-  horizon_hours: number;
-  valid_from: string;
-  valid_to: string;
-  status: "ISSUED" | "FORECAST WITHHELD";
-  reasons?: string[];
-  model_used?: string;
-  model_selection?: string;
-  cells: ForecastCell[];
-  corridor_area_km2?: number;
-  wind?: Record<string, number>;
-  validation: { temporal: Validation; spatial: Validation };
-  training?: { samples: number; positives: number; issue_times: number; years: number[] } | null;
-  feature_importance?: Record<string, number> | null;
-}
-
-export interface ForecastResult {
-  target: string;
-  issue_time: string;
-  cell_size_deg: number;
-  caveat: string;
-  inputs_used: string[];
-  inputs_not_used: string[];
-  horizons: Record<string, ForecastHorizon>;
-}
-
-export interface ExposureResult {
-  status: string;
-  note?: string;
-  corridor_cells?: number;
-  corridor_area_km2?: number;
-  population?: { status: string; population: number | null; dataset?: string; note?: string };
-  assets?: Record<string, { label: string; status: string; count?: number; length_km_inside_corridor?: number; items: Array<Record<string, unknown>> }>;
-  wording?: string;
-  sources?: string[];
-  errors?: string[];
-}
-
-export interface OutlookResult {
-  event_id: string;
-  history: { years: number[]; detections: number; radius_km: number; failed_years: number };
-  analogues: AnalogueResult;
-  forecast: ForecastResult;
-  exposure: ExposureResult;
-}
 
 // --- Fire Memory -------------------------------------------------------------------------------
 

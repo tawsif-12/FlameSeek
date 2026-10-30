@@ -1,18 +1,5 @@
 import axios from "axios";
-import type {
-  AOI,
-  CurrentHotspotsResponse,
-  DataSource,
-  EventsResponse,
-  EvidenceResult,
-  FireEvent,
-  FireMemoryResult,
-  Job,
-  OutlookResult,
-  PlaceResult,
-  SensorName,
-  VerifiedHotspotsResponse,
-} from "../types/api";
+import type { AOI, DataSource, FireMemoryResult, Job, PlaceResult, SensorName } from "../types/api";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "",
@@ -30,37 +17,10 @@ export function normalizeApiError(error: unknown): string {
   return "Unexpected error";
 }
 
-const repeatParams = { paramsSerializer: { indexes: null } };
-
-export async function getCurrentHotspots(sensors: SensorName[], days = 1, limit = 10000, date?: string, includeDemo = false): Promise<CurrentHotspotsResponse> {
-  const { data } = await api.get<CurrentHotspotsResponse>("/api/current_hotspots", { params: { days, limit, sensors, date, include_demo: includeDemo }, timeout: 35000, ...repeatParams });
-  return data;
-}
-
-export async function getVerifiedHotspots(sensors: SensorName[]): Promise<VerifiedHotspotsResponse> {
-  const { data } = await api.get<VerifiedHotspotsResponse>("/api/verified_hotspots", { params: { days: 1, limit: 20, sensors }, ...repeatParams });
-  return data;
-}
 
 export async function getDataSources(): Promise<DataSource[]> {
   const { data } = await api.get("/data-sources");
   return data.sources;
-}
-
-export async function getEvents(days: number, limit = 4000, includeDemo = false): Promise<EventsResponse> {
-  // A cold world reconstruction can take a few minutes while other analyses run.
-  const { data } = await api.get<EventsResponse>("/api/events", { params: { days, limit, include_demo: includeDemo }, timeout: 420000 });
-  return data;
-}
-
-export async function lookupEvent(sensor: string, lat: number, lon: number, acqDatetime: string): Promise<string> {
-  const { data } = await api.get<{ event_id: string }>("/api/events/lookup", { params: { sensor, lat, lon, acq_datetime: acqDatetime } });
-  return data.event_id;
-}
-
-export async function getEvent(eventId: string): Promise<FireEvent> {
-  const { data } = await api.get<FireEvent>(`/api/events/${eventId}`);
-  return data;
 }
 
 export async function searchPlaces(q: string): Promise<PlaceResult[]> {
@@ -90,14 +50,6 @@ export async function runJob<T>(start: Promise<Job<T>>, onProgress: (job: Job<T>
   }
   if (job.status === "failed" || job.result === null) throw new Error(job.error ?? "Analysis failed");
   return job.result;
-}
-
-export function startEvidence(eventId: string, refresh = false) {
-  return startJob<EvidenceResult>(`/api/events/${eventId}/evidence`, undefined, { refresh });
-}
-
-export function startOutlook(eventId: string, years = 8) {
-  return startJob<OutlookResult>(`/api/events/${eventId}/outlook`, undefined, { years });
 }
 
 export function startFireMemory(aoi: AOI, historyYears: number, sensors: SensorName[], comparisonWindowDays: number) {
