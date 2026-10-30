@@ -1,0 +1,27 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-30T16:19:05Z",
+    "timestamp_areas_base": "2026-10-30T09:54:43Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "area",
+  "id": 3603385545,
+  "tags": {
+    "boundary": "national_park",
+    "leisure": "nature_reserve",
+    "name": "Central Kalahari Game Reserve",
+    "name:de": "Zentralkalahari-Wildreservat",
+    "protect_class": "2",
+    "type": "boundary",
+    "wikidata": "Q194732",
+    "wikipedia": "en:Central Kalahari Game Reserve"
+  }
+}
+
+  ]
+}

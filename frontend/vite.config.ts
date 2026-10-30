@@ -12,8 +12,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      "/api": "http://127.0.0.1:8003",
-      "/data-sources": "http://127.0.0.1:8003",
+      "/api": "http://127.0.0.1:8000",
+      "/data-sources": "http://127.0.0.1:8000",
     },
   },
 });
