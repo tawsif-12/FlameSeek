@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { NavLink, Navigate, Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
+import { Link, NavLink, Navigate, Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "./styles.css";
@@ -18,20 +18,27 @@ function Header() {
   return (
     <header className={isDark ? "app-header mission-header" : "app-header"}>
       <div className="brand-mark">
-        <span className="brand-glyph" aria-hidden="true">
-          <svg viewBox="0 0 32 32" width="32" height="32"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.6" /><circle cx="16" cy="16" r="4" fill="currentColor" opacity="0.9" /><ellipse cx="16" cy="16" rx="14" ry="5.5" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.5" /></svg>
-        </span>
+        <span className="brand-glyph brand-flame" aria-hidden="true">🔥</span>
         <div>
-          <p className="eyebrow">NASA Space Apps Challenge</p>
           <h1>FlameSeek</h1>
+          <p className="eyebrow">Global Fire Intelligence</p>
         </div>
       </div>
       <nav>
-        <NavLink to="/">HOME</NavLink>
-        <NavLink to="/fire-map">FIRE NOW</NavLink>
-        <NavLink to="/fire-memory">FIRE MEMORY</NavLink>
-        <NavLink to="/data-sources">SOURCES & METHODS</NavLink>
+        <NavLink to="/">Home</NavLink>
+        <NavLink to="/fire-map">Fire Now</NavLink>
+        <NavLink to="/fire-memory">Fire Memory</NavLink>
+        <NavLink to="/data-sources">Analysis <span aria-hidden="true">⌄</span></NavLink>
+        <Link to="/data-sources#about">About</Link>
       </nav>
+      <div className="header-tools">
+        <Link to="/fire-map" className="header-search" aria-label="Search a location on Fire Now">
+          <span aria-hidden="true">⌕</span> Search location…
+        </Link>
+        <span className="header-divider" aria-hidden="true" />
+        <button type="button" className="header-icon" title="Alerts are coming soon" aria-label="Alerts coming soon">♧</button>
+        <Link to="/data-sources" className="header-avatar" aria-label="About FlameSeek">●</Link>
+      </div>
     </header>
   );
 }

@@ -1,231 +1,226 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import Plot from "react-plotly.js";
 import { getCurrentHotspots, getEvents } from "../api/client";
 import { DEFAULT_SENSORS } from "../context/AppContext";
+import type { FireEventSummary, HotspotRecord } from "../types/api";
 
-type LiveStat = { detections: number | null; events: number | null; area: number | null };
-type Insight = { kind: string; title: string; detail: string; badge: string; tone: "warn" | "info" | "ok" };
+type SensorCounts = Record<"modis" | "viirs_snpp" | "viirs_noaa20" | "viirs_noaa21", number>;
+
+const EMPTY_COUNTS: SensorCounts = { modis: 0, viirs_snpp: 0, viirs_noaa20: 0, viirs_noaa21: 0 };
+const SENSOR_LABELS = ["MODIS", "S-NPP", "NOAA-20", "NOAA-21"];
 
 const STORY = [
-  { n: "01", title: "Fire Memory", q: "What normally happened in this area in the past?", where: "/fire-memory", how: "Four-Witness consistent record (no 2012 VIIRS jump), seasonal profiles, robust anomalies, change points" },
-  { n: "02", title: "Fire Now", q: "What are satellites observing right now?", where: "/fire-map", how: "Live FIRMS detections on a 3D globe, with footprint uncertainty and observation quality" },
-  { n: "03", title: "Fire Identity", q: "Which observations belong to the same evolving fire?", where: "/fire-map", how: "Spatio-temporal event reconstruction and inferred behaviour states" },
-  { n: "04", title: "Fire Evidence", q: "Do other satellites, agencies or local reports support it?", where: "/fire-map", how: "A Fire Case per detection: later passes, geostationary satellites, agencies and news NLP give one answer: real? what kind? still burning?" },
-  { n: "05", title: "Fire Past", q: "How did similar historical fires behave?", where: "/fire-map", how: "Same-age analogue search (KNN, Mahalanobis) over past seasons in the region" },
-  { n: "06", title: "Fire Future", q: "Where might new satellite-observed activity appear next?", where: "/fire-map", how: "6/12/24 h corridor from validated baselines or LightGBM, or FORECAST WITHHELD" },
-  { n: "07", title: "Exposure", q: "What lies inside the possible activity corridor?", where: "/fire-map", how: "WorldPop population plus OpenStreetMap roads, villages, farmland, forests, schools, hospitals and power" },
-];
+  { n: "01", title: "Fire Memory", q: "What normally happened in this area in the past?", route: "/fire-memory", icon: "▤", how: "Four-Witness consistent record, seasonal profiles, robust anomalies and change points." },
+  { n: "02", title: "Fire Now", q: "What are satellites observing right now?", route: "/fire-map", icon: "◉", how: "Live FIRMS detections on a 3D globe with footprint uncertainty and observation quality." },
+  { n: "03", title: "Fire Identity", q: "Which observations belong to the same evolving fire?", route: "/fire-map", icon: "⌕", how: "Spatio-temporal event reconstruction and inferred behaviour states." },
+  { n: "04", title: "Fire Evidence", q: "Do other satellites, agencies or local reports support it?", route: "/fire-map", icon: "▣", how: "Later passes, geostationary satellites, agencies and news form one evidence case." },
+  { n: "05", title: "Fire Past", q: "How did similar historical fires behave?", route: "/fire-map", icon: "▥", how: "Same-age analogue search over past seasons in the selected region." },
+  { n: "06", title: "Fire Future", q: "Where might new satellite-observed activity appear next?", route: "/fire-map", icon: "◷", how: "A validated 6/12/24 h activity corridor, or FORECAST WITHHELD." },
+  { n: "07", title: "Exposure", q: "What lies inside the possible activity corridor?", route: "/fire-map", icon: "♟", how: "Population, roads, settlements, land cover and critical facilities." },
+] as const;
 
 const WORKFLOW = [
-  "MODIS + VIIRS", "Clean, tag, de-duplicate", "Sensor detection profile", "Time-of-day correction", "Consistent record and detailed layer",
-  "Observation effort", "Fused fire probability", "Burning activity calendar", "Current vs historical", "Anomaly detection", "3D globe",
-  "Fire event reconstruction", "Behaviour analysis", "Reverse geocoding", "Regional satellite verification", "Government sources",
-  "Country-specific news", "NLP event extraction", "Geographic matching", "Temporal matching", "Fire Case evidence block",
+  "MODIS + VIIRS", "AOI & region selection", "Sensor detection profile", "Time-of-day correction",
+  "Consistent record and satellite layer", "Observation effort", "Fused fire probability", "Burning activity calendar",
+  "Current vs historical", "Anomaly detection", "3D globe", "Fire event reconstruction", "Behaviour analysis",
+  "Reverse geocoding", "Regional satellite verification", "Government sources", "Country-specific news",
+  "NLP event extraction", "Geographic matching", "Temporal matching", "Fire Case evidence block",
   "Three-part answer", "Historical analogues", "Short-term forecast", "Forecast corridor", "Exposure analysis",
 ];
 
+function formatAge(date: string) {
+  const minutes = Math.max(0, Math.floor((Date.now() - new Date(date).getTime()) / 60000));
+  if (minutes < 60) return `${Math.max(1, minutes)} min ago`;
+  const hours = Math.floor(minutes / 60);
+  return hours < 24 ? `${hours} h ago` : `${Math.floor(hours / 24)} d ago`;
+}
+
+function sensorFamily(sensor: string) {
+  return sensor === "modis" ? "MODIS" : "VIIRS";
+}
+
+function SatelliteIcon() {
+  return <img src="/satellite-realistic-v2.png" alt="" aria-hidden="true" decoding="async" />;
+}
+
 export default function HomePage() {
-  const [live, setLive] = useState<LiveStat>({ detections: null, events: null, area: null });
-  const [status, setStatus] = useState<string>("Connecting to NASA FIRMS…");
-  const [insights, setInsights] = useState<Insight[]>([]);
+  const [hotspots, setHotspots] = useState<HotspotRecord[]>([]);
+  const [events, setEvents] = useState<FireEventSummary[]>([]);
+  const [counts, setCounts] = useState<SensorCounts>(EMPTY_COUNTS);
+  const [totalDetections, setTotalDetections] = useState<number | null>(null);
+  const [sourceMode, setSourceMode] = useState<"live" | "cached" | "demo" | "unavailable">("live");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    getCurrentHotspots(DEFAULT_SENSORS, 1, 1)
-      .then((r) => {
-        if (cancelled) return;
-        const d = Number(r.metadata.filtered_hotspot_count ?? 0);
-        setLive((l) => ({ ...l, detections: d }));
-        setStatus(d > 0 ? "Live · MODIS + VIIRS synchronised" : "Live · No filtered observations in the last day");
-      })
-      .catch(() => !cancelled && setStatus("FIRMS unavailable · open Fire Now to retry"));
-
-    getEvents(2, 40)
-      .then((r) => {
-        if (cancelled) return;
-        const total = r.events.length;
-        const area = r.events.reduce((sum, e) => sum + (e.extent_km2 ?? 0), 0);
-        setLive((l) => ({ ...l, events: total, area }));
-        const top = [...r.events].sort((a, b) => (b.observation_count ?? 0) - (a.observation_count ?? 0)).slice(0, 3);
-        setInsights(
-          top.map<Insight>((e, i) => ({
-            kind: ["Highest activity", "Watch this", "Recently spread"][i] ?? "Event",
-            title: `${e.centroid.lat.toFixed(2)}°, ${e.centroid.lon.toFixed(2)}°`,
-            detail: `${e.observation_count} detections · ${Math.round((e.extent_km2 ?? 0)).toLocaleString()} km² footprint`,
-            badge: `EV-${e.event_id.slice(-6).toUpperCase()}`,
-            tone: (e.observation_count ?? 0) > 200 ? "warn" : i === 1 ? "info" : "ok",
-          })),
-        );
-      })
-      .catch(() => {});
-
-    return () => {
-      cancelled = true;
+    const loadHotspots = async () => {
+      try {
+        return { response: await getCurrentHotspots(DEFAULT_SENSORS, 1, 600, undefined, false), usedDemo: false };
+      } catch {
+        return { response: await getCurrentHotspots(DEFAULT_SENSORS, 1, 600, undefined, true), usedDemo: true };
+      }
     };
+    const loadEvents = async () => {
+      try {
+        return await getEvents(2, 40, false);
+      } catch {
+        return await getEvents(2, 40, true);
+      }
+    };
+
+    Promise.allSettled([loadHotspots(), loadEvents()])
+      .then(([hotspotResult, eventResult]) => {
+        if (cancelled) return;
+
+        if (hotspotResult.status === "fulfilled") {
+          const { response, usedDemo } = hotspotResult.value;
+          const bySensor = (response.metadata.filtered_by_sensor ?? response.metadata.returned_by_sensor ?? {}) as Record<string, number>;
+          setHotspots(response.hotspots);
+          setCounts({
+            modis: Number(bySensor.modis ?? 0),
+            viirs_snpp: Number(bySensor.viirs_snpp ?? 0),
+            viirs_noaa20: Number(bySensor.viirs_noaa20 ?? 0),
+            viirs_noaa21: Number(bySensor.viirs_noaa21 ?? 0),
+          });
+          setTotalDetections(Number(response.metadata.filtered_hotspot_count ?? response.hotspots.length));
+          const dataSource = String(response.metadata.data_source ?? "live");
+          setSourceMode(usedDemo || dataSource === "demo" ? "demo" : dataSource.includes("cached") ? "cached" : "live");
+          setUpdatedAt(new Date());
+        } else {
+          setSourceMode("unavailable");
+          setError("NASA FIRMS is temporarily unavailable. The interface remains ready to retry in Fire Now.");
+        }
+
+        if (eventResult.status === "fulfilled") setEvents(eventResult.value.events);
+        setLoading(false);
+      });
+    return () => { cancelled = true; };
   }, []);
 
+  const latestEvents = useMemo(
+    () => [...events].sort((a, b) => +new Date(b.latest_detection) - +new Date(a.latest_detection)).slice(0, 3),
+    [events],
+  );
+  const multiEvents = events.filter((event) => event.observation_count > 1).length;
+  const totalFrp = hotspots.reduce((sum, hotspot) => sum + (hotspot.frp ?? 0), 0);
+  const activePlatforms = new Set(hotspots.map((hotspot) => hotspot.satellite || hotspot.sensor)).size;
+  const strongest = [...hotspots].sort((a, b) => (b.frp ?? 0) - (a.frp ?? 0))[0];
+
   return (
-    <main className="mission-home space-shell">
-      <section className="mission-hero nasa-hero" aria-labelledby="mission-title">
-        <div className="mission-earth" aria-hidden="true">
-          <img src="https://images-assets.nasa.gov/image/PIA18033/PIA18033~orig.jpg" alt="" />
-        </div>
-        <div className="mission-scanlines" aria-hidden="true" />
-        <div className="hero-orbit-rings" aria-hidden="true">
-          <span /><span /><span />
-        </div>
+    <main className="fs-home">
+      <section className="fs-hero fs-cinematic" aria-labelledby="fs-title">
+        <div className="fs-grid-overlay" aria-hidden="true" />
+        <Link to="/fire-memory" className="fs-edge-world fs-memory-world" aria-label="Open Fire Memory"><span>Fire Memory</span><b>‹</b></Link>
+        <Link to="/fire-map" className="fs-edge-world fs-now-world" aria-label="Open Fire Now"><b>›</b><span>Fire Now</span></Link>
 
-        <div className="hero-inner">
-          <div className="hero-main">
-            <p className="mission-kicker"><span className="dot" /> Global Fire Intelligence</p>
-            <h2 id="mission-title">FlameSeek</h2>
-            <p className="mission-statement">
-              Past → Present → Identify → Verify → Compare → Forecast → Exposure.<br />
-              A satellite hotspot is an observation, not automatically a confirmed wildfire.
-            </p>
-            <div className="explore-row">
-              <Link to="/fire-map" className="explore-orb" aria-label="Open Fire Now">
-                <span>EXPLORE</span>
-              </Link>
-              <Link to="/fire-memory" className="ghost-orb" aria-label="Build Fire Memory">
-                <span>BUILD FIRE MEMORY</span>
-              </Link>
-            </div>
-            <div className="ask-strip" role="note">
-              <span className="ask-spark" aria-hidden="true">✦</span>
-              <span>Ask the globe: which fire is closest to me, which has the strongest evidence, where might it spread…</span>
-              <span className="ask-actions" aria-hidden="true"><i>?</i><i>::</i></span>
-            </div>
-          </div>
-
-          <div className="hero-panels">
-            <article className="glass-card code-card">
-              <header>
-                <h3>Code<br /><strong>BURN.NRT</strong></h3>
-                <button type="button" aria-label="dismiss" className="glass-close">×</button>
-              </header>
-              <dl>
-                <div><dt>Detection<br />source</dt><dd>NASA<br />FIRMS</dd></div>
-                <div><dt>Observation<br />cadence</dt><dd>MODIS<br />+ VIIRS</dd></div>
-                <div><dt>Update<br />window</dt><dd>3 h<br />NRT</dd></div>
-                <div><dt>Grid<br />resolution</dt><dd>~1 km<br />0.01°</dd></div>
-              </dl>
-              <div className="code-purpose">
-                <span>Purpose</span>
-                <strong>Wildfire situational awareness</strong>
-                <button type="button" className="plus" aria-label="expand">+</button>
-              </div>
-            </article>
-
-            <aside className="glass-card insights-card" aria-label="AI Insights">
-              <header>
-                <p className="mission-kicker">✧ Live Insights</p>
-              </header>
-              <div className="insights-list">
-                {insights.length === 0 && (
-                  <>
-                    <div className="insight-row skeleton"><span /><span /><span /></div>
-                    <div className="insight-row skeleton"><span /><span /><span /></div>
-                    <div className="insight-row skeleton"><span /><span /><span /></div>
-                  </>
-                )}
-                {insights.map((ins) => (
-                  <Link key={ins.badge} className="insight-row" to="/fire-map">
-                    <div className="insight-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" width="34" height="34"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.4" /><path d="M12 6c-2 3-4 5-4 8a4 4 0 0 0 8 0c0-2-2-4-4-8z" fill="currentColor" /></svg>
-                    </div>
-                    <div>
-                      <em>{ins.badge}</em>
-                      <strong>{ins.title}</strong>
-                      <small className={`tone-${ins.tone}`}>{ins.kind} · {ins.detail}</small>
-                    </div>
-                    <span className="insight-jump" aria-hidden="true">↗</span>
-                  </Link>
-                ))}
-              </div>
-              <footer><small>Data refreshed at page load. Open Fire Now for live streaming.</small></footer>
-            </aside>
+        <div className="fs-cinematic-title">
+          <h2 id="fs-title">FlameSeek</h2>
+          <p className="fs-path">Past → Present → Identify → Verify → Compare → Forecast → Exposure.</p>
+          <p className="fs-caveat">A satellite hotspot is an observation, not automatically a confirmed wildfire.</p>
+          <div className="fs-actions">
+            <Link to="/fire-map" className="fs-button primary">Explore <span>→</span></Link>
+            <Link to="/fire-memory" className="fs-button">Build Fire Memory</Link>
           </div>
         </div>
 
-        <div className="hero-readout-strip">
-          <span className="mission-status-dot" />
-          <p>{status}</p>
+        <div className="fs-globe-layer fs-static-earth">
+          <img src="/flameseek-earth-hero.png" alt="Cinematic Earth centered on Asia, used as decorative artwork" decoding="async" fetchPriority="high" />
+        </div>
+        <div className="fs-orbits" aria-hidden="true"><i /><i /><i /></div>
+        <p className="fs-schematic-note">Schematic witness paths · not real-time orbital positions</p>
+        <div className="sat-label sat-terra"><span><SatelliteIcon /></span><b>TERRA</b><small>MODIS</small></div>
+        <div className="sat-label sat-aqua"><span><SatelliteIcon /></span><b>AQUA</b><small>MODIS</small></div>
+        <div className="sat-label sat-snpp"><span><SatelliteIcon /></span><b>SUOMI NPP</b><small>VIIRS</small></div>
+        <div className="sat-label sat-n20"><span><SatelliteIcon /></span><b>NOAA-20</b><small>VIIRS</small></div>
+        <div className="sat-label sat-n21"><span><SatelliteIcon /></span><b>NOAA-21</b><small>VIIRS</small></div>
+
+        <div className={`fs-connection ${sourceMode}`}>
+          <i />{loading ? "Connecting to NASA FIRMS…" : sourceMode === "live" ? "LIVE NASA DATA · MODIS + VIIRS" : sourceMode === "cached" ? "CACHED NASA DATA · MODIS + VIIRS" : sourceMode === "demo" ? "DEMONSTRATION DATA" : "LIVE FEED UNAVAILABLE"}<span>›</span>
+        </div>
+        <aside className="fs-right-rail">
+          <article className="fs-panel fs-code-card">
+            <header><span>CODE</span><b className={sourceMode}>{sourceMode === "live" ? "● LIVE" : sourceMode === "cached" ? "● CACHED" : sourceMode === "demo" ? "● DEMO" : "○ OFFLINE"}</b></header>
+            <h3>BURN.NRT</h3>
+            <dl>
+              <div><dt>Dataset</dt><dd>NASA<br />FIRMS</dd></div><div><dt>Observations</dt><dd>MODIS<br />+ VIIRS</dd></div>
+              <div><dt>Update</dt><dd>3 h<br />NRT</dd></div><div><dt>Grid</dt><dd>~1 km<br />0.01°</dd></div>
+            </dl>
+            <footer><span>Purpose</span><strong>Wildfire situational awareness</strong></footer>
+          </article>
+          <article className="fs-panel fs-live-card">
+            <header><span className="pulse-dot" /> Live insights</header>
+            {strongest ? <Link to="/fire-map" className="fs-coordinate"><span className="target-icon">◎</span><p><small>STRONGEST RETURN</small><strong>{strongest.lat.toFixed(2)}°, {strongest.lon.toFixed(2)}°</strong><em>{sensorFamily(strongest.sensor)} · {strongest.frp?.toFixed(1) ?? "—"} MW FRP</em></p><b>›</b></Link> : <div className="fs-card-skeleton">Waiting for an observation…</div>}
+          </article>
+        </aside>
+
+        <div className="fs-telemetry" aria-label="FlameSeek observation summary">
+          <div><span>◉</span><p><small>Dataset</small><strong>NASA FIRMS</strong></p></div>
+          <div><span>♨</span><p><small>Observations</small><strong>MODIS + VIIRS</strong></p></div>
+          <div><span>◫</span><p><small>Platforms</small><strong>Five witnesses</strong></p></div>
+          <div><span>⌁</span><p><small>Current returns</small><strong>{totalDetections === null ? "—" : totalDetections.toLocaleString()}</strong></p></div>
+          <div><span>⌖</span><p><small>Reconstructed</small><strong>{events.length} events</strong></p></div>
+          <div><span>◷</span><p><small>Checked</small><strong>{updatedAt ? updatedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Pending"}</strong></p></div>
         </div>
       </section>
 
-      <section className="dashboard-strip" aria-label="Live snapshot">
-        <article className="dashboard-card">
-          <header><h3>Detections by day</h3><span className="cta">↗</span></header>
-          <p className="giant-metric">{live.detections === null ? "…" : live.detections.toLocaleString()}</p>
-          <small>Filtered MODIS + VIIRS observations (last 24 h)</small>
-          <div className="bar-mini" aria-hidden="true">
-            {[70, 100, 50, 42, 66].map((h, i) => (
-              <div key={i} style={{ height: `${h}%` }}><i>MODIS</i><i>VIIRS</i></div>
-            ))}
-          </div>
-          <ul className="axis-labels"><li>MODIS</li><li>VIIRS</li><li>SNPP</li><li>NOAA-20</li><li>NOAA-21</li></ul>
+      {error && <div className="fs-data-alert" role="status">{error}</div>}
+
+      <section className="fs-snapshot" aria-label="Current fire intelligence snapshot">
+        <article className="fs-panel fs-chart-card">
+          <header><h3>Detections by sensor</h3><small>RAW OBSERVATIONS · LAST 24 H</small></header>
+          <Plot
+            data={[{ type: "bar", x: SENSOR_LABELS, y: [counts.modis, counts.viirs_snpp, counts.viirs_noaa20, counts.viirs_noaa21], marker: { color: ["#45d9ff", "#42e8d4", "#388fff", "#9e5cff"], line: { color: "#86e8ff", width: 1 } }, hovertemplate: "%{x}<br>%{y:,} observations<extra></extra>" }]}
+            layout={{ autosize: true, height: 120, margin: { l: 34, r: 8, t: 8, b: 28 }, paper_bgcolor: "transparent", plot_bgcolor: "transparent", font: { color: "#8da9c7", family: "Inter, sans-serif", size: 9 }, xaxis: { fixedrange: true, showgrid: false }, yaxis: { fixedrange: true, rangemode: "tozero", gridcolor: "rgba(77,190,255,.11)", zeroline: false }, showlegend: false }}
+            config={{ displayModeBar: false, responsive: true }} useResizeHandler style={{ width: "100%", height: "120px" }}
+          />
         </article>
 
-        <article className="dashboard-card">
-          <header><h3>Latest events</h3><span className="cta">↗</span></header>
-          <ul className="release-list">
-            {insights.length ? insights.map((ins) => (
-              <li key={ins.badge}>
-                <span className="pill">{ins.badge}</span>
-                <strong>{ins.title}</strong>
-                <small>{ins.detail}</small>
+        <article className="fs-panel fs-events-card">
+          <header><h3>Latest reconstructed events</h3><Link to="/fire-map">View all →</Link></header>
+          <ul>
+            {latestEvents.map((event) => (
+              <li key={event.event_id}>
+                <span className="event-flare">✦</span>
+                <p><strong>{event.place_hint || `${event.centroid.lat.toFixed(2)}°, ${event.centroid.lon.toFixed(2)}°`}</strong><small>{event.observation_count} observations · {event.sensors.map(sensorFamily).filter((value, index, all) => all.indexOf(value) === index).join(" + ")}</small></p>
+                <em>{formatAge(event.latest_detection)}</em><b>›</b>
               </li>
-            )) : (
-              <>
-                <li className="skeleton"><span className="pill">EV-…</span><strong>Locating…</strong><small>–</small></li>
-                <li className="skeleton"><span className="pill">EV-…</span><strong>Locating…</strong><small>–</small></li>
-                <li className="skeleton"><span className="pill">EV-…</span><strong>Locating…</strong><small>–</small></li>
-              </>
-            )}
+            ))}
+            {!latestEvents.length && <li className="fs-empty-row">No reconstructed event is available yet.</li>}
           </ul>
         </article>
 
-        <article className="dashboard-card">
-          <header><h3>Fire events snapshot</h3><span className="cta">↗</span></header>
-          <ul className="purpose-list">
-            <li><span>Multi-detection events</span><i style={{ width: "82%" }} /><b>{live.events ?? "–"}</b></li>
-            <li><span>Total footprint (km²)</span><i style={{ width: "60%" }} /><b>{live.area === null ? "–" : Math.round(live.area).toLocaleString()}</b></li>
-            <li><span>Anomaly categories</span><i style={{ width: "38%" }} /><b>4</b></li>
-            <li><span>Evidence sources</span><i style={{ width: "72%" }} /><b>12+</b></li>
-            <li><span>Forecast horizons</span><i style={{ width: "30%" }} /><b>3</b></li>
+        <article className="fs-panel fs-metrics-card">
+          <header><h3>Fire events snapshot</h3><small>OBSERVATION ≠ INCIDENT</small></header>
+          <ul>
+            {[
+              ["Raw hotspot observations", totalDetections, 92], ["Reconstructed events", events.length, 70],
+              ["Multi-detection events", multiEvents, 56], ["Active sensor platforms", activePlatforms, 42],
+              ["Observed fire power", totalFrp ? `${Math.round(totalFrp).toLocaleString()} MW` : "—", 34],
+            ].map(([label, value, width]) => <li key={String(label)}><span>{label}</span><i><u style={{ width: `${width}%` }} /></i><b>{value ?? "—"}</b></li>)}
           </ul>
         </article>
       </section>
 
-      <section className="story-section" aria-label="The seven-stage fire story">
-        <p className="mission-kicker">✧ The seven-stage fire story</p>
-        <div className="story-grid nasa-story-grid">
-          {STORY.map((s) => (
-            <Link key={s.n} to={s.where} className="story-card glass-card">
-              <span>{s.n}</span>
-              <strong>{s.title}</strong>
-              <em>{s.q}</em>
-              <small>{s.how}</small>
-              <div className="story-card-glow" aria-hidden="true" />
-            </Link>
+      <section className="fs-story">
+        <p className="fs-section-kicker">The seven-stage fire story</p>
+        <div className="fs-story-grid">
+          {STORY.map((stage) => (
+            <Link to={stage.route} key={stage.n} className="fs-panel fs-story-card"><span className="story-number">{stage.n}</span><span className="story-icon">{stage.icon}</span><p><strong>{stage.title}</strong><small>{stage.q}</small><em>{stage.how}</em></p><b>›</b></Link>
           ))}
         </div>
       </section>
 
-      <section className="separation-section space-sep" aria-label="What each result means">
-        <article className="sep obs glass-card"><span className="chip">Observed</span><h3>Observation</h3><p>What MODIS and VIIRS actually detected: sensor, time, footprint, FRP, confidence. Absence under clouds is reported as UNKNOWN, not "no fire".</p></article>
-        <article className="sep inf glass-card"><span className="chip">Inferred</span><h3>Inference</h3><p>What the system concludes: harmonized activity, anomaly categories, fire events, inferred behaviour states, and the evidence status and score.</p></article>
-        <article className="sep ext glass-card"><span className="chip">External</span><h3>External evidence</h3><p>What independent satellites, government agencies and local news report, matched by distance and time, always with a link to the original source.</p></article>
-        <article className="sep fc glass-card"><span className="chip">Forecast</span><h3>Forecast</h3><p>Where new satellite-observed activity may appear in the next 6 to 24 hours, as a probability corridor. It is issued only when validated against baselines.</p></article>
+      <section className="fs-meanings" aria-label="How to read FlameSeek">
+        <article className="fs-panel"><span>◆</span><p><strong>Observation</strong><small>What MODIS and VIIRS actually detected: anomaly, time, footprint, FRP and confidence. Absence under clouds is reported as UNKNOWN, not “no fire”.</small></p><b>›</b></article>
+        <article className="fs-panel"><span>◉</span><p><strong>Inference</strong><small>What the system considers: harmonized activity, anomaly categories, reconstructed events, behaviour states, evidence status and score.</small></p><b>›</b></article>
+        <article className="fs-panel"><span>▤</span><p><strong>External evidence</strong><small>What independent satellites, government agencies and local news report, matched by distance and time with links to original sources.</small></p><b>›</b></article>
+        <article className="fs-panel"><span>⌁</span><p><strong>Forecast</strong><small>Where new satellite-observed activity may appear in the next 6 to 24 hours as a probability corridor—not a physical fire-spread prediction.</small></p><b>›</b></article>
       </section>
 
-      <section className="workflow-section" aria-label="Full system workflow">
-        <p className="mission-kicker">✧ Full workflow</p>
-        <ol className="workflow-chain">
-          {WORKFLOW.map((step) => <li key={step}>{step}</li>)}
-        </ol>
-      </section>
+      <section className="fs-workflow"><p className="fs-section-kicker">Full explore</p><div>{WORKFLOW.map((step) => <span key={step}>◈ {step}</span>)}</div></section>
     </main>
   );
 }
