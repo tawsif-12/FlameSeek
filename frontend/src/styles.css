@@ -4329,6 +4329,20 @@ h4.tone-unknown {
 .space-page .memory-setup .checkbox-label { display: inline-flex; gap: 6px; align-items: center; color: var(--sp-text-dim); font-size: 12px; margin: 0 12px 0 0; }
 .space-page .meta-text { color: var(--sp-text-dim); }
 .space-page .error-text { color: #ff9a9a; }
+.space-page .memory-error { margin: 12px 0; padding: 12px 14px; border: 1px solid rgba(255, 108, 108, .35); border-radius: 10px; background: rgba(105, 22, 32, .18); }
+.space-page .memory-error .error-text { margin: 0 0 7px; }
+.space-page .memory-error a { color: #72dcff; font-size: 12px; }
+.space-page .burning-calendar-placeholder {
+  padding: 22px 24px; color: var(--sp-text); border: 1px solid var(--sp-border-strong);
+  background: linear-gradient(180deg, rgba(16, 35, 58, .64), rgba(5, 14, 27, .7));
+}
+.space-page .burning-calendar-placeholder .eyebrow { margin: 0 0 7px; color: var(--sp-cyan); font-family: var(--mission-font); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
+.space-page .burning-calendar-placeholder .dot { display: inline-block; width: 6px; height: 6px; margin-right: 6px; border-radius: 50%; background: var(--sp-cyan); box-shadow: 0 0 9px var(--sp-cyan-glow); }
+.space-page .burning-calendar-placeholder h3 { margin: 0 0 7px; font-family: var(--mission-font); letter-spacing: .08em; }
+.space-page .burning-calendar-placeholder > p:last-of-type { margin: 0; color: var(--sp-text-dim); font-size: 13px; }
+.calendar-placeholder-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 5px; margin-top: 18px; }
+.calendar-placeholder-grid span { height: 24px; border: 1px solid rgba(90, 197, 240, .09); border-radius: 3px; background: linear-gradient(135deg, rgba(17, 53, 78, .45), rgba(8, 25, 42, .45)); }
+@media (max-width: 650px) { .calendar-placeholder-grid { grid-template-columns: repeat(6, 1fr); } }
 .space-page .memory-setup .job-progress > div {
   height: 6px; background: rgba(255, 255, 255, 0.06); border-radius: 999px; overflow: hidden;
 }
@@ -5722,4 +5736,157 @@ details.tech > div {
 }
 @media (prefers-reduced-motion: reduce) {
   .fs-cinematic-title, .fs-cinematic .fs-globe-layer, .fs-cinematic .sat-label { animation: none; }.fs-edge-world::before { transition: none; }
+}
+
+/* Fire Calendar */
+.fs-calendar-callout {
+  width: min(1180px, calc(100% - 40px)); margin: 28px auto; padding: 26px 30px;
+  display: flex; align-items: center; justify-content: space-between; gap: 28px;
+  color: #dceeff; border: 1px solid rgba(81, 204, 255, .24); border-radius: 20px;
+  background: radial-gradient(circle at 80% 0, rgba(19, 157, 203, .16), transparent 42%), rgba(5, 17, 32, .86);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .03), 0 20px 60px rgba(0, 0, 0, .2);
+}
+.fs-calendar-callout h2 { margin: 6px 0; font-size: clamp(24px, 3vw, 38px); }
+.fs-calendar-callout p:not(.fs-section-kicker) { max-width: 720px; margin: 0; color: #83a4bd; }
+.fs-calendar-callout .fs-button { flex: 0 0 auto; text-decoration: none; }
+.fire-calendar-page { min-height: 100vh; padding-bottom: 70px; }
+.calendar-hero { min-height: 380px; }
+.calendar-setup { margin-top: -38px; position: relative; z-index: 2; }
+.coordinate-row, .year-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-items: end; margin-top: 12px; }
+.year-row { grid-template-columns: 1fr 1fr; }
+.coordinate-row label, .year-row label { margin: 0 !important; }
+.coordinate-row .secondary-button { min-height: 38px; padding: 8px 10px; color: #bfeaff; background: rgba(43, 186, 230, .1); border: 1px solid rgba(82, 205, 255, .3); border-radius: 9px; cursor: pointer; }
+.calendar-presets { display: flex; gap: 7px; margin-bottom: 14px; }
+.calendar-presets button, .calendar-toolbar button {
+  padding: 8px 12px; color: #b9dbef; background: rgba(8, 25, 44, .78); border: 1px solid rgba(82, 205, 255, .23); border-radius: 9px; cursor: pointer;
+}
+.calendar-presets button:hover, .calendar-toolbar button:hover, .calendar-toolbar button.active { color: #fff; border-color: #40cefa; background: rgba(25, 151, 190, .23); }
+.calendar-setup .sensor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 6px 0 16px; }
+.calendar-setup .sensor-grid small { color: #63859f; }
+.calendar-setup .unavailable-control { opacity: .6; padding: 8px 0; }
+.calendar-setup .unavailable-control small { display: block; color: #859bad; }
+.calendar-empty { width: min(700px, calc(100% - 40px)); margin: 44px auto; display: grid; gap: 8px; place-items: center; padding: 48px; color: #b6cee3; border: 1px dashed rgba(84, 202, 248, .28); border-radius: 18px; background: rgba(6, 17, 31, .6); text-align: center; }
+.calendar-empty strong { color: #e7f6ff; font-size: 22px; }.calendar-empty span { color: #7697ae; }
+.calendar-toolbar { width: min(1320px, calc(100% - 40px)); margin: 26px auto 0; display: flex; justify-content: space-between; gap: 14px; }
+.calendar-toolbar > div { display: flex; gap: 8px; flex-wrap: wrap; }
+.calendar-results { width: min(1320px, calc(100% - 40px)); margin-right: auto !important; margin-left: auto !important; }
+.calendar-matrix header, .calendar-detail header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.method-badge { max-width: 270px; padding: 5px 9px; color: #72dfff; border: 1px solid rgba(84, 215, 255, .25); border-radius: 999px; font-size: 10px; text-align: center; }
+.calendar-plot-scroll { overflow-x: auto; }.calendar-plot-scroll .plot { min-width: 820px; }
+.calendar-detail { grid-column: 1 / -1; border-color: rgba(244, 124, 54, .38) !important; }
+.calendar-detail header button { color: #9eb8cc; background: none; border: 0; font-size: 26px; cursor: pointer; }
+.calendar-detail dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; }
+.calendar-detail dl div { padding: 10px; border: 1px solid rgba(100, 180, 220, .12); border-radius: 10px; background: rgba(3, 14, 27, .42); }
+.calendar-detail dt { color: #718ea5; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }.calendar-detail dd { margin: 5px 0 0; color: #e4f2fb; font-size: 13px; }
+.calendar-detail .primary-button { padding: 10px 16px; color: #03131f; background: #54d8f8; border: 0; border-radius: 999px; font-weight: 700; cursor: pointer; }
+.calendar-detail > small { display: block; margin-top: 8px; color: #728da2; }
+.calendar-explainer > div { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.calendar-explainer p { display: grid; gap: 6px; margin: 0; padding: 12px; background: rgba(4, 16, 29, .45); border-radius: 10px; }
+.calendar-explainer p strong { color: #70dcf8; font-size: 12px; }.calendar-explainer p span, .calendar-explainer footer { color: #7f9bb0; font-size: 12px; line-height: 1.5; }
+.calendar-explainer footer { margin-top: 14px; }.calendar-explainer a { color: #67d9fa; }
+@media (max-width: 850px) {
+  .fs-calendar-callout, .calendar-toolbar { align-items: flex-start; flex-direction: column; }
+  .calendar-explainer > div { grid-template-columns: 1fr 1fr; }
+  .coordinate-row { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 540px) {
+  .calendar-setup .sensor-grid, .calendar-explainer > div, .year-row, .coordinate-row { grid-template-columns: 1fr; }
+  .calendar-toolbar, .calendar-results { width: calc(100% - 24px); }
+}
+
+/* Calendar controls integrated into Fire Memory */
+.memory-calendar > header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.memory-calendar > header .eyebrow { margin: 0 0 6px; color: var(--sp-cyan); font-family: var(--mission-font); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
+.memory-calendar-toolbar { display: flex; justify-content: space-between; gap: 12px; margin: 16px 0 8px; }
+.memory-calendar-toolbar > div { display: flex; flex-wrap: wrap; gap: 7px; }
+.memory-calendar-toolbar button {
+  padding: 7px 11px; color: #a9cce2; background: rgba(6, 20, 36, .76); border: 1px solid rgba(82, 205, 255, .2); border-radius: 8px; cursor: pointer;
+}
+.memory-calendar-toolbar button:hover, .memory-calendar-toolbar button.active { color: #fff; border-color: #42cef5; background: rgba(28, 151, 190, .22); }
+.burning-pattern-scroll { width: 100%; overflow-x: auto; padding: 10px 0 4px; }
+.burning-pattern-grid {
+  min-width: 900px; display: grid; grid-template-columns: 72px repeat(12, minmax(62px, 1fr));
+  grid-auto-rows: 38px; gap: 5px; align-items: stretch;
+}
+.burning-pattern-grid .calendar-corner,
+.burning-pattern-grid .calendar-month,
+.burning-pattern-grid .calendar-year { display: flex; align-items: center; color: #9bb2c3; font-size: 12px; }
+.burning-pattern-grid .calendar-corner { align-items: flex-end; padding-bottom: 3px; color: #c7d8e4; }
+.burning-pattern-grid .calendar-month { justify-content: center; align-items: flex-end; padding-bottom: 3px; }
+.burning-pattern-grid .calendar-year { justify-content: flex-start; color: #abc0cf; font-variant-numeric: tabular-nums; }
+.burning-month-cell {
+  position: relative; min-width: 0; border: 0; border-radius: 4px; cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .035); transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+}
+.burning-month-cell:hover, .burning-month-cell:focus-visible { z-index: 1; transform: translateY(-2px); filter: brightness(1.12); box-shadow: 0 5px 15px rgba(0, 0, 0, .28), inset 0 0 0 2px rgba(255, 255, 255, .7); outline: none; }
+.burning-month-cell.missing { background: repeating-linear-gradient(135deg, #293443, #293443 5px, #202a37 5px, #202a37 10px); }
+.burning-month-cell.limited > span { position: absolute; top: 50%; left: 50%; color: rgba(255, 255, 255, .9); font-size: 14px; font-weight: 800; transform: translate(-50%, -50%); text-shadow: 0 1px 2px rgba(0, 0, 0, .7); }
+.burning-calendar-legend { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; margin: 14px 0 5px; color: #9eb2c1; font-size: 12px; }
+.burning-calendar-legend > span:last-child { text-align: right; }.burning-calendar-legend > div { display: flex; gap: 4px; }
+.burning-calendar-legend i { display: block; width: 24px; height: 14px; border-radius: 3px; }
+.calendar-legend-note { margin: 4px 0 0; color: #7895aa; font-size: 11px; }
+.calendar-legend-note .missing-swatch { display: inline-block; width: 10px; height: 10px; margin-right: 3px; vertical-align: -1px; background: #263143; border-radius: 2px; }
+.calendar-legend-note b { color: #eef8ff; }
+.memory-calendar-detail { margin-top: 16px; padding: 16px; border: 1px solid rgba(244, 124, 54, .34); border-radius: 14px; background: rgba(5, 16, 29, .7); }
+.memory-calendar-detail header { display: flex; justify-content: space-between; align-items: center; }.memory-calendar-detail h4 { margin: 0; color: #f1f8ff; }
+.memory-calendar-detail header button { color: #91aabd; background: none; border: 0; font-size: 24px; cursor: pointer; }
+.memory-calendar-detail dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; }
+.memory-calendar-detail dl div { padding: 9px; border: 1px solid rgba(100, 180, 220, .12); border-radius: 9px; background: rgba(3, 12, 24, .45); }
+.memory-calendar-detail dt { color: #718ea5; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }.memory-calendar-detail dd { margin: 4px 0 0; color: #e4f2fb; font-size: 12px; }
+.memory-calendar-detail .primary-button { padding: 9px 14px; color: #03131f; background: #54d8f8; border: 0; border-radius: 999px; font-weight: 700; cursor: pointer; }
+.memory-calendar-detail > small { display: block; margin-top: 7px; color: #728da2; }
+@media (max-width: 650px) {
+  .memory-calendar > header, .memory-calendar-toolbar { flex-direction: column; }.memory-calendar > header .method-badge { align-self: flex-start; }
+  .burning-calendar-legend { grid-template-columns: auto 1fr auto; gap: 8px; }.burning-calendar-legend i { width: 18px; }
+}
+
+/* Fire DNA Profile */
+.fire-dna-page { min-height: 100vh; color: #dcefff; background: #030914; }
+.dna-hero { min-height: 230px; padding: 42px max(24px, calc((100vw - 1880px) / 2)); display: flex; align-items: center; position: relative; overflow: hidden; background: linear-gradient(90deg, rgba(2, 10, 20, .98) 0%, rgba(2, 13, 28, .83) 44%, rgba(2, 8, 18, .25) 73%), url('/flameseek-earth-hero.png') right 37%/70% auto no-repeat; border-bottom: 1px solid rgba(73, 199, 255, .2); }
+.dna-hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(rgba(70, 190, 240, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(70, 190, 240, .035) 1px, transparent 1px); background-size: 36px 36px; mask-image: linear-gradient(90deg, #000, transparent 75%); }
+.dna-hero > div { z-index: 1; max-width: 740px; }.dna-hero .eyebrow { display: inline-block; margin: 0 0 9px; padding: 4px 8px; color: #54dcff; border: 1px solid rgba(66, 211, 255, .35); border-radius: 4px; font-size: 9px; letter-spacing: .16em; text-transform: uppercase; }
+.dna-hero h2 { margin: 0; color: #eef9ff; font-family: var(--mission-font); font-size: clamp(30px, 4vw, 52px); letter-spacing: .03em; line-height: 1; }.dna-hero h1 { margin: 5px 0 7px; color: #c7def0; font-size: clamp(16px, 2vw, 24px); }.dna-hero p { margin: 0 0 12px; color: #8ba8bd; font-size: 14px; }.dna-hero small { display: inline-block; padding: 6px 10px; color: #789bb2; background: rgba(8, 32, 51, .65); border: 1px solid rgba(65, 179, 221, .2); border-radius: 999px; }
+.dna-hero-region { position: absolute; right: max(48px, calc((100vw - 1760px) / 2)); top: 50%; z-index: 2; display: flex; align-items: center; gap: 12px; min-width: 260px; padding: 15px 18px; transform: translateY(-50%); background: rgba(2, 14, 29, .7); border: 1px solid rgba(70, 210, 255, .3); border-radius: 8px; box-shadow: 0 0 32px rgba(10, 121, 171, .14); backdrop-filter: blur(7px); }.dna-hero-region > span { color: #4edcff; font-size: 24px; }.dna-hero-region div { display: grid; gap: 4px; }.dna-hero-region strong { color: #f0faff; font-family: var(--mission-font); font-size: 18px; letter-spacing: .08em; text-transform: uppercase; }.dna-hero-region small { padding: 0; border: 0; background: none; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+.dna-workspace { width: min(1880px, calc(100% - 32px)); margin: -18px auto 0; padding-bottom: 60px; position: relative; z-index: 2; display: grid; gap: 12px; }
+.dna-panel { min-width: 0; padding: 15px; border: 1px solid rgba(44, 155, 207, .28); border-radius: 10px; background: linear-gradient(180deg, rgba(6, 22, 39, .96), rgba(3, 14, 27, .97)); box-shadow: inset 0 1px rgba(129, 219, 255, .025), 0 14px 36px rgba(0, 0, 0, .16); }
+.dna-panel > header { min-height: 26px; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }.dna-panel > header b { display: grid; place-items: center; width: 20px; height: 20px; color: #46d5fa; border-radius: 50%; background: rgba(27, 142, 188, .15); font-size: 10px; }.dna-panel > header h3 { flex: 1; margin: 0; color: #cdeafa; font-family: var(--mission-font); font-size: 12px; letter-spacing: .06em; }.dna-panel select { padding: 6px 9px; color: #a9c9dc; background: #071727; border: 1px solid rgba(63, 177, 221, .28); border-radius: 6px; }
+.dna-selector-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; }.dna-selector .aoi-map { height: 210px; }.dna-selector .aoi-search input { background: #061522; color: #d9effb; border-color: rgba(66, 174, 217, .3); }.dna-selector .meta-text { color: #7d9cb1; }
+.dna-aoi-map-shell { position: relative; overflow: hidden; border: 1px solid rgba(49, 211, 241, .34); border-radius: 8px; background: #020b13; box-shadow: inset 0 0 35px rgba(11, 143, 184, .12), 0 0 24px rgba(12, 134, 173, .08); }
+.dna-region-map { border: 0 !important; border-radius: 0 !important; filter: saturate(.85) contrast(1.08); }
+.dna-aoi-map-shell::before, .dna-aoi-map-shell::after { content: ""; position: absolute; z-index: 510; width: 34px; height: 34px; pointer-events: none; border-color: #34dff7; filter: drop-shadow(0 0 4px rgba(52, 223, 247, .5)); }
+.dna-aoi-map-shell::before { top: 8px; left: 8px; border-top: 1px solid; border-left: 1px solid; }.dna-aoi-map-shell::after { right: 8px; bottom: 8px; border-right: 1px solid; border-bottom: 1px solid; }
+.dna-map-hud { position: absolute; z-index: 500; inset: 0; overflow: hidden; pointer-events: none; background: radial-gradient(circle at center, transparent 0 28%, rgba(24, 209, 240, .025) 29% 30%, transparent 31%), linear-gradient(rgba(62, 202, 232, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(62, 202, 232, .035) 1px, transparent 1px); background-size: auto, 28px 28px, 28px 28px; }
+.dna-map-badge, .dna-map-readout { position: absolute; padding: 4px 7px; color: #63e8ff; background: rgba(2, 15, 25, .82); border: 1px solid rgba(61, 215, 242, .28); border-radius: 3px; font-family: var(--mission-font); font-size: 7px; letter-spacing: .12em; }
+.dna-map-badge { top: 9px; left: 50%; transform: translateX(-50%); }.dna-map-readout { right: 10px; bottom: 9px; color: #78a9bc; }
+.dna-map-ring { position: absolute; top: 50%; left: 50%; border: 1px solid rgba(47, 223, 249, .38); border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 16px rgba(29, 198, 231, .07); }.dna-map-ring.ring-one { width: 82px; height: 82px; }.dna-map-ring.ring-two { width: 142px; height: 142px; border-style: dashed; opacity: .45; animation: dna-map-rotate 18s linear infinite; }
+.dna-map-crosshair { position: absolute; top: 50%; left: 50%; background: rgba(62, 225, 249, .22); transform: translate(-50%, -50%); }.dna-map-crosshair.horizontal { width: 190px; height: 1px; }.dna-map-crosshair.vertical { width: 1px; height: 150px; }
+.dna-aoi-selector .leaflet-control-zoom a, .dna-aoi-selector .leaflet-draw-toolbar a { color: #9cecff; background-color: rgba(3, 24, 38, .92); border-color: rgba(49, 211, 241, .26); }.dna-aoi-selector .leaflet-control-attribution { color: #54798c; background: rgba(2, 12, 20, .72); font-size: 7px; }.dna-aoi-selector .leaflet-control-attribution a { color: #6ba2b8; }
+@keyframes dna-map-rotate { to { transform: translate(-50%, -50%) rotate(360deg); } }
+.dna-controls { display: grid; align-content: start; gap: 10px; }.dna-controls > label { display: grid; gap: 5px; color: #8da8ba; font-size: 10px; }.dna-mode { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }.dna-mode button { padding: 8px; color: #8aaac0; background: #07192b; border: 1px solid rgba(48, 164, 210, .22); border-radius: 6px; cursor: pointer; }.dna-mode button:first-child { color: #69e3ff; background: rgba(28, 145, 190, .18); }.dna-sensors { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }.dna-sensors label { color: #8eacbf; font-size: 10px; }.dna-controls > p { margin: 0; color: #68879c; font-size: 10px; line-height: 1.5; }.dna-run { padding: 10px; color: #03131d; background: linear-gradient(180deg, #67e1ff, #2aaedf); border: 0; border-radius: 999px; font-weight: 800; letter-spacing: .08em; cursor: pointer; }.dna-run:disabled { opacity: .45; cursor: not-allowed; }.dna-progress { display: grid; height: 5px; position: relative; background: #071422; border-radius: 5px; }.dna-progress i { display: block; background: #3ad7f8; border-radius: 5px; }.dna-progress span { margin-top: 5px; color: #7697ab; font-size: 9px; }.dna-error { color: #ff8f8f !important; }
+.dna-empty { min-height: 260px; display: grid; place-content: center; place-items: center; color: #7898ad; border: 1px dashed rgba(65, 180, 222, .25); border-radius: 10px; text-align: center; }.dna-empty span { color: #3dd8fb; font-size: 46px; }.dna-empty h3 { margin: 8px 0; color: #c7e4f4; }
+.dna-identity-row { display: grid; grid-template-columns: 1fr 340px; gap: 12px; }.dna-region-title { display: flex; align-items: center; gap: 11px; padding: 10px; border-bottom: 1px solid rgba(62, 163, 203, .15); }.dna-region-title > span { display: grid; place-items: center; width: 40px; height: 40px; background: rgba(255, 89, 43, .12); border-radius: 8px; }.dna-region-title div { display: grid; gap: 4px; }.dna-region-title strong { color: #f1f9ff; font-size: 17px; }.dna-region-title small { color: #7898ad; }
+.dna-metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }.dna-metric-grid > div, .dna-history-stats > div { display: grid; gap: 4px; padding: 10px; background: rgba(7, 28, 47, .72); border: 1px solid rgba(56, 157, 200, .15); border-radius: 7px; }.dna-metric-grid small, .dna-history-stats small, .dna-reliability small { color: #6e90a6; font-size: 9px; }.dna-metric-grid strong { color: #ffae58; font-size: 15px; }.dna-metric-grid em, .dna-history-stats em { color: #68889e; font-size: 8px; font-style: normal; }
+.dna-fingerprint { height: 100%; margin: 0; display: grid; place-items: center; }.dna-fingerprint figcaption { width: 100%; min-height: 26px; display: flex; align-items: center; gap: 8px; justify-self: start; color: #cae8f7; font-family: var(--mission-font); font-size: 11px; }.dna-fingerprint figcaption > b { display: grid; place-items: center; width: 20px; height: 20px; color: #46d5fa; border-radius: 50%; background: rgba(27, 142, 188, .15); font-size: 10px; }.dna-fingerprint figcaption > span { display: grid; gap: 2px; }.dna-fingerprint figcaption strong { color: #cdeafa; font-size: 12px; letter-spacing: .06em; }.dna-fingerprint figcaption small { color: #6e90a6; font-family: inherit; font-size: 8px; }.dna-fingerprint svg { width: min(250px, 100%); overflow: visible; }.dna-fingerprint svg text { fill: #81a7bc; font-size: 7px; }.dna-fingerprint svg .dna-center { fill: #e9f8ff; font-size: 9px; font-weight: 800; }.dna-scale { display: flex; align-items: center; gap: 4px; color: #688a9e; font-size: 8px; }.dna-scale i { width: 18px; height: 6px; background: #17607c; }.dna-scale i:nth-of-type(2) { background: #36c9df; }.dna-scale i:nth-of-type(3) { background: #ff9f43; }.dna-scale i:nth-of-type(4) { background: #ff5b35; }
+.dna-chart-row, .dna-analysis-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }.dna-chart-row .plot { width: 100%; }.dna-interpretation, .dna-method { margin: 5px 0 0; padding: 8px 10px; color: #8fabbd; background: rgba(8, 31, 48, .65); border-left: 2px solid #37cee9; font-size: 10px; }.dna-pill { padding: 4px 7px; color: #54daf9; border: 1px solid rgba(61, 201, 239, .25); border-radius: 999px; font-size: 8px; }.dna-history-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }.dna-history-stats strong { color: #e8f6fc; font-size: 13px; }
+.dna-anomaly-controls { display: flex; gap: 7px; margin-bottom: 9px; }.dna-anomaly-table { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }.dna-anomaly-table > span { display: grid; gap: 5px; padding: 10px; color: #7092a8; background: rgba(7, 27, 45, .7); border-radius: 7px; font-size: 9px; }.dna-anomaly-table strong { color: #e4f3fa; font-size: 13px; }.dna-anomaly-table .hot, .dna-selected .hot { color: #ff6541; }.dna-anomaly-table .cool { color: #42c9ed; }.dna-selected dl { display: grid; gap: 1px; margin: 0 0 10px; }.dna-selected dl div { display: grid; grid-template-columns: 1fr 1fr; padding: 7px 8px; background: rgba(7, 27, 45, .58); }.dna-selected dt { color: #7597aa; font-size: 9px; }.dna-selected dd { margin: 0; color: #d9edf8; text-align: right; font-size: 10px; }.dna-selected > button { width: 100%; padding: 8px; color: #06131c; background: #36cbed; border: 0; border-radius: 999px; font-weight: 700; cursor: pointer; }
+.dna-summary-row { display: grid; grid-template-columns: 1fr; }.dna-summary > p { margin: 4px 0 12px; color: #9cb7c8; font-size: 12px; line-height: 1.65; }.dna-summary > button { width: 100%; display: flex; justify-content: space-between; padding: 9px 12px; color: #9cbbcd; background: #071a2b; border: 1px solid rgba(60, 171, 214, .17); border-radius: 7px; cursor: pointer; }.dna-meaning { padding: 12px; color: #7e9eb2; background: rgba(5, 20, 34, .7); font-size: 11px; line-height: 1.55; }
+.dna-reliability > div { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }.dna-reliability > div > span { display: grid; gap: 4px; padding: 9px; background: rgba(7, 27, 45, .65); border-radius: 6px; }.dna-reliability strong { color: #cce5f2; font-size: 10px; }.dna-reliability nav { display: flex; justify-content: flex-end; gap: 7px; margin-top: 10px; }.dna-reliability button { padding: 7px 10px; color: #b7d3e3; background: #082238; border: 1px solid rgba(63, 182, 226, .24); border-radius: 6px; cursor: pointer; }.dna-reliability footer { margin-top: 9px; color: #627f92; font-size: 9px; }.dna-reliability a { color: #45d5f5; }
+.dna-preview { opacity: .78; }.dna-preview button:disabled { opacity: .55; cursor: default; }.dna-preview-fingerprint { display: grid; place-items: center; }.dna-preview-fingerprint > header { width: 100%; }.dna-preview-fingerprint > small { color: #6f91a6; font-size: 9px; }.dna-preview-radar { width: 150px; aspect-ratio: 1; display: grid; place-items: center; position: relative; border: 1px solid rgba(54, 205, 235, .28); border-radius: 50%; background: repeating-radial-gradient(circle, transparent 0 22px, rgba(54, 205, 235, .13) 23px 24px); }.dna-preview-radar::before, .dna-preview-radar::after { content: ""; position: absolute; inset: 18px 50%; width: 1px; background: rgba(54, 205, 235, .18); transform: rotate(55deg); }.dna-preview-radar::after { transform: rotate(-55deg); }.dna-preview-radar i { position: absolute; width: 76px; height: 92px; border: 1px solid rgba(255, 100, 55, .42); background: rgba(255, 93, 46, .12); clip-path: polygon(50% 0, 100% 35%, 78% 100%, 20% 82%, 0 32%); }.dna-preview-radar span { z-index: 1; display: grid; place-items: center; width: 48px; height: 48px; color: #d9f5ff; background: #071725; border: 1px solid #34cce9; border-radius: 50%; font-size: 9px; font-weight: 800; text-align: center; }
+.dna-preview-bars { height: 180px; display: flex; align-items: end; gap: 8px; padding: 18px 10px 0; border-left: 1px solid rgba(84, 164, 199, .15); border-bottom: 1px solid rgba(84, 164, 199, .15); background: repeating-linear-gradient(0deg, transparent 0 39px, rgba(84, 164, 199, .08) 40px); }.dna-preview-bars > span { height: 100%; flex: 1; display: flex; align-items: center; justify-content: end; flex-direction: column; gap: 6px; }.dna-preview-bars i { width: 100%; height: var(--bar); max-width: 34px; background: linear-gradient(#1fc4de, #156b88); border-radius: 2px 2px 0 0; filter: saturate(.45); }.dna-preview-bars small { color: #7594a9; font-size: 8px; }.dna-preview-trend { height: 145px; display: grid; place-items: center; position: relative; overflow: hidden; border-left: 1px solid rgba(84, 164, 199, .15); border-bottom: 1px solid rgba(84, 164, 199, .15); background: repeating-linear-gradient(0deg, transparent 0 35px, rgba(84, 164, 199, .08) 36px); }.dna-preview-trend i { position: absolute; width: 120%; height: 3px; background: linear-gradient(90deg, #ff6338, #ff9a42); transform: rotate(-7deg); opacity: .42; }.dna-preview-trend span { z-index: 1; padding: 6px 10px; color: #7899ad; background: rgba(3, 14, 27, .85); font-size: 10px; }.dna-preview-rows { display: grid; gap: 7px; }.dna-preview-rows span { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 10px; padding: 9px; background: rgba(7, 27, 45, .65); }.dna-preview-rows i { height: 8px; background: rgba(91, 151, 180, .2); border-radius: 5px; }
+@media (max-width: 1050px) { .dna-identity-row { grid-template-columns: 1fr 280px; }.dna-metric-grid { grid-template-columns: 1fr 1fr; }.dna-selector-grid, .dna-chart-row, .dna-analysis-row { grid-template-columns: 1fr; }.dna-reliability > div { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 1200px) { .dna-hero-region { display: none; } }
+@media (max-width: 700px) { .dna-workspace { width: calc(100% - 20px); }.dna-hero { padding: 34px 18px; background-size: auto 100%; }.dna-hero-region { display: none; }.dna-identity-row { grid-template-columns: 1fr; }.dna-metric-grid, .dna-anomaly-table, .dna-history-stats, .dna-reliability > div { grid-template-columns: 1fr 1fr; }.dna-reliability nav { justify-content: stretch; flex-direction: column; }.dna-sensors { grid-template-columns: 1fr; } }
+@media (min-width: 1600px) and (min-height: 900px) {
+  .dna-hero { min-height: 205px; padding-top: 28px; padding-bottom: 28px; }.dna-hero h2 { font-size: 50px; }.dna-hero h1 { font-size: 22px; }
+  .dna-workspace { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px; margin-top: 6px; padding-bottom: 20px; }.dna-panel { padding: 9px; }.dna-panel > header { margin-bottom: 6px; }
+  .dna-selector { grid-column: 1 / 8; grid-row: 1; }.dna-selector-grid { grid-template-columns: 1.35fr 1fr; gap: 10px; }.dna-selector .aoi-map { height: 174px; }
+  .dna-identity-row, .dna-chart-row, .dna-analysis-row, .dna-summary-row { display: contents; }
+  .dna-identity-row > .dna-identity { grid-column: 8 / 13; grid-row: 1; }.dna-metric-grid { grid-template-columns: repeat(2, 1fr); gap: 5px; }.dna-metric-grid > div { padding: 7px; }
+  .dna-identity-row > .dna-panel:not(.dna-identity) { grid-column: 6 / 9; grid-row: 2; }.dna-fingerprint svg { width: 188px; }
+  .dna-chart-row > article:first-child { grid-column: 1 / 6; grid-row: 2; }.dna-chart-row > article:nth-child(2) { grid-column: 9 / 13; grid-row: 2; }.dna-chart-row .plot { height: 180px !important; }
+  .dna-analysis-row > article:first-child { grid-column: 1 / 6; grid-row: 3; }.dna-analysis-row > article:nth-child(2) { grid-column: 6 / 9; grid-row: 3; }.dna-anomaly-table { grid-template-columns: 1fr 1fr; gap: 5px; }.dna-anomaly-table > span { padding: 7px; }
+  .dna-summary-row > .dna-summary { grid-column: 9 / 13; grid-row: 3; }.dna-reliability { grid-column: 1 / 13; grid-row: 4; }.dna-reliability > div { grid-template-columns: repeat(6, 1fr); gap: 5px; }.dna-reliability nav { margin-top: 6px; }
+  .dna-empty { grid-column: 8 / 13; grid-row: 1; min-height: 270px; }
+  .dna-chart-row > article:nth-child(2) > header b, .dna-analysis-row > article:first-child > header b, .dna-analysis-row > article:nth-child(2) > header b, .dna-summary-row > article > header b, .dna-reliability > header b { font-size: 0; }
+  .dna-chart-row > article:nth-child(2) > header b::after { content: "5"; font-size: 10px; }.dna-analysis-row > article:first-child > header b::after { content: "6"; font-size: 10px; }.dna-analysis-row > article:nth-child(2) > header b::after { content: "7"; font-size: 10px; }.dna-summary-row > article > header b::after { content: "8"; font-size: 10px; }.dna-reliability > header b::after { content: "9"; font-size: 10px; }
 }

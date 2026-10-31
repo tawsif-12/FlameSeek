@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable
 
 
-from firms_client import FIRMS_WAIT_SECONDS
+from firms_client import FIRMS_WAIT_SECONDS, FirmsAPIError
 
 
 JobFn = Callable[["Job"], Awaitable[Any]]
@@ -70,7 +70,9 @@ def start_job(kind: str, params: dict[str, Any], fn: JobFn) -> Job:
             job.message = "Completed"
         except Exception as exc:  # noqa: BLE001 - surface any failure to the client
             job.status = "failed"
-            job.error = f"{exc.__class__.__name__}: {exc}"
+            # FIRMS errors already contain a safe, actionable public message. Do
+            # not expose the exception wrapper or internal URL to the UI.
+            job.error = exc.message if isinstance(exc, FirmsAPIError) else f"{exc.__class__.__name__}: {exc}"
             print(traceback.format_exc())
         finally:
             job.finished_at = datetime.now(timezone.utc)

@@ -9,10 +9,11 @@ import HomePage from "./pages/HomePage";
 import DataSourcesPage from "./pages/DataSourcesPage";
 import FireGlobePage from "./pages/FireGlobePage";
 import FireMemoryPage from "./pages/FireMemoryPage";
+import FireDnaPage from "./pages/FireDnaPage";
 
 function Header() {
   const location = useLocation();
-  const darkRoutes = ["/", "/fire-memory", "/data-sources"];
+  const darkRoutes = ["/", "/fire-memory", "/fire-dna", "/data-sources"];
   const isDark = darkRoutes.includes(location.pathname);
 
   return (
@@ -28,6 +29,7 @@ function Header() {
         <NavLink to="/">Home</NavLink>
         <NavLink to="/fire-map">Fire Now</NavLink>
         <NavLink to="/fire-memory">Fire Memory</NavLink>
+        <NavLink to="/fire-dna">Fire DNA</NavLink>
         <NavLink to="/data-sources">Analysis <span aria-hidden="true">⌄</span></NavLink>
         <Link to="/data-sources#about">About</Link>
       </nav>
@@ -52,6 +54,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="/" element={<HomePage />} />
           <Route path="/fire-map" element={<FireGlobePage />} />
           <Route path="/fire-memory" element={<FireMemoryPage />} />
+          <Route path="/fire-dna" element={<FireDnaPage />} />
+          <Route path="/fire-calendar" element={<Navigate to="/fire-memory" replace />} />
           <Route path="/critical-periods" element={<Navigate to="/fire-memory" replace />} />
           <Route path="/data-sources" element={<DataSourcesPage />} />
         </Routes>

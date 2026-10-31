@@ -100,6 +100,6 @@ export function startOutlook(eventId: string, years = 8) {
   return startJob<OutlookResult>(`/api/events/${eventId}/outlook`, undefined, { years });
 }
 
-export function startFireMemory(aoi: AOI, historyYears: number, sensors: SensorName[], comparisonWindowDays: number) {
-  return startJob<FireMemoryResult>("/api/fire_memory", { aoi, history_years: historyYears, sensors, comparison_window_days: comparisonWindowDays });
+export function startFireMemory(aoi: AOI, historyYears: number, sensors: SensorName[], comparisonWindowDays: number, endDate?: string) {
+  return startJob<FireMemoryResult>("/api/fire_memory", { aoi, history_years: historyYears, sensors, comparison_window_days: comparisonWindowDays, end_date: endDate });
 }

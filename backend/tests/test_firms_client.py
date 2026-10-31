@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from datetime import date
 
-from firms_client import _normalize_confidence, _source_for_sensor
+import pytest
+import firms_client
+
+from firms_client import FirmsAPIError, _normalize_confidence, _require_firms_key, _source_for_sensor, firms_key_configured
 
 
 def test_viirs_confidence_mapping():
@@ -22,3 +25,12 @@ def test_historical_dates_use_science_processing_sources():
 
 def test_recent_dates_use_nrt_sources():
     assert _source_for_sensor("modis", date(2026, 8, 1)) == "MODIS_NRT"
+
+
+def test_placeholder_map_key_fails_locally_with_setup_instructions(monkeypatch):
+    monkeypatch.setattr(firms_client, "FIRMS_MAP_KEY", "DEMO_KEY")
+    assert not firms_key_configured()
+    with pytest.raises(FirmsAPIError) as error:
+        _require_firms_key()
+    assert error.value.status_code == 503
+    assert "backend/.env" in error.value.message

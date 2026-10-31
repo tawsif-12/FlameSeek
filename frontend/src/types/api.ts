@@ -498,12 +498,39 @@ export interface SeasonalMonth {
   season_level: string;
 }
 
+export interface MemoryMonth {
+  year: number;
+  month: number;
+  days_in_record: number;
+  harmonized_activity: number;
+  hotspot_count: number;
+  active_days: number;
+  median_frp: number | null;
+  p90_frp: number | null;
+  spatial_spread_cells_10km: number;
+  mean_sufficiency: number;
+}
+
+export interface FireDnaProfile {
+  monthly_reference: Array<{ month: number; name: string; median_activity: number | null; q1_activity: number | null; q3_activity: number | null; years: number }>;
+  annual: Array<{ year: number; activity: number | null; months: number; comparable: boolean }>;
+  peak_month: string | null;
+  peak_season: string[];
+  typical_annual_activity: number | null;
+  highest_year: { year: number; activity: number; months: number; comparable: boolean } | null;
+  lowest_year: { year: number; activity: number; months: number; comparable: boolean } | null;
+  trend: { direction: "Increasing" | "Decreasing" | "Stable" | "Insufficient data"; slope_per_year: number | null; percent_per_year: number | null; slope_interval: [number, number] | null; years: number; method: string };
+  reliability: { label: string; mean_sufficiency_score: number; pct_days_unobservable: number; method: string };
+  summary: string;
+  method: string;
+}
+
 export interface FireMemoryResult {
   aoi: Record<string, unknown>;
   period: { start: string; end: string; years: number; days: number };
   summary: { total_hotspots: number; total_harmonized_activity: number; peak_day: string | null; high_anomaly_days: number; category_counts: Record<string, number> };
   daily: MemoryDay[];
-  monthly: Array<Record<string, number | null>>;
+  monthly: MemoryMonth[];
   calendar: { years: number[]; months: string[]; activity: Array<Array<number | null>>; hotspots: Array<Array<number | null>> };
   seasonal_profile: { years: number[]; months: SeasonalMonth[]; peak_months: string[]; active_months: string[]; quiet_months: string[]; note: string };
   current_vs_historical: {
@@ -530,6 +557,7 @@ export interface FireMemoryResult {
   calibration: { status: string; viirs_to_modis_factor: number | null; factor_iqr: [number, number] | null; pairs: number; note: string };
   witness: WitnessResult;
   observation_quality: { counts: Record<string, number>; labels: Record<string, string>; mean_sufficiency_score: number; pct_days_unobservable: number; method: string };
+  fire_dna: FireDnaProfile;
   events: { count: number; multi_detection: number };
   provenance: Record<string, unknown>;
 }

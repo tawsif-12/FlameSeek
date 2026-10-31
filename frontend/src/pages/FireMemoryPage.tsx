@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import Plot from "react-plotly.js";
+import { useNavigate } from "react-router-dom";
 import { normalizeApiError, runJob, startFireMemory } from "../api/client";
 import AOISelector from "../components/AOISelector";
 import WorldviewButton from "../components/WorldviewButton";
@@ -22,6 +23,28 @@ const OBS_COLORS: Record<string, string> = {
   missing_observation: "#1e293b",
 };
 const plotLayout = { autosize: true, paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)", font: { family: "Inter, sans-serif", size: 12 } };
+type CalendarMode = "harmonized" | "raw" | "anomaly";
+
+function medianOf(values: number[]) {
+  if (!values.length) return undefined;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+function downloadFile(name: string, blob: Blob) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = name;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+function csvValue(value: unknown) {
+  const text = value === null || value === undefined ? "" : String(value);
+  return `"${text.replace(/"/g, '""')}"`;
+}
 
 export default function FireMemoryPage() {
   const { aoi, sensors, setSensors, memory, setMemory } = useAppContext();
@@ -103,10 +126,25 @@ export default function FireMemoryPage() {
               <small>{job.message}</small>
             </div>
           )}
-          {error && <p className="error-text">{error}</p>}
+          {error && (
+            <div className="memory-error" role="alert">
+              <p className="error-text">{error}</p>
+              {error.includes("FIRMS_MAP_KEY") && <a href="https://firms.modaps.eosdis.nasa.gov/api/map_key/" target="_blank" rel="noreferrer">Get a free NASA FIRMS key ↗</a>}
+            </div>
+          )}
           <p className="meta-text">The first time for a place can take a few minutes, because the records are downloaded from NASA. After that the same place opens in about a second.</p>
         </div>
       </section>
+      {!memory && (
+        <section className="burning-calendar-placeholder glass-card" aria-labelledby="burning-calendar-title">
+          <p className="eyebrow"><span className="dot" /> Historical calendar</p>
+          <h3 id="burning-calendar-title">Earth's Burning Calendar</h3>
+          <p>Choose a place and select <strong>Show this place's fire history</strong>. Monthly satellite-observed burning activity will appear here.</p>
+          <div className="calendar-placeholder-grid" aria-hidden="true">
+            {Array.from({ length: 36 }, (_, index) => <span key={index} />)}
+          </div>
+        </section>
+      )}
       {memory && <MemoryResults memory={memory} />}
     </main>
   );
@@ -166,10 +204,137 @@ function MemorySummary({ memory }: { memory: FireMemoryResult }) {
 }
 
 function MemoryResults({ memory }: { memory: FireMemoryResult }) {
+  const navigate = useNavigate();
+  const [calendarMode, setCalendarMode] = useState<CalendarMode>("harmonized");
+  const [selectedMonth, setSelectedMonth] = useState<{ year: number; month: number } | null>(null);
   const cmp = memory.current_vs_historical;
   const bbox = aoiBBox(memory.aoi as never) ?? (memory.aoi.bbox as [number, number, number, number]);
+  const monthRows = useMemo(() => new Map(memory.monthly.map((row) => [`${row.year}-${row.month}`, row])), [memory]);
+  const historicalMedian = (month: number, excludeYear: number) => medianOf(memory.monthly.filter((row) => row.month === month && row.year !== excludeYear && row.days_in_record >= 20).map((row) => row.harmonized_activity));
+  const anomalyGrid = memory.calendar.years.map((year) => memory.calendar.months.map((_, index) => {
+    const value = monthRows.get(`${year}-${index + 1}`)?.harmonized_activity;
+    const baseline = historicalMedian(index + 1, year);
+    return value === undefined || baseline === undefined || baseline <= 0 ? null : ((value - baseline) / baseline) * 100;
+  }));
+  const calendarGrid = calendarMode === "raw" ? memory.calendar.hotspots : calendarMode === "anomaly" ? anomalyGrid : memory.calendar.activity;
+  const selectedRow = selectedMonth ? monthRows.get(`${selectedMonth.year}-${selectedMonth.month}`) : undefined;
+  const selectedDays = selectedMonth ? memory.daily.filter((day) => day.date.startsWith(`${selectedMonth.year}-${String(selectedMonth.month).padStart(2, "0")}`)) : [];
+  const selectedMedian = selectedMonth ? historicalMedian(selectedMonth.month, selectedMonth.year) : undefined;
+  const selectedAnomaly = selectedRow && selectedMedian !== undefined && selectedMedian > 0 ? ((selectedRow.harmonized_activity - selectedMedian) / selectedMedian) * 100 : null;
+  const lowCoverage = memory.monthly.filter((row) => row.mean_sufficiency < 50).map((row) => ({ x: memory.calendar.months[row.month - 1], y: String(row.year) }));
+  const lowCoverageKeys = new Set(lowCoverage.map((point) => `${point.y}-${point.x}`));
+  const calendarValues = calendarGrid.flat().filter((value): value is number => value !== null && Number.isFinite(value));
+  const calendarScaleMax = Math.max(...calendarValues.map((value) => calendarMode === "anomaly" ? Math.abs(value) : value), 1);
+  const calendarColors = ["#19344b", "#286682", "#5799a6", "#d9a050", "#f1743c", "#df4436"];
+  const cellColor = (value: number) => {
+    const ratio = calendarMode === "anomaly" ? (value + calendarScaleMax) / (2 * calendarScaleMax) : value / calendarScaleMax;
+    return calendarColors[Math.min(calendarColors.length - 1, Math.max(0, Math.floor(Math.max(0, Math.min(1, ratio)) * calendarColors.length)))];
+  };
+
+  function exportCalendarCsv() {
+    const header = ["aoi", "year", "month", "raw_detections", "harmonized_activity", "historical_median", "anomaly_pct", "uncertainty_low", "uncertainty_high", "days_in_record", "mean_sufficiency"];
+    const rows = memory.monthly.map((row) => {
+      const baseline = historicalMedian(row.month, row.year);
+      const anomaly = baseline && baseline > 0 ? ((row.harmonized_activity - baseline) / baseline) * 100 : null;
+      const daily = memory.daily.filter((day) => day.date.startsWith(`${row.year}-${String(row.month).padStart(2, "0")}`));
+      return [String(memory.aoi.name ?? "Selected AOI"), row.year, memory.calendar.months[row.month - 1], row.hotspot_count, row.harmonized_activity, baseline ?? null, anomaly?.toFixed(2) ?? null, daily.reduce((sum, day) => sum + day.harmonized_low, 0).toFixed(2), daily.reduce((sum, day) => sum + day.harmonized_high, 0).toFixed(2), row.days_in_record, row.mean_sufficiency].map(csvValue).join(",");
+    });
+    const metadata = [`"# unit",${csvValue(memory.provenance.harmonized_unit)}`, `"# method",${csvValue(memory.provenance.harmonization)}`, `"# source","NASA FIRMS science archive"`];
+    downloadFile("flameseek-fire-memory-calendar.csv", new Blob([[...metadata, header.map(csvValue).join(","), ...rows].join("\n")], { type: "text/csv;charset=utf-8" }));
+  }
+
+  function exportCalendarPng() {
+    const cellW = 70, cellH = 32, left = 75, top = 64;
+    const canvas = document.createElement("canvas");
+    canvas.width = left + cellW * 12 + 24;
+    canvas.height = top + cellH * memory.calendar.years.length + 56;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    context.fillStyle = "#06101f"; context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = "#d8efff"; context.font = "bold 19px sans-serif"; context.fillText("FlameSeek · Fire Memory Calendar", 22, 28);
+    context.fillStyle = "#7fa8c7"; context.font = "11px sans-serif"; context.fillText(String(memory.aoi.name ?? "Selected area"), 22, 47);
+    const values = memory.calendar.activity.flat().filter((value): value is number => value !== null);
+    const max = Math.max(...values, 1);
+    memory.calendar.months.forEach((month, index) => context.fillText(month, left + index * cellW + 18, top - 10));
+    memory.calendar.years.forEach((year, yearIndex) => {
+      context.fillStyle = "#a7c7de"; context.fillText(String(year), 20, top + yearIndex * cellH + 20);
+      memory.calendar.activity[yearIndex].forEach((value, monthIndex) => {
+        const ratio = value === null ? -1 : Math.max(0, Math.min(1, value / max));
+        context.fillStyle = ratio < 0 ? "#263143" : ratio < .25 ? "#0d3f63" : ratio < .5 ? "#08b8d8" : ratio < .75 ? "#ff9b32" : "#e33924";
+        context.fillRect(left + monthIndex * cellW, top + yearIndex * cellH, cellW - 3, cellH - 3);
+      });
+    });
+    context.fillStyle = "#7fa8c7"; context.fillText("NASA FIRMS · Aqua MODIS-equivalent activity per clear-sky look", 22, canvas.height - 18);
+    canvas.toBlob((blob) => blob && downloadFile("flameseek-fire-memory-calendar.png", blob), "image/png");
+  }
   return (
     <>
+      <section className="memory-grid">
+        <article className="viz-panel wide memory-calendar" id="fire-calendar">
+          <header>
+            <div>
+              <p className="eyebrow">Earth's Burning Calendar</p>
+              <h3>Monthly Burning Patterns</h3>
+              <p className="meta-text">Each square is one month of one year. Click a square for its raw detections, corrected activity, historical median, anomaly, uncertainty and observation coverage.</p>
+            </div>
+            <span className="method-badge">Four-Witness consistent record</span>
+          </header>
+          <div className="memory-calendar-toolbar">
+            <div role="group" aria-label="Calendar metric">
+              <button className={calendarMode === "harmonized" ? "active" : ""} onClick={() => setCalendarMode("harmonized")}>Corrected activity</button>
+              <button className={calendarMode === "raw" ? "active" : ""} onClick={() => setCalendarMode("raw")}>Raw detections</button>
+              <button className={calendarMode === "anomaly" ? "active" : ""} onClick={() => setCalendarMode("anomaly")}>Relative anomaly</button>
+            </div>
+            <div><button onClick={exportCalendarCsv}>Download CSV</button><button onClick={exportCalendarPng}>Download PNG</button></div>
+          </div>
+          <div className="burning-pattern-scroll">
+            <div className="burning-pattern-grid" role="grid" aria-label="Monthly burning patterns by year">
+              <span className="calendar-corner" role="columnheader">Year</span>
+              {memory.calendar.months.map((month) => <span className="calendar-month" role="columnheader" key={month}>{month}</span>)}
+              {memory.calendar.years.map((year, yearIndex) => [
+                <span className="calendar-year" role="rowheader" key={`${year}-label`}>{year}</span>,
+                ...memory.calendar.months.map((month, monthIndex) => {
+                  const value = calendarGrid[yearIndex][monthIndex];
+                  const limited = lowCoverageKeys.has(`${year}-${month}`);
+                  const label = value === null ? `${month} ${year}: missing observation` : `${month} ${year}: ${value.toFixed(1)}${calendarMode === "anomaly" ? "% from historical median" : calendarMode === "raw" ? " raw detections" : " corrected activity"}${limited ? ", low observation sufficiency" : ""}`;
+                  return <button
+                    type="button"
+                    role="gridcell"
+                    key={`${year}-${month}`}
+                    className={`burning-month-cell${value === null ? " missing" : ""}${limited ? " limited" : ""}`}
+                    style={value === null ? undefined : { backgroundColor: cellColor(value) }}
+                    title={label}
+                    aria-label={label}
+                    onClick={() => setSelectedMonth({ year, month: monthIndex + 1 })}
+                  >{limited && <span aria-hidden="true">×</span>}</button>;
+                }),
+              ])}
+            </div>
+          </div>
+          <div className="burning-calendar-legend" aria-label="Activity color scale">
+            <span>Lower activity</span><div>{calendarColors.map((color) => <i key={color} style={{ backgroundColor: color }} />)}</div><span>Higher activity</span>
+          </div>
+          <p className="calendar-legend-note"><span className="missing-swatch" /> Patterned grey = missing observation, not zero · <b>×</b> = observation sufficiency below 50/100. Anomaly uses the same month in other complete years, excluding the selected year.</p>
+          {selectedMonth && <div className="memory-calendar-detail" aria-live="polite">
+            <header><h4>{memory.calendar.months[selectedMonth.month - 1]} {selectedMonth.year}</h4><button aria-label="Close month details" onClick={() => setSelectedMonth(null)}>×</button></header>
+            {selectedRow ? <>
+              <dl>
+                <div><dt>Raw detections</dt><dd>{selectedRow.hotspot_count.toLocaleString()}</dd></div>
+                <div><dt>Corrected activity</dt><dd>{selectedRow.harmonized_activity.toFixed(2)}</dd></div>
+                <div><dt>Historical median</dt><dd>{selectedMedian === undefined ? "Insufficient baseline" : selectedMedian.toFixed(2)}</dd></div>
+                <div><dt>Anomaly</dt><dd>{selectedAnomaly === null ? (selectedMedian === 0 ? `Absolute difference ${selectedRow.harmonized_activity.toFixed(2)}; median is zero` : "Insufficient baseline") : `${selectedAnomaly >= 0 ? "+" : ""}${selectedAnomaly.toFixed(1)}%`}</dd></div>
+                <div><dt>Uncertainty interval</dt><dd>{selectedDays.length ? `${selectedDays.reduce((sum, day) => sum + day.harmonized_low, 0).toFixed(2)}–${selectedDays.reduce((sum, day) => sum + day.harmonized_high, 0).toFixed(2)}` : "Not available"}</dd></div>
+                <div><dt>Data coverage</dt><dd>{selectedRow.days_in_record} record days · sufficiency {selectedRow.mean_sufficiency.toFixed(0)}/100</dd></div>
+                <div><dt>Sensor coverage</dt><dd>{selectedDays.reduce((sum, day) => sum + day.modis_count, 0)} MODIS · {selectedDays.reduce((sum, day) => sum + day.viirs_count, 0)} VIIRS</dd></div>
+                <div><dt>Static-source filtering</dt><dd>Not applied; backend flagging is unavailable</dd></div>
+              </dl>
+              <button className="primary-button" onClick={() => navigate(`/fire-map?date=${selectedMonth.year}-${String(selectedMonth.month).padStart(2, "0")}-15&aoi=1&from=memory`)}>View Hotspots on Map</button>
+              <small>The historical map loads one day at a time, so it opens the middle day of this month.</small>
+            </> : <p className="empty-state">No observation record exists for this month; it is not treated as zero.</p>}
+          </div>}
+        </article>
+      </section>
+
       <MemorySummary memory={memory} />
       <section className="stats-grid memory-stats">
         <article><span>Place</span><strong className="small">{String(memory.aoi.name ?? describeAoi(memory.aoi as never))}</strong><small>{Number(memory.aoi.area_km2).toLocaleString()} km²</small></article>
@@ -179,16 +344,6 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
       </section>
 
       <section className="memory-grid">
-        <article className="viz-panel wide">
-          <h3>When does this place burn?</h3>
-          <p className="meta-text">Each square is one month of one year. Darker red means more fire. Read across a row to see that year's fire season; read down a column to compare the same month in different years.</p>
-          <Plot
-            data={[{ type: "heatmap", x: memory.calendar.months, y: memory.calendar.years.map(String), z: memory.calendar.activity, colorscale: "YlOrRd", reversescale: true, hovertemplate: "%{y} %{x}: %{z:.1f} (consistent record)<extra></extra>", xgap: 2, ygap: 2 }]}
-            layout={{ ...plotLayout, height: Math.max(220, 34 * memory.calendar.years.length + 80), margin: { l: 50, r: 10, t: 10, b: 30 }, yaxis: { autorange: "reversed", type: "category" } }}
-            config={{ responsive: true, displayModeBar: false }}
-            className="plot"
-          />
-        </article>
 
         <article className="viz-panel">
           <h3>The fire season</h3>

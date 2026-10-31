@@ -31,7 +31,9 @@ HTTP_USER_AGENT = os.getenv("HTTP_USER_AGENT", "Burning_Activity/0.3 (NASA Space
 
 FIRMS_BASE_URL = "https://firms.modaps.eosdis.nasa.gov/api/area/csv"
 FIRMS_AVAILABILITY_URL = "https://firms.modaps.eosdis.nasa.gov/api/data_availability/csv"
-FIRMS_MAP_KEY = os.getenv("FIRMS_MAP_KEY", "DEMO_KEY")
+# There is no public/demo FIRMS key. Sending a placeholder produces a confusing
+# remote 400, so missing configuration is handled locally by firms_client.
+FIRMS_MAP_KEY = os.getenv("FIRMS_MAP_KEY", "").strip()
 # FIRMS allows 5000 transactions per 10 minutes; stay below it so interactive calls keep working during long jobs.
 FIRMS_TRANSACTION_BUDGET = int(os.getenv("FIRMS_TRANSACTION_BUDGET", "4200"))
 FIRMS_TRANSACTION_WINDOW_SECONDS = 600

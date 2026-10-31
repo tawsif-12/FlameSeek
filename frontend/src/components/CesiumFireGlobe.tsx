@@ -209,8 +209,9 @@ export default function CesiumFireGlobe() {
   const [sensorColors, setSensorColors] = useState(true);
   const [showBuildings, setShowBuildings] = useState(true);
   const [tilesStatus, setTilesStatus] = useState<string | null>(null);
-  const [period, setPeriod] = useState<Period>("1");
-  const [historicalDate, setHistoricalDate] = useState(() => new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10));
+  const calendarDate = searchParams.get("date");
+  const [period, setPeriod] = useState<Period>(calendarDate ? "historical" : "1");
+  const [historicalDate, setHistoricalDate] = useState(() => calendarDate ?? new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10));
   const [hotspots, setHotspots] = useState<HotspotRecord[]>([]);
   const [events, setEvents] = useState<FireEventSummary[]>([]);
   const [autoVerify, setAutoVerify] = useState(true);
@@ -234,7 +235,7 @@ export default function CesiumFireGlobe() {
   const [eventMeta, setEventMeta] = useState<Record<string, unknown>>({});
   const [dataStatus, setDataStatus] = useState("Loading live FIRMS MODIS/VIIRS data...");
   const [eventStatus, setEventStatus] = useState<string | null>(null);
-  const [filterToAoi, setFilterToAoi] = useState(false);
+  const [filterToAoi, setFilterToAoi] = useState(searchParams.get("aoi") === "1");
   const [drawing, setDrawing] = useState(false);
   const [drawPoints, setDrawPoints] = useState<number[][]>([]);
   const [placeQuery, setPlaceQuery] = useState("");

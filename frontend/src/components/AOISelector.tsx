@@ -2,24 +2,26 @@ import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet-draw";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { useLocation } from "react-router-dom";
 import { normalizeApiError, searchPlaces } from "../api/client";
 import { aoiBBox, describeAoi, useAppContext } from "../context/AppContext";
 import type { AOI, PlaceResult } from "../types/api";
 
 const PLACE_HINTS = ["Country", "State / province", "District", "Forest", "Protected area"];
 
-function aoiToLayer(aoi: AOI): L.Layer | null {
-  const style = { color: "#f97316", weight: 2, fillOpacity: 0.08 };
+function aoiToLayer(aoi: AOI, color = "#f97316"): L.Layer | null {
+  const style = { color, weight: 2, fillOpacity: 0.08 };
   if (aoi.center && aoi.radius_km) return L.circle([aoi.center[1], aoi.center[0]], { radius: aoi.radius_km * 1000, ...style });
   if (aoi.geometry) return L.geoJSON(aoi.geometry as GeoJSON.Geometry, { style });
   if (aoi.bbox) return L.rectangle([[aoi.bbox[1], aoi.bbox[0]], [aoi.bbox[3], aoi.bbox[2]]], style);
   return null;
 }
 
-function DrawTools() {
+function DrawTools({ variant = "default" }: { variant?: "default" | "dna" }) {
   const map = useMap();
   const { aoi, setAoi } = useAppContext();
   const drawnRef = useRef<L.FeatureGroup | null>(null);
+  const drawColor = variant === "dna" ? "#24ddf5" : "#f97316";
 
   useEffect(() => {
     const drawn = new L.FeatureGroup();
@@ -30,9 +32,9 @@ function DrawTools() {
         marker: false,
         circlemarker: false,
         polyline: false,
-        rectangle: { shapeOptions: { color: "#f97316" } },
-        polygon: { allowIntersection: false, shapeOptions: { color: "#f97316" } },
-        circle: { shapeOptions: { color: "#f97316" } },
+        rectangle: { shapeOptions: { color: drawColor } },
+        polygon: { allowIntersection: false, shapeOptions: { color: drawColor } },
+        circle: { shapeOptions: { color: drawColor } },
       },
       edit: { featureGroup: drawn, remove: true },
     });
@@ -70,7 +72,7 @@ function DrawTools() {
       map.removeControl(control);
       map.removeLayer(drawn);
     };
-  }, [map, setAoi]);
+  }, [drawColor, map, setAoi]);
 
   // Keep the drawn/editable layer in sync with the shared AOI (e.g. after a place search).
   useEffect(() => {
@@ -78,18 +80,20 @@ function DrawTools() {
     if (!drawn) return;
     drawn.clearLayers();
     if (!aoi) return;
-    const layer = aoiToLayer(aoi);
+    const layer = aoiToLayer(aoi, drawColor);
     if (!layer) return;
     if (layer instanceof L.GeoJSON) layer.eachLayer((child) => drawn.addLayer(child));
     else drawn.addLayer(layer);
     const b = aoiBBox(aoi);
     if (b) map.fitBounds([[b[1], b[0]], [b[3], b[2]]], { padding: [24, 24], maxZoom: 10 });
-  }, [aoi, map]);
+  }, [aoi, drawColor, map]);
 
   return null;
 }
 
-export default function AOISelector() {
+export default function AOISelector({ variant = "default" }: { variant?: "default" | "dna" }) {
+  const location = useLocation();
+  const effectiveVariant = variant === "dna" || location.pathname === "/fire-dna" ? "dna" : "default";
   const { aoi, setAoi } = useAppContext();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<PlaceResult[]>([]);
@@ -122,7 +126,7 @@ export default function AOISelector() {
   }
 
   return (
-    <section className="aoi-selector">
+    <section className={`aoi-selector${effectiveVariant === "dna" ? " dna-aoi-selector" : ""}`}>
       <form className="aoi-search" onSubmit={search}>
         <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={`Search: ${PLACE_HINTS.join(", ")}`} aria-label="Search for a place" />
         <button className="secondary-button" type="submit">Search</button>
@@ -149,10 +153,21 @@ export default function AOISelector() {
           <button className="secondary-button" type="button" onClick={useRadius}>Use radius around {picked.name.split(",")[0]}</button>
         </div>
       )}
-      <MapContainer center={[15, 20]} zoom={2} minZoom={2} scrollWheelZoom className="map aoi-map">
-        <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        <DrawTools />
-      </MapContainer>
+      <div className={effectiveVariant === "dna" ? "dna-aoi-map-shell" : undefined}>
+        <MapContainer center={[15, 20]} zoom={2} minZoom={2} scrollWheelZoom className={`map aoi-map${effectiveVariant === "dna" ? " dna-region-map" : ""}`}>
+          <TileLayer
+            attribution={effectiveVariant === "dna" ? "Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics" : "&copy; OpenStreetMap contributors"}
+            url={effectiveVariant === "dna" ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
+          />
+          <DrawTools variant={effectiveVariant} />
+        </MapContainer>
+        {effectiveVariant === "dna" && <div className="dna-map-hud" aria-hidden="true">
+          <span className="dna-map-badge">REGIONAL DNA SCAN</span>
+          <i className="dna-map-ring ring-one" /><i className="dna-map-ring ring-two" />
+          <i className="dna-map-crosshair horizontal" /><i className="dna-map-crosshair vertical" />
+          <span className="dna-map-readout">AOI BOUNDARY · LIVE GEOMETRY</span>
+        </div>}
+      </div>
       <p className="meta-text">
         {aoi ? <>Selected: <strong>{describeAoi(aoi)}</strong></> : "Search a place or draw a rectangle, polygon or circle with the map tools."}
         {aoi && <button className="link-button" type="button" onClick={() => setAoi(null)}>Clear</button>}

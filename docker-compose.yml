@@ -2,7 +2,7 @@ services:
   backend:
     build: ./backend
     environment:
-      FIRMS_MAP_KEY: ${FIRMS_MAP_KEY:-DEMO_KEY}
+      FIRMS_MAP_KEY: ${FIRMS_MAP_KEY:-}
     ports:
       - "8000:8000"
 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import type { AOI, FireMemoryResult, SensorName } from "../types/api";
 
@@ -14,6 +14,16 @@ interface AppState {
 const AppContext = createContext<AppState | null>(null);
 
 export const DEFAULT_SENSORS: SensorName[] = ["modis", "viirs_snpp", "viirs_noaa20", "viirs_noaa21"];
+const APP_STATE_KEY = "flameseek.analysis-state.v1";
+
+function readSavedState(): { aoi: AOI | null; sensors: SensorName[]; memory: FireMemoryResult | null } {
+  try {
+    const saved = JSON.parse(localStorage.getItem(APP_STATE_KEY) ?? "null");
+    return { aoi: saved?.aoi ?? null, sensors: saved?.sensors?.length ? saved.sensors : DEFAULT_SENSORS, memory: saved?.memory ?? null };
+  } catch {
+    return { aoi: null, sensors: DEFAULT_SENSORS, memory: null };
+  }
+}
 
 export const SENSOR_LABELS: Record<SensorName, string> = {
   modis: "MODIS",
@@ -23,9 +33,15 @@ export const SENSOR_LABELS: Record<SensorName, string> = {
 };
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [aoi, setAoi] = useState<AOI | null>(null);
-  const [sensors, setSensors] = useState<SensorName[]>(DEFAULT_SENSORS);
-  const [memory, setMemory] = useState<FireMemoryResult | null>(null);
+  const [saved] = useState(readSavedState);
+  const [aoi, setAoi] = useState<AOI | null>(saved.aoi);
+  const [sensors, setSensors] = useState<SensorName[]>(saved.sensors);
+  const [memory, setMemory] = useState<FireMemoryResult | null>(saved.memory);
+
+  useEffect(() => {
+    try { localStorage.setItem(APP_STATE_KEY, JSON.stringify({ aoi, sensors, memory })); }
+    catch { /* The live app remains usable if browser storage is unavailable or full. */ }
+  }, [aoi, sensors, memory]);
 
   const value = useMemo(() => ({ aoi, setAoi, sensors, setSensors, memory, setMemory }), [aoi, sensors, memory]);
 

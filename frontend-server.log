@@ -1,0 +1,62 @@
+
+> flameseek-frontend@0.1.0 dev
+> vite --host 127.0.0.1
+
+
+  VITE v5.4.21  ready in 5187 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+13:52:25 [vite] hmr update /src/pages/DataSourcesPage.tsx, /src/pages/HomePage.tsx, /src/pages/FireMemoryPage.tsx, /src/components/VerificationPanel.tsx, /src/components/CesiumFireGlobe.tsx, /src/components/AOISelector.tsx, /src/components/EventPanel.tsx
+13:52:25 [vite] hmr update /src/main.tsx
+13:52:25 [vite] hmr update /src/components/CesiumFireGlobe.tsx
+13:52:25 [vite] hmr update /src/pages/DataSourcesPage.tsx, /src/pages/HomePage.tsx, /src/pages/FireMemoryPage.tsx, /src/components/VerificationPanel.tsx, /src/components/CesiumFireGlobe.tsx, /src/components/AOISelector.tsx, /src/components/EventPanel.tsx
+13:52:26 [vite] hmr invalidate /src/components/EventPanel.tsx Could not Fast Refresh ("BEHAVIOUR_COLORS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+13:52:26 [vite] hmr update /src/components/CesiumFireGlobe.tsx
+13:52:30 [vite] hmr update /src/pages/HomePage.tsx
+13:53:24 [vite] hmr update /src/styles.css
+13:57:52 [vite] hmr update /src/pages/FireCalendarPage.tsx
+13:57:57 [vite] hmr update /src/pages/FireCalendarPage.tsx
+13:58:00 [vite] hmr update /src/pages/FireCalendarPage.tsx
+14:06:38 [vite] hmr update /src/main.tsx
+14:06:38 [vite] hmr update /src/pages/HomePage.tsx
+14:06:39 [vite] hmr update /src/pages/FireCalendarPage.tsx
+14:06:39 [vite] hmr invalidate /src/main.tsx Could not Fast Refresh ("true" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+14:06:39 [vite] page reload src/main.tsx
+14:06:50 [vite] hmr update /src/pages/FireMemoryPage.tsx
+14:07:02 [vite] hmr update /src/pages/FireMemoryPage.tsx
+14:07:15 [vite] hmr update /src/pages/FireMemoryPage.tsx
+14:07:24 [vite] hmr update /src/styles.css
+14:34:55 [vite] hmr update /src/pages/FireMemoryPage.tsx
+14:34:56 [vite] hmr update /src/pages/FireMemoryPage.tsx
+14:34:56 [vite] hmr update /src/styles.css
+15:21:22 [vite] hmr update /src/pages/FireMemoryPage.tsx
+15:21:29 [vite] hmr update /src/pages/FireMemoryPage.tsx
+15:21:43 [vite] hmr update /src/styles.css
+17:33:58 [vite] hmr update /src/pages/FireMemoryPage.tsx
+17:34:08 [vite] hmr update /src/styles.css
+17:34:40 [vite] hmr update /src/pages/FireMemoryPage.tsx
+17:51:35 [vite] hmr update /src/main.tsx
+17:51:36 [vite] hmr invalidate /src/main.tsx Could not Fast Refresh ("true" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+17:51:36 [vite] page reload src/main.tsx
+17:52:00 [vite] hmr update /src/styles.css
+17:52:21 [vite] hmr update /src/pages/FireDnaPage.tsx
+18:37:48 [vite] hmr update /src/components/AOISelector.tsx
+18:37:48 [vite] hmr update /src/components/AOISelector.tsx
+18:38:04 [vite] hmr update /src/components/AOISelector.tsx
+18:38:28 [vite] hmr update /src/styles.css
+18:51:09 [vite] hmr update /src/components/FireDnaFingerprint.tsx
+18:51:09 [vite] hmr update /src/pages/FireDnaPage.tsx
+18:51:09 [vite] hmr update /src/styles.css
+18:53:59 [vite] hmr update /src/styles.css
+18:57:11 [vite] hmr update /src/context/AppContext.tsx
+18:57:11 [vite] hmr update /src/pages/FireDnaPage.tsx
+18:57:12 [vite] hmr invalidate /src/context/AppContext.tsx Could not Fast Refresh ("DEFAULT_SENSORS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+18:57:12 [vite] hmr update /src/main.tsx, /src/pages/HomePage.tsx, /src/pages/FireMemoryPage.tsx, /src/components/VerificationPanel.tsx, /src/components/CesiumFireGlobe.tsx, /src/components/AOISelector.tsx, /src/pages/FireDnaPage.tsx
+18:57:14 [vite] hmr invalidate /src/main.tsx Could not Fast Refresh ("true" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+18:57:14 [vite] page reload src/main.tsx
+19:02:15 [vite] hmr update /src/pages/FireDnaPage.tsx
+19:02:15 [vite] hmr update /src/pages/FireDnaPage.tsx
+19:05:20 [vite] hmr update /src/pages/FireDnaPage.tsx
+19:05:20 [vite] hmr update /src/styles.css
+19:05:29 [vite] hmr update /src/components/FireDnaEmptyDashboard.tsx
+19:05:46 [vite] hmr update /src/components/FireDnaEmptyDashboard.tsx

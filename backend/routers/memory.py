@@ -17,6 +17,7 @@ from config import MAX_AOI_DEGREES_SPAN, SENSOR_START_DATES
 from critical_periods import find_critical_periods
 from environment import daily_weather
 from events import reconstruct_events
+from fire_dna import build_fire_dna_profile
 from firms_client import fetch_hotspots_with_report, quota_wait_status, sensor_available
 from geo import AOI
 from harmonize import build_harmonized_series, filter_low_confidence, summarize_daily_series
@@ -30,7 +31,7 @@ from witness import continuity_test
 
 router = APIRouter()
 # Bump when the analysis changes so saved results are recomputed.
-RESULT_CACHE_VERSION = 1
+RESULT_CACHE_VERSION = 2
 RESULT_CACHE_TTL_SECONDS = 7 * 86400
 
 
@@ -154,9 +155,11 @@ async def run_fire_memory(job: Job, payload: FireMemoryRequest) -> dict[str, Any
     change_points = detect_monthly_change_points(monthly)
     periods = find_critical_periods(daily)[:25]
 
+    observation_quality = summarize_observations(daily)
+    period = {"start": start.isoformat(), "end": end.isoformat(), "years": payload.history_years, "days": len(daily)}
     result = {
         "aoi": aoi.describe(),
-        "period": {"start": start.isoformat(), "end": end.isoformat(), "years": payload.history_years, "days": len(daily)},
+        "period": period,
         "summary": summarize_daily_series(daily),
         "daily": [_compact_daily(r) for r in daily],
         "monthly": monthly,
@@ -167,7 +170,8 @@ async def run_fire_memory(job: Job, payload: FireMemoryRequest) -> dict[str, Any
         "critical_periods": [{**p, "start_date": p["start_date"].isoformat(), "end_date": p["end_date"].isoformat()} for p in periods],
         "calibration": calibration,
         "witness": witness,
-        "observation_quality": summarize_observations(daily),
+        "observation_quality": observation_quality,
+        "fire_dna": build_fire_dna_profile(monthly, profile, period, observation_quality),
         "events": {"count": len(events), "multi_detection": sum(1 for e in events if e["observation_count"] > 1)},
         "provenance": {
             "data_sources": report["sources_used"],

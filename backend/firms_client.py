@@ -42,6 +42,23 @@ class FirmsAPIError(RuntimeError):
         super().__init__(f"FIRMS request failed ({status_code}): {message} [{url}]")
 
 
+_KEY_PLACEHOLDERS = {"", "DEMO_KEY", "YOUR_FIRMS_MAP_KEY_HERE", "YOUR_NASA_FIRMS_KEY"}
+
+
+def firms_key_configured() -> bool:
+    """True only for a non-placeholder key; validity is ultimately checked by NASA."""
+    return FIRMS_MAP_KEY.strip().upper() not in _KEY_PLACEHOLDERS
+
+
+def _require_firms_key() -> None:
+    if not firms_key_configured():
+        raise FirmsAPIError(
+            503,
+            "NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then restart the backend.",
+            "configuration",
+        )
+
+
 ProgressCallback = Callable[[int, int], Awaitable[None] | None]
 
 _CSV_CACHE: dict[tuple[str, str, int, str], tuple[float, str]] = {}
@@ -344,6 +361,7 @@ async def fetch_hotspots_with_report(
     """Fetch every sensor/chunk in a window. Failed chunks are reported, not fatal,
     so observation sufficiency can mark those days as missing opportunities."""
 
+    _require_firms_key()
     await load_availability()
     semaphore = asyncio.Semaphore(concurrency)
     jobs: list[tuple[str, date, int]] = []
