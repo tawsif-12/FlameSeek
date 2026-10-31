@@ -23,3 +23,9 @@ Error: connect ECONNREFUSED 127.0.0.1:8000
 14:35:34 [vite] http proxy error: /api/jobs/11a56d5abc66
 Error: connect ECONNREFUSED 127.0.0.1:8000
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+19:05:51 [vite] http proxy error: /api/jobs/37164e3976d0
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+19:05:53 [vite] http proxy error: /api/jobs/478e89e41976
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)

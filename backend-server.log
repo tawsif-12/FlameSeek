@@ -1,0 +1,119 @@
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+event warm-up skipped: 502: {'error': 'firms_api_error', 'message': 'Live FIRMS is unavailable and no cached observations cover the requested time window.'}
+INFO:     127.0.0.1:52277 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52277 - "GET /api/jobs/6439234ec1ba HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:63643 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63150 - "GET /api/jobs/117559333298 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53356 - "GET /api/jobs/117559333298 HTTP/1.1" 200 OK
+firms_request source=MODIS_NRT chunk_start=2026-10-26 days=5 elapsed_ms=10895.3
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-10-30 days=1 elapsed_ms=2961.2
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-10-25 days=5 elapsed_ms=2981.6
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-01-24 days=5 elapsed_ms=2870.2
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-02-03 days=5 elapsed_ms=2930.7
+INFO:     127.0.0.1:58407 - "GET /api/jobs/117559333298 HTTP/1.1" 200 OK
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-02-13 days=5 elapsed_ms=3187.1
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-01-04 days=5 elapsed_ms=3334.4
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-02-23 days=5 elapsed_ms=3348.8
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-02-08 days=5 elapsed_ms=3438.7
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-01-29 days=5 elapsed_ms=3467.5
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-02-18 days=5 elapsed_ms=3527.7
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-03-05 days=5 elapsed_ms=3633.6
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-02-28 days=5 elapsed_ms=3773.1
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-03-10 days=5 elapsed_ms=3885.5
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-04-14 days=5 elapsed_ms=1176.3
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-05-14 days=5 elapsed_ms=653.3
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-04-19 days=5 elapsed_ms=1007.8
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-03-15 days=5 elapsed_ms=4331.5
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-03-25 days=5 elapsed_ms=1883.1
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-05-19 days=5 elapsed_ms=1123.1
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-05-04 days=5 elapsed_ms=1362.6
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-05-24 days=5 elapsed_ms=1057.8
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-05-09 days=5 elapsed_ms=1423.7
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-04-29 days=5 elapsed_ms=1535.6
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-05-29 days=5 elapsed_ms=923.3
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-06-03 days=5 elapsed_ms=818.1
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-04-04 days=5 elapsed_ms=2187.4
+INFO:     127.0.0.1:56331 - "GET /api/jobs/117559333298 HTTP/1.1" 200 OK
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-04-24 days=5 elapsed_ms=1794.4
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-06-08 days=5 elapsed_ms=972.6
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-03-30 days=5 elapsed_ms=2509.9
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-06-18 days=5 elapsed_ms=835.6
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-06-23 days=5 elapsed_ms=637.3
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-07-18 days=5 elapsed_ms=677.9
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-07-28 days=5 elapsed_ms=567.1
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-07-13 days=5 elapsed_ms=905.2
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-07-08 days=5 elapsed_ms=976.2
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-07-23 days=5 elapsed_ms=906.3
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-06-28 days=5 elapsed_ms=1051.5
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-06-13 days=5 elapsed_ms=1658.7
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-08-02 days=5 elapsed_ms=810.0
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-07-03 days=5 elapsed_ms=1125.4
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-08-12 days=5 elapsed_ms=727.5
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-08-07 days=5 elapsed_ms=807.1
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-08-22 days=5 elapsed_ms=602.7
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-08-27 days=5 elapsed_ms=581.5
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-09-01 days=5 elapsed_ms=480.7
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-09-06 days=5 elapsed_ms=467.1
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-09-11 days=5 elapsed_ms=448.0
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-09-16 days=5 elapsed_ms=452.7
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-09-21 days=5 elapsed_ms=468.2
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-10-01 days=5 elapsed_ms=536.7
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-09-26 days=5 elapsed_ms=601.6
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-10-11 days=5 elapsed_ms=630.5
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-10-06 days=5 elapsed_ms=705.7
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-10-16 days=5 elapsed_ms=684.7
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-10-21 days=5 elapsed_ms=742.0
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-10-26 days=5 elapsed_ms=725.0
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-10-31 days=5 elapsed_ms=729.3
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-11-10 days=5 elapsed_ms=715.1
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-11-05 days=5 elapsed_ms=802.6
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-11-15 days=5 elapsed_ms=695.4
+INFO:     127.0.0.1:51204 - "GET /api/jobs/117559333298 HTTP/1.1" 200 OK
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-11-20 days=5 elapsed_ms=728.0
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-03-20 days=5 elapsed_ms=7120.1
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-11-25 days=5 elapsed_ms=857.7
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-04-09 days=5 elapsed_ms=4438.0
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-08-17 days=5 elapsed_ms=2044.0
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-11-30 days=5 elapsed_ms=1047.7
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-12-10 days=5 elapsed_ms=1002.9
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-12-05 days=5 elapsed_ms=1428.1
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-12-15 days=5 elapsed_ms=1369.4
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-12-20 days=5 elapsed_ms=1417.0
+INFO:     127.0.0.1:60505 - "GET /api/jobs/117559333298 HTTP/1.1" 200 OK
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-12-25 days=5 elapsed_ms=2266.9
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-01-09 days=5 elapsed_ms=2194.6
+firms_request source=VIIRS_NOAA20_SP chunk_start=2022-12-30 days=5 elapsed_ms=2450.5
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-01-24 days=5 elapsed_ms=2246.1
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-01-19 days=5 elapsed_ms=2567.5
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-02-13 days=5 elapsed_ms=2355.0
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-03-20 days=5 elapsed_ms=625.4
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-02-23 days=5 elapsed_ms=2111.9
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-01-14 days=5 elapsed_ms=2946.5
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-02-03 days=5 elapsed_ms=2666.5
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-02-08 days=5 elapsed_ms=2551.0
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-01-29 days=5 elapsed_ms=2690.9
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-03-15 days=5 elapsed_ms=857.0
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-02-18 days=5 elapsed_ms=2546.2
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-02-28 days=5 elapsed_ms=2417.0
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-04-29 days=5 elapsed_ms=1119.4
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-05-14 days=5 elapsed_ms=1301.2
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-05-04 days=5 elapsed_ms=1547.1
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-03-25 days=5 elapsed_ms=2766.6
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-03-05 days=5 elapsed_ms=4490.6
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-04-19 days=5 elapsed_ms=3902.5
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-05-19 days=5 elapsed_ms=3750.3
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-05-09 days=5 elapsed_ms=4096.8
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-04-24 days=5 elapsed_ms=4316.6
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-03-10 days=5 elapsed_ms=7283.3
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-03-30 days=5 elapsed_ms=6773.6
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-01-04 days=5 elapsed_ms=11904.2
+INFO:     127.0.0.1:49354 - "GET /api/jobs/117559333298 HTTP/1.1" 200 OK
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-04-04 days=5 elapsed_ms=9223.1
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-04-14 days=5 elapsed_ms=10679.2
+INFO:     127.0.0.1:60961 - "GET /api/jobs/117559333298 HTTP/1.1" 200 OK
+firms_request source=VIIRS_NOAA20_SP chunk_start=2023-04-09 days=5 elapsed_ms=12116.0
+firms_request source=VIIRS_NOAA20_NRT chunk_start=2026-10-30 days=1 elapsed_ms=1412.8
+firms_request source=VIIRS_NOAA20_NRT chunk_start=2026-10-25 days=5 elapsed_ms=1891.6
+INFO:     127.0.0.1:65003 - "GET /api/jobs/117559333298 HTTP/1.1" 200 OK
