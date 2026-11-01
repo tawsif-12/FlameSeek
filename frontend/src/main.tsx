@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Link, NavLink, Navigate, Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
+import { Link, NavLink, Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "./styles.css";
@@ -12,19 +12,15 @@ import FireMemoryPage from "./pages/FireMemoryPage";
 import FireDnaPage from "./pages/FireDnaPage";
 
 function Header() {
-  const location = useLocation();
-  const darkRoutes = ["/", "/fire-memory", "/fire-dna", "/data-sources"];
-  const isDark = darkRoutes.includes(location.pathname);
-
   return (
-    <header className={isDark ? "app-header mission-header" : "app-header"}>
-      <div className="brand-mark">
+    <header className="app-header mission-header">
+      <Link to="/" className="brand-mark" style={{ textDecoration: "none" }}>
         <span className="brand-glyph brand-flame" aria-hidden="true">🔥</span>
         <div>
           <h1>FlameSeek</h1>
           <p className="eyebrow">Global Fire Intelligence</p>
         </div>
-      </div>
+      </Link>
       <nav>
         <NavLink to="/">Home</NavLink>
         <NavLink to="/fire-map">Fire Now</NavLink>

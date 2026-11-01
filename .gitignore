@@ -1,5 +1,6 @@
 backend/.env
 backend/.venv/
+backend/cache/
 frontend/.env
 frontend/.env.local
 frontend/node_modules/
@@ -7,3 +8,6 @@ frontend/dist/
 logs/
 __pycache__/
 .pytest_cache/
+.chrome-debug/
+*.pyc
+.DS_Store
