@@ -1,0 +1,6 @@
+{
+  "etag_md5": "S3 ETag / MD5 mismatch",
+  "truncated_file": "rejected: compressed size mismatch (separate check)",
+  "satellite_transition": "04:50 H08; 05:00 H09 on 2022-12-13 passed",
+  "same_size_corruption_without_etag": "HSD header/data lengths do not match decompressed file"
+}

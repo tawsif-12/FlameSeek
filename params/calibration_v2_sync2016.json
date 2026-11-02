@@ -1,0 +1,58 @@
+{
+  "kind": "calibration",
+  "version": 2,
+  "status": "validated \u2013 synchronized window",
+  "source_window": "sync_2016",
+  "sample_size": 534,
+  "fit": {
+    "n_input": 1366,
+    "n": 534,
+    "sync_max_dt_min": 15,
+    "trunc_frp_mw": 10.0,
+    "deming_delta": 1.0,
+    "fitted": true,
+    "a": -0.10695648901820043,
+    "b": 1.0824173755695943,
+    "a_ci": [
+      -0.2799288954427233,
+      0.06527421696560302
+    ],
+    "b_ci": [
+      0.9674958411824329,
+      1.2000835857886563
+    ],
+    "b_bounds_ols": [
+      0.47805689932655204,
+      2.2503605400392326
+    ],
+    "odr": {
+      "a": -0.10678480569151835,
+      "b": 1.0823021924570453
+    }
+  },
+  "gate": {
+    "window": "sync_2016",
+    "rule": "(a) |median daytime Aqua LST - 13.5 h| <= 30 min AND (b) >= 100 Aqua-S-NPP pairs with |dt| <= 15 min and both FRP >= 10.0 MW",
+    "a_no_drift": {
+      "n_aqua_day": 3272,
+      "median_lst_h": 13.47504,
+      "offset_min": -1.4976000000000056,
+      "tolerance_min": 30,
+      "pass": true
+    },
+    "b_sample": {
+      "n_pairs_all_dt": 1366,
+      "n_pairs_filtered": 534,
+      "min_pairs": 100,
+      "pass": true
+    },
+    "synchronized": true,
+    "old_rule": {
+      "rule": "median |Aqua - S-NPP dt| over shared events <= 20 min (replaced by D68)",
+      "n_pairs": 1698,
+      "median_abs_dt_min": 21.0,
+      "synchronized": false
+    },
+    "status": "evaluated"
+  }
+}

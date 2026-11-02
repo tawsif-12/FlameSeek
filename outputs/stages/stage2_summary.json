@@ -1,0 +1,90 @@
+{
+  "sync_timing": {
+    "n_pairs": 1698,
+    "median_abs_dt_min": 21.0,
+    "synchronized": false
+  },
+  "sync_calibration": {
+    "fitted": false,
+    "n": 0,
+    "reason": "Window median absolute Aqua?S-NPP difference exceeds 20 minutes"
+  },
+  "detection_2016": {
+    "fitted": false,
+    "n": 0,
+    "reason": "awaiting data: 2016 observation opportunities require historical orbital elements; only 2026 TLEs are cached"
+  },
+  "naus_scans": 108,
+  "naus_fires": 2195,
+  "naus_detection_rate": 0.07965367965367966,
+  "naus_commission": 0.7863325740318906,
+  "naus_diurnal": {
+    "base": 0.17856275057604523,
+    "peak": 0.4994533293514552,
+    "h": 18.821000217160844,
+    "sigma": 2.68283732293802
+  },
+  "naus_diurnal_intervals": {
+    "h": [
+      16.67114329201512,
+      19.433630454612285
+    ],
+    "sigma": [
+      2.4970171371293404,
+      5.368011477088301
+    ],
+    "base_over_peak": [
+      0.19571858836742004,
+      0.5329244653958998
+    ]
+  },
+  "naus_calibration": {
+    "n_input": 136,
+    "n": 136,
+    "sync_max_dt_min": 360,
+    "trunc_frp_mw": 0,
+    "deming_delta": 1.0,
+    "fitted": true,
+    "a": -0.14565606643120632,
+    "b": 1.1605870147568313,
+    "a_ci": [
+      -1.1383532208828042,
+      0.47941556932524587
+    ],
+    "b_ci": [
+      0.7984919766021573,
+      1.7169536845042546
+    ],
+    "b_bounds_ols": [
+      0.37265808392381383,
+      2.9823790255878655
+    ],
+    "odr": {
+      "a": -0.1453324916762909,
+      "b": 1.1604043502475943
+    }
+  },
+  "naus_fre_events": 1165,
+  "near_nadir_f50": {
+    "status": "estimated",
+    "label": "detection limit from synthetic injection",
+    "frp50_mw": 13.38992181488362,
+    "bracket_mw": [
+      9.468103454761179,
+      18.936211149925438
+    ],
+    "method": "Linear interpolation of detection fraction against log median implied FRP between bracketing tested fractions; descriptive estimate, not logistic validation"
+  },
+  "bangladesh_f50": {
+    "status": "estimated",
+    "label": "detection limit from synthetic injection",
+    "frp50_mw": 71.87218381730158,
+    "bracket_mw": [
+      45.455959234056365,
+      113.63990318782726
+    ],
+    "method": "Linear interpolation of detection fraction against log median implied FRP between bracketing tested fractions; descriptive estimate, not logistic validation"
+  },
+  "active_sync_v2": false,
+  "naus_commission_note": "corrected for the himawari.nearby() unit bug (D72); \u00b160 min, 2 km"
+}

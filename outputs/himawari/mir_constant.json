@@ -1,0 +1,17 @@
+{
+  "a": 3.1968263738110607e-09,
+  "sigma": 5.6703744191844314e-08,
+  "sigma_over_a": 17.73751138202904,
+  "temperature_range_k": [
+    650,
+    1300
+  ],
+  "samples": 651,
+  "relative_rmse": 0.07861029337126986,
+  "max_relative_error": 0.2748410813551062,
+  "radiance_units": "W m-2 sr-1 um-1",
+  "a_units": "W m-2 sr-1 um-1 K-4",
+  "method": "SRF weighted wavelength radiance; least squares through origin against T^4",
+  "srf_sha256": "23458789c7ebcf3e84801735dd32067b34f222383ee928fb8b11bc5ec46e9d80",
+  "source_url": "https://nwp-saf.eumetsat.int/downloads/rtcoef_info/visir_srf/rtcoef_himawari_9_ahi_srf/rtcoef_himawari_9_ahi_srf_ch07.txt"
+}

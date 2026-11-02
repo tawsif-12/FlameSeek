@@ -1,0 +1,33 @@
+# FlameSeek harmonization environment (Steps 1-5 of docs/harmonization_procedure.md)
+name: flameseek
+channels:
+  - defaults      # first: these builds load under Windows Smart App Control (see docs/decisions.md)
+  - conda-forge   # fallback for packages missing from defaults
+channel_priority: strict
+dependencies:
+  - python=3.11
+  - pandas
+  - numpy
+  - h5py
+  - pyarrow
+  - geopandas
+  - shapely>=2
+  - pyproj
+  - scikit-learn
+  - networkx
+  - scipy
+  - statsmodels
+  - matplotlib
+  - folium
+  - contextily
+  - jupyterlab
+  - ipykernel
+  - pyyaml
+  - pytest
+  - pip
+  - pip:
+      - s3fs
+      - satpy==0.60.0
+      - global-land-mask==1.0.0
+      - powerlaw
+      - skyfield

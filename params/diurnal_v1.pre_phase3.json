@@ -1,0 +1,99 @@
+{
+  "kind": "diurnal",
+  "version": 1,
+  "created_utc": "2026-11-02T10:01:21+00:00",
+  "status": "not_available",
+  "source_window": {
+    "window": "current_2026",
+    "start": "2026-10-29",
+    "end": "2026-11-02",
+    "raw_dir": "D:\\nasa space\\Burning_Activity\\data\\raw"
+  },
+  "era": {
+    "aqua_snpp_median_abs_dt_min": 136.0,
+    "aqua_drifted": true,
+    "terra_drifted": true,
+    "era_sensor": [
+      "multi_sensor"
+    ],
+    "per_platform_month": {
+      "Aqua": [
+        {
+          "month": "2026-10",
+          "lst_median_h": 15.783333333333331,
+          "deviation_min": 130.5446,
+          "drifted": true
+        },
+        {
+          "month": "2026-11",
+          "lst_median_h": 15.816666666666666,
+          "deviation_min": 132.54459999999995,
+          "drifted": true
+        }
+      ],
+      "NOAA-20": [
+        {
+          "month": "2026-10",
+          "lst_median_h": 13.566666666666666,
+          "deviation_min": 1.701439999999934,
+          "drifted": false
+        },
+        {
+          "month": "2026-11",
+          "lst_median_h": 13.616666666666667,
+          "deviation_min": 4.701439999999977,
+          "drifted": false
+        }
+      ],
+      "NOAA-21": [
+        {
+          "month": "2026-10",
+          "lst_median_h": 13.466666666666669,
+          "deviation_min": -0.925040000000017,
+          "drifted": false
+        },
+        {
+          "month": "2026-11",
+          "lst_median_h": 13.466666666666669,
+          "deviation_min": -0.925040000000017,
+          "drifted": false
+        }
+      ],
+      "S-NPP": [
+        {
+          "month": "2026-10",
+          "lst_median_h": 13.666666666666666,
+          "deviation_min": 5.986799999999839,
+          "drifted": false
+        },
+        {
+          "month": "2026-11",
+          "lst_median_h": 13.75,
+          "deviation_min": 10.986799999999874,
+          "drifted": false
+        }
+      ],
+      "Terra": [
+        {
+          "month": "2026-10",
+          "lst_median_h": 8.566666666666666,
+          "deviation_min": -111.38840000000002,
+          "drifted": true
+        },
+        {
+          "month": "2026-11",
+          "lst_median_h": 8.583333333333334,
+          "deviation_min": -110.38839999999996,
+          "drifted": true
+        }
+      ]
+    }
+  },
+  "sample_size": 0,
+  "fit_method": "Gaussian diurnal shape from Himawari (Step 7)",
+  "values": null,
+  "intervals": null,
+  "notes": [
+    "Step 7 not implemented; no Himawari data in data/raw/himawari/."
+  ]
+}

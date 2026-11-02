@@ -1,0 +1,10 @@
+{
+  "python": "E:\\anaconda\\envs\\flameseek\\python.exe",
+  "python_version": "3.11.18 | packaged by Anaconda, Inc. | (main, Oct 26 2026, 18:13:29) [MSC v.1942 64 bit (AMD64)]",
+  "s3fs": "2026.9.0",
+  "pyyaml": "6.0.3",
+  "pip_check": "No broken requirements found",
+  "initial_script": "Not present on disk; created from user-provided source with verified layout and integrity handling",
+  "full_sampling_minutes": 60,
+  "test_sampling_minutes": 10
+}

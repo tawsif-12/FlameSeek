@@ -1,0 +1,14 @@
+{
+  "harmonization_tests_passed": 67,
+  "backend_tests_passed": 61,
+  "phase3c_tests_passed": 9,
+  "injection_trials": 30,
+  "detected_trials": 12,
+  "bangladesh_f50_mw": 71.87218381730158,
+  "near_nadir_status": "awaiting data",
+  "northern_australia_status": "awaiting data",
+  "sync_2016_status": "awaiting data",
+  "meteosat_status": "awaiting data",
+  "new_calibration_parameters_written": false,
+  "active_parameters_changed": false
+}

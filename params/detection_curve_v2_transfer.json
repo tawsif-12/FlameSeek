@@ -1,0 +1,12 @@
+{
+  "kind": "detection_curve",
+  "version": 2,
+  "status": "provisional \u2013 transfer standard",
+  "source_window": "current_2026",
+  "fit": {
+    "fitted": false,
+    "n": 0,
+    "reason": "No supported time-adjusted detection sample"
+  },
+  "sample_size": 0
+}

@@ -1,0 +1,56 @@
+{
+  "files": [
+    {
+      "url": "https://firms.modaps.eosdis.nasa.gov/data/country/modis/2016/modis_2016_India.csv",
+      "file": "D:\\nasa space\\Burning_Activity\\data\\raw\\archive\\2016_full\\modis_2016_India.csv",
+      "bytes": 6807058,
+      "sha256": "dd5a936983cd1d109ab618614c798c8c9017edddcea852c757d891830f256163",
+      "yearly_rows": 88809,
+      "status": "available",
+      "filtered_rows": 3703,
+      "platform_counts": {
+        "Aqua": 3515,
+        "Terra": 188
+      },
+      "filtered_file": "D:\\nasa space\\Burning_Activity\\data\\raw\\archive\\2016\\modis_2016_India.csv"
+    },
+    {
+      "url": "https://firms.modaps.eosdis.nasa.gov/data/country/modis/2016/modis_2016_Bangladesh.csv",
+      "file": "D:\\nasa space\\Burning_Activity\\data\\raw\\archive\\2016_full\\modis_2016_Bangladesh.csv",
+      "bytes": 142241,
+      "sha256": "ae4549158a65547fe0fa0f91801398e63ef9a780fb5ac7e8257fd6349e03428a",
+      "yearly_rows": 1852,
+      "status": "available",
+      "filtered_rows": 0,
+      "platform_counts": {},
+      "filtered_file": "D:\\nasa space\\Burning_Activity\\data\\raw\\archive\\2016\\modis_2016_Bangladesh.csv"
+    },
+    {
+      "url": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2016/viirs-snpp_2016_India.csv",
+      "file": "D:\\nasa space\\Burning_Activity\\data\\raw\\archive\\2016_full\\viirs-snpp_2016_India.csv",
+      "bytes": 53362517,
+      "sha256": "db835e1e9568f8f29c5ebccfbf2b1f43cd7e0ffe0e33b7bb2ff8f34c141db429",
+      "yearly_rows": 681943,
+      "status": "available",
+      "filtered_rows": 21218,
+      "platform_counts": {
+        "N": 21218
+      },
+      "filtered_file": "D:\\nasa space\\Burning_Activity\\data\\raw\\archive\\2016\\viirs-snpp_2016_India.csv"
+    },
+    {
+      "url": "https://firms.modaps.eosdis.nasa.gov/data/country/viirs-snpp/2016/viirs-snpp_2016_Bangladesh.csv",
+      "file": "D:\\nasa space\\Burning_Activity\\data\\raw\\archive\\2016_full\\viirs-snpp_2016_Bangladesh.csv",
+      "bytes": 596641,
+      "sha256": "d125f8d78bf80044ebcb4d30a950f8db4cf177400584ece0b4bb16a232529dc6",
+      "yearly_rows": 7604,
+      "status": "available",
+      "filtered_rows": 7,
+      "platform_counts": {
+        "N": 7
+      },
+      "filtered_file": "D:\\nasa space\\Burning_Activity\\data\\raw\\archive\\2016\\viirs-snpp_2016_Bangladesh.csv"
+    }
+  ],
+  "errors": []
+}
