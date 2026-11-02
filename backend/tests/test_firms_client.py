@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import asyncio
 from datetime import date
 
 import pytest
 import firms_client
+import http_utils
 
-from firms_client import FirmsAPIError, _normalize_confidence, _require_firms_key, _source_for_sensor, firms_key_configured
+from firms_client import FirmsAPIError, _fetch_csv, _normalize_confidence, _require_firms_key, _source_for_sensor, firms_key_configured
 
 
 def test_viirs_confidence_mapping():
@@ -36,6 +38,21 @@ def test_placeholder_map_key_fails_locally_with_setup_instructions(monkeypatch):
     assert "backend/.env" in error.value.message
 
 
+<<<<<<< HEAD
+def test_historical_disk_cache_works_without_map_key(monkeypatch, tmp_path):
+    monkeypatch.setattr(firms_client, "FIRMS_MAP_KEY", "")
+    monkeypatch.setattr(http_utils, "CACHE_DIR", tmp_path)
+    firms_client._CSV_CACHE.clear()
+    disk_key = "MODIS_SP_88_20_92_26_2024-08-01_5"
+    cache_path = tmp_path / "firms" / "MO" / f"{disk_key}.csv"
+    cache_path.parent.mkdir(parents=True)
+    cache_path.write_text("latitude,longitude\n23.5,90.2\n", encoding="utf-8")
+
+    text, source = asyncio.run(_fetch_csv(None, "modis", (88, 20, 92, 26), date(2024, 8, 1), 5))
+
+    assert source == "MODIS_SP"
+    assert "23.5,90.2" in text
+=======
 def test_chunks_are_aligned_so_overlapping_periods_share_requests():
     from datetime import date, timedelta
     from firms_client import _chunks, MAX_DAY_RANGE_PER_REQUEST
@@ -94,3 +111,4 @@ def test_place_live_request_is_cut_from_fresh_world_cache_without_nasa_call(monk
     rows = asyncio.run(fc.fetch_recent_hotspots((88.5, 21.5, 90.0, 22.5), ["viirs_snpp"], 1))
     assert len(rows) == 1 and rows[0]["lat"] == 22.0
     fc._CSV_CACHE.clear(); fc._WORLD_PARSED.clear()
+>>>>>>> origin/main

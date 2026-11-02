@@ -7,6 +7,18 @@ interface OutcrowdEarthSatelliteProps {
   targetHotspot?: { lat: number; lon: number; frp?: number | null };
 }
 
+type SatelliteId = "terra" | "aqua" | "snpp" | "noaa20";
+
+interface OrbitConfig {
+  id: SatelliteId;
+  radiusX: number;
+  radiusY: number;
+  tiltX: number;
+  tiltZ: number;
+  phase: number;
+  speed: number;
+}
+
 // Convert Lat/Lon to 3D Cartesian coordinates on sphere of given radius
 function latLonToVector3(lat: number, lon: number, radius: number): THREE.Vector3 {
   const phi = (90 - lat) * (Math.PI / 180);
@@ -174,12 +186,29 @@ function createOrbitRing(radiusX: number, radiusY: number, color: number, tiltX:
   return line;
 }
 
+function pointOnOrbit(config: OrbitConfig, angle: number, center: THREE.Vector3) {
+  return new THREE.Vector3(
+    Math.cos(angle) * config.radiusX,
+    Math.sin(angle) * config.radiusY,
+    0,
+  )
+    .applyEuler(new THREE.Euler(config.tiltX, 0, config.tiltZ, "XYZ"))
+    .add(center);
+}
+
 export default function OutcrowdEarthSatellite({
   activeSatellite = "terra",
   targetHotspot,
 }: OutcrowdEarthSatelliteProps) {
   const mountRef = useRef<HTMLDivElement | null>(null);
+  const activeSatelliteRef = useRef(activeSatellite);
   const [isReady, setIsReady] = useState(false);
+  const targetLat = targetHotspot?.lat;
+  const targetLon = targetHotspot?.lon;
+
+  useEffect(() => {
+    activeSatelliteRef.current = activeSatellite;
+  }, [activeSatellite]);
 
   useEffect(() => {
     const container = mountRef.current;
@@ -353,8 +382,8 @@ export default function OutcrowdEarthSatellite({
 
     // 7. Active Target Hotspot Pin
     const targetPinGroup = new THREE.Group();
-    const pinLat = targetHotspot?.lat ?? 23.81;
-    const pinLon = targetHotspot?.lon ?? 90.41;
+    const pinLat = targetLat ?? 23.81;
+    const pinLon = targetLon ?? 90.41;
     const pinPos = latLonToVector3(pinLat, pinLon, earthRadius + 0.015);
     targetPinGroup.position.copy(pinPos);
 
@@ -378,20 +407,43 @@ export default function OutcrowdEarthSatellite({
 
     earthMesh.add(targetPinGroup);
 
-    // 8. 3D Procedural Satellite
-    const satellite = createSatelliteModel();
-    scene.add(satellite);
+    // 8. Satellite fleet and their matching sun-synchronous orbital paths.
+    const orbitConfigs: OrbitConfig[] = [
+      { id: "terra", radiusX: 3.2, radiusY: 2.9, tiltX: 0.45, tiltZ: 0.82, phase: 0.15, speed: 0.62 },
+      { id: "aqua", radiusX: 3.28, radiusY: 2.98, tiltX: 0.5, tiltZ: 0.88, phase: Math.PI + 0.15, speed: 0.62 },
+      { id: "snpp", radiusX: 3.42, radiusY: 3.08, tiltX: -0.65, tiltZ: -0.38, phase: 1.35, speed: 0.52 },
+      { id: "noaa20", radiusX: 3.52, radiusY: 3.16, tiltX: -0.7, tiltZ: -0.44, phase: Math.PI + 1.35, speed: 0.52 },
+    ];
 
-    // 9. Orbital Trajectory Rings
-    // Main sun-synchronous orbit ring (cyan)
-    const mainOrbit = createOrbitRing(3.2, 2.9, 0x00f2fe, 0.45, 0.82, true);
-    mainOrbit.position.copy(earthGroup.position);
-    scene.add(mainOrbit);
+    const orbitLines = orbitConfigs.map((config) => {
+      const color = config.id === activeSatelliteRef.current ? 0x00f2fe : 0x246f94;
+      const line = createOrbitRing(config.radiusX, config.radiusY, color, config.tiltX, config.tiltZ, true);
+      line.position.copy(earthGroup.position);
+      scene.add(line);
+      return line;
+    });
+    const activeOrbitColor = new THREE.Color(0x00f2fe);
+    const idleOrbitColor = new THREE.Color(0x246f94);
 
-    // Secondary witness orbit (NOAA-20 / VIIRS matched orbit)
-    const secondOrbit = createOrbitRing(3.4, 3.1, 0x38bdf8, -0.65, -0.38, true);
-    secondOrbit.position.copy(earthGroup.position);
-    scene.add(secondOrbit);
+    const satelliteTexture = textureLoader.load("/satellite-realistic-v2.png");
+    satelliteTexture.colorSpace = THREE.SRGBColorSpace;
+    const satelliteSprites = orbitConfigs.map((config) => {
+      const material = new THREE.SpriteMaterial({
+        map: satelliteTexture,
+        color: 0xffffff,
+        transparent: true,
+        depthWrite: false,
+        toneMapped: false,
+        opacity: config.id === activeSatelliteRef.current ? 1 : 0.82,
+      });
+      const sprite = new THREE.Sprite(material);
+      const baseScale = config.id === activeSatelliteRef.current ? 1.28 : 0.96;
+      sprite.scale.set(baseScale, baseScale * 0.67, 1);
+      sprite.position.copy(pointOnOrbit(config, config.phase, earthGroup.position));
+      sprite.renderOrder = 4;
+      scene.add(sprite);
+      return { config, sprite, material };
+    });
 
     // Orbit pulse indicator node
     const pulseGeo = new THREE.SphereGeometry(0.065, 16, 16);
@@ -517,20 +569,19 @@ export default function OutcrowdEarthSatellite({
         earthGroup.position.set(0.75, 0, 0);
         camera.position.z = 6.2;
       }
+      orbitLines.forEach((line) => line.position.copy(earthGroup.position));
     };
 
     window.addEventListener("resize", handleResize);
     handleResize();
 
     // 13. Animation Loop
-    let clock = new THREE.Clock();
-    let orbitAngle = 0;
+    const clock = new THREE.Clock();
 
     const animate = () => {
       if (isDisposed) return;
       animationId = requestAnimationFrame(animate);
 
-      const delta = clock.getDelta();
       const time = clock.getElapsedTime();
 
       // Earth rotation
@@ -545,29 +596,23 @@ export default function OutcrowdEarthSatellite({
       cloudsMesh.rotation.y += 0.0006;
       cloudsMesh.rotation.x += 0.0002;
 
-      // Satellite orbital movement
-      orbitAngle += delta * 0.35;
-      const orbitA = 3.2;
-      const orbitB = 2.9;
-      const satX = earthGroup.position.x + Math.cos(orbitAngle) * orbitA;
-      const satY = earthGroup.position.y + Math.sin(orbitAngle) * orbitB * 0.8;
-      const satZ = earthGroup.position.z + Math.sin(orbitAngle) * 1.5;
-
-      satellite.position.set(satX, satY, satZ);
-
-      // Point satellite sensor payload directly at center of Earth
-      satellite.lookAt(earthGroup.position);
-
-      // Micro floating wobble of satellite
-      satellite.rotateZ(Math.sin(time * 2.5) * 0.04);
-      satellite.rotateX(Math.cos(time * 1.8) * 0.03);
+      // Every spacecraft is evaluated from the same ellipse and tilt used by
+      // its visible ring, so it cannot drift away from its orbital path.
+      satelliteSprites.forEach(({ config, sprite, material }, index) => {
+        const angle = config.phase + time * config.speed;
+        sprite.position.copy(pointOnOrbit(config, angle, earthGroup.position));
+        const isActive = config.id === activeSatelliteRef.current;
+        const baseScale = isActive ? 1.28 : 0.96;
+        const depth = sprite.position.z - earthGroup.position.z;
+        const depthScale = THREE.MathUtils.clamp(1 + depth * 0.1, 0.78, 1.24);
+        sprite.scale.set(baseScale * depthScale, baseScale * depthScale * 0.67, 1);
+        material.opacity = THREE.MathUtils.lerp(material.opacity, isActive ? 1 : 0.82, 0.08);
+        const orbitMaterial = orbitLines[index].material as THREE.LineDashedMaterial;
+        orbitMaterial.color.lerp(isActive ? activeOrbitColor : idleOrbitColor, 0.08);
+      });
 
       // Pulse node travels along main orbit
-      pulseNode.position.set(
-        earthGroup.position.x + Math.cos(orbitAngle + 1.2) * orbitA,
-        earthGroup.position.y + Math.sin(orbitAngle + 1.2) * orbitB * 0.8,
-        earthGroup.position.z + Math.sin(orbitAngle + 1.2) * 1.5
-      );
+      pulseNode.position.copy(pointOnOrbit(orbitConfigs[0], orbitConfigs[0].phase + time * orbitConfigs[0].speed + 0.35, earthGroup.position));
       const pulseScale = 1.0 + Math.sin(time * 6.0) * 0.35;
       pulseNode.scale.set(pulseScale, pulseScale, pulseScale);
 
@@ -615,10 +660,16 @@ export default function OutcrowdEarthSatellite({
       cloudsMaterial.dispose();
       atmosphereGeometry.dispose();
       atmosphereShader.dispose();
+      orbitLines.forEach((line) => {
+        line.geometry.dispose();
+        (line.material as THREE.Material).dispose();
+      });
+      satelliteSprites.forEach(({ material }) => material.dispose());
+      satelliteTexture.dispose();
       starGeo.dispose();
       starMat.dispose();
     };
-  }, [activeSatellite, targetHotspot]);
+  }, [targetLat, targetLon]);
 
   return (
     <div className="outcrowd-3d-wrapper" style={{ position: "relative", width: "100%", height: "100%", minHeight: "720px" }}>
