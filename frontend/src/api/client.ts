@@ -37,6 +37,12 @@ export async function getCurrentHotspots(sensors: SensorName[], days = 1, limit 
   return data;
 }
 
+/** Live FIRMS hotspots inside a box (west,south,east,north) for the last `days` days (max 5). */
+export async function getHotspotsInBox(bbox: [number, number, number, number], days = 5, limit = 20000): Promise<CurrentHotspotsResponse> {
+  const { data } = await api.get<CurrentHotspotsResponse>("/api/current_hotspots", { params: { bbox: bbox.map((v) => v.toFixed(4)).join(","), days, limit }, timeout: 120000 });
+  return data;
+}
+
 export async function getVerifiedHotspots(sensors: SensorName[]): Promise<VerifiedHotspotsResponse> {
   const { data } = await api.get<VerifiedHotspotsResponse>("/api/verified_hotspots", { params: { days: 1, limit: 20, sensors }, ...repeatParams });
   return data;

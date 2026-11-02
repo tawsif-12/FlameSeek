@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import math
 import contextvars
 import csv
 import io
@@ -162,11 +163,19 @@ async def load_availability() -> dict[str, tuple[date, date]]:
     return _availability
 
 
+_CHUNK_EPOCH = date(2000, 1, 1)
+
+
 def _chunks(start_date: date, end_date: date) -> list[tuple[date, int]]:
+    """Request chunks on a fixed calendar grid (every MAX_DAY_RANGE_PER_REQUEST days from 2000-01-01).
+    Interior chunks are then identical for any two periods that overlap, so a 1-year quick look and a
+    10-year history reuse the same cached downloads. Only the first and last chunk may be partial."""
     chunks = []
     cursor = start_date
+    step = MAX_DAY_RANGE_PER_REQUEST
     while cursor <= end_date:
-        days = min(MAX_DAY_RANGE_PER_REQUEST, (end_date - cursor).days + 1)
+        to_boundary = step - ((cursor - _CHUNK_EPOCH).days % step)
+        days = min(to_boundary, (end_date - cursor).days + 1)
         chunks.append((cursor, days))
         cursor += timedelta(days=days)
     return chunks
@@ -302,6 +311,18 @@ async def _get_with_retries(client: httpx.AsyncClient, url: str) -> str:
     raise FirmsAPIError(None, str(last_error), _redact_url(url))
 
 
+_IN_FLIGHT: dict[tuple[str, str, int, str], "asyncio.Future[str]"] = {}
+
+
+def snap_bbox(bbox: tuple[float, float, float, float], step: float = 0.5) -> tuple[float, float, float, float]:
+    """Expand a box outward to a fixed grid so nearby and repeated searches download (and cache) the
+    same FIRMS chunks; callers still filter detections to the exact area afterwards."""
+    w, s, e, n = bbox
+    snap_down = lambda v: math.floor(v / step) * step  # noqa: E731
+    snap_up = lambda v: math.ceil(v / step) * step  # noqa: E731
+    return (max(-180.0, snap_down(w)), max(-90.0, snap_down(s)), min(180.0, snap_up(e)), min(90.0, snap_up(n)))
+
+
 def _chunk_ttl(source: str, start: date, days: int) -> float | None:
     """SP archives are immutable; NRT settles after a few days."""
     if source.endswith("_SP"):
@@ -325,14 +346,30 @@ async def _fetch_csv(client: httpx.AsyncClient, sensor: str, bbox: tuple[float, 
             _CSV_CACHE[cache_key] = (time.time(), text)
             return text, source
 
-    url = f"{FIRMS_BASE_URL}/{FIRMS_MAP_KEY}/{source}/{area}/{days}/{start.isoformat()}"
-    started = time.perf_counter()
-    text = await _get_with_retries(client, url)
-    print(f"firms_request source={source} chunk_start={start} days={days} elapsed_ms={round((time.perf_counter() - started) * 1000, 1)}")
-    _CSV_CACHE[cache_key] = (time.time(), text)
-    if ttl is None or ttl >= 86400:
-        disk_write("firms", disk_key, text, ".csv")
-    return text, source
+    # Two analyses asking for the same chunk at the same moment share one NASA request.
+    pending = _IN_FLIGHT.get(cache_key)
+    if pending is not None:
+        return await asyncio.shield(pending), source
+
+    async def download() -> str:
+        url = f"{FIRMS_BASE_URL}/{FIRMS_MAP_KEY}/{source}/{area}/{days}/{start.isoformat()}"
+        started = time.perf_counter()
+        text = await _get_with_retries(client, url)
+        print(f"firms_request source={source} chunk_start={start} days={days} elapsed_ms={round((time.perf_counter() - started) * 1000, 1)}")
+        _CSV_CACHE[cache_key] = (time.time(), text)
+        if ttl is None or ttl >= 86400:
+            disk_write("firms", disk_key, text, ".csv")
+        return text
+
+    task = asyncio.ensure_future(download())
+    _IN_FLIGHT[cache_key] = task
+    try:
+        return await asyncio.shield(task), source
+    finally:
+        if task.done():
+            _IN_FLIGHT.pop(cache_key, None)
+        else:
+            task.add_done_callback(lambda _t: _IN_FLIGHT.pop(cache_key, None))
 
 
 async def _fetch_recent_csv(client: httpx.AsyncClient, sensor: str, area: str, days: int) -> tuple[str, str]:
@@ -479,6 +516,27 @@ def _cached_actual_hotspots(
     return list(deduped.values())
 
 
+_WORLD_PARSED: dict[tuple[str, int], tuple[float, list[dict[str, Any]]]] = {}
+
+
+def _from_fresh_world_cache(bbox: tuple[float, float, float, float], sensors: list[str], days: int) -> list[dict[str, Any]] | None:
+    """Rows inside bbox from worldwide recent downloads that are still fresh, or None if any sensor
+    is missing or stale (the caller then asks FIRMS for the box itself)."""
+    west, south, east, north = bbox
+    rows: list[dict[str, Any]] = []
+    for sensor in sensors:
+        source = FIRMS_NRT_SENSOR_SOURCES.get(sensor, sensor)
+        cached = _CSV_CACHE.get((source, "world", days, "recent"))
+        if not cached or time.time() - cached[0] >= FIRMS_RECENT_CACHE_TTL_SECONDS:
+            return None
+        parsed = _WORLD_PARSED.get((source, days))
+        if parsed is None or parsed[0] != cached[0]:
+            parsed = (cached[0], _parse_csv(cached[1], sensor, source))
+            _WORLD_PARSED[(source, days)] = parsed
+        rows.extend(r for r in parsed[1] if west <= r["lon"] <= east and south <= r["lat"] <= north)
+    return rows
+
+
 async def fetch_recent_hotspots(
     bbox: tuple[float, float, float, float] | None = None,
     sensors: list[str] = DEFAULT_SENSORS,
@@ -488,6 +546,13 @@ async def fetch_recent_hotspots(
     global _FIRMS_DOWN_UNTIL, _LAST_RECENT_SOURCE
     area = "world" if bbox is None else _bbox_string(bbox)
     semaphore = asyncio.Semaphore(4)
+
+    # A place inside a fresh worldwide download needs no new NASA request: cut it out locally.
+    if bbox is not None:
+        local = _from_fresh_world_cache(bbox, sensors, days)
+        if local is not None:
+            _LAST_RECENT_SOURCE = "live"
+            return local
 
     async def guarded(sensor: str) -> list[dict[str, Any]]:
         async with semaphore:

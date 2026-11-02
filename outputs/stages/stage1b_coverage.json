@@ -1,0 +1,24 @@
+{
+  "Northern_Australia": {
+    "tested_points": 10201,
+    "covered_points": 10201,
+    "coverage_share": 1.0,
+    "box": [
+      125,
+      -20,
+      138,
+      -11
+    ]
+  },
+  "near_nadir": {
+    "tested_points": 10201,
+    "covered_points": 10201,
+    "coverage_share": 1.0,
+    "box": [
+      138,
+      -5,
+      145,
+      -1
+    ]
+  }
+}

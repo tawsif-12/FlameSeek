@@ -1,0 +1,31 @@
+{
+  "window": "sync_2016",
+  "n_cell_days": 81220,
+  "n_estimated": 76099,
+  "n_unknown": 5121,
+  "status": "provisional",
+  "mean_lambda": 0.3046623742833516,
+  "total_observed_event_look_weight": 14988.462654180388,
+  "draws": 300,
+  "limitation": "detection-conditioned opportunities \u2013 lower bound on O_s. Opportunities are undercounted, so lambda is biased HIGH (upper side); synchronized-window detection curve; clear-sky opportunity assumption; unknown diurnal systematic error excluded.",
+  "opportunity_basis": "detection-conditioned opportunities \u2013 lower bound on O_s",
+  "calibration_uncertainty": "No physical FRP/FRE calibration applied to event-count numerators.",
+  "fre_status": "awaiting supported South Asia diurnal shape",
+  "included_platforms": [
+    "Aqua",
+    "S-NPP",
+    "NOAA-20",
+    "NOAA-21"
+  ],
+  "excluded_platforms": {
+    "Terra": "No independent Terra response/time correction; do not substitute the Aqua curve"
+  },
+  "degradation": {
+    "status": "computed",
+    "n": 51544,
+    "bias": -0.10845405140094214,
+    "relative_bias": -0.24355721301637567,
+    "opportunity_basis": "detection-conditioned opportunities \u2013 lower bound on O_s",
+    "definition": "mean(lambda_MODIS_only - lambda_all_sensors) over cell-days where both are finite"
+  }
+}

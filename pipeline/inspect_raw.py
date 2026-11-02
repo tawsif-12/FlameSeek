@@ -63,6 +63,10 @@ def inspect_firms(raw_dir: Path) -> tuple[list[str], dict]:
         facts["files"][f.name] = {"rows": len(df), "blank_rows": int(blank.sum()),
                                   "instruments": instruments, "md5": digest}
 
+        if df.empty:
+            lines += [f"### `{f.name}`", "", "- Rows: **0**; empty window extraction (no dates or acquisition times)."]
+            continue
+
         lines += [f"### `{f.name}`", "",
                   f"- Rows: **{len(df)}** (of which {int(blank.sum())} blank/unparseable)",
                   f"- MD5: `{digest}`",

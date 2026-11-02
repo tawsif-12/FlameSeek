@@ -45,7 +45,9 @@ def json_write(path, data):
 
 def lst(utc, lon):
     t = pd.Timestamp(utc)
-    return (t.hour+t.minute/60+t.second/3600+np.asarray(lon)/15) % 24
+    longitude = np.asarray(lon)
+    longitude = np.where(np.isfinite(longitude), longitude, np.nan)
+    return (t.hour+t.minute/60+t.second/3600+longitude/15) % 24
 
 
 def view_zenith(lon, lat, sat_lon=140.7, sat_lat=0., sat_alt_m=35785863.):
@@ -104,7 +106,7 @@ def discover(cfg):
         for hour in range(24):
             t = pd.Timestamp(datetime.combine(day,datetime.min.time()),tz='UTC')+pd.Timedelta(hours=hour)
             group = found.get(t,{})
-            required = [(b,s) for b in ('B07','B14','B15') for s in ('S0310','S0410')]
+            required = [(b,s) for b in ('B07','B14','B15') for s in cfg['himawari'].get('segments',['S0310','S0410'])]
             if all(key in group for key in required):
                 complete[t]=[group[key] for key in required]
             else:
@@ -160,15 +162,26 @@ def prepare_scan(files, cfg, geom=None):
         geom=geometry(attrs['area'],cfg,attrs['orbital_parameters'])
     arrays=dask.compute(*[crop[b].data for b in ['B07','B14','B15',rq]],scheduler='threads',num_workers=3)
     frame={name:np.asarray(a,dtype=np.float32) for name,a in zip(['b07','b14','b15','radiance'],arrays)}
-    if crop[rq].attrs['units'] != 'W m-2 sr-1 um-1':
-        # Satpy's AHI reader declares this unit; never silently mix cm-1 and um.
+    if sorted(crop[rq].attrs['units'].split()) != sorted('W m-2 sr-1 um-1'.split()):
+        # Satpy 0.60 writes 'W m-2 um-1 sr-1'; term order is irrelevant, but never silently
+        # mix per-wavenumber (cm-1) and per-wavelength (um) radiance.
         raise ValueError(f'Unsupported radiance unit: {crop[rq].attrs["units"]}')
+    orbit=attrs['orbital_parameters']
+    frame['vza_deg']=view_zenith(geom['longitude'],geom['latitude'],orbit['satellite_actual_longitude'],
+                                 orbit['satellite_actual_latitude'],orbit['satellite_actual_altitude']).astype(np.float32)
     obs=attrs['time_parameters']['observation_start_time']
     frame['sza_deg']=np.asarray(sun_zenith_angle(obs,geom['longitude'],geom['latitude']),np.float32)
     return frame,geom,obs
 
 
-def contextual(frame, geom, settings, constant):
+def contextual(frame, geom, settings, constant, day_fix=None):
+    """Contextual fire test. day_fix (D73, Northern Australia check only; None = unchanged):
+      {'reflectance': R0.86 µm reflectance factor on this grid (NaN where absent),
+       'reflectance_max': daytime cloud threshold on R/cos(SZA),
+       'sza_max_deg': reflectance test used where SZA < this,
+       'delta_cap_k': cap on the daytime B07-B14 contextual term (None = no cap)}.
+    Where the reflectance test applies, the B14-B15 > max test is not used; the cold and
+    split-window-min tests stay. Night pixels are unchanged."""
     b7,b14,b15,L=[frame[x] for x in ['b07','b14','b15','radiance']]
     cc,dc=settings['cloud'],settings['detection']
     data_ok=np.isfinite(b7)&np.isfinite(b14)&np.isfinite(b15)&np.isfinite(L)
@@ -176,6 +189,13 @@ def contextual(frame, geom, settings, constant):
     cloud=data_ok&((b14<cc['cold_b14_k'])|((b14-b15)<cc['split_window_min_k'])|
                    ((b14-b15)>cc['split_window_max_k']))
     day=frame['sza_deg']<settings['day_sza_deg']
+    if day_fix is not None:
+        sza=frame['sza_deg']
+        reflective=day&(sza<day_fix['sza_max_deg'])
+        r=day_fix['reflectance']/np.cos(np.radians(np.minimum(sza,89.)))
+        data_ok=data_ok&~(reflective&~np.isfinite(r))  # absent reflectance by day = unknown, not IR-masked
+        cloud_day=data_ok&((b14<cc['cold_b14_k'])|((b14-b15)<cc['split_window_min_k'])|(r>day_fix['reflectance_max']))
+        cloud=np.where(reflective,cloud_day,cloud&data_ok)
     clear=data_ok&valid&~cloud
     delta=b7-b14
     candidate=clear&geom['land']&(b7>np.where(day,dc['candidate_day_k'],dc['candidate_night_k']))&(delta>dc['candidate_delta_k'])
@@ -197,8 +217,11 @@ def contextual(frame, geom, settings, constant):
         mean,sd=moments(b7)
         md,sdd=moments(delta)
         ml,_=moments(L)
+        delta_term=np.maximum(dc['sigma_multiplier']*sdd,dc['anomaly_floor_k'])
+        if day_fix is not None and day_fix.get('delta_cap_k') is not None:
+            delta_term=np.where(day,np.minimum(delta_term,day_fix['delta_cap_k']),delta_term)
         fire[enough]=(b7>mean+np.maximum(dc['sigma_multiplier']*sd,dc['anomaly_floor_k']))[enough]&(
-            delta>md+np.maximum(dc['sigma_multiplier']*sdd,dc['anomaly_floor_k']))[enough]
+            delta>md+delta_term)[enough]
         bgL[enough]=ml[enough]
         bg_n[enough]=np.rint(count[enough]).astype(int)
         bg_window[enough]=size
@@ -223,9 +246,12 @@ def nearby(query, refs, minutes=60, radius_km=2):
         return np.zeros(len(query),bool)
     tree=BallTree(np.radians(refs[['latitude','longitude']].to_numpy()),metric='haversine')
     indices=tree.query_radius(np.radians(query[['latitude','longitude']].to_numpy()),r=radius_km/6371.0088)
-    qt=pd.to_datetime(query['acq_datetime_utc'],utc=True).astype('int64').to_numpy()
-    rt=pd.to_datetime(refs['acq_datetime_utc'],utc=True).astype('int64').to_numpy()
-    return np.array([bool(np.any(np.abs(rt[ix]-t)<=minutes*60e9)) for ix,t in zip(indices,qt)])
+    # Explicit seconds since epoch (D72): astype('int64') depends on the column's unit
+    # (us under pandas 3), which once made every tolerance 1,000x too wide.
+    epoch=pd.Timestamp('1970-01-01',tz='UTC'); second=pd.Timedelta(seconds=1)
+    qt=((pd.to_datetime(query['acq_datetime_utc'],utc=True)-epoch)/second).to_numpy(float)
+    rt=((pd.to_datetime(refs['acq_datetime_utc'],utc=True)-epoch)/second).to_numpy(float)
+    return np.array([bool(np.any(np.abs(rt[ix]-t)<=minutes*60)) for ix,t in zip(indices,qt)])
 
 
 def detection_frame(result, frame, geom, time, obs):

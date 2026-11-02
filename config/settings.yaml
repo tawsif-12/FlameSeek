@@ -11,7 +11,11 @@ data_version: "firms_nrt_2026-10-29_to_11-02_v2"
 default_window: current_2026
 windows:
   current_2026: {start: 2026-10-29, end: 2026-11-02, raw_dir: data/raw, bbox: null}
-  sync_2016:   {start: 2016-10-29, end: 2016-11-02, raw_dir: data/raw/archive/2016, bbox: null}  # if data present
+  sync_2016:   {start: 2016-10-29, end: 2016-11-02, raw_dir: data/raw/archive/2016, bbox: null,
+                data_version: "firms_country_sp_2016_India_Bangladesh_v1"}  # if data present
+  # A window may set its own data_version; otherwise the top-level one applies.
+  sync_2014:   {start: 2014-10-29, end: 2014-11-02, raw_dir: data/raw/archive/2014, bbox: null,
+                data_version: "firms_country_sp_2014_India_Bangladesh_v1"}  # optional second synchronized window
   igp_2026:    {start: 2026-10-29, end: 2026-11-02, raw_dir: data/raw, bbox: [73.0, 24.0, 89.0, 32.5]}
 
 partitions:
@@ -139,10 +143,17 @@ calibration:
   detection_curve_viirs: [S-NPP, NOAA-20, NOAA-21]
   modis_edge_area_km2: 9.6          # swath-edge MODIS pixel area for the 50% FRP
   frp_dist_xmin_candidates: 60      # log-spaced F_min candidates for the Clauset KS search
-  # Sync-window calibration (used only when a window's Aqua-S-NPP median |dt| <= 20 min)
+  # Sync-window calibration (used only when a window passes sync_gate below; D68)
   sync_max_dt_min: 15               # pairs within 15 min
   trunc_frp_mw: 10.0                # truncation filter: both sensors' FRP >= 10 MW
   deming_error_ratio: 1.0           # stated var(err log FRP_VIIRS) / var(err log FRP_MODIS)
+
+# Synchronization gate (D68): replaces the old "median |Aqua - S-NPP dt| <= 20 min" rule.
+# Applied unchanged to every window. Thresholds are fixed by the user request; do not tune.
+sync_gate:
+  aqua_nominal_lst_h: 13.5          # Aqua design equator crossing 13:30
+  aqua_lst_tolerance_min: 30        # (a) median daytime Aqua LST within 30 min of 13:30
+  min_pairs: 100                    # (b) Aqua-S-NPP pairs, |dt| <= sync_max_dt_min, after truncation
 
 # --- Phase 2b: overpass-time drift history --------------------------------
 drift:
@@ -214,3 +225,91 @@ himawari:
   srf_url: https://nwp-saf.eumetsat.int/downloads/rtcoef_info/visir_srf/rtcoef_himawari_9_ahi_srf/rtcoef_himawari_9_ahi_srf_ch07.txt
   fre_sensor_relative_sd: {MODIS: 0.5, VIIRS: 0.3}
   transfer_max_same_day_gap_minutes: 360
+# Geostationary source selection is geometric and independent of file availability.
+# A missing assigned platform is an unknown observation; do not substitute another.
+geostationary:
+  max_vza_deg: 65
+  altitude_m: 35785863
+  platforms:
+    Himawari:
+      sub_lon_deg: 140.7
+      cadence_minutes: 60
+      source: ahi_hsd
+    Meteosat-9:
+      sub_lon_deg: 45.5
+      cadence_minutes: 15
+      source: lsa_saf_frp_pixel_iodc
+      longitude_reference: https://www.eumetsat.int/eumetsats-meteosat-9-reaches-its-new-home
+  meteosat:
+    platform: Meteosat-9
+    raw_dir: data/raw/meteosat
+    file_globs: ['*.h5', '*.hdf5', '*.nc', '*.bz2']
+    field_overrides: {}  # optional canonical field -> exact dataset path
+    # LSA SAF uppercase SCALING_FACTOR convention: physical = stored / factor.
+    # CF lowercase scale_factor/add_offset convention: physical = stored * factor + offset.
+    # Missing uncertainty/confidence/area are unknown, never replaced by zero.
+# Phase 3c availability-gated experiments. Fractions are unitless area fractions.
+phase3c:
+  injection:
+    fractions: [0.00005, 0.0001, 0.0002, 0.0005, 0.001]
+    temperature_k: 800
+    bangladesh_hours_utc: [5, 7, 9, 18, 20, 22]
+    near_nadir:
+      box: [138.0, -5.0, 145.0, -1.0]
+      hours_utc: [0, 4, 12]
+      segments: [S0610]
+      max_vza_deg: 10
+  northern_australia:
+    box: [125.0, -20.0, 138.0, -11.0]
+    segments: [S0610, S0710]
+    role: method demonstration region
+    transfer_to_south_asia: false
+# Stage 3: conditional reference-population latent estimate. These remain provisional.
+latent:
+  draws: 300
+  seed: 20261102
+  reference_sensor: S-NPP
+  viirs_pi: 1.0  # definition of the VIIRS-observable reference population, not all physical fires
+  detection_curve_by_window:
+    current_2026: params/detection_curve_v1.json
+    sync_2016: params/detection_curve_v3_sync2016.json
+    sync_2014: params/detection_curve_v3_sync2014.json
+  calibration_by_window:
+    current_2026: params/calibration_v1.json
+    sync_2016: params/calibration_v2_sync2016.json
+    sync_2014: params/calibration_v2_sync2014.json
+  included_platforms: [Aqua, S-NPP, NOAA-20, NOAA-21]
+  excluded_platforms: {Terra: 'No independent Terra response/time correction; do not substitute the Aqua curve'}
+  area_nodes: 64
+  frp_bootstrap_size: 2000
+  uncertainty: 'Marginal-normal curve draws, empirical FRP bootstrap, conditional Gamma-Poisson count uncertainty; unavailable systematic errors excluded'
+# Translation thresholds are provisional display choices, not measured fire-risk calibration.
+translation:
+  risk_probability_min: [0.0, 0.2, 0.4, 0.6, 0.8]
+  risk_ratio_min: [0.0, 0.5, 1.0, 1.5, 2.0]
+  intensity_mw: [10.0, 100.0, 1000.0]
+  confidence_min: [0.5, 0.8]
+  trend_relative_change: 0.2
+  active_hours: 24
+
+# --- Fallback observation opportunities without TLEs (D69) -----------------------
+# "detection-conditioned opportunities – lower bound on O_s". Nominal orbit values.
+observed_opportunities:
+  altitude_km: {Terra: 705, Aqua: 705, S-NPP: 829}
+  inclination_deg: {Terra: 98.2, Aqua: 98.2, S-NPP: 98.7}
+  period_min: {Terra: 98.9, Aqua: 98.8, S-NPP: 101.4}
+  day_node: {Terra: D, Aqua: A, S-NPP: A}   # daytime node: Terra descending, Aqua/S-NPP ascending
+  pass_gap_min: 20                  # detections of one platform closer than this = one pass
+  max_pass_min: 6                   # longer passes are cut into segments (straight local track)
+  size_quantum_km: {MODIS: 0.1, VIIRS: 0.01}   # FIRMS rounding of the pixel size used
+  distance_slack_km: 25             # model error allowance on cross-track distance
+  offset_step_deg: 0.01
+  min_consistent_share: 0.9         # else the pass is dropped (no opportunity claimed)
+  max_fit_detections: 600
+  seed: 20261102
+
+# --- Archived TLEs for historical windows (Part 3; tools/fetch_spacetrack_tle.py) ---
+tle_archive:
+  dir: data/raw/tle                 # data/raw/tle/<year>/*.tle|*.txt (2LE or 3LE)
+  max_epoch_offset_days: 3          # nearest TLE epoch to the window midpoint
+  platforms: [Terra, Aqua, S-NPP]

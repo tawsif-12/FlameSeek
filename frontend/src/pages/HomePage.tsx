@@ -32,6 +32,7 @@ import Satellite3DCoverflow from "../components/Satellite3DCoverflow";
 import Pipeline3DTransition from "../components/Pipeline3DTransition";
 import MethodologyRoadmap from "../components/MethodologyRoadmap";
 import "../outcrowd-satellite.css";
+import HarmonizedRecordSection from "../components/HarmonizedRecordSection";
 
 type SensorCounts = Record<"modis" | "viirs_snpp" | "viirs_noaa20" | "viirs_noaa21", number>;
 
@@ -607,6 +608,11 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ====================================================================
+          SECTION 4B: HARMONIZED RECORD (offline multi-sensor snapshot)
+          ==================================================================== */}
+      <HarmonizedRecordSection />
 
       {/* ====================================================================
           SECTION 5: FAQ & METHODOLOGY (ANIMATED TIMELINE ROADMAP)

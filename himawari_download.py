@@ -19,6 +19,8 @@ import yaml
 ROOT = Path(__file__).resolve().parent
 BANDS = ['B07', 'B14', 'B15']
 SEGMENTS = ['S0310', 'S0410']
+# Native resolution code per AHI band (R05 = 0.5 km, R10 = 1 km, R20 = 2 km).
+RESOLUTION = {'B01': 'R10', 'B02': 'R10', 'B03': 'R05', 'B04': 'R10'}
 H9_START = datetime(2022, 12, 13, 5)  # JMA operational handover, UTC
 
 
@@ -58,12 +60,14 @@ def verify(local, item):
         offset += length
     bits, columns, lines = struct.unpack_from(endian+'HHH', blocks[2], 3)
     full_disk = '_S0101.' in local.name
-    expected_lines = 5500 if full_disk else 550
-    if bits != 16 or columns != 5500 or lines != expected_lines or body != columns*lines*2:
-        raise ValueError('Unexpected R20 segment dimensions')
+    # Full-disk columns per resolution code (R05 0.5 km, R10 1 km, R20 2 km); a segment is a tenth.
+    disk = {'R05': 22000, 'R10': 11000, 'R20': 5500}[local.name.split('_FLDK_')[1][:3]]
+    expected_lines = disk if full_disk else disk // 10
+    if bits != 16 or columns != disk or lines != expected_lines or body != columns*lines*2:
+        raise ValueError(f'Unexpected segment dimensions for a {disk}-column disk')
     segment = int(local.name.split('_S')[1][:2])
     total, actual, first_line = struct.unpack_from(endian+'BBH', blocks[7], 3)
-    expected_segment = (1, 1, 1) if full_disk else (10, segment, (segment-1)*550+1)
+    expected_segment = (1, 1, 1) if full_disk else (10, segment, (segment-1)*expected_lines+1)
     if (total, actual, first_line) != expected_segment:
         raise ValueError('Segment header disagrees with filename')
     return {'md5': md5, 'sha256': hashlib.sha256(raw).hexdigest(),
@@ -79,7 +83,15 @@ def main():
     ap.add_argument('--test-hour', help='UTC YYYY-MM-DDTHH; all six 10-minute scans')
     ap.add_argument('--report', help='JSON report path relative to project')
     ap.add_argument('--workers', type=int, default=12, help='Concurrent file transfers (1-32)')
+    ap.add_argument('--bands', help='comma-separated bands (default B07,B14,B15)')
+    ap.add_argument('--segments', help='comma-separated segments (default S0310,S0410)')
+    ap.add_argument('--utc-hours', help='comma-separated UTC hours to keep (default: all)')
     args = ap.parse_args()
+    global BANDS, SEGMENTS
+    if args.bands:
+        BANDS = args.bands.split(',')
+    if args.segments:
+        SEGMENTS = args.segments.split(',')
     if not 1 <= args.workers <= 32:
         ap.error('--workers must be between 1 and 32')
     days = window_dates(args.window)
@@ -91,6 +103,9 @@ def main():
     else:
         slots = [datetime.combine(d, datetime.min.time()) + timedelta(minutes=m)
                  for d in days for m in range(0,1440,args.every)]
+        if args.utc_hours:
+            keep = {int(h) for h in args.utc_hours.split(',')}
+            slots = [t for t in slots if t.hour in keep]
     fs = s3fs.S3FileSystem(anon=True, client_kwargs={'region_name':'us-east-1'},
                          config_kwargs={'retries': {'max_attempts': 3},
                                         'connect_timeout':20, 'read_timeout':60})
@@ -102,14 +117,14 @@ def main():
     def listing(slot):
         bucket, sat = bucket_for(slot)
         prefix = f'{bucket}/AHI-L1b-FLDK/{slot:%Y/%m/%d/%H%M}/'
-        names = [f'HS_{sat}_{slot:%Y%m%d_%H%M}_{b}_FLDK_R20_{s}.DAT.bz2'
+        names = [f'HS_{sat}_{slot:%Y%m%d_%H%M}_{b}_FLDK_{RESOLUTION.get(b, "R20")}_{s}.DAT.bz2'
                  for b in BANDS for s in SEGMENTS]
         try:
             items = {x['name'].split('/')[-1]:x for x in fs.ls(prefix, detail=True)}
             # Early H08 archive stores a whole disk (S0101), not ten segments.
             # Use actual listed files rather than marking valid archives absent.
             for band in BANDS:
-                whole = f'HS_{sat}_{slot:%Y%m%d_%H%M}_{band}_FLDK_R20_S0101.DAT.bz2'
+                whole = f'HS_{sat}_{slot:%Y%m%d_%H%M}_{band}_FLDK_{RESOLUTION.get(band, "R20")}_S0101.DAT.bz2'
                 split = [n for n in names if f'_{band}_' in n]
                 if whole in items and not any(n in items for n in split):
                     names = [n for n in names if n not in split] + [whole]
@@ -142,10 +157,12 @@ def main():
                 if local.exists():
                     try:
                         return {'key':item['name'], 'status':'existing_verified', **verify(local,item)}
-                    except Exception:
-                        pass  # replace invalid local file only after new file passes verification
+                    except Exception as exc:
+                        return {'key':item['name'], 'status':'failed', 'error':'Existing immutable raw file failed verification: '+repr(exc)}
                 partial = local.with_suffix(local.suffix+'.part')
-                fs.get(item['name'], str(partial))
+                # A complete partial from an earlier run is verified in place, not fetched again.
+                if not (partial.exists() and partial.stat().st_size == item['size']):
+                    fs.get(item['name'], str(partial))
                 # Verification needs the original filename for its segment identifier.
                 integrity = verify(partial,item)
                 partial.replace(local)

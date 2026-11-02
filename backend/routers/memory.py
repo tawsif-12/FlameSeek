@@ -18,7 +18,7 @@ from critical_periods import find_critical_periods
 from environment import daily_weather
 from events import reconstruct_events
 from fire_dna import build_fire_dna_profile
-from firms_client import fetch_hotspots_with_report, quota_wait_status, sensor_available
+from firms_client import fetch_hotspots_with_report, quota_wait_status, sensor_available, snap_bbox
 from geo import AOI
 from harmonize import build_harmonized_series, filter_low_confidence, summarize_daily_series
 from http_utils import ExternalServiceError, disk_read, disk_write
@@ -27,11 +27,12 @@ from quality import summarize_observations
 from schemas import FireMemoryRequest
 from seasonal import calendar_grid, compare_current, monthly_series, seasonal_profile
 from witness import continuity_test
+from area_intel import area_climatology, hotspot_recurrence
 
 
 router = APIRouter()
 # Bump when the analysis changes so saved results are recomputed.
-RESULT_CACHE_VERSION = 2
+RESULT_CACHE_VERSION = 3  # 3: adds hotspot_map and area_risk (area fire intelligence)
 RESULT_CACHE_TTL_SECONDS = 7 * 86400
 
 
@@ -109,7 +110,8 @@ async def run_fire_memory(job: Job, payload: FireMemoryRequest) -> dict[str, Any
     await job.update("Planning FIRMS archive requests", 0.02)
     notice = asyncio.create_task(quota_notice())
     try:
-        rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+        # Snapped box: nearby/repeat searches reuse cached chunks; rows are filtered to the area below.
+        rows, report = await fetch_hotspots_with_report(snap_bbox(aoi.bbox), start, end, sensors, progress=on_progress)
     finally:
         notice.cancel()
     rows = aoi.filter(rows)
@@ -173,6 +175,8 @@ async def run_fire_memory(job: Job, payload: FireMemoryRequest) -> dict[str, Any
         "observation_quality": observation_quality,
         "fire_dna": build_fire_dna_profile(monthly, profile, period, observation_quality),
         "events": {"count": len(events), "multi_detection": sum(1 for e in events if e["observation_count"] > 1)},
+        "hotspot_map": hotspot_recurrence(rows, aoi.bbox),
+        "area_risk": area_climatology([_compact_daily(r) for r in daily], end),
         "provenance": {
             "data_sources": report["sources_used"],
             "sensors": sensors,

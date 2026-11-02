@@ -1,0 +1,26 @@
+{
+  "window": "current_2026",
+  "n_cell_days": 81220,
+  "n_estimated": 81220,
+  "n_unknown": 0,
+  "status": "provisional",
+  "mean_lambda": 0.010343511602764999,
+  "total_observed_event_look_weight": 5229.370846593394,
+  "draws": 300,
+  "limitation": "Provisional current-window v1 sensitivity; swath-edge and timing limitations retained. Clear-sky opportunity assumption. Unknown diurnal systematic error excluded.",
+  "calibration_uncertainty": "300 calibration draws sampled; no artificial noise added to lambda because calibration cancels on the VIIRS reference scale. Diurnal/FRE unavailable in South Asia.",
+  "fre_status": "awaiting supported South Asia diurnal shape",
+  "included_platforms": [
+    "Aqua",
+    "S-NPP",
+    "NOAA-20",
+    "NOAA-21"
+  ],
+  "excluded_platforms": {
+    "Terra": "No independent Terra response/time correction; do not substitute the Aqua curve"
+  },
+  "degradation": {
+    "status": "not a synchronized validation window",
+    "bias": null
+  }
+}

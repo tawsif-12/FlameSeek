@@ -1,0 +1,536 @@
+{
+ "exported_utc": "2026-11-02T16:48:06+00:00",
+ "meta": {
+  "default_window": "current_2026",
+  "windows": {
+   "current_2026": {
+    "window": "current_2026",
+    "data_version": "firms_nrt_2026-10-29_to_11-02_v2",
+    "last_observation_time": "2026-11-02 07:48:00+00:00",
+    "now": "2026-11-02T23:59:59.999999+00:00",
+    "now_basis": "configured UTC window end; not wall-clock time",
+    "is_live": false,
+    "start": "2026-10-29",
+    "end": "2026-11-02",
+    "n_events": 138576,
+    "n_detections": 545537,
+    "lambda_status": "provisional",
+    "status": "offline snapshot"
+   },
+   "sync_2016": {
+    "window": "sync_2016",
+    "data_version": "firms_country_sp_2016_India_Bangladesh_v1",
+    "last_observation_time": "2016-11-02 20:23:00+00:00",
+    "now": "2016-11-02T23:59:59.999999+00:00",
+    "now_basis": "configured UTC window end; not wall-clock time",
+    "is_live": false,
+    "start": "2016-10-29",
+    "end": "2016-11-02",
+    "n_events": 12289,
+    "n_detections": 24025,
+    "lambda_status": "provisional",
+    "status": "offline snapshot"
+   }
+  },
+  "source": "data/processed/snapshot_manifest.json"
+ },
+ "headline": {
+  "data_version": "firms_nrt_2026-10-29_to_11-02_v2",
+  "raw_detections": {
+   "value": 618185.0,
+   "label": "Raw FIRMS detection rows read",
+   "status": "computed",
+   "source": "outputs/phase1_report.md"
+  },
+  "low_confidence": {
+   "value": 72648.0,
+   "label": "Low-confidence rows stored separately",
+   "status": "computed",
+   "source": "outputs/phase1_report.md"
+  },
+  "clean_detections": {
+   "value": 545537.0,
+   "label": "Clean detections (nominal + high confidence)",
+   "status": "computed",
+   "source": "outputs/phase1_report.md"
+  },
+  "events": {
+   "value": 138576.0,
+   "label": "Harmonized fire events",
+   "status": "computed",
+   "source": "outputs/phase1_report.md"
+  }
+ },
+ "energy": {
+  "before": {
+   "value": 5259083.28,
+   "label": "Total FRP of clean detections before gridding",
+   "status": "computed",
+   "source": "outputs/phase1_report.md",
+   "unit": "MW"
+  },
+  "after": {
+   "value": 5259083.28,
+   "label": "Total FRP over all cell-overpass rows after gridding",
+   "status": "computed",
+   "source": "outputs/phase1_report.md",
+   "unit": "MW"
+  },
+  "relative_difference": {
+   "value": 1.77e-16,
+   "label": "Relative difference",
+   "status": "pass",
+   "source": "outputs/phase1_report.md",
+   "note": "tolerance 1e-09"
+  }
+ },
+ "drift": {
+  "rows": [
+   {
+    "year": 2016,
+    "platform": "Aqua",
+    "n": 718,
+    "median_lst_h": 13.45527
+   },
+   {
+    "year": 2016,
+    "platform": "S-NPP",
+    "n": 5113,
+    "median_lst_h": 13.300082666666665
+   },
+   {
+    "year": 2016,
+    "platform": "Terra",
+    "n": 68,
+    "median_lst_h": 10.77076
+   },
+   {
+    "year": 2026,
+    "platform": "Aqua",
+    "n": 18153,
+    "median_lst_h": 15.799877333333331
+   },
+   {
+    "year": 2026,
+    "platform": "NOAA-20",
+    "n": 102409,
+    "median_lst_h": 13.598291999999999
+   },
+   {
+    "year": 2026,
+    "platform": "NOAA-21",
+    "n": 96022,
+    "median_lst_h": 13.513035333333331
+   },
+   {
+    "year": 2026,
+    "platform": "S-NPP",
+    "n": 99857,
+    "median_lst_h": 13.712341333333333
+   },
+   {
+    "year": 2026,
+    "platform": "Terra",
+    "n": 4062,
+    "median_lst_h": 8.568811666666665
+   }
+  ],
+  "label": "Median daytime local solar time of detections, |latitude| ≤ 30°",
+  "nominal_lst_h": 13.5,
+  "nominal_note": "Aqua / S-NPP / NOAA-20 / NOAA-21 design crossing time 13:30",
+  "status": "computed",
+  "source": "outputs/stages/stage2_sync.json"
+ },
+ "calibration": {
+  "rows": [
+   {
+    "version": "v1",
+    "n": 396,
+    "a": -0.8239771284434613,
+    "b": 1.3196439470461132,
+    "a_interval": [
+     -1.14289502918055,
+     -0.5496525544318952
+    ],
+    "b_interval": [
+     1.1622549357299004,
+     1.5000706877202734
+    ],
+    "status": "drift-affected source; provisional",
+    "fitted": true,
+    "domain": "2026 drifted timing; original diagnostic benchmark",
+    "reason": null
+   },
+   {
+    "version": "v2 sync 2016",
+    "n": 534,
+    "a": -0.10695648901820043,
+    "b": 1.0824173755695943,
+    "a_interval": [
+     -0.2799288954427233,
+     0.06527421696560302
+    ],
+    "b_interval": [
+     0.9674958411824329,
+     1.2000835857886563
+    ],
+    "status": "validated – synchronized window",
+    "fitted": true,
+    "domain": "Synchronized window/era after the D68 gate (2016, India + Bangladesh)",
+    "reason": null
+   },
+   {
+    "version": "v2 sync 2014",
+    "n": null,
+    "a": null,
+    "b": null,
+    "a_interval": null,
+    "b_interval": null,
+    "status": "awaiting data",
+    "fitted": false,
+    "domain": "Synchronized window/era after the D68 gate (2014, India + Bangladesh)",
+    "reason": "awaiting data: 2014 FIRMS files absent"
+   },
+   {
+    "version": "v3 transfer N. Australia",
+    "n": 136,
+    "a": -0.14565606643120632,
+    "b": 1.1605870147568313,
+    "a_interval": [
+     -1.1383532208828042,
+     0.47941556932524587
+    ],
+    "b_interval": [
+     0.7984919766021573,
+     1.7169536845042546
+    ],
+    "status": "provisional – transfer standard",
+    "fitted": true,
+    "domain": "Northern Australia only; method demonstration region",
+    "reason": null
+   },
+   {
+    "version": "v3 transfer South Asia",
+    "n": 0,
+    "a": null,
+    "b": null,
+    "a_interval": null,
+    "b_interval": null,
+    "status": "provisional – transfer standard",
+    "fitted": false,
+    "domain": "South Asia only after regional Meteosat validation",
+    "reason": "No supported regional diurnal shape or too few adjusted day pairs"
+   }
+  ],
+  "model": "log10 FRP_VIIRS = a + b · log10 FRP_Aqua",
+  "interval": "90% bootstrap",
+  "why_differ": "v1 pairs Aqua with VIIRS in 2026, when Aqua's median detection time had drifted to 15:48 local solar time, so the two sensors see the same fire at different points of its daily cycle. v2 uses 2016, when Aqua (13:27) and S-NPP (13:18) crossed at nearly the same time, so the fit measures sensor differences rather than timing.",
+  "recommendations": [
+   {
+    "era": "synchronized / pre-drift",
+    "region": "Regions represented and validated in sync_2016",
+    "preferred_version": "v2 sync 2016",
+    "currently_usable": "v2 sync 2016",
+    "reason": "Conditional on represented region/biome, source shape and validation; no universal cross-era transfer",
+    "apply_to_south_asia": null
+   },
+   {
+    "era": "drifted 2026",
+    "region": "Northern Australia",
+    "preferred_version": "v3 transfer N. Australia",
+    "currently_usable": "v3 transfer N. Australia",
+    "reason": "Conditional on represented region/biome, source shape and validation; no universal cross-era transfer",
+    "apply_to_south_asia": false
+   },
+   {
+    "era": "drifted 2026",
+    "region": "South Asia",
+    "preferred_version": "v3 transfer South Asia",
+    "currently_usable": null,
+    "reason": "awaiting data / supported calibration",
+    "apply_to_south_asia": null
+   }
+  ],
+  "source": "outputs/phase3c_calibration_selection.json"
+ },
+ "detection_limits": [
+  {
+   "value": 17.284038157441458,
+   "label": "MODIS (Aqua) 50% detection power at nadir, 2016",
+   "status": "synchronized window; detection-conditioned opportunities – lower bound on O_s",
+   "source": "params/detection_curve_v3_sync2016.json",
+   "unit": "MW",
+   "interval": [
+    16.125456185308575,
+    18.578654594007446
+   ],
+   "note": "logistic fit; 90% bootstrap interval"
+  },
+  {
+   "value": 71.87218381730158,
+   "label": "Himawari 50% detection power, Bangladesh viewing angle",
+   "status": "detection limit from synthetic injection",
+   "source": "outputs/stages/stage2_summary.json",
+   "unit": "MW",
+   "interval": [
+    45.455959234056365,
+    113.63990318782726
+   ],
+   "note": "descriptive interpolation; bracket = tested grid, not a confidence interval"
+  },
+  {
+   "value": 13.38992181488362,
+   "label": "Himawari 50% detection power, near nadir",
+   "status": "detection limit from synthetic injection",
+   "source": "outputs/stages/stage2_summary.json",
+   "unit": "MW",
+   "interval": [
+    9.468103454761179,
+    18.936211149925438
+   ],
+   "note": "descriptive interpolation; bracket = tested grid, not a confidence interval"
+  }
+ ],
+ "geo_assignment": {
+  "regions": [
+   {
+    "region": "Bangladesh",
+    "n_cells": 2914,
+    "assignment_counts": {
+     "Meteosat-9": 2914
+    },
+    "mean_selected_vza_deg": 56.76674465849157
+   },
+   {
+    "region": "eastern_IGP",
+    "n_cells": 2000,
+    "assignment_counts": {
+     "Meteosat-9": 2000
+    },
+    "mean_selected_vza_deg": 54.3492934844547
+   },
+   {
+    "region": "full_IGP",
+    "n_cells": 13600,
+    "assignment_counts": {
+     "Meteosat-9": 13600
+    },
+    "mean_selected_vza_deg": 51.03053787965757
+   },
+   {
+    "region": "Punjab_Haryana",
+    "n_cells": 1480,
+    "assignment_counts": {
+     "Meteosat-9": 1480
+    },
+    "mean_selected_vza_deg": 48.31814241262055
+   }
+  ],
+  "figure": "site-data/figures/geo_platform_assignment.png",
+  "label": "Geostationary platform assigned to each 0.1° cell by smallest viewing angle",
+  "status": "computed (geometry only)",
+  "source": "outputs/geo_platform_assignment.json"
+ },
+ "naus": {
+  "status": "method demonstration – not applied",
+  "published_peak": {
+   "value": 18.821000217160844,
+   "label": "Published diurnal peak (local solar time)",
+   "status": "detection artifact (D71)",
+   "source": "outputs/naus_diagnostics/summary.json",
+   "unit": "h",
+   "interval": [
+    16.67114329201512,
+    19.433630454612285
+   ]
+  },
+  "findings": [
+   "The daytime split-window cloud test classed clear hot land as cloud, so the fit had no mid-day data.",
+   "Evening detections are real fire locations; the published evening peak is where visibility returns, not a burning peak.",
+   "Replacing that cloud test with a near-infrared (B04) reflectance test un-hid daytime fires (cloud fix works).",
+   "Daytime false alarms remain: most new midday detections are never confirmed by polar satellites."
+  ],
+  "source": "outputs/naus_diurnal_check.md; outputs/naus_detector_fix.md",
+  "checks": [
+   {
+    "label": "VIIRS fires at 12–14 h classed as cloud (test days)",
+    "before": 0.9177327647476902,
+    "after": 0.06751954513148543,
+    "passed": true,
+    "unit": "share",
+    "source": "outputs/naus_detector_fix.json"
+   },
+   {
+    "label": "Daytime detection rate, VIIRS fires ≥ 20 MW (test days)",
+    "before": 0.0,
+    "after": 0.5604395604395604,
+    "passed": true,
+    "unit": "share",
+    "source": "outputs/naus_detector_fix.json"
+   },
+   {
+    "label": "Midday Himawari detections never confirmed (test days)",
+    "before": 0.8837209302325582,
+    "after": 0.9591187270501836,
+    "passed": false,
+    "unit": "share",
+    "source": "outputs/naus_detector_fix.json",
+    "n_before": 86,
+    "n_after": 4085
+   }
+  ],
+  "figure": "site-data/figures/naus_diurnal_diagnostics.png"
+ },
+ "awaiting": [
+  {
+   "item": "Archived 2016 orbital elements (TLEs)",
+   "effect": "2016 observation opportunities are a lower bound, so 2016 λ is biased high",
+   "status": "detection-conditioned opportunities – lower bound on O_s"
+  },
+  {
+   "item": "Meteosat LSA SAF FRP-PIXEL for South Asia",
+   "effect": "No South Asia diurnal shape, South Asia transfer calibration or FRE",
+   "status": "awaiting data"
+  },
+  {
+   "item": "FIRMS 2014 synchronized window",
+   "effect": "No second window to check calibration v2 against",
+   "status": "awaiting data"
+  },
+  {
+   "item": "Northern Australia daytime detector",
+   "effect": "Diurnal curve, transfer and FRE there are not applied",
+   "status": "limitation after one fix round (D74)"
+  }
+ ],
+ "translation": {
+  "words": {
+   "en": {
+    "risk": [
+     "Very low",
+     "Low",
+     "Moderate",
+     "High",
+     "Very high"
+    ],
+    "intensity": [
+     "Low observed power",
+     "Moderate observed power",
+     "High observed power",
+     "Very high observed power"
+    ],
+    "confidence": [
+     "Low confidence",
+     "Moderate confidence",
+     "High confidence"
+    ],
+    "trend": [
+     "Dying down",
+     "Stable",
+     "Spreading"
+    ],
+    "unknown": "Awaiting data",
+    "last": "Last seen",
+    "confirmed": "Confirmed by",
+    "satellite": "satellite",
+    "satellites": "satellites",
+    "notes": [
+     "Satellite heat detections do not confirm a fire or its cause.",
+     "FRP is observed heat power, not burned area, damage or fire-front spread.",
+     "Clouds and observation gaps can hide fires; forecasts are probabilities, not certainties."
+    ]
+   },
+   "bn": {
+    "risk": [
+     "খুব কম",
+     "কম",
+     "মাঝারি",
+     "উচ্চ",
+     "খুব উচ্চ"
+    ],
+    "intensity": [
+     "পর্যবেক্ষিত তাপশক্তি কম",
+     "পর্যবেক্ষিত তাপশক্তি মাঝারি",
+     "পর্যবেক্ষিত তাপশক্তি বেশি",
+     "পর্যবেক্ষিত তাপশক্তি খুব বেশি"
+    ],
+    "confidence": [
+     "কম আস্থা",
+     "মাঝারি আস্থা",
+     "উচ্চ আস্থা"
+    ],
+    "trend": [
+     "কমে আসছে",
+     "স্থিতিশীল",
+     "ছড়িয়ে পড়ছে"
+    ],
+    "unknown": "তথ্য আসার অপেক্ষায়",
+    "last": "শেষ দেখা গেছে",
+    "confirmed": "শনাক্তকরণ সমর্থন করেছে",
+    "satellite": "টি উপগ্রহ",
+    "satellites": "টি উপগ্রহ",
+    "notes": [
+     "উপগ্রহে তাপ শনাক্ত হলেই আগুন বা তার কারণ নিশ্চিত হয় না।",
+     "FRP হলো পর্যবেক্ষিত তাপশক্তি; পোড়া এলাকা, ক্ষয়ক্ষতি বা আগুনের অগ্রভাগের বিস্তার নয়।",
+     "মেঘ ও পর্যবেক্ষণের বিরতিতে আগুন আড়াল হতে পারে; পূর্বাভাস সম্ভাবনা, নিশ্চয়তা নয়।"
+    ]
+   }
+  },
+  "status": "provisional display rules",
+  "source": "pipeline/translate.py"
+ },
+ "sources": [
+  {
+   "name": "NASA FIRMS (MODIS C6.1 and VIIRS 375 m active fire)",
+   "url": "https://firms.modaps.eosdis.nasa.gov/",
+   "use": "Fire detections, current 2026 window and 2016 archive"
+  },
+  {
+   "name": "NOAA Open Data Dissemination – Himawari-9 AHI on AWS",
+   "url": "https://registry.opendata.aws/noaa-himawari/",
+   "use": "Geostationary bands B04, B07, B14, B15 for Northern Australia and Bangladesh"
+  },
+  {
+   "name": "CelesTrak orbital elements",
+   "url": "https://celestrak.org/",
+   "use": "2026 observation opportunities"
+  },
+  {
+   "name": "EUMETSAT LSA SAF (Meteosat FRP-PIXEL)",
+   "url": "https://lsa-saf.eumetsat.int/",
+   "use": "Planned South Asia geostationary source — awaiting data"
+  },
+  {
+   "name": "Esri World Imagery and reference labels",
+   "url": "https://www.esri.com/",
+   "use": "Fire Events map basemap (same tiles as the Fire DNA page)"
+  }
+ ],
+ "regions": {
+  "Indo-Gangetic Plain": [
+   73.0,
+   24.0,
+   89.0,
+   32.5
+  ],
+  "Bangladesh": [
+   88.0,
+   20.5,
+   92.7,
+   26.7
+  ],
+  "Northern Australia": [
+   125.0,
+   -20.0,
+   138.0,
+   -11.0
+  ]
+ },
+ "regions_source": "config/settings.yaml (overpasses.pilot_boxes, phase3c.northern_australia.box)",
+ "intensity_classes_mw": [
+  10.0,
+  100.0,
+  1000.0
+ ],
+ "intensity_source": "config/settings.yaml (translation.intensity_mw)"
+}

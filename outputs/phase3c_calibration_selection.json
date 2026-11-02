@@ -1,0 +1,114 @@
+{
+  "calibrations": [
+    {
+      "version": "v1",
+      "sample_size": 396,
+      "a": -0.8239771284434613,
+      "b": 1.3196439470461132,
+      "a_interval": [
+        -1.14289502918055,
+        -0.5496525544318952
+      ],
+      "b_interval": [
+        1.1622549357299004,
+        1.5000706877202734
+      ],
+      "status": "drift-affected source; provisional",
+      "fitted": true,
+      "domain": "2026 drifted timing; original diagnostic benchmark",
+      "reason": null,
+      "path": "D:\\nasa space\\Burning_Activity\\params\\calibration_v1.json"
+    },
+    {
+      "version": "v2 sync 2016",
+      "sample_size": 534,
+      "a": -0.10695648901820043,
+      "b": 1.0824173755695943,
+      "a_interval": [
+        -0.2799288954427233,
+        0.06527421696560302
+      ],
+      "b_interval": [
+        0.9674958411824329,
+        1.2000835857886563
+      ],
+      "status": "validated \u2013 synchronized window",
+      "fitted": true,
+      "domain": "Synchronized window/era after the D68 gate (2016, India + Bangladesh)",
+      "reason": null,
+      "path": "D:\\nasa space\\Burning_Activity\\params\\calibration_v2_sync2016.json"
+    },
+    {
+      "version": "v2 sync 2014",
+      "sample_size": null,
+      "a": null,
+      "b": null,
+      "a_interval": null,
+      "b_interval": null,
+      "status": "awaiting data",
+      "fitted": false,
+      "domain": "Synchronized window/era after the D68 gate (2014, India + Bangladesh)",
+      "reason": "awaiting data: 2014 FIRMS files absent",
+      "path": "D:\\nasa space\\Burning_Activity\\params\\calibration_v2_sync2014.json"
+    },
+    {
+      "version": "v3 transfer N. Australia",
+      "sample_size": 136,
+      "a": -0.14565606643120632,
+      "b": 1.1605870147568313,
+      "a_interval": [
+        -1.1383532208828042,
+        0.47941556932524587
+      ],
+      "b_interval": [
+        0.7984919766021573,
+        1.7169536845042546
+      ],
+      "status": "provisional \u2013 transfer standard",
+      "fitted": true,
+      "domain": "Northern Australia only; method demonstration region",
+      "reason": null,
+      "path": "D:\\nasa space\\Burning_Activity\\params\\calibration_v3_transfer_naus.json"
+    },
+    {
+      "version": "v3 transfer South Asia",
+      "sample_size": 0,
+      "a": null,
+      "b": null,
+      "a_interval": null,
+      "b_interval": null,
+      "status": "provisional \u2013 transfer standard",
+      "fitted": false,
+      "domain": "South Asia only after regional Meteosat validation",
+      "reason": "No supported regional diurnal shape or too few adjusted day pairs",
+      "path": "D:\\nasa space\\Burning_Activity\\params\\calibration_v3_transfer.json"
+    }
+  ],
+  "recommendations": [
+    {
+      "era": "synchronized / pre-drift",
+      "region": "Regions represented and validated in sync_2016",
+      "preferred_version": "v2 sync 2016",
+      "currently_usable": "v2 sync 2016",
+      "reason": "Conditional on represented region/biome, source shape and validation; no universal cross-era transfer",
+      "apply_to_south_asia": null
+    },
+    {
+      "era": "drifted 2026",
+      "region": "Northern Australia",
+      "preferred_version": "v3 transfer N. Australia",
+      "currently_usable": "v3 transfer N. Australia",
+      "reason": "Conditional on represented region/biome, source shape and validation; no universal cross-era transfer",
+      "apply_to_south_asia": false
+    },
+    {
+      "era": "drifted 2026",
+      "region": "South Asia",
+      "preferred_version": "v3 transfer South Asia",
+      "currently_usable": null,
+      "reason": "awaiting data / supported calibration",
+      "apply_to_south_asia": null
+    }
+  ],
+  "active_parameters_changed": false
+}

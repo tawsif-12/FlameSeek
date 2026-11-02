@@ -1,0 +1,18 @@
+{
+  "prepared_scans": 107,
+  "daily_fire_partitions": 5,
+  "figures": 8,
+  "clear_reference_event_overpasses": 30,
+  "ahi_fire_pixels": 0,
+  "aqua_only_transfer_candidates": 6568,
+  "fre_nonnull_events": 0,
+  "per_scan_geometry": true,
+  "harmonization_tests_passed": 47,
+  "backend_tests_passed": 61,
+  "valid_area_mean": {
+    "Bangladesh": 0.9984095407839769,
+    "Punjab_Haryana": 0.0,
+    "eastern_IGP": 0.21335677530211816,
+    "full_IGP": 0.032796660707707044
+  }
+}

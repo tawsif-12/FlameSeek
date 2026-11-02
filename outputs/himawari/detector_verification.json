@@ -1,0 +1,19 @@
+{
+  "status": "verified",
+  "window": "current_2026",
+  "bug_fixed": false,
+  "real_controls": {
+    "n_segment_valid_view_events": 9,
+    "n_observed": 9,
+    "n_detected": 7,
+    "n_missing_nearest_scan": 0,
+    "frp_threshold_mw": 100.0,
+    "match_radius_km": 2,
+    "match_minutes": 30,
+    "window": "current_2026",
+    "n_unique_events": 6
+  },
+  "n_injections": 18,
+  "n_injections_detected": 18,
+  "smallest_tested_fraction_detected": 0.001
+}

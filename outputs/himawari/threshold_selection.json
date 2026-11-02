@@ -1,0 +1,28 @@
+{
+  "train_dates": [
+    "2026-10-29",
+    "2026-10-30"
+  ],
+  "test_dates": [
+    "2026-10-31",
+    "2026-11-01"
+  ],
+  "n_large_observed_training_events": 0,
+  "large_detection_rate": null,
+  "chosen": {
+    "candidate_day_k": 310,
+    "candidate_night_k": 300,
+    "candidate_delta_k": 10,
+    "background_windows": [
+      11,
+      21,
+      31
+    ],
+    "background_min_pixels": 20,
+    "background_min_fraction": 0.2,
+    "sigma_multiplier": 3,
+    "anomaly_floor_k": 6
+  },
+  "alternatives": [],
+  "reason": "No large observed training events, or baseline meets trigger; thresholds retained"
+}

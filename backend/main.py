@@ -35,11 +35,20 @@ async def _warm_current_hotspots() -> None:
         print(f"current hotspots warm-up skipped: {exc}")
 
 
+async def _keep_world_hotspots_fresh(every_seconds: float = 12 * 60) -> None:
+    """Refresh the worldwide 24-hour download before its 15-minute cache expires, so any searched
+    place's live hotspots are cut from it instantly instead of waiting on a new NASA request."""
+    while True:
+        await asyncio.sleep(every_seconds)
+        await _warm_current_hotspots()
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     tasks = [
         asyncio.create_task(_warm_current_hotspots()),
         asyncio.create_task(_warm_event_set()),
+        asyncio.create_task(_keep_world_hotspots_fresh()),
     ]
     yield
     for task in tasks:
@@ -71,3 +80,8 @@ async def root() -> dict[str, str]:
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok", "service": APP_NAME}
+
+
+# Offline harmonization snapshot routes.
+from routers.snapshot import router as snapshot_router
+app.include_router(snapshot_router, tags=['harmonization snapshots'])

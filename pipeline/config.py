@@ -37,6 +37,7 @@ def load_settings(path: str | Path = DEFAULT_SETTINGS, window: str | None = None
         w["end"] = _as_date(w["end"])
         w["raw_dir"] = (ROOT / w.get("raw_dir", "data/raw")).resolve()
         cfg["window"] = w
+        cfg["data_version"] = w.get("data_version", cfg["data_version"])
         cfg["paths"]["raw_dir"] = w["raw_dir"]
         if w.get("bbox"):
             cfg["study_bbox"] = list(w["bbox"])

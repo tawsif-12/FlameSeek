@@ -1,0 +1,13 @@
+{
+  "window": "current_2026",
+  "platform": "Meteosat-9",
+  "raw_dir": "D:\\nasa space\\Burning_Activity\\data\\raw\\meteosat\\current_2026",
+  "status": "awaiting data",
+  "n_files": 0,
+  "n_list_files": 0,
+  "n_quality_files": 0,
+  "n_detections": 0,
+  "errors": [],
+  "days": [],
+  "reason": "No FRP-PIXEL files present; Parts C\u2013E dependent science is not run"
+}

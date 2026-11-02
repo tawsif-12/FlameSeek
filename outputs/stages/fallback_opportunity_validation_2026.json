@@ -1,0 +1,31 @@
+{
+  "validation_window": "current_2026",
+  "n_passes": 44,
+  "dropped": 6,
+  "per_platform": {
+    "Aqua": {
+      "n_fallback": 57106,
+      "n_reference": 154729,
+      "precision": 1.0,
+      "coverage_ratio": 0.3690710855754254,
+      "median_abs_dt_min": 0.6390396059083333,
+      "median_abs_dscan_deg": 0.2437725067138672
+    },
+    "S-NPP": {
+      "n_fallback": 85169,
+      "n_reference": 195403,
+      "precision": 0.9492303537672158,
+      "coverage_ratio": 0.41373469189316436,
+      "median_abs_dt_min": 0.46129527215,
+      "median_abs_dscan_deg": 2.0877838134765625
+    },
+    "Terra": {
+      "n_fallback": 58590,
+      "n_reference": 162982,
+      "precision": 0.9981225465096433,
+      "coverage_ratio": 0.3588126296155404,
+      "median_abs_dt_min": 0.35496552163333334,
+      "median_abs_dscan_deg": 0.1489105224609375
+    }
+  }
+}

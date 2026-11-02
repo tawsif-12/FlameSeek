@@ -1,0 +1,197 @@
+{
+  "reproduction": {
+    "stored_pixels": 2195,
+    "recomputed_pixels": 2195,
+    "as_published_match_equals_location_confirmed": true,
+    "corrected_time_matched_share": 0.21366742596810934,
+    "stored_unmatched_share": 0.26469248291571756,
+    "recomputed_unmatched_share_as_published": 0.26469248291571756
+  },
+  "fits": {
+    "as_published": {
+      "fitted": true,
+      "peak_h": 18.821000217160844,
+      "peak_90": [
+        16.67114329201512,
+        19.433630454612285
+      ],
+      "sigma_h": 2.68283732293802,
+      "sigma_90": [
+        2.4970171371293404,
+        5.368011477088301
+      ],
+      "base_over_peak": 0.35751638858411583,
+      "n_points": 64,
+      "n_days": 4,
+      "parameter_at_bound": false
+    },
+    "time_matched_only_corrected_60min": {
+      "fitted": true,
+      "peak_h": 23.999898362052114,
+      "peak_90": [
+        1.4205330192971917,
+        23.9998984544628
+      ],
+      "sigma_h": 0.25002625520456295,
+      "sigma_90": [
+        0.2500261470189491,
+        0.5669211528030725
+      ],
+      "base_over_peak": 0.7453139610441007,
+      "n_points": 64,
+      "n_days": 4,
+      "parameter_at_bound": true
+    },
+    "location_confirmed_only": {
+      "fitted": true,
+      "peak_h": 19.005094096175654,
+      "peak_90": [
+        16.756721056521606,
+        19.376782806628658
+      ],
+      "sigma_h": 2.417585814296451,
+      "sigma_90": [
+        2.0426027964008,
+        5.3917046887145474
+      ],
+      "base_over_peak": 0.3762551652556923,
+      "n_points": 64,
+      "n_days": 4,
+      "parameter_at_bound": false
+    },
+    "excluding_persistent_unmatched": {
+      "fitted": true,
+      "peak_h": 18.821000222398926,
+      "peak_90": [
+        16.671143274167015,
+        19.433630455639836
+      ],
+      "sigma_h": 2.6828373057999615,
+      "sigma_90": [
+        2.497017156848047,
+        5.368011612977618
+      ],
+      "base_over_peak": 0.35751638914641276,
+      "n_points": 64,
+      "n_days": 4,
+      "parameter_at_bound": false
+    },
+    "counterfactual_day_threshold_300K": {
+      "fitted": true,
+      "peak_h": 16.22391888959286,
+      "peak_90": [
+        15.610102620424858,
+        18.907279502890944
+      ],
+      "sigma_h": 4.8636266204138625,
+      "sigma_90": [
+        2.467575817558858,
+        6.305007429128261
+      ],
+      "base_over_peak": 0.18635476696310677,
+      "n_points": 64,
+      "n_days": 4,
+      "parameter_at_bound": false
+    },
+    "counterfactual_night_threshold_310K": {
+      "fitted": true,
+      "peak_h": 18.250531067852474,
+      "peak_90": [
+        15.172308035492884,
+        18.751370030427548
+      ],
+      "sigma_h": 2.687879720719031,
+      "sigma_90": [
+        2.239169330472953,
+        5.945702432171882
+      ],
+      "base_over_peak": 0.29317266877561493,
+      "n_points": 64,
+      "n_days": 4,
+      "parameter_at_bound": false
+    },
+    "area_normalized_all_scans_all_detections": {
+      "fitted": true,
+      "peak_h": 14.768453117683844,
+      "peak_90": [
+        10.957814703208024,
+        16.187815941893817
+      ],
+      "sigma_h": 5.666628948197022,
+      "sigma_90": [
+        0.6178994065653983,
+        6.562170866138078
+      ],
+      "base_over_peak": 2.3865495864413785e-13,
+      "n_points": 96,
+      "n_days": 4,
+      "parameter_at_bound": false
+    },
+    "area_normalized_all_scans_location_confirmed": {
+      "fitted": true,
+      "peak_h": 18.071208050331744,
+      "peak_90": [
+        17.466064329459684,
+        18.757102075617613
+      ],
+      "sigma_h": 2.5576446786104112,
+      "sigma_90": [
+        2.208371226732144,
+        2.6910117398343645
+      ],
+      "base_over_peak": 0.22697984756512327,
+      "n_points": 96,
+      "n_days": 4,
+      "parameter_at_bound": false
+    }
+  },
+  "reference_observed_hours": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    7,
+    8,
+    9,
+    12,
+    13,
+    14,
+    15,
+    16,
+    20,
+    21
+  ],
+  "commission": {
+    "overall_unmatched_share": 0.7863325740318907,
+    "unmatched_share_in_reference_hours": 0.5907692307692307,
+    "n_in_reference_hours": 975,
+    "unmatched_share_outside_reference_hours": 0.9426229508196722,
+    "location_confirmed_share_all": 0.7353075170842824,
+    "n_persistent_locations": 0,
+    "n_pixels_at_persistent_locations": 0,
+    "daytime_glint_lt_12deg": 1
+  },
+  "day_night": {
+    "day_pixels": 994,
+    "night_pixels": 1201,
+    "day_frp_mw": 33079.7016130841,
+    "night_frp_mw": 41717.772744012196,
+    "day_location_confirmed": 0.4859154929577465,
+    "night_location_confirmed": 0.9417152373022482
+  },
+  "threshold_totals": {
+    "baseline": {
+      "pixels": 2195,
+      "frp_mw": 74797.47435709629
+    },
+    "day_at_300K": {
+      "pixels": 9000,
+      "frp_mw": 214273.5988363935
+    },
+    "night_at_310K": {
+      "pixels": 1635,
+      "frp_mw": 64469.846834402226
+    }
+  }
+}

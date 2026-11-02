@@ -74,6 +74,32 @@ NEWS_API_KEY=your_newsapi_key          # optional: adds NewsAPI articles to GDEL
 
 All other data sources are free and keyless. Responses are cached under `backend/cache/`; FIRMS science archives are cached permanently, so the first Fire Memory or event outlook for an area takes minutes and later runs take seconds. The FIRMS key allows 5000 transactions per 10 minutes. The backend reads the key's live usage: interactive requests fail fast with a clear message when the budget is nearly spent, and long jobs wait for the window to roll over.
 
+### Harmonized record pages — run locally
+
+The harmonized record is part of the existing FlameSeek site, in its own theme. It appears as:
+
+- a **Harmonized Record** section on Home;
+- **Fire Events**: open Search, choose a place, then pick "04 Fire Events". It lists every event of the window
+  in that place and draws each one's true burned-ground outline on Esri imagery. FireNow stays the main live map;
+- **Methodology** (`/methodology`) and **About** (`/about`);
+- a বাংলা / EN toggle in the header.
+
+These pages show only pipeline outputs already on disk; anything not computed shows "awaiting data".
+
+```bash
+# 1. Build the API snapshots (events, footprints, detection points, λ grid) — flameseek env
+E:naconda\envslameseek\python.exe -m pipeline.snapshot
+
+# 2. Export chart data (every number with label, status and source file)
+E:naconda\envslameseek\python.exe tools\export_site_data.py   # -> frontend/public/site-data/
+
+# 3. Run backend + frontend exactly as above (port 8000 and npm run dev on 5173).
+#    The dev proxy also forwards /meta, /fires (window events in a box; /fires/active), /events/ and /detections.
+```
+
+`?lang=bn` on any page switches to Bangla.
+Rerun steps 1–2 whenever pipeline outputs change.
+
 ## Where each capability lives
 
 | Spec section | Implementation |

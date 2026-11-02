@@ -1,0 +1,24 @@
+{
+  "existing_modules_reused": true,
+  "synthetic_years": 15,
+  "synthetic_rows": 23400,
+  "peak_within_one_week_share": 0.9666666666666667,
+  "planted_anomalies": 5,
+  "recovered_anomalies": 5,
+  "step_change": {
+    "status": "ok",
+    "K": 56.0,
+    "p_value": 0.010742800323766703,
+    "last_before_change": 2018,
+    "first_after_change": 2019,
+    "mean_before": 3436.125,
+    "mean_after": 5465.857142857143
+  },
+  "brier": 0.17421296238038186,
+  "brier_skill_score": 0.2860803988478713,
+  "real_short_history": {
+    "calendar": "insufficient_history",
+    "anomalies": "insufficient_history",
+    "forecast": "insufficient_history"
+  }
+}

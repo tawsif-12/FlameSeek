@@ -1,0 +1,200 @@
+{
+  "windows": {
+    "current_2026": {
+      "gate": {
+        "window": "current_2026",
+        "rule": "(a) |median daytime Aqua LST - 13.5 h| <= 30 min AND (b) >= 100 Aqua-S-NPP pairs with |dt| <= 15 min and both FRP >= 10.0 MW",
+        "a_no_drift": {
+          "n_aqua_day": 21162,
+          "median_lst_h": 15.754894333333333,
+          "offset_min": 135.29365999999996,
+          "tolerance_min": 30,
+          "pass": false
+        },
+        "b_sample": {
+          "n_pairs_all_dt": 327,
+          "n_pairs_filtered": 17,
+          "min_pairs": 100,
+          "pass": false
+        },
+        "synchronized": false,
+        "old_rule": {
+          "rule": "median |Aqua - S-NPP dt| over shared events <= 20 min (replaced by D68)",
+          "n_pairs": 6755,
+          "median_abs_dt_min": 136.0,
+          "synchronized": false
+        },
+        "status": "evaluated"
+      }
+    },
+    "sync_2016": {
+      "gate": {
+        "window": "sync_2016",
+        "rule": "(a) |median daytime Aqua LST - 13.5 h| <= 30 min AND (b) >= 100 Aqua-S-NPP pairs with |dt| <= 15 min and both FRP >= 10.0 MW",
+        "a_no_drift": {
+          "n_aqua_day": 3272,
+          "median_lst_h": 13.47504,
+          "offset_min": -1.4976000000000056,
+          "tolerance_min": 30,
+          "pass": true
+        },
+        "b_sample": {
+          "n_pairs_all_dt": 1366,
+          "n_pairs_filtered": 534,
+          "min_pairs": 100,
+          "pass": true
+        },
+        "synchronized": true,
+        "old_rule": {
+          "rule": "median |Aqua - S-NPP dt| over shared events <= 20 min (replaced by D68)",
+          "n_pairs": 1698,
+          "median_abs_dt_min": 21.0,
+          "synchronized": false
+        },
+        "status": "evaluated"
+      },
+      "calibration": {
+        "n_input": 1366,
+        "n": 534,
+        "sync_max_dt_min": 15,
+        "trunc_frp_mw": 10.0,
+        "deming_delta": 1.0,
+        "fitted": true,
+        "a": -0.10695648901820043,
+        "b": 1.0824173755695943,
+        "a_ci": [
+          -0.2799288954427233,
+          0.06527421696560302
+        ],
+        "b_ci": [
+          0.9674958411824329,
+          1.2000835857886563
+        ],
+        "b_bounds_ols": [
+          0.47805689932655204,
+          2.2503605400392326
+        ],
+        "odr": {
+          "a": -0.10678480569151835,
+          "b": 1.0823021924570453
+        },
+        "status": "validated \u2013 synchronized window"
+      },
+      "opportunities": {
+        "basis": "detection-conditioned opportunities \u2013 lower bound on O_s",
+        "tle_missing": {
+          "Terra": "no TLE for NORAD 25994 in data\\raw\\tle\\2016",
+          "Aqua": "no TLE for NORAD 27424 in data\\raw\\tle\\2016",
+          "S-NPP": "no TLE for NORAD 37849 in data\\raw\\tle\\2016"
+        },
+        "n_passes": 31,
+        "n_passes_dropped_inconsistent": 5,
+        "bias_direction": "O_s undercounted: passes without detections and swath parts not proven by detections are missing. lambda (count / opportunities) is biased HIGH. In the detection-curve sample, Aqua passes with no detection at all are missing.",
+        "n_cell_overpasses": {
+          "S-NPP": 117154,
+          "Aqua": 52329,
+          "Terra": 46967
+        }
+      },
+      "detection_curve": {
+        "n": 10081,
+        "n_detected": 1361,
+        "n_missed": 8720,
+        "fitted": true,
+        "b0": -3.179675405608853,
+        "b1": 2.5691331921511793,
+        "b2": 4.793886930342731,
+        "b0_ci": [
+          -3.326527714243217,
+          -3.0328230969744894
+        ],
+        "b1_ci": [
+          2.427716796059907,
+          2.7105495882424515
+        ],
+        "b2_ci": [
+          4.481589706769322,
+          5.106184153916141
+        ],
+        "pvalues": [
+          8.297566030297314e-278,
+          3.341406265977831e-196,
+          1.1569035538730104e-140
+        ],
+        "pseudo_r2": 0.24163651146475673,
+        "f50_nadir_mw": 17.284038157441458,
+        "f50_nadir_ci": [
+          16.125456185308575,
+          18.578654594007446
+        ],
+        "f50_edge_mw": 1176.3028165335948,
+        "f50_edge_ci": [
+          904.4640129289459,
+          1526.9668523437656
+        ],
+        "edge_area_km2": 9.6,
+        "n_boot_ok": 1000,
+        "status": "synchronized window; detection-conditioned opportunities \u2013 lower bound on O_s",
+        "coverage": {
+          "area_min_km2": 1.000000238418579,
+          "area_median_km2": 1.659575343132019,
+          "area_max_km2": 9.281702995300293,
+          "n_near_nadir_area_le_1.5": 4057,
+          "n_detected_near_nadir": 859
+        }
+      },
+      "pi_modis": {
+        "all": {
+          "n": 13395,
+          "nadir": 0.28650169973334627
+        },
+        "IGP": {
+          "n": 12679,
+          "nadir": 0.29441983496804564
+        }
+      },
+      "latent": {
+        "window": "sync_2016",
+        "n_cell_days": 81220,
+        "n_estimated": 76099,
+        "n_unknown": 5121,
+        "status": "provisional",
+        "mean_lambda": 0.3046623742833516,
+        "total_observed_event_look_weight": 14988.462654180388,
+        "draws": 300,
+        "limitation": "detection-conditioned opportunities \u2013 lower bound on O_s. Opportunities are undercounted, so lambda is biased HIGH (upper side); synchronized-window detection curve; clear-sky opportunity assumption; unknown diurnal systematic error excluded.",
+        "opportunity_basis": "detection-conditioned opportunities \u2013 lower bound on O_s",
+        "calibration_uncertainty": "No physical FRP/FRE calibration applied to event-count numerators.",
+        "fre_status": "awaiting supported South Asia diurnal shape",
+        "included_platforms": [
+          "Aqua",
+          "S-NPP",
+          "NOAA-20",
+          "NOAA-21"
+        ],
+        "excluded_platforms": {
+          "Terra": "No independent Terra response/time correction; do not substitute the Aqua curve"
+        },
+        "degradation": {
+          "status": "computed",
+          "n": 51544,
+          "bias": -0.10845405140094214,
+          "relative_bias": -0.24355721301637567,
+          "opportunity_basis": "detection-conditioned opportunities \u2013 lower bound on O_s",
+          "definition": "mean(lambda_MODIS_only - lambda_all_sensors) over cell-days where both are finite"
+        }
+      }
+    },
+    "sync_2014": {
+      "gate": {
+        "window": "sync_2014",
+        "status": "awaiting data",
+        "raw_dir": "D:\\nasa space\\Burning_Activity\\data\\raw\\archive\\2014"
+      }
+    }
+  },
+  "calibration_2014_vs_2016": {
+    "status": "awaiting data",
+    "reason": "data/raw/archive/2014/ has no FIRMS files"
+  }
+}

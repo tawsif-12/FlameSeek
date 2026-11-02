@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import traceback
 import uuid
 from datetime import datetime, timezone
@@ -52,7 +53,31 @@ class Job:
         }
 
 
+REUSE_FINISHED_SECONDS = 600
+
+
+def _same_request(kind: str, params: dict[str, Any]) -> Job | None:
+    """An identical job that is still running, or finished successfully moments ago.
+    Repeated clicks, page reloads and React re-renders then share one analysis instead of
+    each spending NASA FIRMS request quota on the same downloads."""
+    if params.get("refresh"):
+        return None
+    key = json.dumps(params, sort_keys=True, default=str)
+    now = datetime.now(timezone.utc)
+    for job in sorted(_JOBS.values(), key=lambda j: j.created_at, reverse=True):
+        if job.kind != kind or json.dumps(job.params, sort_keys=True, default=str) != key:
+            continue
+        if job.status in ("queued", "running"):
+            return job
+        if job.status == "completed" and job.finished_at and (now - job.finished_at).total_seconds() < REUSE_FINISHED_SECONDS:
+            return job
+    return None
+
+
 def start_job(kind: str, params: dict[str, Any], fn: JobFn) -> Job:
+    existing = _same_request(kind, params)
+    if existing is not None:
+        return existing
     job = Job(kind, params)
     if len(_JOBS) >= MAX_JOBS:
         for old in sorted(_JOBS.values(), key=lambda j: j.created_at)[: len(_JOBS) - MAX_JOBS + 1]:

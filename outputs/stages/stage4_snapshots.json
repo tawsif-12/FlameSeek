@@ -1,0 +1,70 @@
+{
+  "default_window": "current_2026",
+  "translation": {
+    "risk_probability_min": [
+      0.0,
+      0.2,
+      0.4,
+      0.6,
+      0.8
+    ],
+    "risk_ratio_min": [
+      0.0,
+      0.5,
+      1.0,
+      1.5,
+      2.0
+    ],
+    "intensity_mw": [
+      10.0,
+      100.0,
+      1000.0
+    ],
+    "confidence_min": [
+      0.5,
+      0.8
+    ],
+    "trend_relative_change": 0.2,
+    "active_hours": 24
+  },
+  "windows": {
+    "current_2026": {
+      "window": "current_2026",
+      "data_version": "firms_nrt_2026-10-29_to_11-02_v2",
+      "last_observation_time": "2026-11-02 07:48:00+00:00",
+      "now": "2026-11-02T23:59:59.999999+00:00",
+      "now_basis": "configured UTC window end; not wall-clock time",
+      "is_live": false,
+      "start": "2026-10-29",
+      "end": "2026-11-02",
+      "n_events": 138576,
+      "n_grid_rows": 81220,
+      "n_overpasses": 258920,
+      "n_footprints": 138576,
+      "n_detections": 545537,
+      "lambda_status": "provisional",
+      "lambda_limitation": "Provisional current-window v1 sensitivity; swath-edge and timing limitations retained. Clear-sky opportunity assumption. Unknown diurnal systematic error excluded.",
+      "status": "offline snapshot",
+      "translation_status": "provisional configurable display rules; calibrated forecast unavailable"
+    },
+    "sync_2016": {
+      "window": "sync_2016",
+      "data_version": "firms_country_sp_2016_India_Bangladesh_v1",
+      "last_observation_time": "2016-11-02 20:23:00+00:00",
+      "now": "2016-11-02T23:59:59.999999+00:00",
+      "now_basis": "configured UTC window end; not wall-clock time",
+      "is_live": false,
+      "start": "2016-10-29",
+      "end": "2016-11-02",
+      "n_events": 12289,
+      "n_grid_rows": 81220,
+      "n_overpasses": 15854,
+      "n_footprints": 12289,
+      "n_detections": 24025,
+      "lambda_status": "provisional",
+      "lambda_limitation": "detection-conditioned opportunities \u2013 lower bound on O_s. Opportunities are undercounted, so lambda is biased HIGH (upper side); synchronized-window detection curve; clear-sky opportunity assumption; unknown diurnal systematic error excluded.",
+      "status": "offline snapshot",
+      "translation_status": "provisional configurable display rules; calibrated forecast unavailable"
+    }
+  }
+}

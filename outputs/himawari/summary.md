@@ -24,3 +24,13 @@ Rerun the same command after November 2 UTC ends to fetch the unavailable hours:
 ```powershell
 & 'E:\anaconda\envs\flameseek\python.exe' himawari_download.py --window current_2026
 ```
+
+## Phase 3 processing
+
+All 107 locally available hourly scans were prepared successfully. The 13
+missing hourly scans remain unavailable in this snapshot; November 2 is partial.
+Per-scan HSD satellite positions determine VZA. Observation masks retain cloud,
+invalid view, missing data and water. Detection and downstream fit availability
+are reported in [the Phase 3 report](../phase3_report.md); use the measured
+availability flags there rather than interpreting missing fits as zero energy.
+Reproduction and output locations: [docs/phase3.md](../../docs/phase3.md).
