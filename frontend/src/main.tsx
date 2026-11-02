@@ -10,6 +10,7 @@ import DataSourcesPage from "./pages/DataSourcesPage";
 import FireGlobePage from "./pages/FireGlobePage";
 import FireMemoryPage from "./pages/FireMemoryPage";
 import FireDnaPage from "./pages/FireDnaPage";
+import SearchPage from "./pages/SearchPage";
 
 function Header() {
   return (
@@ -22,21 +23,9 @@ function Header() {
         </div>
       </Link>
       <nav>
-        <NavLink to="/">Home</NavLink>
-        <NavLink to="/fire-map">Fire Now</NavLink>
-        <NavLink to="/fire-memory">Fire Memory</NavLink>
-        <NavLink to="/fire-dna">Fire DNA</NavLink>
-        <NavLink to="/data-sources">Analysis <span aria-hidden="true">⌄</span></NavLink>
-        <Link to="/data-sources#about">About</Link>
+        <NavLink to="/fire-map">FireNow</NavLink>
+        <NavLink to="/search">Search</NavLink>
       </nav>
-      <div className="header-tools">
-        <Link to="/fire-map" className="header-search" aria-label="Search a location on Fire Now">
-          <span aria-hidden="true">⌕</span> Search location…
-        </Link>
-        <span className="header-divider" aria-hidden="true" />
-        <button type="button" className="header-icon" title="Alerts are coming soon" aria-label="Alerts coming soon">♧</button>
-        <Link to="/data-sources" className="header-avatar" aria-label="About FlameSeek">●</Link>
-      </div>
     </header>
   );
 }
@@ -49,9 +38,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/fire-map" element={<FireGlobePage />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="/fire-memory" element={<FireMemoryPage />} />
           <Route path="/fire-dna" element={<FireDnaPage />} />
-          <Route path="/fire-calendar" element={<Navigate to="/fire-memory" replace />} />
+          <Route path="/fire-calendar" element={<FireMemoryPage />} />
           <Route path="/critical-periods" element={<Navigate to="/fire-memory" replace />} />
           <Route path="/data-sources" element={<DataSourcesPage />} />
         </Routes>
