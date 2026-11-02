@@ -1,0 +1,49 @@
+{
+  "rows": [
+    {
+      "figure": "Phase 3c N. Australia commission (unmatched share)",
+      "n_pixels": 2195,
+      "old": 0.26469248291571756,
+      "new": 0.7863325740318906
+    },
+    {
+      "figure": "Phase 3 South Asia commission (unmatched share)",
+      "n_pixels": 0,
+      "old": null,
+      "new": null
+    },
+    {
+      "figure": "Phase 3 tuning-alternative commission",
+      "n_alternatives_scored": 0,
+      "old": null,
+      "new": null,
+      "note": "no alternative was scored (trigger not reached); nothing to recompute"
+    },
+    {
+      "figure": "N. Australia transfer event-specific AHI ratios",
+      "n_pairs": 167,
+      "old_n_finite": 5,
+      "new_n_finite": 5,
+      "old_median": 0.988321184184749,
+      "new_median": 0.988321184184749,
+      "max_abs_change_where_both": 5.551115123125783e-17
+    },
+    {
+      "figure": "South Asia transfer event-specific AHI ratios",
+      "n_pairs": 6568,
+      "old_n_finite": 0,
+      "new_n_finite": 0,
+      "old_median": null,
+      "new_median": null,
+      "max_abs_change_where_both": null
+    },
+    {
+      "figure": "Phase 3b positive controls (himawari_verify.py:164)",
+      "note": "single-scan comparison at the nearest hourly step (|dt| <= 30 min by construction); unaffected; not rerun"
+    },
+    {
+      "figure": "Phase 3 VIIRS detection rates (run_phase3.py:71)",
+      "note": "single-scan comparison; unaffected"
+    }
+  ]
+}

@@ -1,0 +1,703 @@
+{
+  "window": "current_2026",
+  "radiometric": [
+    {
+      "utc": "2026-10-29 05:00:00+00:00",
+      "daynight": "D",
+      "band": "b07",
+      "n": 5114,
+      "min": 279.2397155761719,
+      "p05": 286.8101501464844,
+      "median": 297.0872802734375,
+      "p95": 303.52191162109375,
+      "max": 307.15399169921875,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 05:00:00+00:00",
+      "daynight": "D",
+      "band": "b14",
+      "n": 5114,
+      "min": 265.0306091308594,
+      "p05": 265.3155822753906,
+      "median": 269.2150573730469,
+      "p95": 279.5269775390625,
+      "max": 290.61065673828125,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 05:00:00+00:00",
+      "daynight": "D",
+      "band": "b15",
+      "n": 5114,
+      "min": 260.18841552734375,
+      "p05": 263.1629638671875,
+      "median": 266.5171203613281,
+      "p95": 274.98760986328125,
+      "max": 285.68670654296875,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 07:00:00+00:00",
+      "daynight": "D",
+      "band": "b07",
+      "n": 5103,
+      "min": 277.64007568359375,
+      "p05": 288.2428283691406,
+      "median": 297.04998779296875,
+      "p95": 304.11053466796875,
+      "max": 308.49169921875,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 07:00:00+00:00",
+      "daynight": "D",
+      "band": "b14",
+      "n": 5103,
+      "min": 265.0306091308594,
+      "p05": 265.6351013183594,
+      "median": 269.2150573730469,
+      "p95": 286.8572082519531,
+      "max": 289.8866271972656,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 07:00:00+00:00",
+      "daynight": "D",
+      "band": "b15",
+      "n": 5103,
+      "min": 260.1129455566406,
+      "p05": 262.97955322265625,
+      "median": 267.1542663574219,
+      "p95": 282.3197021484375,
+      "max": 285.1125183105469,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 09:00:00+00:00",
+      "daynight": "D",
+      "band": "b07",
+      "n": 4775,
+      "min": 269.2125549316406,
+      "p05": 286.0910339355469,
+      "median": 296.9004821777344,
+      "p95": 304.1396789550781,
+      "max": 308.1882019042969,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 09:00:00+00:00",
+      "daynight": "D",
+      "band": "b14",
+      "n": 4775,
+      "min": 265.0306091308594,
+      "p05": 265.5287170410156,
+      "median": 272.1032409667969,
+      "p95": 288.9046325683594,
+      "max": 290.52734375,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 09:00:00+00:00",
+      "daynight": "D",
+      "band": "b15",
+      "n": 4775,
+      "min": 260.3392333984375,
+      "p05": 263.2728576660156,
+      "median": 269.0088195800781,
+      "p95": 284.17010498046875,
+      "max": 285.68670654296875,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 18:00:00+00:00",
+      "daynight": "N",
+      "band": "b07",
+      "n": 6066,
+      "min": 264.0168762207031,
+      "p05": 266.8299560546875,
+      "median": 283.5575256347656,
+      "p95": 293.04608154296875,
+      "max": 297.3097229003906,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 18:00:00+00:00",
+      "daynight": "N",
+      "band": "b14",
+      "n": 6066,
+      "min": 265.0306091308594,
+      "p05": 265.7413635253906,
+      "median": 275.0684814453125,
+      "p95": 288.9609680175781,
+      "max": 290.8602294921875,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 18:00:00+00:00",
+      "daynight": "N",
+      "band": "b15",
+      "n": 6066,
+      "min": 260.26385498046875,
+      "p05": 262.97955322265625,
+      "median": 271.597900390625,
+      "p95": 284.8092956542969,
+      "max": 286.4383239746094,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 20:00:00+00:00",
+      "daynight": "N",
+      "band": "b07",
+      "n": 7048,
+      "min": 263.28973388671875,
+      "p05": 268.09454345703125,
+      "median": 282.7389221191406,
+      "p95": 293.1321716308594,
+      "max": 296.787841796875,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 20:00:00+00:00",
+      "daynight": "N",
+      "band": "b14",
+      "n": 7048,
+      "min": 265.0306091308594,
+      "p05": 265.5641784667969,
+      "median": 275.16473388671875,
+      "p95": 289.5788879394531,
+      "max": 291.41290283203125,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 20:00:00+00:00",
+      "daynight": "N",
+      "band": "b15",
+      "n": 7048,
+      "min": 260.3015441894531,
+      "p05": 263.1263122558594,
+      "median": 271.9194641113281,
+      "p95": 285.5358581542969,
+      "max": 286.94696044921875,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 22:00:00+00:00",
+      "daynight": "N",
+      "band": "b07",
+      "n": 10570,
+      "min": 263.1413879394531,
+      "p05": 267.5718688964844,
+      "median": 282.86663818359375,
+      "p95": 293.04608154296875,
+      "max": 297.04998779296875,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 22:00:00+00:00",
+      "daynight": "N",
+      "band": "b14",
+      "n": 10570,
+      "min": 265.0306091308594,
+      "p05": 265.7413635253906,
+      "median": 275.16473388671875,
+      "p95": 289.3265075683594,
+      "max": 291.6882629394531,
+      "units": "K"
+    },
+    {
+      "utc": "2026-10-29 22:00:00+00:00",
+      "daynight": "N",
+      "band": "b15",
+      "n": 10570,
+      "min": 260.37689208984375,
+      "p05": 263.96612548828125,
+      "median": 271.987060546875,
+      "p95": 285.38482666015625,
+      "max": 287.3345642089844,
+      "units": "K"
+    }
+  ],
+  "metadata": [
+    {
+      "utc": "2026-10-29 05:00:00+00:00",
+      "band": "B07",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 05:00:00+00:00",
+      "band": "B14",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 05:00:00+00:00",
+      "band": "B15",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 05:00:00+00:00",
+      "radiance_bt_max_error_k": 6.103515625e-05,
+      "band7_coefficients": {
+        "wavelength_m": 3.8289e-06,
+        "c": 299792458.0,
+        "h": 6.62606957e-34,
+        "k": 1.3806488e-23,
+        "c0": -0.462794497192785,
+        "c1": 1.00143263846873,
+        "c2": -9.01426428759167e-07
+      }
+    },
+    {
+      "utc": "2026-10-29 07:00:00+00:00",
+      "band": "B07",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 07:00:00+00:00",
+      "band": "B14",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 07:00:00+00:00",
+      "band": "B15",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 07:00:00+00:00",
+      "radiance_bt_max_error_k": 6.103515625e-05,
+      "band7_coefficients": {
+        "wavelength_m": 3.8289e-06,
+        "c": 299792458.0,
+        "h": 6.62606957e-34,
+        "k": 1.3806488e-23,
+        "c0": -0.462794497192785,
+        "c1": 1.00143263846873,
+        "c2": -9.01426428759167e-07
+      }
+    },
+    {
+      "utc": "2026-10-29 09:00:00+00:00",
+      "band": "B07",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 09:00:00+00:00",
+      "band": "B14",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 09:00:00+00:00",
+      "band": "B15",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 09:00:00+00:00",
+      "radiance_bt_max_error_k": 6.103515625e-05,
+      "band7_coefficients": {
+        "wavelength_m": 3.8289e-06,
+        "c": 299792458.0,
+        "h": 6.62606957e-34,
+        "k": 1.3806488e-23,
+        "c0": -0.462794497192785,
+        "c1": 1.00143263846873,
+        "c2": -9.01426428759167e-07
+      }
+    },
+    {
+      "utc": "2026-10-29 18:00:00+00:00",
+      "band": "B07",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 18:00:00+00:00",
+      "band": "B14",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 18:00:00+00:00",
+      "band": "B15",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 18:00:00+00:00",
+      "radiance_bt_max_error_k": 6.103515625e-05,
+      "band7_coefficients": {
+        "wavelength_m": 3.8289e-06,
+        "c": 299792458.0,
+        "h": 6.62606957e-34,
+        "k": 1.3806488e-23,
+        "c0": -0.462794497192785,
+        "c1": 1.00143263846873,
+        "c2": -9.01426428759167e-07
+      }
+    },
+    {
+      "utc": "2026-10-29 20:00:00+00:00",
+      "band": "B07",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 20:00:00+00:00",
+      "band": "B14",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 20:00:00+00:00",
+      "band": "B15",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 20:00:00+00:00",
+      "radiance_bt_max_error_k": 6.103515625e-05,
+      "band7_coefficients": {
+        "wavelength_m": 3.8289e-06,
+        "c": 299792458.0,
+        "h": 6.62606957e-34,
+        "k": 1.3806488e-23,
+        "c0": -0.462794497192785,
+        "c1": 1.00143263846873,
+        "c2": -9.01426428759167e-07
+      }
+    },
+    {
+      "utc": "2026-10-29 22:00:00+00:00",
+      "band": "B07",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 22:00:00+00:00",
+      "band": "B14",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 22:00:00+00:00",
+      "band": "B15",
+      "units": "K",
+      "calibration": "brightness_temperature"
+    },
+    {
+      "utc": "2026-10-29 22:00:00+00:00",
+      "radiance_bt_max_error_k": 6.103515625e-05,
+      "band7_coefficients": {
+        "wavelength_m": 3.8289e-06,
+        "c": 299792458.0,
+        "h": 6.62606957e-34,
+        "k": 1.3806488e-23,
+        "c0": -0.462794497192785,
+        "c1": 1.00143263846873,
+        "c2": -9.01426428759167e-07
+      }
+    }
+  ],
+  "injections": [
+    {
+      "utc": "2026-10-29 05:00:00+00:00",
+      "daynight": "D",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.001,
+      "longitude": 90.28551174406405,
+      "latitude": 25.92945454791927,
+      "pixel_area_km2": 10.27624890625,
+      "injected_b07_k": 332.57598876953125,
+      "original_b07_k": 297.0872802734375,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 243.33780058642148,
+      "injected_mir_frp_mw": 242.6134957063822,
+      "blackbody_fire_power_mw": 238.67465286931247
+    },
+    {
+      "utc": "2026-10-29 05:00:00+00:00",
+      "daynight": "D",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.005,
+      "longitude": 90.28551174406405,
+      "latitude": 25.92945454791927,
+      "pixel_area_km2": 10.27624890625,
+      "injected_b07_k": 378.770751953125,
+      "original_b07_k": 297.0872802734375,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 1213.7917834119503,
+      "injected_mir_frp_mw": 1213.067478531911,
+      "blackbody_fire_power_mw": 1193.3732643465623
+    },
+    {
+      "utc": "2026-10-29 05:00:00+00:00",
+      "daynight": "D",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.01,
+      "longitude": 90.28551174406405,
+      "latitude": 25.92945454791927,
+      "pixel_area_km2": 10.27624890625,
+      "injected_b07_k": 405.7810974121094,
+      "original_b07_k": 297.0872802734375,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 2426.8592619438614,
+      "injected_mir_frp_mw": 2426.134957063822,
+      "blackbody_fire_power_mw": 2386.7465286931247
+    },
+    {
+      "utc": "2026-10-29 07:00:00+00:00",
+      "daynight": "D",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.001,
+      "longitude": 92.23277022341338,
+      "latitude": 25.78901297389449,
+      "pixel_area_km2": 9.60064183203125,
+      "injected_b07_k": 332.5638427734375,
+      "original_b07_k": 297.04998779296875,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 227.39972553030037,
+      "injected_mir_frp_mw": 226.66312945728143,
+      "blackbody_fire_power_mw": 222.9831018582096
+    },
+    {
+      "utc": "2026-10-29 07:00:00+00:00",
+      "daynight": "D",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.005,
+      "longitude": 92.23277022341338,
+      "latitude": 25.78901297389449,
+      "pixel_area_km2": 9.60064183203125,
+      "injected_b07_k": 378.76678466796875,
+      "original_b07_k": 297.04998779296875,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 1134.052182458442,
+      "injected_mir_frp_mw": 1133.315586385423,
+      "blackbody_fire_power_mw": 1114.9155092910482
+    },
+    {
+      "utc": "2026-10-29 07:00:00+00:00",
+      "daynight": "D",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.01,
+      "longitude": 92.23277022341338,
+      "latitude": 25.78901297389449,
+      "pixel_area_km2": 9.60064183203125,
+      "injected_b07_k": 405.77874755859375,
+      "original_b07_k": 297.04998779296875,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 2267.367768843865,
+      "injected_mir_frp_mw": 2266.631172770846,
+      "blackbody_fire_power_mw": 2229.8310185820965
+    },
+    {
+      "utc": "2026-10-29 09:00:00+00:00",
+      "daynight": "D",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.001,
+      "longitude": 92.14460553027267,
+      "latitude": 25.97190585383269,
+      "pixel_area_km2": 9.652861548828126,
+      "injected_b07_k": 332.515380859375,
+      "original_b07_k": 296.9004821777344,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 216.98997719845687,
+      "injected_mir_frp_mw": 227.89648318361023,
+      "blackbody_fire_power_mw": 224.19594935666285
+    },
+    {
+      "utc": "2026-10-29 09:00:00+00:00",
+      "daynight": "D",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.005,
+      "longitude": 92.14460553027267,
+      "latitude": 25.97190585383269,
+      "pixel_area_km2": 9.652861548828126,
+      "injected_b07_k": 378.7510070800781,
+      "original_b07_k": 296.9004821777344,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 1128.5759303436432,
+      "injected_mir_frp_mw": 1139.4824363287964,
+      "blackbody_fire_power_mw": 1120.9797467833143
+    },
+    {
+      "utc": "2026-10-29 09:00:00+00:00",
+      "daynight": "D",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.01,
+      "longitude": 92.14460553027267,
+      "latitude": 25.97190585383269,
+      "pixel_area_km2": 9.652861548828126,
+      "injected_b07_k": 405.7694091796875,
+      "original_b07_k": 296.9004821777344,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 2268.0583666724397,
+      "injected_mir_frp_mw": 2278.964872657593,
+      "blackbody_fire_power_mw": 2241.9594935666287
+    },
+    {
+      "utc": "2026-10-29 18:00:00+00:00",
+      "daynight": "N",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.001,
+      "longitude": 92.38824804248638,
+      "latitude": 25.77970079995444,
+      "pixel_area_km2": 9.5508038203125,
+      "injected_b07_k": 328.9330139160156,
+      "original_b07_k": 283.5575256347656,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 222.94000606908764,
+      "injected_mir_frp_mw": 225.52218012593465,
+      "blackbody_fire_power_mw": 221.82557149326925
+    },
+    {
+      "utc": "2026-10-29 18:00:00+00:00",
+      "daynight": "N",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.005,
+      "longitude": 92.38824804248638,
+      "latitude": 25.77970079995444,
+      "pixel_area_km2": 9.5508038203125,
+      "injected_b07_k": 377.6282043457031,
+      "original_b07_k": 283.5575256347656,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 1125.0287669627196,
+      "injected_mir_frp_mw": 1127.6109410195666,
+      "blackbody_fire_power_mw": 1109.1278574663463
+    },
+    {
+      "utc": "2026-10-29 18:00:00+00:00",
+      "daynight": "N",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.01,
+      "longitude": 92.38824804248638,
+      "latitude": 25.77970079995444,
+      "pixel_area_km2": 9.5508038203125,
+      "injected_b07_k": 405.1107177734375,
+      "original_b07_k": 283.5575256347656,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 2252.6397079822864,
+      "injected_mir_frp_mw": 2255.221882039133,
+      "blackbody_fire_power_mw": 2218.2557149326926
+    },
+    {
+      "utc": "2026-10-29 20:00:00+00:00",
+      "daynight": "N",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.001,
+      "longitude": 92.06787651567517,
+      "latitude": 25.865481142669804,
+      "pixel_area_km2": 9.662973158203124,
+      "injected_b07_k": 328.7581481933594,
+      "original_b07_k": 282.7389221191406,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 226.01927859515718,
+      "injected_mir_frp_mw": 228.17247854081813,
+      "blackbody_fire_power_mw": 224.43080011587907
+    },
+    {
+      "utc": "2026-10-29 20:00:00+00:00",
+      "daynight": "N",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.005,
+      "longitude": 92.06787651567517,
+      "latitude": 25.865481142669804,
+      "pixel_area_km2": 9.662973158203124,
+      "injected_b07_k": 377.57562255859375,
+      "original_b07_k": 282.7389221191406,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 1138.7092131905558,
+      "injected_mir_frp_mw": 1140.862413136217,
+      "blackbody_fire_power_mw": 1122.1540005793954
+    },
+    {
+      "utc": "2026-10-29 20:00:00+00:00",
+      "daynight": "N",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.01,
+      "longitude": 92.06787651567517,
+      "latitude": 25.865481142669804,
+      "pixel_area_km2": 9.662973158203124,
+      "injected_b07_k": 405.0800476074219,
+      "original_b07_k": 282.7389221191406,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 2279.5716263267727,
+      "injected_mir_frp_mw": 2281.724826272434,
+      "blackbody_fire_power_mw": 2244.308001158791
+    },
+    {
+      "utc": "2026-10-29 22:00:00+00:00",
+      "daynight": "N",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.001,
+      "longitude": 92.62052715768988,
+      "latitude": 24.927743753952747,
+      "pixel_area_km2": 9.370585720703126,
+      "injected_b07_k": 328.7851257324219,
+      "original_b07_k": 282.86663818359375,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 221.96138138093642,
+      "injected_mir_frp_mw": 221.26805541874913,
+      "blackbody_fire_power_mw": 217.63985229189086
+    },
+    {
+      "utc": "2026-10-29 22:00:00+00:00",
+      "daynight": "N",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.005,
+      "longitude": 92.62052715768988,
+      "latitude": 24.927743753952747,
+      "pixel_area_km2": 9.370585720703126,
+      "injected_b07_k": 377.583740234375,
+      "original_b07_k": 282.86663818359375,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 1107.0336426836927,
+      "injected_mir_frp_mw": 1106.3403167215054,
+      "blackbody_fire_power_mw": 1088.1992614594542
+    },
+    {
+      "utc": "2026-10-29 22:00:00+00:00",
+      "daynight": "N",
+      "fire_temperature_k": 800.0,
+      "fraction": 0.01,
+      "longitude": 92.62052715768988,
+      "latitude": 24.927743753952747,
+      "pixel_area_km2": 9.370585720703126,
+      "injected_b07_k": 405.08477783203125,
+      "original_b07_k": 282.86663818359375,
+      "status": 1,
+      "detected": true,
+      "retrieved_frp_mw": 2213.373959405198,
+      "injected_mir_frp_mw": 2212.6806334430107,
+      "blackbody_fire_power_mw": 2176.3985229189084
+    }
+  ],
+  "brightness_temperatures_verified": true,
+  "radiometric_roundtrip_verified": true,
+  "synthetic_verified": true,
+  "bug_fixed": false
+}

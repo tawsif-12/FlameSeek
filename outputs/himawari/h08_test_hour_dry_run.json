@@ -1,0 +1,203 @@
+{
+  "window": "sync_2016",
+  "every_minutes": 10,
+  "dry_run": true,
+  "test_hour": "2016-10-29T00",
+  "started_utc": "2026-11-02T10:20:53.460855+00:00",
+  "files": [
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0000/HS_H08_20161029_0000_B07_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:23:05+00:00",
+      "ETag": "\"83b251129c67d026b97137bd0fd15875-3\"",
+      "Size": 21366628,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 21366628,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0000/HS_H08_20161029_0000_B07_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0000/HS_H08_20161029_0000_B14_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:25:15+00:00",
+      "ETag": "\"6901c4b4dbc31d13a2ca9d5243254bc8-3\"",
+      "Size": 24111067,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 24111067,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0000/HS_H08_20161029_0000_B14_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0000/HS_H08_20161029_0000_B15_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:21:56+00:00",
+      "ETag": "\"bb8b353d35f8175e10a253cfe4efa917-3\"",
+      "Size": 23568690,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 23568690,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0000/HS_H08_20161029_0000_B15_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0010/HS_H08_20161029_0010_B07_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:23:06+00:00",
+      "ETag": "\"cf0901745cc4db1b7bf2d24c68ac33a5-3\"",
+      "Size": 21520136,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 21520136,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0010/HS_H08_20161029_0010_B07_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0010/HS_H08_20161029_0010_B14_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:25:16+00:00",
+      "ETag": "\"f0c5c1307cf91055a1b4a264f3e801e6-3\"",
+      "Size": 24125246,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 24125246,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0010/HS_H08_20161029_0010_B14_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0010/HS_H08_20161029_0010_B15_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:21:57+00:00",
+      "ETag": "\"e408a30e5b3dde6fa712ff98dcb7f2dd-3\"",
+      "Size": 23585652,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 23585652,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0010/HS_H08_20161029_0010_B15_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0020/HS_H08_20161029_0020_B07_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:23:07+00:00",
+      "ETag": "\"067f101f689ac57fb097a19971e3e966-3\"",
+      "Size": 21660298,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 21660298,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0020/HS_H08_20161029_0020_B07_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0020/HS_H08_20161029_0020_B14_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:25:18+00:00",
+      "ETag": "\"9e482091f23c4a4989770c9ec361b74a-3\"",
+      "Size": 24146957,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 24146957,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0020/HS_H08_20161029_0020_B14_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0020/HS_H08_20161029_0020_B15_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:21:59+00:00",
+      "ETag": "\"a16b4e2689c55951575943690753c449-3\"",
+      "Size": 23602142,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 23602142,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0020/HS_H08_20161029_0020_B15_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0030/HS_H08_20161029_0030_B07_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:23:09+00:00",
+      "ETag": "\"5b98dbcd48904f76e510975fab853479-3\"",
+      "Size": 21824099,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 21824099,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0030/HS_H08_20161029_0030_B07_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0030/HS_H08_20161029_0030_B14_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:25:19+00:00",
+      "ETag": "\"e2a78bb5106fcd10616f692e66a5e46f-3\"",
+      "Size": 24169373,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 24169373,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0030/HS_H08_20161029_0030_B14_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0030/HS_H08_20161029_0030_B15_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:22:00+00:00",
+      "ETag": "\"3cb2e4ca1215c1c072375b5bd290c029-3\"",
+      "Size": 23615291,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 23615291,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0030/HS_H08_20161029_0030_B15_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0040/HS_H08_20161029_0040_B07_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:23:10+00:00",
+      "ETag": "\"69a82b3e3d1abee58a549389f30d9b34-3\"",
+      "Size": 21986042,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 21986042,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0040/HS_H08_20161029_0040_B07_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0040/HS_H08_20161029_0040_B14_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:25:20+00:00",
+      "ETag": "\"7417720efd7cbec27ba162a0dc81de8d-3\"",
+      "Size": 24200676,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 24200676,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0040/HS_H08_20161029_0040_B14_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0040/HS_H08_20161029_0040_B15_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:22:02+00:00",
+      "ETag": "\"ad1cff9cfbae6123c918093ee9523e7b-3\"",
+      "Size": 23636276,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 23636276,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0040/HS_H08_20161029_0040_B15_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0050/HS_H08_20161029_0050_B07_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:23:11+00:00",
+      "ETag": "\"40b1cb842c8fcd8436820360fcd0e250-3\"",
+      "Size": 22150063,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 22150063,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0050/HS_H08_20161029_0050_B07_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0050/HS_H08_20161029_0050_B14_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:25:21+00:00",
+      "ETag": "\"a0273b6e06d28f57c543f29956c4700e-3\"",
+      "Size": 24264114,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 24264114,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0050/HS_H08_20161029_0050_B14_FLDK_R20_S0101.DAT.bz2"
+    },
+    {
+      "Key": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0050/HS_H08_20161029_0050_B15_FLDK_R20_S0101.DAT.bz2",
+      "LastModified": "2022-01-29 14:22:04+00:00",
+      "ETag": "\"4be31928ae846620a37dcd260d069f0a-3\"",
+      "Size": 23660147,
+      "StorageClass": "INTELLIGENT_TIERING",
+      "type": "file",
+      "size": 23660147,
+      "name": "noaa-himawari8/AHI-L1b-FLDK/2016/10/29/0050/HS_H08_20161029_0050_B15_FLDK_R20_S0101.DAT.bz2"
+    }
+  ],
+  "missing": [],
+  "errors": [],
+  "expected_files": 18,
+  "archive_layout_notes": [
+    "2016-10-29T00:00:00: whole-disk S0101 fallback",
+    "2016-10-29T00:10:00: whole-disk S0101 fallback",
+    "2016-10-29T00:20:00: whole-disk S0101 fallback",
+    "2016-10-29T00:30:00: whole-disk S0101 fallback",
+    "2016-10-29T00:40:00: whole-disk S0101 fallback",
+    "2016-10-29T00:50:00: whole-disk S0101 fallback"
+  ],
+  "available_files": 18,
+  "total_bytes": 417192897,
+  "finished_utc": "2026-11-02T10:20:54.685821+00:00"
+}

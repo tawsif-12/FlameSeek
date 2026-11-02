@@ -1,0 +1,36 @@
+{
+  "kind": "calibration",
+  "version": 3,
+  "region": "Northern_Australia",
+  "status": "provisional \u2013 transfer standard",
+  "role": "method demonstration region",
+  "transfer_to_south_asia": false,
+  "source_window": "current_2026",
+  "sample_size": 136,
+  "fit": {
+    "n_input": 136,
+    "n": 136,
+    "sync_max_dt_min": 360,
+    "trunc_frp_mw": 0,
+    "deming_delta": 1.0,
+    "fitted": true,
+    "a": -0.14565606643120632,
+    "b": 1.1605870147568313,
+    "a_ci": [
+      -1.1383532208828042,
+      0.47941556932524587
+    ],
+    "b_ci": [
+      0.7984919766021573,
+      1.7169536845042546
+    ],
+    "b_bounds_ols": [
+      0.37265808392381383,
+      2.9823790255878655
+    ],
+    "odr": {
+      "a": -0.1453324916762909,
+      "b": 1.1604043502475943
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "harmonization_tests_passed": 58,
+  "backend_tests_passed": 61,
+  "phase3b_tests_passed": 11,
+  "global_grid_cells": 6480000,
+  "detector_status": "verified",
+  "synthetic_injections_detected": 18,
+  "real_control_event_overpasses": 9,
+  "real_control_detections": 7,
+  "meteosat_status": "awaiting data",
+  "phase3_science_rerun": false
+}

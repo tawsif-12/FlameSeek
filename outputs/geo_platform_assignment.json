@@ -1,0 +1,62 @@
+{
+  "global_grid": {
+    "n_cells": 6480000,
+    "assignment_counts": {
+      "No valid view": 4419432,
+      "Meteosat-9": 1030284,
+      "Himawari": 1030284
+    },
+    "grid_cell_deg": 0.1,
+    "path": "D:\\nasa space\\Burning_Activity\\data\\processed\\windows\\current_2026\\geo_platform_assignment.parquet"
+  },
+  "regions": [
+    {
+      "region": "Bangladesh",
+      "n_cells": 2914,
+      "assignment_counts": {
+        "Meteosat-9": 2914
+      },
+      "mean_selected_vza_deg": 56.76674465849157,
+      "platform_mean_vza_deg": {
+        "Himawari": 61.89560990102037,
+        "Meteosat-9": 56.76674465849157
+      }
+    },
+    {
+      "region": "eastern_IGP",
+      "n_cells": 2000,
+      "assignment_counts": {
+        "Meteosat-9": 2000
+      },
+      "mean_selected_vza_deg": 54.3492934844547,
+      "platform_mean_vza_deg": {
+        "Himawari": 66.2380337734799,
+        "Meteosat-9": 54.3492934844547
+      }
+    },
+    {
+      "region": "full_IGP",
+      "n_cells": 13600,
+      "assignment_counts": {
+        "Meteosat-9": 13600
+      },
+      "mean_selected_vza_deg": 51.03053787965757,
+      "platform_mean_vza_deg": {
+        "Himawari": 71.89953916209797,
+        "Meteosat-9": 51.03053787965757
+      }
+    },
+    {
+      "region": "Punjab_Haryana",
+      "n_cells": 1480,
+      "assignment_counts": {
+        "Meteosat-9": 1480
+      },
+      "mean_selected_vza_deg": 48.31814241262055,
+      "platform_mean_vza_deg": {
+        "Himawari": 77.164269643782,
+        "Meteosat-9": 48.31814241262055
+      }
+    }
+  ]
+}

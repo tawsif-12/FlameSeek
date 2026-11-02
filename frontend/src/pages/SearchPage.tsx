@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { normalizeApiError, searchPlaces } from "../api/client";
 import { describeAoi, useAppContext } from "../context/AppContext";
 import type { PlaceResult } from "../types/api";
+import "../harmonized.css";
 
 const SUGGESTIONS = ["Bangladesh", "California", "Amazon Rainforest", "New South Wales"];
 
@@ -10,6 +11,7 @@ const DESTINATIONS = [
   { to: "/fire-memory", number: "01", title: "Fire Memory", description: "Explore the area's long-term fire history and recurring patterns." },
   { to: "/fire-dna", number: "02", title: "Fire DNA", description: "Reveal its seasonal signature, trends, and unusual activity." },
   { to: "/fire-calendar", number: "03", title: "Burning Calendar", description: "See when burning activity typically rises and falls through the year." },
+  { to: "/fire-events", number: "04", title: "Fire Events", description: "See each recent fire event in the area as its true burned-ground outline." },
 ] as const;
 
 export default function SearchPage() {
@@ -103,7 +105,11 @@ export default function SearchPage() {
                 <div><small>Selected area</small><h3 id="selected-area-title">{describeAoi(aoi)}</h3></div>
                 <button type="button" onClick={resetSelection}>Change area</button>
               </header>
-              <p>What would you like to explore?</p>
+              <Link to="/area" className="hz-open-intel">
+                <span><strong>{describeAoi(aoi).split(",")[0]} Fire Intelligence</strong><small>Fire history · Current activity · Seasonal patterns · Future risk — all in one place</small></span>
+                <b aria-hidden="true">→</b>
+              </Link>
+              <p>Or explore in depth:</p>
               <div>
                 {DESTINATIONS.map((destination) => (
                   <Link to={destination.to} key={destination.to}>

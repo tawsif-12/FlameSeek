@@ -11,6 +11,20 @@ import FireGlobePage from "./pages/FireGlobePage";
 import FireMemoryPage from "./pages/FireMemoryPage";
 import FireDnaPage from "./pages/FireDnaPage";
 import SearchPage from "./pages/SearchPage";
+import HarmonizedMapPage from "./pages/HarmonizedMapPage";
+import MethodologyPage from "./pages/MethodologyPage";
+import AboutPage from "./pages/AboutPage";
+import AreaIntelligencePage from "./pages/AreaIntelligencePage";
+import { LanguageProvider, useLanguage } from "./context/LanguageContext";
+
+function LanguageToggle() {
+  const { lang, setLang, t } = useLanguage();
+  return (
+    <a href="#" role="button" aria-label="Switch language English / Bangla" onClick={(e) => { e.preventDefault(); setLang(lang === "en" ? "bn" : "en"); }}>
+      {t("toggle")}
+    </a>
+  );
+}
 
 function Header() {
   return (
@@ -25,6 +39,9 @@ function Header() {
       <nav>
         <NavLink to="/fire-map">FireNow</NavLink>
         <NavLink to="/search">Search</NavLink>
+        <NavLink to="/methodology">Methodology</NavLink>
+        <NavLink to="/about">About</NavLink>
+        <LanguageToggle />
       </nav>
     </header>
   );
@@ -33,6 +50,7 @@ function Header() {
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <AppProvider>
+      <LanguageProvider>
       <Router>
         <Header />
         <Routes>
@@ -44,8 +62,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="/fire-calendar" element={<FireMemoryPage />} />
           <Route path="/critical-periods" element={<Navigate to="/fire-memory" replace />} />
           <Route path="/data-sources" element={<DataSourcesPage />} />
+          <Route path="/fire-events" element={<HarmonizedMapPage />} />
+          <Route path="/methodology" element={<MethodologyPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/area" element={<AreaIntelligencePage />} />
         </Routes>
       </Router>
+      </LanguageProvider>
     </AppProvider>
   </React.StrictMode>,
 );

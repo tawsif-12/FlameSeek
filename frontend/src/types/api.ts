@@ -560,6 +560,36 @@ export interface FireMemoryResult {
   fire_dna: FireDnaProfile;
   events: { count: number; multi_detection: number };
   provenance: Record<string, unknown>;
+  /** Area fire intelligence (backend/area_intel.py); absent in analyses saved before cache version 3. */
+  hotspot_map?: HotspotMap;
+  area_risk?: AreaRisk;
+}
+
+export interface HotspotMap {
+  status: string;
+  cell_deg: number;
+  n_cells_with_fire: number;
+  detections_used: number;
+  cells: Array<{ lon: number; lat: number; detections: number; days: number; years: number; first: string; last: string }>;
+  truncated: boolean;
+  method: string;
+}
+
+export interface AreaRisk {
+  status: string;
+  label?: string;
+  event?: string;
+  window?: { start: string; end: string; days: number };
+  probability?: number;
+  years_with_fire_in_window?: number;
+  years_checked?: number;
+  base_rate_any_window?: number;
+  validation?: { method: string; n: number; brier: number; brier_reference: number; brier_skill_score: number | null; reference: string };
+  skill?: string | null;
+  method?: string;
+  reason?: string;
+  complete_years?: number;
+  min_years?: number;
 }
 
 export interface WitnessResult {

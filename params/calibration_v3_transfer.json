@@ -1,0 +1,14 @@
+{
+  "kind": "calibration",
+  "version": 3,
+  "status": "provisional \u2013 transfer standard",
+  "source_window": "current_2026",
+  "sample_size": 0,
+  "fit": {
+    "fitted": false,
+    "n": 0,
+    "reason": "No supported regional diurnal shape or too few adjusted day pairs"
+  },
+  "reason": "No supported regional diurnal shape or too few adjusted day pairs",
+  "error_ratio": 1.0
+}

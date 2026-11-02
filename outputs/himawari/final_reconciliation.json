@@ -1,0 +1,31 @@
+{
+  "available_hourly_files": 642,
+  "expected_hourly_files": 720,
+  "hourly_bytes": 1636674135,
+  "test_files": 36,
+  "test_bytes": 91961862,
+  "local_unique_files": 672,
+  "local_bytes": 1713461501,
+  "partial_files": 0,
+  "download_errors": 0,
+  "statuses": {
+    "existing_verified": 55,
+    "downloaded_verified": 587
+  },
+  "missing_scans_utc": [
+    "2026/11/02/1100",
+    "2026/11/02/1200",
+    "2026/11/02/1300",
+    "2026/11/02/1400",
+    "2026/11/02/1500",
+    "2026/11/02/1600",
+    "2026/11/02/1700",
+    "2026/11/02/1800",
+    "2026/11/02/1900",
+    "2026/11/02/2000",
+    "2026/11/02/2100",
+    "2026/11/02/2200",
+    "2026/11/02/2300"
+  ],
+  "reconciliation": "All listed hourly files exist at the expected project paths with matching sizes; every download record passed integrity checks."
+}

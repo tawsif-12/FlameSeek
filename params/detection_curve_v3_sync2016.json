@@ -1,0 +1,54 @@
+{
+  "kind": "detection_curve",
+  "version": 3,
+  "status": "synchronized window; detection-conditioned opportunities \u2013 lower bound on O_s",
+  "source_window": "sync_2016",
+  "opportunity_basis": "detection-conditioned opportunities \u2013 lower bound on O_s",
+  "sample_size": 10081,
+  "fit": {
+    "n": 10081,
+    "n_detected": 1361,
+    "n_missed": 8720,
+    "fitted": true,
+    "b0": -3.179675405608853,
+    "b1": 2.5691331921511793,
+    "b2": 4.793886930342731,
+    "b0_ci": [
+      -3.326527714243217,
+      -3.0328230969744894
+    ],
+    "b1_ci": [
+      2.427716796059907,
+      2.7105495882424515
+    ],
+    "b2_ci": [
+      4.481589706769322,
+      5.106184153916141
+    ],
+    "pvalues": [
+      8.297566030297314e-278,
+      3.341406265977831e-196,
+      1.1569035538730104e-140
+    ],
+    "pseudo_r2": 0.24163651146475673,
+    "f50_nadir_mw": 17.284038157441458,
+    "f50_nadir_ci": [
+      16.125456185308575,
+      18.578654594007446
+    ],
+    "f50_edge_mw": 1176.3028165335948,
+    "f50_edge_ci": [
+      904.4640129289459,
+      1526.9668523437656
+    ],
+    "edge_area_km2": 9.6,
+    "n_boot_ok": 1000
+  },
+  "coverage": {
+    "area_min_km2": 1.000000238418579,
+    "area_median_km2": 1.659575343132019,
+    "area_max_km2": 9.281702995300293,
+    "n_near_nadir_area_le_1.5": 4057,
+    "n_detected_near_nadir": 859
+  }
+}

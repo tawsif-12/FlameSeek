@@ -1,0 +1,35 @@
+{
+  "firms_files": 4,
+  "firms_yearly_bytes": 60908457,
+  "firms_filtered_rows": 24928,
+  "himawari_files": 648,
+  "himawari_bytes": 1796885211,
+  "himawari_missing": 72,
+  "himawari_errors": 0,
+  "coverage": {
+    "Northern_Australia": {
+      "tested_points": 10201,
+      "covered_points": 10201,
+      "coverage_share": 1.0,
+      "box": [
+        125,
+        -20,
+        138,
+        -11
+      ]
+    },
+    "near_nadir": {
+      "tested_points": 10201,
+      "covered_points": 10201,
+      "coverage_share": 1.0,
+      "box": [
+        138,
+        -5,
+        145,
+        -1
+      ]
+    }
+  },
+  "segments_restored": true,
+  "meteosat_status": "awaiting data ? user must download from LSA SAF (ListProduct + QualityProduct)"
+}

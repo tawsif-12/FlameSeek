@@ -1,0 +1,35 @@
+{
+  "window": "current_2026",
+  "years_in_window": [
+    2026
+  ],
+  "calendar": {
+    "status": "insufficient_history",
+    "what": "calendar",
+    "years_available": 1,
+    "years_required": 3
+  },
+  "anomalies": {
+    "status": "insufficient_history",
+    "what": "anomalies",
+    "years_available": 1,
+    "years_required": 5
+  },
+  "changepoint": {
+    "status": "insufficient_history",
+    "what": "changepoint",
+    "years_available": 1,
+    "years_required": 8
+  },
+  "forecast_climatology": {
+    "status": "insufficient_history",
+    "what": "forecast climatology",
+    "years_available": 1,
+    "years_required": 5
+  },
+  "forecast_xgboost": {
+    "status": "requires_multi_year_data",
+    "years_available": 1,
+    "years_required": 5
+  }
+}

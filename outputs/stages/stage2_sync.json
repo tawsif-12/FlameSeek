@@ -1,0 +1,71 @@
+{
+  "status": "completed",
+  "timing": {
+    "n_pairs": 1698,
+    "median_abs_dt_min": 21.0,
+    "synchronized": false
+  },
+  "drift": [
+    {
+      "year": 2016,
+      "platform": "Aqua",
+      "n": 718,
+      "median_lst_h": 13.45527
+    },
+    {
+      "year": 2016,
+      "platform": "S-NPP",
+      "n": 5113,
+      "median_lst_h": 13.300082666666665
+    },
+    {
+      "year": 2016,
+      "platform": "Terra",
+      "n": 68,
+      "median_lst_h": 10.77076
+    },
+    {
+      "year": 2026,
+      "platform": "Aqua",
+      "n": 18153,
+      "median_lst_h": 15.799877333333331
+    },
+    {
+      "year": 2026,
+      "platform": "NOAA-20",
+      "n": 102409,
+      "median_lst_h": 13.598291999999999
+    },
+    {
+      "year": 2026,
+      "platform": "NOAA-21",
+      "n": 96022,
+      "median_lst_h": 13.513035333333331
+    },
+    {
+      "year": 2026,
+      "platform": "S-NPP",
+      "n": 99857,
+      "median_lst_h": 13.712341333333333
+    },
+    {
+      "year": 2026,
+      "platform": "Terra",
+      "n": 4062,
+      "median_lst_h": 8.568811666666665
+    }
+  ],
+  "n_detections": 24025,
+  "calibration": {
+    "fitted": false,
+    "n": 0,
+    "reason": "Window median absolute Aqua?S-NPP difference exceeds 20 minutes"
+  },
+  "detection_curve": {
+    "fitted": false,
+    "n": 0,
+    "reason": "awaiting data: 2016 observation opportunities require historical orbital elements; only 2026 TLEs are cached"
+  },
+  "pi_modis": "awaiting data: 2016 observation opportunities require historical orbital elements; only 2026 TLEs are cached",
+  "observation_opportunities": "awaiting data: 2016 observation opportunities require historical orbital elements; only 2026 TLEs are cached"
+}

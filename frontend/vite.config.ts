@@ -20,6 +20,11 @@ export default defineConfig({
     proxy: {
       "/api": "http://127.0.0.1:8000",
       "/data-sources": "http://127.0.0.1:8000",
+      // Harmonized-record snapshot API (backend/routers/snapshot.py)
+      "/meta": "http://127.0.0.1:8000",
+      "/fires": "http://127.0.0.1:8000",
+      "/events/": "http://127.0.0.1:8000",
+      "/detections": "http://127.0.0.1:8000",
     },
   },
 });

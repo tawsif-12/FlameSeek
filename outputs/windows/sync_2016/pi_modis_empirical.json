@@ -1,0 +1,14 @@
+{
+  "source_window": "sync_2016",
+  "opportunity_basis": "detection-conditioned opportunities \u2013 lower bound on O_s",
+  "values": {
+    "all": {
+      "n": 13395,
+      "nadir": 0.28650169973334627
+    },
+    "IGP": {
+      "n": 12679,
+      "nadir": 0.29441983496804564
+    }
+  }
+}

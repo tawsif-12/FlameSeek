@@ -2473,7 +2473,7 @@
 
 
 /* ==========================================================================
-   ANIMATED ROADMAP COMPONENT (Matching Video Template Reference)
+   ANIMATED ROADMAP COMPONENT (Zero-Overlap Two-Tier Spatial Geometry)
    ========================================================================== */
 
 .roadmap-outer-wrapper {
@@ -2481,12 +2481,12 @@
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 30px 20px 40px;
-  background: radial-gradient(circle at 50% 20%, rgba(14, 28, 56, 0.45) 0%, rgba(3, 7, 18, 0.85) 100%);
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  padding: 30px 20px 36px;
+  background: radial-gradient(circle at 50% 15%, rgba(14, 28, 56, 0.45) 0%, rgba(3, 7, 18, 0.9) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.22);
   border-radius: 36px;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  overflow: visible;
 }
 
 /* --- Controls Bar --- */
@@ -2496,8 +2496,8 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
-  margin-bottom: 24px;
-  padding: 0 10px;
+  margin-bottom: 20px;
+  padding: 0 8px;
 }
 
 .roadmap-status-pill {
@@ -2558,13 +2558,14 @@
 .roadmap-stage-desktop {
   position: relative;
   width: 100%;
-  min-height: 600px;
+  aspect-ratio: 1200 / 720;
+  min-height: 580px;
   display: block;
 }
 
 .roadmap-svg-canvas {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
   overflow: visible;
 }
@@ -2592,7 +2593,7 @@
 
 .roadmap-svg-node.node-hidden {
   opacity: 0;
-  transform: translateY(-40px) scale(0.6);
+  transform: translateY(-30px) scale(0.7);
   pointer-events: none;
 }
 
@@ -2601,8 +2602,14 @@
   transform: translateY(0) scale(1);
 }
 
-.roadmap-stem-line {
-  transition: stroke-dashoffset 0.6s ease;
+.roadmap-pin-marker {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.roadmap-pin-marker:hover,
+.roadmap-pin-marker.pin-selected {
+  transform: scale(1.18);
+  filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.7));
 }
 
 /* --- Floating Milestone Cards Layer --- */
@@ -2614,172 +2621,286 @@
 
 .roadmap-card-anchor {
   position: absolute;
-  transform: translate(-30px, -100%);
-  width: clamp(230px, 20vw, 290px);
+  width: clamp(210px, 17.5vw, 235px);
   pointer-events: auto;
-  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.5s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   z-index: 5;
 }
 
 .roadmap-card-anchor.card-hidden {
   opacity: 0;
-  transform: translate(-30px, -70%) scale(0.85);
+  transform: translateY(-20px) scale(0.9);
   pointer-events: none;
 }
 
 .roadmap-card-anchor.card-visible {
   opacity: 1;
-  transform: translate(-30px, -100%) scale(1);
+  transform: translateY(0) scale(1);
 }
 
-.roadmap-card-anchor.card-expanded {
-  z-index: 20;
-  width: clamp(280px, 24vw, 340px);
+.roadmap-card-anchor.card-selected {
+  z-index: 15;
+  transform: translateY(-5px) scale(1.03);
 }
 
-/* Pill Card Shape (Direct match with video reference) */
+/* Milestone Card Pill */
 .roadmap-card-pill {
   position: relative;
   display: flex;
-  align-items: flex-start;
-  background: rgba(10, 18, 38, 0.92);
+  flex-direction: column;
+  height: 140px;
+  background: linear-gradient(160deg, rgba(12, 22, 45, 0.95) 0%, rgba(4, 9, 22, 0.98) 100%);
   border: 1.5px solid var(--item-accent, #00f2fe);
-  border-radius: 28px;
-  padding: 14px 16px 14px 52px;
+  border-radius: 20px;
+  padding: 12px 14px;
   cursor: pointer;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 0 0 25px var(--item-glow, rgba(0, 242, 254, 0.25));
-  backdrop-filter: blur(18px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.75), 0 0 20px var(--item-glow, rgba(0, 242, 254, 0.2));
+  backdrop-filter: blur(16px);
   transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
 }
 
 .roadmap-card-pill:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.9), 0 0 40px var(--item-glow, rgba(0, 242, 254, 0.45));
   border-color: #ffffff;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.85), 0 0 35px var(--item-glow, rgba(0, 242, 254, 0.45));
 }
 
-/* Circular Number Badge (Overlapping left side of pill card) */
+.roadmap-card-anchor.card-selected .roadmap-card-pill {
+  border-color: #ffffff;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 40px var(--item-glow, rgba(0, 242, 254, 0.55));
+}
+
+/* Card Header Row */
+.roadmap-card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+/* Circular Number Badge */
 .roadmap-badge-circle {
-  position: absolute;
-  top: 12px;
-  left: -20px;
-  width: 54px;
-  height: 54px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--item-accent, #00f2fe);
-  border: 3px solid #030712;
-  box-shadow: 0 6px 20px var(--item-glow, rgba(0, 242, 254, 0.6));
+  border: 2px solid #030712;
+  box-shadow: 0 0 14px var(--item-glow, rgba(0, 242, 254, 0.5));
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 3;
-  transition: transform 0.3s ease;
-}
-
-.roadmap-card-pill:hover .roadmap-badge-circle {
-  transform: scale(1.08);
+  flex-shrink: 0;
 }
 
 .roadmap-badge-num {
   font-family: var(--oc-font-display);
-  font-size: 20px;
+  font-size: 13px;
   font-weight: 800;
   color: #030712;
-  letter-spacing: -0.03em;
-}
-
-/* Milestone Content */
-.roadmap-pill-body {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.roadmap-pill-header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 6px;
-}
-
-.roadmap-milestone-title {
-  font-family: var(--oc-font-display);
-  font-size: 15px;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
-  line-height: 1.25;
+  letter-spacing: -0.02em;
 }
 
 .roadmap-metric-tag {
   font-family: var(--oc-font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.06em;
+  font-size: 9px;
+  letter-spacing: 0.08em;
   color: var(--item-accent, #00f2fe);
   font-weight: 700;
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.roadmap-milestone-question {
-  font-size: 12px;
-  font-weight: 500;
-  color: #cbd5e1;
-  margin: 0 0 8px;
-  line-height: 1.4;
+/* Milestone Content */
+.roadmap-pill-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.roadmap-milestone-title {
+  font-family: var(--oc-font-display);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 4px;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .roadmap-short-desc {
-  font-size: 11.5px;
-  line-height: 1.5;
+  font-size: 11px;
+  line-height: 1.4;
   color: #94a3b8;
-  margin: 0 0 10px;
+  margin: 0 0 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.roadmap-full-answer {
-  font-size: 11.5px;
-  line-height: 1.6;
-  color: #f1f5f9;
-  padding: 10px 12px;
-  background: rgba(3, 7, 18, 0.65);
-  border-radius: 12px;
-  border-left: 3px solid var(--item-accent, #00f2fe);
-  margin-bottom: 10px;
-}
-
-.roadmap-full-answer p {
-  margin: 0 0 8px;
-}
-
-.roadmap-badge-verified {
+.roadmap-inspect-action {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-family: var(--oc-font-mono);
-  font-size: 9.5px;
-  color: #38bdf8;
+  gap: 4px;
+  color: var(--item-accent, #00f2fe);
+  font-family: var(--oc-font-display);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  margin-top: auto;
 }
 
-.roadmap-expand-toggle {
+/* --- Active Scientific Evidence Inspector Panel --- */
+.roadmap-inspector-panel {
+  margin-top: 24px;
+  padding: 24px 28px;
+  background: linear-gradient(170deg, rgba(12, 22, 45, 0.95) 0%, rgba(3, 7, 18, 0.98) 100%);
+  border: 1.5px solid var(--item-accent, #00f2fe);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 35px var(--item-glow, rgba(0, 242, 254, 0.25));
+  backdrop-filter: blur(20px);
+  animation: panelSlideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes panelSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.inspector-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.inspector-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inspector-step-tag {
+  font-family: var(--oc-font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--item-accent, #00f2fe);
+  letter-spacing: 0.1em;
+}
+
+.inspector-metric-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  font-family: var(--oc-font-mono);
+  font-size: 10px;
+  color: #cbd5e1;
+  letter-spacing: 0.05em;
+}
+
+.inspector-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inspector-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.inspector-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--item-accent, #00f2fe);
+}
+
+.inspector-step-counter {
+  font-family: var(--oc-font-mono);
+  font-size: 11px;
+  color: #94a3b8;
+  padding: 0 4px;
+}
+
+.inspector-title {
+  font-family: var(--oc-font-display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0 0 6px;
+}
+
+.inspector-question {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--item-accent, #00f2fe);
+  margin: 0 0 16px;
+  line-height: 1.45;
+}
+
+.inspector-body-box {
+  background: rgba(3, 7, 18, 0.6);
+  border-radius: 16px;
+  padding: 16px 20px;
+  border-left: 3px solid var(--item-accent, #00f2fe);
+}
+
+.inspector-full-answer {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #e2e8f0;
+  margin: 0 0 14px;
+}
+
+.inspector-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.inspector-verified-tag {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: transparent;
-  border: none;
-  padding: 4px 0 0;
-  color: var(--item-accent, #00f2fe);
-  font-family: var(--oc-font-display);
+  font-family: var(--oc-font-mono);
   font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
+  color: #38bdf8;
 }
 
-.roadmap-expand-toggle:hover {
-  opacity: 0.85;
-  text-decoration: underline;
-}
-
-/* --- Mobile / Tablet Stage (< 960px) --- */
+/* --- Mobile / Tablet Stage (< 980px) --- */
 .roadmap-stage-mobile {
   display: none;
 }
@@ -2881,15 +3002,15 @@
   margin-top: 8px;
 }
 
-/* --- Bottom Legend --- */
+/* --- Bottom Summary Legend --- */
 .roadmap-footer-legend {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 12px 20px;
-  margin-top: 30px;
-  padding-top: 20px;
+  gap: 8px 16px;
+  margin-top: 24px;
+  padding-top: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -2897,9 +3018,22 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
   font-family: var(--oc-font-mono);
   font-size: 11px;
   color: var(--oc-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.roadmap-legend-item:hover,
+.roadmap-legend-item.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #ffffff;
 }
 
 .legend-dot {
@@ -2918,6 +3052,6 @@
     display: block;
   }
   .roadmap-outer-wrapper {
-    padding: 24px 16px 30px;
+    padding: 24px 16px 28px;
   }
 }
