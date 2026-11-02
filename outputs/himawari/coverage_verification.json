@@ -1,0 +1,59 @@
+{
+  "sample": "data\\raw\\himawari\\current_2026\\2026\\10\\29\\HS_H09_20261029_0000_B07_FLDK_R20_S0310.DAT.bz2",
+  "sub_lon": 140.7,
+  "LFAC": 20466275,
+  "LOFF": 2750.5,
+  "segment_lines": 550,
+  "method": "Dense 501x501 lon/lat grid per configured bbox; actual HSD geostationary projection, then global HSD line = LOFF - degrees(y/h)*LFAC/65536.",
+  "regions": {
+    "Bangladesh": {
+      "bbox": [
+        88.0,
+        20.5,
+        92.7,
+        26.7
+      ],
+      "visible_fraction": 1.0,
+      "line_range": [
+        1431.8369400543543,
+        1728.9164316875597
+      ],
+      "segments": [
+        "S0310",
+        "S0410"
+      ]
+    },
+    "Indo-Gangetic Plain": {
+      "bbox": [
+        73.0,
+        24.0,
+        89.0,
+        32.5
+      ],
+      "visible_fraction": 1.0,
+      "line_range": [
+        1193.4306432742449,
+        1607.7207587642852
+      ],
+      "segments": [
+        "S0310"
+      ]
+    },
+    "Punjab-Haryana": {
+      "bbox": [
+        73.8,
+        28.5,
+        77.5,
+        32.5
+      ],
+      "visible_fraction": 1.0,
+      "line_range": [
+        1230.9730843436937,
+        1409.6252570902602
+      ],
+      "segments": [
+        "S0310"
+      ]
+    }
+  }
+}

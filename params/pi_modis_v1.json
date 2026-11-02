@@ -1,0 +1,138 @@
+{
+  "kind": "pi_modis",
+  "version": 1,
+  "created_utc": "2026-11-02T10:01:21+00:00",
+  "status": "provisional",
+  "source_window": {
+    "window": "current_2026",
+    "start": "2026-10-29",
+    "end": "2026-11-02",
+    "raw_dir": "D:\\nasa space\\Burning_Activity\\data\\raw"
+  },
+  "era": {
+    "aqua_snpp_median_abs_dt_min": 136.0,
+    "aqua_drifted": true,
+    "terra_drifted": true,
+    "era_sensor": [
+      "multi_sensor"
+    ],
+    "per_platform_month": {
+      "Aqua": [
+        {
+          "month": "2026-10",
+          "lst_median_h": 15.783333333333331,
+          "deviation_min": 130.5446,
+          "drifted": true
+        },
+        {
+          "month": "2026-11",
+          "lst_median_h": 15.816666666666666,
+          "deviation_min": 132.54459999999995,
+          "drifted": true
+        }
+      ],
+      "NOAA-20": [
+        {
+          "month": "2026-10",
+          "lst_median_h": 13.566666666666666,
+          "deviation_min": 1.701439999999934,
+          "drifted": false
+        },
+        {
+          "month": "2026-11",
+          "lst_median_h": 13.616666666666667,
+          "deviation_min": 4.701439999999977,
+          "drifted": false
+        }
+      ],
+      "NOAA-21": [
+        {
+          "month": "2026-10",
+          "lst_median_h": 13.466666666666669,
+          "deviation_min": -0.925040000000017,
+          "drifted": false
+        },
+        {
+          "month": "2026-11",
+          "lst_median_h": 13.466666666666669,
+          "deviation_min": -0.925040000000017,
+          "drifted": false
+        }
+      ],
+      "S-NPP": [
+        {
+          "month": "2026-10",
+          "lst_median_h": 13.666666666666666,
+          "deviation_min": 5.986799999999839,
+          "drifted": false
+        },
+        {
+          "month": "2026-11",
+          "lst_median_h": 13.75,
+          "deviation_min": 10.986799999999874,
+          "drifted": false
+        }
+      ],
+      "Terra": [
+        {
+          "month": "2026-10",
+          "lst_median_h": 8.566666666666666,
+          "deviation_min": -111.38840000000002,
+          "drifted": true
+        },
+        {
+          "month": "2026-11",
+          "lst_median_h": 8.583333333333334,
+          "deviation_min": -110.38839999999996,
+          "drifted": true
+        }
+      ]
+    }
+  },
+  "sample_size": {
+    "day": 175452,
+    "night": 63517
+  },
+  "fit_method": "pi = \u222b P_det(F,A) f(F) dF; empirical (mean over VIIRS event-overpasses) and power-law tail",
+  "values": {
+    "day": {
+      "empirical_nadir": 0.22915461448015312,
+      "powerlaw_tail_nadir": 0.4288082280001534,
+      "empirical_edge": 0.02778427399007499,
+      "powerlaw_tail_edge": 0.06928007725569732
+    },
+    "night": {
+      "empirical_nadir": 0.09323940938578602,
+      "powerlaw_tail_nadir": 0.5225163935139172,
+      "empirical_edge": 0.009212220257599633,
+      "powerlaw_tail_edge": 0.08607406324947228
+    },
+    "all": {
+      "empirical_nadir": 0.1930288990861944,
+      "empirical_edge": 0.02284789673224808
+    }
+  },
+  "intervals": null,
+  "distribution": {
+    "day": {
+      "xmin": 11.31,
+      "alpha": 2.0331987517976984,
+      "alpha_se": 0.004117015904051477,
+      "R": -20.94338590838872,
+      "p": 2.15580914553304e-97,
+      "better": "lognormal"
+    },
+    "night": {
+      "xmin": 19.71,
+      "alpha": 2.2389301282442666,
+      "alpha_se": 0.0200928137215435,
+      "R": -2.6927791018588603,
+      "p": 0.0070859199544370125,
+      "better": "lognormal"
+    }
+  },
+  "notes": [
+    "Aqua\u2013S-NPP median abs(\u0394t) 136.0 min (> 20 min); Aqua drifted: True.",
+    "Intervals not yet propagated (needs Step 8 Monte Carlo)."
+  ]
+}

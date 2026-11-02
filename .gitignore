@@ -11,3 +11,13 @@ __pycache__/
 .chrome-debug/
 *.pyc
 .DS_Store
+
+# FlameSeek harmonization pipeline: data and large outputs stay local
+data/
+dataset/
+outputs/**/*.parquet
+outputs/**/*.geoparquet
+outputs/**/*.csv
+outputs/figures/*.png
+outputs/**/*.html
+notebooks/.ipynb_checkpoints/

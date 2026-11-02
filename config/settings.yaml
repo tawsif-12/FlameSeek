@@ -1,0 +1,216 @@
+# FlameSeek harmonization settings (Steps 1-5).
+# Every value here comes from the "Parameter defaults" table in
+# docs/harmonization_procedure.md unless marked otherwise. All values are
+# copied into outputs/phase1_report.md on each run.
+
+data_version: "firms_nrt_2026-10-29_to_11-02_v2"
+
+# --- Processing windows ------------------------------------------------------
+# Every command takes --window <name>. Dates are UTC; the pipeline processes every
+# local solar day touched by the window (start-1 .. end+1) and partitions by that day.
+default_window: current_2026
+windows:
+  current_2026: {start: 2026-10-29, end: 2026-11-02, raw_dir: data/raw, bbox: null}
+  sync_2016:   {start: 2016-10-29, end: 2016-11-02, raw_dir: data/raw/archive/2016, bbox: null}  # if data present
+  igp_2026:    {start: 2026-10-29, end: 2026-11-02, raw_dir: data/raw, bbox: [73.0, 24.0, 89.0, 32.5]}
+
+partitions:
+  root: data/processed            # <root>/<stage>/year=YYYY/month=MM/day=DD/part.parquet
+  workers: 4                      # parallel days (concurrent.futures processes)
+  raw_chunk_rows: 500000          # rows per chunk when splitting raw CSVs into UTC days
+  finalize_chunk_days: 31         # events are finalised in month-sized chunks (+ cap_duration_days)
+
+eras:
+  # Era flags are measured per platform and month: the median local solar time of daytime
+  # detections (|lat| <= lat_band) is compared with a reference LST. The reference is the
+  # measured early-archive value in data/processed/drift_by_year.csv when present, else
+  # the platform's nominal design crossing time below (a specification, not a date).
+  lat_band: 30
+  drift_threshold_min: 30
+  min_day_detections: 200          # fewer daytime detections in a month -> era "unknown"
+  nominal_lst: {Terra: 10.5, Aqua: 13.5, S-NPP: 13.5, NOAA-20: 13.5, NOAA-21: 13.5}
+
+history:
+  min_years_calendar: 3            # calendar, anomalies and forecast need at least this many years
+  min_years_anomaly: 5
+  min_years_forecast: 5
+  min_years_changepoint: 8
+
+params:
+  dir: params                      # calibration_vN.json, detection_curve_vN.json, ...
+
+paths:
+  raw_dir: data/raw                 # FIRMS CSVs. Read only, never modified.
+  himawari_dir: data/raw/himawari   # Later phase. Only listed in the inspection report.
+  interim_dir: data/interim
+  processed_dir: data/processed
+  figures_dir: outputs/figures
+  report: outputs/phase1_report.md
+  inspection_report: outputs/raw_inspection_report.md
+
+# Study area as [lon_min, lat_min, lon_max, lat_max] (WGS84).
+# null = detect from the data (outer bounds of all detections, padded by
+# study_bbox_pad_deg). The detected value is printed and written to the report.
+# The data is a global FIRMS extract; for the Bangladesh pilot use
+# [88.0, 20.5, 92.7, 26.7].
+study_bbox: null
+study_bbox_pad_deg: 0.1
+
+# --- Step 1: confidence classes -> p_conf ---------------------------------
+confidence:
+  p_conf: {low: 0.3, nominal: 0.6, high: 0.9}
+  modis_nominal_min: 30             # MODIS 0-100: <30 low, 30-79 nominal, >=80 high
+  modis_high_min: 80
+  viirs_codes: {l: low, n: nominal, h: high}
+
+# --- Step 2: quality control ----------------------------------------------
+quality:
+  keep_p_conf: [0.6, 0.9]           # Confidence kept: nominal and high
+  modis_drop_types: [1, 2, 3]       # Archive data only (NRT files have no type column)
+  persistent_hotspot_year_share: 0.30  # Needs multi-year data; not applied to one day
+  transient_window_min: 30          # Needs Himawari; not applied in Phase 1
+  mask_nightfire_flares: false      # Optional in the procedure; no flare list available
+  urt_dup_max_dt_min: 2             # URT row is a copy of an NRT row of the same platform when
+  urt_dup_max_dist_m: 375           #   within 2 min and 375 m; NRT kept, URT dropped (Phase 2, A4)
+  partial_day_min_share: 0.5        # First/last UTC day below 50% of the median day = partial (A5)
+
+# --- Step 3: footprints ----------------------------------------------------
+footprints:
+  # Orientation of the scan x track rectangle. "ground_track" rotates the
+  # along-track side to the approximate orbit heading; "north_up" keeps
+  # track north-south. See docs/decisions.md.
+  orientation: ground_track
+  orbit_inclination_deg: 98.7
+  # Expected footprint area ranges (km^2) used by the parsing check.
+  # From the procedure: MODIS 1x1 km (nadir) to ~4.8x2 km (edge);
+  # VIIRS 0.375x0.375 km to ~0.8x0.8 km. 10% tolerance added.
+  area_range_km2:
+    MODIS: [0.9, 10.6]
+    VIIRS: [0.127, 0.704]
+
+# --- Step 4: fire events ---------------------------------------------------
+events:
+  distance_crs: utm_auto            # UTM zone picked per detection pair (EPSG:32646 for Bangladesh)
+  area_crs: "EPSG:6933"
+  day_basis: local_solar            # Calendar day of a detection; see docs/decisions.md
+  cap_extent_km: 25                 # Event caps: 25 km extent ...
+  cap_duration_days: 14             # ... and 14 days
+  matched_pair_window_min: 30       # Procedure default; per-platform values below override it
+  matched_pair_window_max_min: 60   # Hard upper limit for any widened window
+  # Chosen from the Aqua-VIIRS time-difference histogram (Phase 2, Part B; see
+  # docs/decisions.md D22). The main peaks sit at 125-160 min, beyond the 60 min
+  # limit, so every window is capped at 60 min.
+  matched_pair_window_by_platform: {S-NPP: 60, NOAA-20: 60, NOAA-21: 60}
+  matched_pair_modis: [Aqua]        # Terra is never paired with VIIRS
+  matched_pair_viirs: [S-NPP, NOAA-20]
+
+# --- Step 5: grid ------------------------------------------------------------
+grid:
+  cell_deg: 0.1                     # Calendar grid 0.1 deg, true cell area stored
+  area_crs: "EPSG:6933"
+  energy_rel_tol: 1.0e-9            # Allowed relative FRP difference before/after gridding
+
+# --- Phase 2: Step 6 -------------------------------------------------------
+overpasses:
+  norad_ids: {Terra: 25994, Aqua: 27424, S-NPP: 37849, NOAA-20: 43013, NOAA-21: 54234}
+  tle_sources:                      # tried in order
+    - "https://celestrak.org/NORAD/elements/gp.php?CATNR={id}&FORMAT=TLE"
+    - "https://tle.ivanstanojevic.me/api/tle/{id}"
+  tle_cache_dir: data/interim/tle
+  step_s: 30                        # orbit propagation step before refinement
+  swath_km: {MODIS: 2330, VIIRS: 3060}
+  # Nadir pixel sizes for the expected-pixel-area model (km)
+  nadir_pixel_km: {MODIS: 1.0, VIIRS: 0.375}
+  match_tolerance_min: 10           # detection must lie in an overpass of its platform within +/-10 min
+  cloud_adjusted: false             # Version 1 assumes clear sky
+  # Cells: every 0.1 deg cell with a detection, plus all cells of the pilot boxes
+  pilot_boxes:
+    Bangladesh: [88.0, 20.5, 92.7, 26.7]
+    Punjab-Haryana: [73.8, 28.5, 77.5, 32.5]
+    Indo-Gangetic Plain: [73.0, 24.0, 89.0, 32.5]
+    Mainland SE Asia: [97.0, 10.0, 109.0, 23.0]
+    Northern Australia: [125.0, -20.0, 138.0, -11.0]
+
+calibration:
+  min_pairs: 15                     # below this, no fit is made
+  bootstrap: 1000
+  ci: 0.90
+  seed: 20261102
+  detection_curve_viirs: [S-NPP, NOAA-20, NOAA-21]
+  modis_edge_area_km2: 9.6          # swath-edge MODIS pixel area for the 50% FRP
+  frp_dist_xmin_candidates: 60      # log-spaced F_min candidates for the Clauset KS search
+  # Sync-window calibration (used only when a window's Aqua-S-NPP median |dt| <= 20 min)
+  sync_max_dt_min: 15               # pairs within 15 min
+  trunc_frp_mw: 10.0                # truncation filter: both sensors' FRP >= 10 MW
+  deming_error_ratio: 1.0           # stated var(err log FRP_VIIRS) / var(err log FRP_MODIS)
+
+# --- Phase 2b: overpass-time drift history --------------------------------
+drift:
+  archive_dir: data/raw/firms_archive   # FIRMS SP downloads, cached once, never modified
+  first_year: 2013
+  last_archive_year: 2025           # SP archive ends mid-2026; 2026 comes from data/raw
+  current_year: 2026
+  window_start: "10-29"             # same calendar window every year (season of the 2026 data)
+  window_days: 2
+  lat_band: 30                      # |lat| <= 30: overpass LST varies least with latitude here
+  baseline_years: [2013, 2014, 2015]  # early-archive value = median of these years
+  drift_threshold_min: 30           # a platform has drifted when its median LST moves > 30 min
+  pair_radius_km: 1.0               # Aqua-S-NPP pair: nearest S-NPP detection within 1 km, same day
+  calib_max_dt_min: 20              # calibration year: median Aqua-S-NPP |dt| <= 20 min
+  min_pairs_per_year: 30
+  # Filled from the drift analysis (run_phase2b.py); used to flag every MODIS detection.
+  first_drift_year: {Terra: 2024, Aqua: 2024}
+
+# --- Later steps (stored so every default lives in one place) -------------
+later_steps:
+  himawari_max_view_zenith_deg: 65
+  himawari_sub_lon_deg: 140.7
+  monte_carlo_draws: 300
+  anomaly_baseline_window_weeks: 2
+  anomaly_z_equiv_min: 2.0
+  anomaly_min_events: 3
+  season_onset_share: 0.20
+
+# Phase 3: exploratory AHI detection. All temperatures K; times UTC unless LST.
+himawari:
+  cadence_minutes: 60
+  max_vza_deg: 65
+  day_sza_deg: 90
+  regions:
+    Bangladesh: [88.0, 20.5, 92.7, 26.7]
+    eastern_IGP: [84.0, 24.0, 89.0, 28.0]
+    full_IGP: [73.0, 24.0, 89.0, 32.5]
+    Punjab_Haryana: [73.8, 28.5, 77.5, 32.5]
+  cloud:
+    cold_b14_k: 265
+    split_window_min_k: -1.0
+    split_window_max_k: 5.0
+  detection:
+    candidate_day_k: 310
+    candidate_night_k: 300
+    candidate_delta_k: 10
+    background_windows: [11, 21, 31]
+    background_min_pixels: 20
+    background_min_fraction: 0.2
+    sigma_multiplier: 3
+    anomaly_floor_k: 6
+  tuning:
+    train_dates: ['2026-10-29', '2026-10-30']
+    test_dates: ['2026-10-31', '2026-11-01']
+    large_viirs_frp_mw: 20
+    large_fire_rate_trigger: 0.2
+    alternatives:
+      - {candidate_day_k: 305, candidate_night_k: 295, candidate_delta_k: 8}
+      - {candidate_day_k: 300, candidate_night_k: 290, candidate_delta_k: 6}
+  match_radius_km: 2
+  reference_tolerance_minutes: 60
+  viirs_tolerance_minutes: 30
+  tier_a_min_valid_area_share: 0.8
+  min_clear_fraction_fit: 0.3
+  min_full_day_scans: 24
+  bootstrap_days: 300
+  min_fit_points: 24
+  srf_file: data/auxiliary/himawari/ahi9_b07_srf.txt
+  srf_url: https://nwp-saf.eumetsat.int/downloads/rtcoef_info/visir_srf/rtcoef_himawari_9_ahi_srf/rtcoef_himawari_9_ahi_srf_ch07.txt
+  fre_sensor_relative_sd: {MODIS: 0.5, VIIRS: 0.3}
+  transfer_max_same_day_gap_minutes: 360

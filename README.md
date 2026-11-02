@@ -112,3 +112,66 @@ All other data sources are free and keyless. Responses are cached under `backend
 ## API
 
 `GET /api/current_hotspots` · `GET /api/events` · `GET /api/events/{id}` · `GET /api/events/{id}/case` · `POST /api/events/{id}/evidence` (job, includes the Fire Case) · `POST /api/events/{id}/outlook` (job: analogues, forecast, exposure) · `POST /api/fire_memory` (job) · `GET /api/jobs/{id}` · `GET /api/places/search` · `GET /api/places/reverse` · `POST /api/generate_calendar` · `POST /api/critical_periods` · `GET /api/verified_hotspots` · `GET /data-sources`. Interactive docs are at `/docs`.
+
+## Harmonization pipeline (Phase 1: Steps 1–5)
+
+A standalone Python pipeline in `pipeline/` implements Steps 1–5 of
+[docs/harmonization_procedure.md](docs/harmonization_procedure.md). Deviations are logged in
+[docs/decisions.md](docs/decisions.md).
+
+```bash
+conda env create -f environment.yml        # or: conda env update -f environment.yml
+conda activate flameseek
+python -m ipykernel install --user --name flameseek
+python run_pipeline.py                      # all steps, settings from config/settings.yaml
+python -m pytest tests                      # energy, footprint, FRP-time and cap tests
+```
+
+| Step | Module | Output |
+|---|---|---|
+| Inspect raw data | `pipeline/inspect_raw.py` | `outputs/raw_inspection_report.md` |
+| 1 Clean & standardize | `pipeline/ingest.py` | (in memory) |
+| 2 Quality control | `pipeline/quality.py` | `data/processed/detections_clean.parquet`, `data/interim/detections_lowconf.parquet`, `data/interim/detections_removed.parquet` |
+| 3 Footprints | `pipeline/footprints.py` | `data/interim/footprints.geoparquet` |
+| 4 Fire events | `pipeline/events.py` | `data/processed/fire_events.csv`, `data/interim/event_overpasses.csv`, `data/interim/matched_pairs_aqua_viirs.csv` |
+| 5 Grid | `pipeline/grid.py` | `data/processed/grid_daily.csv`, `data/interim/grid_overpass.csv` |
+| Report | `pipeline/report.py`, `pipeline/figures.py` | `outputs/phase1_report.md`, `outputs/figures/*.png` |
+
+Raw FIRMS CSVs go in `data/raw/` and are never modified. Himawari data for a later phase goes in
+`data/raw/himawari/`.
+
+### Phase 2: Step 6 sensor calibration
+
+```bash
+python run_phase2.py                        # reads Phase 1 outputs; add --recompute-overpasses to rebuild TLE overpasses
+```
+
+| Part | Module | Output |
+|---|---|---|
+| Diagnostics (A) and window check (B) | `pipeline/diagnostics.py` | `outputs/figures/aqua_viirs_dt_hist.png` |
+| Observation opportunities (C) | `pipeline/overpasses.py` | `data/processed/overpasses.parquet` |
+| FRP calibration (D), detection curve (E) | `pipeline/calibration.py` | `data/interim/calibration_pairs.csv`, `data/interim/detection_curve_sample.csv`, `outputs/figures/modis_detection_curve.png` |
+| FRP distribution (F) | `pipeline/frp_dist.py` | `outputs/figures/frp_distribution.png` |
+| Report | `pipeline/report_phase2.py` | `outputs/phase2_report.md` |
+
+### Scalable pipeline (day partitions, windows, versioned params)
+
+Every command takes `--window <name>` (windows are defined in `config/settings.yaml`).
+
+```bash
+python run_pipeline.py  --window current_2026 [--force] [--workers 4]   # Steps 1-5, day by day, incremental
+python refit_params.py  --window current_2026                           # Step 6 -> params/<kind>_vN.json
+python run_phase2b.py                                                   # overpass-time drift history (FIRMS archive)
+python run_history.py   --window current_2026                           # calendar/anomalies/forecast (needs years)
+python run_benchmark.py --window current_2026                           # 1/3/5-day scaling, outputs/benchmark.csv
+python -m pytest tests                                                  # incl. tests/simulated (15 synthetic years)
+```
+
+| Layer | Where |
+|---|---|
+| Day partitions | `data/processed/<stage>/year=YYYY/month=MM/day=DD/` (raw_daily, detections, lowconf, removed, assign, event_state, merges, grid_overpass, grid_cellday, ...) |
+| Window tables | `data/processed/windows/<window>/` (fire_events.csv, grid_daily.csv, detections_clean.parquet, eras.csv, overpasses.parquet) |
+| Parameters | `params/calibration_vN.json`, `detection_curve_vN.json`, `pi_modis_vN.json`, `diurnal_vN.json` |
+| Reports | `outputs/` (default window) or `outputs/windows/<window>/`; `outputs/scalability_report.md` |
+
+`run_pipeline_batch.py` is the old whole-window pipeline, kept as the reference for equivalence checks.
