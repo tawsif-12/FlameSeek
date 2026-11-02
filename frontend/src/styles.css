@@ -2572,10 +2572,81 @@ td {
 }
 
 /* Fire Memory page */
+.analysis-navigation {
+  width: min(1880px, calc(100% - 32px));
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0 auto;
+  padding: 8px 0;
+  position: sticky;
+  top: var(--app-header-height);
+  z-index: 19;
+}
+
+.analysis-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 13px;
+  color: #9db8ca;
+  background: rgba(6, 24, 40, 0.78);
+  border: 1px solid rgba(78, 175, 215, 0.28);
+  border-radius: 999px;
+  font: 700 12px Inter, sans-serif;
+  cursor: pointer;
+}
+
+.analysis-back:hover,
+.analysis-back:focus-visible {
+  color: #effaff;
+  border-color: rgba(75, 218, 243, 0.7);
+  outline: none;
+}
+
+.analysis-navigation-links {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+  background: rgba(5, 20, 35, 0.86);
+  border: 1px solid rgba(72, 164, 204, 0.24);
+  border-radius: 999px;
+}
+
+.analysis-navigation-links a {
+  padding: 9px 16px;
+  color: #7899af;
+  border-radius: 999px;
+  font: 800 11px var(--mission-font);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.analysis-navigation-links a:hover { color: #dff7ff; }
+.analysis-navigation-links a.active {
+  color: #03131d;
+  background: linear-gradient(145deg, #76eaff, #35bce5);
+  box-shadow: 0 5px 18px rgba(38, 184, 224, 0.2);
+}
+
 .memory-page {
   display: grid;
   gap: 16px;
   padding: 18px;
+}
+
+.memory-page > .analysis-navigation { width: 100%; padding-top: 0; }
+#fire-calendar { scroll-margin-top: calc(var(--app-header-height) + 76px); }
+
+@media (max-width: 700px) {
+  .analysis-navigation { align-items: stretch; flex-direction: column; }
+  .analysis-back { align-self: flex-start; }
+  .analysis-navigation-links { width: 100%; overflow-x: auto; border-radius: 14px; }
+  .analysis-navigation-links a { flex: 1 0 auto; text-align: center; }
 }
 
 .memory-intro,
@@ -5857,6 +5928,7 @@ details.tech > div {
 
 /* Fire DNA Profile */
 .fire-dna-page { min-height: 100vh; color: #dcefff; background: #030914; }
+.fire-dna-page > .analysis-navigation { padding-top: 12px; padding-bottom: 12px; }
 .dna-hero { min-height: 230px; padding: 42px max(24px, calc((100vw - 1880px) / 2)); display: flex; align-items: center; position: relative; overflow: hidden; background: linear-gradient(90deg, rgba(2, 10, 20, .98) 0%, rgba(2, 13, 28, .83) 44%, rgba(2, 8, 18, .25) 73%), url('/flameseek-earth-hero.png') right 37%/70% auto no-repeat; border-bottom: 1px solid rgba(73, 199, 255, .2); }
 .dna-hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(rgba(70, 190, 240, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(70, 190, 240, .035) 1px, transparent 1px); background-size: 36px 36px; mask-image: linear-gradient(90deg, #000, transparent 75%); }
 .dna-hero > div { z-index: 1; max-width: 740px; }.dna-hero .eyebrow { display: inline-block; margin: 0 0 9px; padding: 4px 8px; color: #54dcff; border: 1px solid rgba(66, 211, 255, .35); border-radius: 4px; font-size: 9px; letter-spacing: .16em; text-transform: uppercase; }
