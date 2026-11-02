@@ -38,7 +38,6 @@ def test_placeholder_map_key_fails_locally_with_setup_instructions(monkeypatch):
     assert "backend/.env" in error.value.message
 
 
-<<<<<<< HEAD
 def test_historical_disk_cache_works_without_map_key(monkeypatch, tmp_path):
     monkeypatch.setattr(firms_client, "FIRMS_MAP_KEY", "")
     monkeypatch.setattr(http_utils, "CACHE_DIR", tmp_path)
@@ -52,7 +51,8 @@ def test_historical_disk_cache_works_without_map_key(monkeypatch, tmp_path):
 
     assert source == "MODIS_SP"
     assert "23.5,90.2" in text
-=======
+
+
 def test_chunks_are_aligned_so_overlapping_periods_share_requests():
     from datetime import date, timedelta
     from firms_client import _chunks, MAX_DAY_RANGE_PER_REQUEST
@@ -78,6 +78,7 @@ def test_simultaneous_requests_for_one_chunk_share_a_single_download(monkeypatch
     from datetime import date
     import firms_client as fc
     calls = []
+    monkeypatch.setattr(fc, "FIRMS_MAP_KEY", "test-key")
 
     async def fake_get(client, url):
         calls.append(url)
@@ -111,4 +112,3 @@ def test_place_live_request_is_cut_from_fresh_world_cache_without_nasa_call(monk
     rows = asyncio.run(fc.fetch_recent_hotspots((88.5, 21.5, 90.0, 22.5), ["viirs_snpp"], 1))
     assert len(rows) == 1 and rows[0]["lat"] == 22.0
     fc._CSV_CACHE.clear(); fc._WORLD_PARSED.clear()
->>>>>>> origin/main
