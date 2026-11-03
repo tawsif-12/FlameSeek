@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import "./satellite-carousel.css";
 import { Link } from "react-router-dom";
 import {
   Satellite,
@@ -109,6 +110,14 @@ interface Satellite3DCoverflowProps {
 export default function Satellite3DCoverflow({ onSatelliteChange }: Satellite3DCoverflowProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [hasFocus, setHasFocus] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  useEffect(() => {
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(preference.matches);
+    preference.addEventListener("change", update);
+    return () => preference.removeEventListener("change", update);
+  }, []);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -134,14 +143,14 @@ export default function Satellite3DCoverflow({ onSatelliteChange }: Satellite3DC
     }
   }, [currentIndex, onSatelliteChange]);
 
-  // Autoplay rotation every 4 seconds, paused when hovered
+  // Bring the left-hand card into the spotlight so autoplay travels left to right.
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || hasFocus || reducedMotion) return;
     const timer = setInterval(() => {
-      goToNext();
+      goToPrev();
     }, 4200);
     return () => clearInterval(timer);
-  }, [isPaused, goToNext]);
+  }, [isPaused, hasFocus, reducedMotion, goToPrev]);
 
   // Touch and swipe handling
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -166,82 +175,49 @@ export default function Satellite3DCoverflow({ onSatelliteChange }: Satellite3DC
     return diff;
   };
 
+  // Four original records form a circular strip; mirror only the opposite outer
+  // record to fill five desktop positions without inventing satellite data.
+  const cards = SATELLITES_DATA.map((sat, idx) => ({ sat, idx, offset: getOffset(idx), key: sat.id }));
+  const opposite = cards.find((card) => Math.abs(card.offset) === 2);
+  if (opposite) cards.push({ ...opposite, offset: -opposite.offset, key: `${opposite.sat.id}-wrap` });
+
   return (
     <div
       className="sat-coverflow-wrapper"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      onFocusCapture={() => setHasFocus(true)}
+      onBlurCapture={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHasFocus(false); }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       ref={containerRef}
       role="region"
-      aria-label="3D Satellite Constellation Coverflow Carousel"
+      aria-label="Satellite constellation carousel"
+      aria-roledescription="carousel"
     >
       {/* 3D Perspective Stage */}
       <div className="sat-coverflow-stage">
-        {SATELLITES_DATA.map((sat, idx) => {
-          const offset = getOffset(idx);
+        {cards.map(({ sat, idx, offset, key }) => {
           const isCenter = offset === 0;
-
-          // Compute 3D transformation values based on offset
-          let translateX = 0;
-          let translateZ = 0;
-          let rotateY = 0;
-          let scale = 1;
-          let opacity = 1;
-          let zIndex = 1;
-
-          if (isCenter) {
-            translateX = 0;
-            translateZ = 70;
-            rotateY = 0;
-            scale = 1.05;
-            opacity = 1;
-            zIndex = 10;
-          } else if (offset === 1) {
-            translateX = 280;
-            translateZ = -130;
-            rotateY = -28;
-            scale = 0.88;
-            opacity = 0.82;
-            zIndex = 7;
-          } else if (offset === -1) {
-            translateX = -280;
-            translateZ = -130;
-            rotateY = 28;
-            scale = 0.88;
-            opacity = 0.82;
-            zIndex = 7;
-          } else if (offset >= 2) {
-            translateX = 490;
-            translateZ = -260;
-            rotateY = -42;
-            scale = 0.72;
-            opacity = 0.45;
-            zIndex = 4;
-          } else if (offset <= -2) {
-            translateX = -490;
-            translateZ = -260;
-            rotateY = 42;
-            scale = 0.72;
-            opacity = 0.45;
-            zIndex = 4;
-          }
-
-          const transformStyle = `perspective(1200px) translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`;
+          const level = Math.abs(offset);
 
           return (
             <div
-              key={sat.id}
+              key={key}
               className={`sat-3d-card ${isCenter ? "active-center" : "flanking-card"}`}
-              style={{
-                transform: transformStyle,
-                zIndex,
-                opacity,
-              }}
+              data-offset={offset}
+              data-level={level}
+              aria-current={isCenter ? "true" : undefined}
+              style={{ "--card-offset": offset, "--card-direction": Math.sign(offset), "--sat-accent": sat.accentColor, "--sat-glow": sat.glowColor, zIndex: 10 - level } as React.CSSProperties}
               onClick={() => selectIndex(idx)}
-              role="button"
-              tabIndex={0}
+              role="group"
+              tabIndex={isCenter || level === 1 ? 0 : -1}
+              onKeyDown={(e) => {
+                if (e.target !== e.currentTarget) return;
+                if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectIndex(idx); }
+                if (e.key === "ArrowLeft") { e.preventDefault(); goToPrev(); }
+                if (e.key === "ArrowRight") { e.preventDefault(); goToNext(); }
+              }}
               aria-label={`Select ${sat.name} satellite`}
             >
               {/* Card Image Background */}
@@ -254,6 +230,10 @@ export default function Satellite3DCoverflow({ onSatelliteChange }: Satellite3DC
                 />
                 <div className="sat-card-gradient-top" />
                 <div className="sat-card-gradient-bottom" />
+                <div className="sat-card-image-caption">
+                  <div className="sat-card-agency">{sat.agency}</div>
+                  <h3 className="sat-card-name">{sat.name}</h3>
+                </div>
               </div>
 
               {/* Card Header Overlay */}
@@ -270,8 +250,6 @@ export default function Satellite3DCoverflow({ onSatelliteChange }: Satellite3DC
 
               {/* Card Content & Telemetry Footer */}
               <div className="sat-card-footer">
-                <div className="sat-card-agency">{sat.agency}</div>
-                <h3 className="sat-card-name">{sat.name}</h3>
                 <div className="sat-card-tagline">{sat.tagline}</div>
 
                 <div className="sat-card-specs-grid">
@@ -289,7 +267,7 @@ export default function Satellite3DCoverflow({ onSatelliteChange }: Satellite3DC
                   </div>
                 </div>
 
-                <p className="sat-card-desc">{sat.role}</p>
+                <p className="sat-card-desc" title={sat.role}>{sat.role}</p>
 
                 {isCenter && (
                   <div className="sat-card-cta-row">
@@ -297,6 +275,7 @@ export default function Satellite3DCoverflow({ onSatelliteChange }: Satellite3DC
                       to="/fire-map"
                       className="sat-card-cta-btn"
                       onClick={(e) => e.stopPropagation()}
+                      tabIndex={isCenter ? 0 : -1}
                     >
                       <span>Explore Live Orbit</span>
                       <ArrowRight size={14} />
@@ -329,15 +308,14 @@ export default function Satellite3DCoverflow({ onSatelliteChange }: Satellite3DC
       </button>
 
       {/* Indicator Pill Dots */}
-      <div className="sat-indicators-bar" role="tablist">
+      <div className="sat-indicators-bar" aria-label="Choose satellite">
         {SATELLITES_DATA.map((sat, idx) => (
           <button
             key={sat.id}
             type="button"
             className={`sat-indicator-pill ${currentIndex === idx ? "active" : ""}`}
             onClick={() => selectIndex(idx)}
-            role="tab"
-            aria-selected={currentIndex === idx}
+            aria-pressed={currentIndex === idx}
             aria-label={`Jump to ${sat.name}`}
           >
             <span className="sat-pill-num">{sat.num}</span>

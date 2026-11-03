@@ -1,0 +1,170 @@
+:root { color-scheme: dark; }
+
+.mission-header .theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 13px;
+  border: 1px solid #397398;
+  border-radius: 999px;
+  background: #10233b;
+  color: #dff3ff;
+  font: 600 12px/1.2 Inter, system-ui, sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.theme-toggle:hover { filter: brightness(1.12); }
+.theme-toggle:focus-visible { outline: 3px solid #38bdf8; outline-offset: 3px; }
+
+:root[data-theme="day"] {
+  color-scheme: light;
+  color: #153552;
+  background: #f3faff;
+  --background: #f3faff;
+  --foreground: #153552;
+  --primary: #0369a1;
+  --primary-foreground: #fff;
+  --secondary: #dff2ff;
+  --secondary-foreground: #153552;
+  --muted: #e6f3fc;
+  --muted-foreground: #496881;
+  --border: #c2e1f5;
+  --oc-bg-deep: #f3faff;
+  --oc-bg-surface: #eaf6ff;
+  --oc-bg-card: rgba(255, 255, 255, .94);
+  --oc-bg-card-hover: #e5f4ff;
+  --oc-border-subtle: #c2e1f5;
+  --oc-border-glow: #72b9e6;
+  --oc-cyan: #0369a1;
+  --oc-cyan-bright: #0879b6;
+  --oc-text-primary: #153552;
+  --oc-text-secondary: #496881;
+  --oc-text-muted: #526e85;
+  --oc-glow-card: 0 12px 35px -15px #8bb7d440;
+}
+
+html[data-theme="day"] .space-shell,
+html[data-theme="day"] .immersive-globe-page,
+html[data-theme="day"] #root {
+  --sp-bg: #f3faff;
+  --sp-bg-2: #eaf6ff;
+  --sp-cyan: #0369a1;
+  --sp-cyan-soft: #b4ddf5;
+  --sp-cyan-glow: #79bfe54d;
+  --sp-border: #c2e1f5;
+  --sp-border-strong: #85bce0;
+  --sp-text: #153552;
+  --sp-text-dim: #496881;
+  --sp-warn: #99500b;
+  --sp-good: #08765a;
+  --sp-hot: #bc441a;
+  --sp-panel-bg: linear-gradient(180deg, #ffffffed, #eaf6fff5);
+  --sp-hud-bg: linear-gradient(180deg, #ffffffed, #eaf6fff5);
+}
+
+/* Globe surfaces share the page palette, including the nested control tiles. */
+html[data-theme="day"] :is(.immersive-globe-page, .command-globe) {
+  background: radial-gradient(ellipse at 50% 40%, #ffffff 0%, #e8f5ff 65%, #dcefff 100%);
+  color: #153552;
+}
+html[data-theme="day"] .command-globe::before { opacity: .08; }
+html[data-theme="day"] :is(.scene-panel, .control-panel-3d, .insight-drawer, .insight-dock) {
+  background: rgba(249, 253, 255, .96);
+  border-color: #c2dfee;
+  box-shadow: 0 12px 32px -16px #5684a64d;
+  color: #153552;
+}
+html[data-theme="day"] :is(.scene-panel, .control-panel-3d, .insight-drawer)::before { opacity: .15; }
+html[data-theme="day"] :is(.option-card, .theme-card, .compact-layer-grid button, .mode-toggle, .hud-stat, .aoi-current, .aoi-search.dark button, .aoi-tools button, .aoi-actions button, .aoi-actions a, .aoi-results.dark button, .zoom-controls button) {
+  background: #edf7fe;
+  color: #365e7c;
+  border-color: #c2dfee;
+  box-shadow: none;
+}
+html[data-theme="day"] :is(.option-card, .theme-card, .compact-layer-grid button, .mode-toggle button, .scene-item, .aoi-tools button, .insight-dock button).active {
+  background: #d8efff;
+  color: #075985;
+  border-color: #62add9;
+  box-shadow: inset 0 0 0 1px #62add933;
+}
+html[data-theme="day"] :is(.option-card, .theme-card, .compact-layer-grid button, .aoi-tools button, .zoom-controls button):hover { background: #dcefff; border-color: #75b7de; }
+html[data-theme="day"] :is(.switch-row, .select-row, .mode-toggle button, .behaviour-legend, .map-howto, .scene-item, .scene-icon, .scene-note) { color: #496881; }
+html[data-theme="day"] :is(.tiles-status, .verify-status) { color: #88600c; }
+html[data-theme="day"] :is(.globe-left input[type="date"], .globe-left input[type="number"], .aoi-search.dark input, .select-row select) {
+  background: #fff;
+  color: #153552;
+  border-color: #b4d6ec;
+  color-scheme: light;
+}
+html[data-theme="day"] :is(.selection-status, .draw-hint, .cesium-error-panel) { background: #f5fbff; color: #153552; border-color: #b4d6ec; }
+
+/* Home telemetry and image cards use soft blue surfaces instead of space-black glass. */
+html[data-theme="day"] .oc-hero-visual {
+  background: radial-gradient(ellipse at 50% 45%, #d5edff80, transparent 70%);
+}
+html[data-theme="day"] :is(.oc-hud-header, .oc-panel-header, .oc-fleet-specs, .sat-card-specs-grid) { border-color: #c2dfee; }
+html[data-theme="day"] :is(.oc-hud-tag, .oc-partner-pill, .oc-sat-tab-btn, .sat-card-badge, .sat-card-sensor-pill, .pipe-card-category-badge, .pipe-spec-box, .roadmap-status-pill, .roadmap-btn, .inspector-body-box, .inspector-nav-btn) {
+  background: #edf7fe;
+  color: #365e7c;
+  border-color: #c2dfee;
+  box-shadow: none;
+}
+html[data-theme="day"] .oc-hud-tag.alert { background: #fff3e6; color: #a25314; border-color: #f2d3ae; }
+html[data-theme="day"] :is(.sat-3d-card, .pipe-3d-card, .oc-sat-showcase-card, .roadmap-card-pill, .roadmap-inspector-panel, .roadmap-mobile-card) {
+  background: linear-gradient(155deg, #fff, #e9f5ff);
+  border-color: #b5d7ed;
+  box-shadow: 0 14px 36px -16px #547c9e55;
+  color: #153552;
+}
+html[data-theme="day"] :is(.sat-3d-card, .pipe-3d-card).active-center {
+  border-color: #62add9;
+  box-shadow: 0 20px 48px -20px #497da766;
+}
+html[data-theme="day"] :is(.sat-3d-card, .pipe-3d-card).flanking-card { filter: saturate(.85); box-shadow: 0 10px 26px -12px #547c9e44; }
+html[data-theme="day"] .sat-card-gradient-top { background: linear-gradient(180deg, #f3faffde, #eaf6ff55 65%, transparent); }
+html[data-theme="day"] .sat-card-gradient-bottom { background: linear-gradient(0deg, #f3faff 0%, #f3fafffa 50%, #eaf6ffb3 80%, transparent); }
+html[data-theme="day"] :is(.sat-card-tagline, .pipe-card-question, .pipe-card-narrative, .roadmap-short-desc, .inspector-question, .inspector-full-answer, .roadmap-mobile-desc) { color: #496881; }
+html[data-theme="day"] :is(.sat-spec-val, .pipe-spec-val, .pipe-card-title, .pipe-summary-counter strong, .roadmap-milestone-title, .inspector-title, .oc-spec-row span:last-child) { color: #153552; }
+html[data-theme="day"] :is(.sat-card-cta, .pipe-card-cta, .sat-nav-arrow, .pipe-nav-arrow) { background: #e0f2fe; color: #075985; border-color: #9bcae7; box-shadow: none; }
+html[data-theme="day"] :is(.oc-sat-tab-btn.active, .roadmap-card-anchor.card-selected .roadmap-card-pill) { background: #dff2ff; color: #075985; border-color: #62add9; box-shadow: 0 8px 24px #70bce326; }
+
+html[data-theme="day"] .mission-header {
+  color: #153552;
+  background: rgba(255, 255, 255, .94);
+  border-color: #c2e1f5;
+  box-shadow: 0 4px 24px #7caac51a;
+}
+html[data-theme="day"] .mission-header :is(.eyebrow, nav a) { color: #365e7c; }
+html[data-theme="day"] .mission-header nav a.active { color: #0369a1; background: #e0f2fe; }
+html[data-theme="day"] .mission-header .theme-toggle { background: #e0f2fe; color: #075985; border-color: #99cfee; }
+
+html[data-theme="day"] :is(.content-page, .mission-home, .space-shell) { background: #f3faff; color: #153552; }
+html[data-theme="day"] :is(.glass-card, .viz-panel, .space-hero-strip, .hz-flow-step, .hz-provenance li, .hz-side select, .hz-seg button, .oc-hud-card, .oc-dashboard-panel) {
+  background: linear-gradient(145deg, #fff, #eaf6ff);
+  color: #153552;
+  border-color: #c2e1f5;
+  box-shadow: 0 8px 28px #8bb7d41a;
+}
+html[data-theme="day"] :is(.oc-hero-title, .oc-section-title, .oc-stat-val, .oc-hud-row strong, .oc-fleet-name, .oc-card-title, .oc-event-place, .oc-cta-title, .hz-hero-number, .hz-flow-value, .hz-count b, .hz-panel dd) { color: #153552; }
+html[data-theme="day"] .oc-hero-title span.glow-gradient {
+  background-image: linear-gradient(135deg, #153552, #0879b6);
+  text-shadow: none;
+}
+html[data-theme="day"] :is(.oc-home, .content-page) :is(h1, h2, h3, h4, h5, h6) { color: #153552; }
+html[data-theme="day"] :is(.oc-spec-row strong, .oc-panel-title) { color: #153552; }
+html[data-theme="day"] .oc-btn-primary { background: linear-gradient(135deg, #b9e7ff, #70c5f3); color: #103952; box-shadow: 0 5px 20px #70bce333; }
+html[data-theme="day"] .oc-btn-secondary:hover { background: #dff2ff; color: #075985; }
+html[data-theme="day"] :is(.oc-cta-horizon, .oc-footer) { background: #e5f4ff; color: #153552; border-color: #c2e1f5; }
+html[data-theme="day"] :is(.hz-provenance code, .hz-panel-head, .hz-pill-info) { color: #0369a1; }
+html[data-theme="day"] .hz-seg button[aria-pressed="true"] { background: #cceaff; color: #075985; }
+html[data-theme="day"] .hz-honesty { background: #fff7ed; color: #874209; }
+html[data-theme="day"] .hz-honesty strong { color: #874209; }
+html[data-theme="day"] :is(input, select, textarea) { color-scheme: light; background-color: #fff; color: #153552; border-color: #a9d1eb; }
+
+@media (max-width: 760px) {
+  .mission-header { flex-wrap: wrap; gap: 8px; }
+  .mission-header nav { flex-wrap: wrap; justify-content: center; }
+  .mission-header .theme-toggle { padding: 7px 10px; }
+}

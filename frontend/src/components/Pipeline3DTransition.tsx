@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
+import "./pipeline-carousel.css";
 import {
   ChevronLeft,
   ChevronRight,
@@ -334,6 +335,21 @@ function StageHudGraphic({ stageId, color }: { stageId: string; color: string })
 export default function Pipeline3DTransition() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [hasFocus, setHasFocus] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  useEffect(() => {
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(preference.matches);
+    preference.addEventListener("change", update);
+    return () => preference.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    wrapperRef.current?.querySelectorAll("svg").forEach((svg) => {
+      if (reducedMotion) svg.pauseAnimations?.();
+      else svg.unpauseAnimations?.();
+    });
+  }, [reducedMotion]);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   const total = PIPELINE_STAGES_DATA.length;
@@ -352,12 +368,12 @@ export default function Pipeline3DTransition() {
 
   // Autoplay rotation every 5 seconds, paused when user hovers
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || hasFocus || reducedMotion) return;
     const timer = setInterval(() => {
-      goToNext();
+      goToPrev();
     }, 5000);
     return () => clearInterval(timer);
-  }, [isPaused, goToNext]);
+  }, [isPaused, hasFocus, reducedMotion, goToPrev]);
 
   // Touch and swipe handling
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -387,6 +403,9 @@ export default function Pipeline3DTransition() {
   return (
     <div
       className="pipe-transition-wrapper"
+      ref={wrapperRef}
+      onFocusCapture={() => setHasFocus(true)}
+      onBlurCapture={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHasFocus(false); }}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
@@ -397,7 +416,7 @@ export default function Pipeline3DTransition() {
       {/* ====================================================================
           TOP INTERACTIVE PIPELINE SEQUENCER TRACK
           ==================================================================== */}
-      <div className="pipe-sequencer-bar" role="tablist" aria-label="Pipeline sequence stages">
+      <div className="pipe-sequencer-bar" aria-label="Pipeline sequence stages">
         {PIPELINE_STAGES_DATA.map((stage, idx) => {
           const isActive = currentIndex === idx;
           return (
@@ -406,8 +425,7 @@ export default function Pipeline3DTransition() {
               type="button"
               className={`pipe-seq-step ${isActive ? "active" : ""}`}
               onClick={() => selectIndex(idx)}
-              role="tab"
-              aria-selected={isActive}
+              aria-pressed={isActive}
               style={{
                 "--step-accent": stage.accentColor,
                 "--step-glow": stage.glowColor,
@@ -431,74 +449,29 @@ export default function Pipeline3DTransition() {
           const offset = getOffset(idx);
           const isCenter = offset === 0;
 
-          // 3D dynamic placement
-          let translateX = 0;
-          let translateZ = 0;
-          let rotateY = 0;
-          let scale = 1;
-          let opacity = 1;
-          let zIndex = 1;
-
-          if (isCenter) {
-            translateX = 0;
-            translateZ = 80;
-            rotateY = 0;
-            scale = 1.04;
-            opacity = 1;
-            zIndex = 10;
-          } else if (offset === 1) {
-            translateX = 310;
-            translateZ = -120;
-            rotateY = -24;
-            scale = 0.88;
-            opacity = 0.82;
-            zIndex = 7;
-          } else if (offset === -1) {
-            translateX = -310;
-            translateZ = -120;
-            rotateY = 24;
-            scale = 0.88;
-            opacity = 0.82;
-            zIndex = 7;
-          } else if (offset === 2) {
-            translateX = 540;
-            translateZ = -240;
-            rotateY = -38;
-            scale = 0.74;
-            opacity = 0.45;
-            zIndex = 4;
-          } else if (offset === -2) {
-            translateX = -540;
-            translateZ = -240;
-            rotateY = 38;
-            scale = 0.74;
-            opacity = 0.45;
-            zIndex = 4;
-          } else {
-            translateX = offset > 0 ? 700 : -700;
-            translateZ = -360;
-            rotateY = offset > 0 ? -45 : 45;
-            scale = 0.6;
-            opacity = 0;
-            zIndex = 1;
-          }
-
-          const transformStyle = `perspective(1200px) translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`;
+          const level = Math.abs(offset);
 
           return (
             <div
               key={stage.id}
               className={`pipe-3d-card ${isCenter ? "active-center" : "flanking-card"}`}
               style={{
-                transform: transformStyle,
-                zIndex,
-                opacity,
+                "--card-direction": Math.sign(offset),
+                zIndex: 10 - level,
                 "--card-accent": stage.accentColor,
                 "--card-glow": stage.glowColor,
               } as React.CSSProperties}
+              data-level={level}
+              aria-current={isCenter ? "true" : undefined}
               onClick={() => selectIndex(idx)}
-              role="button"
-              tabIndex={0}
+              role="group"
+              tabIndex={level <= 1 ? 0 : -1}
+              onKeyDown={(e) => {
+                if (e.target !== e.currentTarget) return;
+                if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectIndex(idx); }
+                if (e.key === "ArrowLeft") { e.preventDefault(); goToPrev(); }
+                if (e.key === "ArrowRight") { e.preventDefault(); goToNext(); }
+              }}
               aria-label={`Select stage ${stage.n}: ${stage.title}`}
             >
               {/* Card Top Header */}

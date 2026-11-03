@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { normalizeApiError, runJob, startFireMemory } from "../api/client";
 import AOISelector from "../components/AOISelector";
 import WorldviewButton from "../components/WorldviewButton";
+import DataCoverageNotice from "../components/DataCoverageNotice";
 import { DEFAULT_SENSORS, SENSOR_LABELS, aoiBBox, describeAoi, useAppContext } from "../context/AppContext";
 import type { FireMemoryResult, Job, SensorName } from "../types/api";
 
@@ -88,6 +89,7 @@ export default function FireMemoryPage() {
           </ul>
         </header>
       </div>
+      <DataCoverageNotice start={memory?.period.start} end={memory?.period.end} />
       <section className="memory-setup glass-card">
         <div className="memory-setup-map">
           <h3>1. Choose a place</h3>
@@ -338,7 +340,7 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
       <MemorySummary memory={memory} />
       <section className="stats-grid memory-stats">
         <article><span>Place</span><strong className="small">{String(memory.aoi.name ?? describeAoi(memory.aoi as never))}</strong><small>{Number(memory.aoi.area_km2).toLocaleString()} km²</small></article>
-        <article><span>Years covered</span><strong className="small">{memory.period.start} → {memory.period.end}</strong><small>{memory.period.days.toLocaleString()} days</small></article>
+        <article><span>Requested period</span><strong className="small">{memory.period.start} → {memory.period.end}</strong><small>{memory.period.days.toLocaleString()} calendar days; daily coverage unverified</small></article>
         <article><span>Fire activity (corrected)</span><strong>{Math.round(memory.summary.total_harmonized_activity).toLocaleString()}</strong><small>fire sightings after correcting for satellite differences · {memory.summary.total_hotspots.toLocaleString()} raw sightings</small></article>
         <article><span>This year compared with usual</span><strong className={`category ${cmp.overall_category?.replace(/\s/g, "-").toLowerCase()}`}>{CATEGORY_PLAIN[cmp.overall_category ?? ""] ?? "Not enough data"}</strong><small>{cmp.robust_z !== undefined ? `unusualness score ${Number(cmp.robust_z).toFixed(1)} (above 2 is more than usual)` : cmp.note}</small></article>
       </section>

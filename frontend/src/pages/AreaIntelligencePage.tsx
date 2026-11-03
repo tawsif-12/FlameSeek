@@ -7,6 +7,7 @@ import { getHotspotsInBox, normalizeApiError, runJob, startFireMemory, startPlac
 import { aoiBBox, aoiContains, describeAoi, useAppContext } from "../context/AppContext";
 import type { FireMemoryResult, HotspotRecord, Job, PlacePipelineSummary, SensorName } from "../types/api";
 import { StatusPill } from "../components/HarmonizedProvenance";
+import DataCoverageNotice from "../components/DataCoverageNotice";
 import "../harmonized.css";
 
 /* "<Place> Fire Intelligence": one page answering the eight area questions from the area's own
@@ -221,6 +222,8 @@ export default function AreaIntelligencePage() {
         </header>
       </div>
 
+      <DataCoverageNotice start={pipe?.period.start ?? memory?.period.start} end={pipe?.period.end ?? memory?.period.end} />
+      {!!pipe?.provenance?.failed_chunks && <p className="hz-honesty" role="alert">Incomplete download: {pipe.provenance.failed_chunks} archive requests failed. Missing dates are unknown; totals may undercount fires.</p>}
       {/* Loading steps: each answer appears as soon as its data is ready. */}
       <ol className="hz-steps" aria-label="Loading progress">
         <li className={live ? "done" : liveError ? "fail" : "active"}>

@@ -6,16 +6,20 @@ import "leaflet-draw/dist/leaflet.draw.css";
 import "./styles.css";
 import { AppProvider } from "./context/AppContext";
 import HomePage from "./pages/HomePage";
-import DataSourcesPage from "./pages/DataSourcesPage";
-import FireGlobePage from "./pages/FireGlobePage";
-import FireMemoryPage from "./pages/FireMemoryPage";
-import FireDnaPage from "./pages/FireDnaPage";
-import SearchPage from "./pages/SearchPage";
-import HarmonizedMapPage from "./pages/HarmonizedMapPage";
-import MethodologyPage from "./pages/MethodologyPage";
-import AboutPage from "./pages/AboutPage";
-import AreaIntelligencePage from "./pages/AreaIntelligencePage";
 import { LanguageProvider, useLanguage } from "./context/LanguageContext";
+import ThemeToggle from "./components/ThemeToggle";
+import "./theme.css";
+
+// Download map engines and analysis charts only when their route is opened.
+const DataSourcesPage = React.lazy(() => import("./pages/DataSourcesPage"));
+const FireGlobePage = React.lazy(() => import("./pages/FireGlobePage"));
+const FireMemoryPage = React.lazy(() => import("./pages/FireMemoryPage"));
+const FireDnaPage = React.lazy(() => import("./pages/FireDnaPage"));
+const SearchPage = React.lazy(() => import("./pages/SearchPage"));
+const HarmonizedMapPage = React.lazy(() => import("./pages/HarmonizedMapPage"));
+const MethodologyPage = React.lazy(() => import("./pages/MethodologyPage"));
+const AboutPage = React.lazy(() => import("./pages/AboutPage"));
+const AreaIntelligencePage = React.lazy(() => import("./pages/AreaIntelligencePage"));
 
 function LanguageToggle() {
   const { lang, setLang, t } = useLanguage();
@@ -42,6 +46,7 @@ function Header() {
         <NavLink to="/methodology">Methodology</NavLink>
         <NavLink to="/about">About</NavLink>
         <LanguageToggle />
+        <ThemeToggle />
       </nav>
     </header>
   );
@@ -53,6 +58,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <LanguageProvider>
       <Router>
         <Header />
+        <React.Suspense fallback={<main className="content-page" role="status">Loading page…</main>}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/fire-map" element={<FireGlobePage />} />
@@ -67,6 +73,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="/about" element={<AboutPage />} />
           <Route path="/area" element={<AreaIntelligencePage />} />
         </Routes>
+        </React.Suspense>
       </Router>
       </LanguageProvider>
     </AppProvider>
