@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Link, NavLink, Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Link, NavLink, Navigate, Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "./styles.css";
@@ -48,8 +48,35 @@ function LanguageToggle() {
 
 function Header() {
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const moreRef = React.useRef<HTMLDetailsElement>(null);
+  const headerRef = React.useRef<HTMLElement>(null);
+  const location = useLocation();
+  React.useEffect(() => {
+    moreRef.current?.removeAttribute("open");
+    setMenuOpen(false);
+  }, [location]);
+  React.useEffect(() => {
+    const outside = (event: PointerEvent) => {
+      if (!moreRef.current?.contains(event.target as Node)) moreRef.current?.removeAttribute("open");
+      if (!headerRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (moreRef.current?.open) {
+        moreRef.current.removeAttribute("open");
+        moreRef.current.querySelector("summary")?.focus();
+      }
+      setMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", escape);
+    };
+  }, []);
   return (
-    <header className="app-header mission-header" onKeyDown={(event) => { if (event.key === "Escape") setMenuOpen(false); }}>
+    <header ref={headerRef} className="app-header mission-header" onKeyDown={(event) => { if (event.key === "Escape") setMenuOpen(false); }}>
       <Link to="/" className="brand-mark" style={{ textDecoration: "none" }}>
         <span className="brand-glyph brand-flame" aria-hidden="true">🔥</span>
         <div>
@@ -64,7 +91,7 @@ function Header() {
             {item.label}
           </NavLink>
         ))}
-        <details className="header-more">
+        <details ref={moreRef} className="header-more">
           <summary>More <span aria-hidden="true">▾</span></summary>
           <div>
             {MORE_NAVIGATION.map((item) => (
