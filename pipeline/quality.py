@@ -68,8 +68,10 @@ def add_flags(det: pd.DataFrame, cfg: dict, bbox: list[float]) -> pd.DataFrame:
     flag(df["p_conf"].isna(), "missing_confidence")
     flag(df["p_conf"].round(3) == cfg["confidence"]["p_conf"]["low"], "low_confidence")
 
-    joined = pd.concat(codes, axis=1).apply(lambda r: ";".join(c for c in r if c), axis=1)
-    df["flags"] = joined
+    # Row-wise join without DataFrame.apply: on a zero-row day apply returns a DataFrame, not a Series.
+    table = pd.concat(codes, axis=1)
+    df["flags"] = pd.Series([";".join(c for c in row if c) for row in table.itertuples(index=False)],
+                            index=df.index, dtype=object)
     return df
 
 
@@ -91,7 +93,9 @@ def run(det: pd.DataFrame, cfg: dict, bbox=None, partial=None, coverage=None, qu
         partial, coverage = partial_days(df, cfg["quality"])
     df["partial_day"] = df["utc_date"].isin(partial)
 
-    has_hard = df["flags"].apply(lambda s: bool(set(s.split(";")) & HARD_REMOVE) if s else False)
+    # Explicit bool dtype: an empty object Series would be read as a column list by df[...].
+    has_hard = pd.Series([bool(set(s.split(";")) & HARD_REMOVE) if s else False for s in df["flags"]],
+                         index=df.index, dtype=bool)
     removed = df[has_hard].copy()
     rest = df[~has_hard]
     clean = rest[rest["p_conf"].round(3).isin(keep_p)].copy()

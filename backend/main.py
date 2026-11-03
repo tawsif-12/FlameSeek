@@ -12,6 +12,7 @@ from routers.fire_events import list_events
 from routers.fire_events import router as events_router
 from routers.memory import router as memory_router
 from routers.places import router as places_router
+from routers.place_pipeline import router as place_pipeline_router
 from routers.sources import router as sources_router
 
 
@@ -69,6 +70,7 @@ app.include_router(analysis_router, prefix="/api", tags=["analysis"])
 app.include_router(memory_router, prefix="/api", tags=["fire memory"])
 app.include_router(events_router, prefix="/api", tags=["fire events"])
 app.include_router(places_router, prefix="/api", tags=["places and jobs"])
+app.include_router(place_pipeline_router, prefix="/api", tags=["fire intelligence pipeline"])
 app.include_router(sources_router, tags=["sources"])
 
 

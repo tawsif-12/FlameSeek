@@ -16,7 +16,7 @@ from firms_client import FIRMS_WAIT_SECONDS, FirmsAPIError
 JobFn = Callable[["Job"], Awaitable[Any]]
 _JOBS: dict[str, "Job"] = {}
 MAX_JOBS = 200
-JOB_FIRMS_WAIT = {"fire_memory": 900.0, "outlook": 900.0, "evidence": 30.0}
+JOB_FIRMS_WAIT = {"fire_memory": 900.0, "place_pipeline": 900.0, "outlook": 900.0, "evidence": 30.0}
 
 
 class Job:

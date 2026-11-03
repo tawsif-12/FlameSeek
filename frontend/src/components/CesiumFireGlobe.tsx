@@ -622,8 +622,16 @@ export default function CesiumFireGlobe() {
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer) return;
-    viewer.scene.backgroundColor = Cesium.Color.fromCssColorString(daylightBackgrounds[lighting]);
-    viewer.scene.requestRender();
+    const syncTheme = () => {
+      const isDayTheme = document.documentElement.dataset.theme === "day";
+      viewer.scene.backgroundColor = Cesium.Color.fromCssColorString(isDayTheme ? "#e8f5ff" : daylightBackgrounds[lighting]);
+      if (viewer.scene.skyBox) viewer.scene.skyBox.show = !isDayTheme;
+      viewer.scene.requestRender();
+    };
+    syncTheme();
+    const observer = new MutationObserver(syncTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
   }, [lighting, viewerReady]);
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import Plot from "react-plotly.js";
+import SensorShareChart from "../components/SensorShareChart";
 import {
   Satellite,
   Radio,
@@ -497,32 +497,7 @@ export default function HomePage() {
             </div>
 
             <div style={{ height: 260, width: "100%", position: "relative" }}>
-              <Plot
-                data={[
-                  {
-                    values: [counts.modis, counts.viirs_snpp, counts.viirs_noaa20, counts.viirs_noaa21],
-                    labels: SENSOR_LABELS,
-                    type: "pie",
-                    hole: 0.62,
-                    marker: {
-                      colors: ["#38bdf8", "#00f2fe", "#f59e0b", "#ff4d26"],
-                      line: { color: "#030712", width: 2 },
-                    },
-                    textinfo: "percent",
-                    textfont: { color: "#f8fafc", family: "Space Grotesk, sans-serif", size: 11 },
-                    hoverinfo: "label+value+percent",
-                  },
-                ]}
-                layout={{
-                  paper_bgcolor: "transparent",
-                  plot_bgcolor: "transparent",
-                  margin: { t: 10, r: 10, b: 10, l: 10 },
-                  showlegend: false,
-                  autosize: true,
-                }}
-                config={{ displayModeBar: false, responsive: true }}
-                style={{ width: "100%", height: "100%" }}
-              />
+              <SensorShareChart counts={[counts.modis, counts.viirs_snpp, counts.viirs_noaa20, counts.viirs_noaa21]} labels={SENSOR_LABELS} />
               <div
                 style={{
                   position: "absolute",

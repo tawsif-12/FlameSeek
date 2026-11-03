@@ -1,0 +1,133 @@
+/* Scoped to the existing satellite carousel; other homepage cards are unchanged. */
+.sat-coverflow-wrapper {
+  container-type: inline-size;
+  max-width: 940px;
+  margin-inline: auto;
+  min-height: 0;
+  padding: 24px 0 16px;
+  overflow: clip;
+  perspective: none;
+  touch-action: pan-y;
+}
+.sat-coverflow-wrapper .sat-coverflow-stage {
+  height: 560px;
+  max-width: 940px;
+  flex-shrink: 0;
+  perspective: 1200px;
+}
+.sat-coverflow-wrapper .sat-coverflow-stage::before {
+  content: "";
+  position: absolute;
+  width: min(600px, 95%);
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, var(--oc-cyan) 0%, transparent 65%);
+  opacity: .09;
+}
+.sat-coverflow-wrapper .sat-3d-card {
+  width: 320px;
+  height: 520px;
+  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(0);
+  opacity: 1;
+  filter: none;
+  box-shadow: 0 12px 30px -14px #0008;
+  transition: transform 650ms cubic-bezier(.22,1,.36,1), width 550ms ease, height 550ms ease, opacity 500ms ease, filter 500ms ease, box-shadow 500ms ease;
+}
+.sat-coverflow-wrapper .sat-3d-card[data-level="1"] {
+  width: 320px;
+  height: 520px;
+  transform: translateX(calc(var(--card-direction) * 205px)) translateZ(-100px) rotateY(calc(var(--card-direction) * -22deg)) scale(.9);
+  opacity: .5;
+}
+.sat-coverflow-wrapper .sat-3d-card[data-level="2"] {
+  width: 320px;
+  height: 520px;
+  transform: translateX(calc(var(--card-direction) * 340px)) translateZ(-220px) rotateY(calc(var(--card-direction) * -32deg)) scale(.75);
+  opacity: .18;
+}
+.sat-coverflow-wrapper .sat-3d-card.active-center {
+  border-color: var(--sat-accent, var(--oc-cyan));
+  box-shadow: 0 18px 40px -18px #000a, 0 0 28px -6px var(--sat-glow, #38bdf866), inset 0 0 0 1px #ffffff0d;
+}
+.sat-coverflow-wrapper .sat-3d-card.flanking-card { filter: brightness(.8) saturate(.8); }
+.sat-coverflow-wrapper .sat-3d-card.flanking-card:hover { filter: brightness(.95); }
+.sat-coverflow-wrapper .sat-3d-card:focus-visible,
+.sat-coverflow-wrapper button:focus-visible,
+.sat-coverflow-wrapper a:focus-visible { outline: 2px solid var(--oc-cyan); outline-offset: 3px; }
+.sat-coverflow-wrapper .sat-card-media {
+  position: relative;
+  inset: auto;
+  height: 42%;
+  flex: 0 0 42%;
+  overflow: hidden;
+}
+.sat-coverflow-wrapper .sat-card-img { object-fit: cover; object-position: center 40%; transform: none; }
+.sat-coverflow-wrapper .sat-card-gradient-top { height: 65px; }
+.sat-coverflow-wrapper .sat-card-gradient-bottom { height: 64px; background: linear-gradient(transparent, var(--oc-bg-deep)); }
+.sat-coverflow-wrapper .sat-card-image-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 6px 14px;
+  background: var(--oc-bg-deep);
+  color: var(--oc-text-primary);
+}
+.sat-coverflow-wrapper .sat-card-header { top: 10px; left: 10px; right: 10px; gap: 6px; }
+.sat-coverflow-wrapper .sat-card-badge { padding: 5px 7px; font-size: 10px; gap: 5px; }
+.sat-coverflow-wrapper .sat-card-sensor-pill { padding: 4px 7px; font-size: 10px; }
+.sat-coverflow-wrapper .sat-card-agency { font-size: 10px; line-height: 1.2; margin-bottom: 2px; }
+.sat-coverflow-wrapper .sat-card-name { font-size: 26px; line-height: 1.1; margin: 0; color: var(--oc-text-primary); }
+.sat-coverflow-wrapper .sat-card-footer {
+  position: relative;
+  inset: auto;
+  flex: 1;
+  min-height: 0;
+  padding: 10px 14px 12px;
+  gap: 8px;
+  background: var(--oc-bg-deep);
+}
+.sat-coverflow-wrapper .sat-card-tagline { font-size: 14px; line-height: 1.25; margin: 0; color: var(--oc-text-secondary); }
+.sat-coverflow-wrapper .sat-card-specs-grid { gap: 6px; padding: 8px 0; margin: 0; flex-shrink: 0; }
+.sat-coverflow-wrapper .sat-spec-lbl { font-size: 10px; }
+.sat-coverflow-wrapper .sat-spec-val { font-size: 12px; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; color: var(--oc-text-primary); }
+.sat-coverflow-wrapper .sat-card-desc { font-size: 13px; line-height: 1.3; margin: 0; color: var(--oc-text-secondary); display: block; overflow: visible; }
+.sat-coverflow-wrapper .sat-card-cta-row { margin-top: auto; flex-shrink: 0; }
+.sat-coverflow-wrapper .sat-card-cta-btn { padding: 8px 12px; min-height: 34px; font-size: 13px; box-shadow: none; color: var(--oc-text-primary); }
+.sat-coverflow-wrapper .sat-3d-card[data-level="2"] .sat-card-name { font-size: 24px; }
+.sat-coverflow-wrapper .sat-3d-card[data-level="2"] .sat-card-footer { padding: 8px 10px; gap: 6px; }
+.sat-coverflow-wrapper .sat-3d-card[data-level="2"] .sat-card-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sat-coverflow-wrapper .sat-3d-card[data-level="2"] .sat-card-badge { font-size: 9px; }
+.sat-coverflow-wrapper .sat-nav-arrow { width: 42px; height: 42px; top: 304px; box-shadow: 0 5px 16px #0003; }
+.sat-coverflow-wrapper .sat-arrow-left { left: 4px; }
+.sat-coverflow-wrapper .sat-arrow-right { right: 4px; }
+.sat-coverflow-wrapper .sat-indicators-bar { gap: 8px; margin-top: 12px; padding: 0 8px; }
+.sat-coverflow-wrapper .sat-indicator-pill { padding: 7px 12px; font-size: 12px; color: var(--oc-text-secondary); }
+
+@media (max-width: 1439px) {
+  .sat-coverflow-wrapper { max-width: 760px; }
+  .sat-coverflow-wrapper .sat-3d-card { width: 310px; height: 520px; }
+  .sat-coverflow-wrapper .sat-3d-card[data-level="1"] {
+    width: 310px;
+    height: 520px;
+    transform: translateX(calc(var(--card-direction) * min(190px, 26cqw))) translateZ(-110px) rotateY(calc(var(--card-direction) * -24deg)) scale(.86);
+  }
+  .sat-coverflow-wrapper .sat-3d-card[data-level="2"] { visibility: hidden; pointer-events: none; opacity: 0; }
+}
+@media (max-width: 767px) {
+  .sat-coverflow-wrapper { padding-top: 16px; }
+  .sat-coverflow-wrapper .sat-coverflow-stage { height: 552px; }
+  .sat-coverflow-wrapper .sat-3d-card { width: min(310px, calc(100cqw - 40px)); height: 520px; }
+  .sat-coverflow-wrapper .sat-3d-card[data-level="1"] { visibility: hidden; pointer-events: none; opacity: 0; }
+  .sat-coverflow-wrapper .sat-nav-arrow { top: 592px; width: 36px; height: 36px; }
+  .sat-coverflow-wrapper .sat-indicators-bar { padding: 0 46px; min-height: 52px; gap: 6px; }
+  .sat-coverflow-wrapper .sat-indicator-pill { padding: 5px 8px; font-size: 10px; }
+  .sat-coverflow-wrapper .sat-pill-num { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sat-coverflow-wrapper .sat-3d-card,
+  .sat-coverflow-wrapper .sat-nav-arrow { transition: none; }
+}

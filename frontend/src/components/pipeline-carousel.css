@@ -1,0 +1,124 @@
+/* Match the satellite spotlight without changing other pipeline UI. */
+.pipe-transition-wrapper {
+  container-type: inline-size;
+  max-width: 940px;
+  margin-inline: auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  padding: 20px 0;
+  overflow: clip;
+  perspective: none;
+  touch-action: pan-y;
+}
+.pipe-transition-wrapper .pipe-sequencer-bar {
+  grid-area: 1 / 1;
+  max-width: 100%;
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  gap: 4px;
+  border-radius: 20px;
+  background: var(--oc-bg-card);
+  border-color: var(--oc-border-subtle);
+}
+.pipe-transition-wrapper .pipe-seq-step { padding: 5px 7px; font-size: 11px; color: var(--oc-text-secondary); gap: 5px; }
+.pipe-transition-wrapper .pipe-seq-step.active { color: var(--oc-text-primary); }
+.pipe-transition-wrapper .pipe-stage-container {
+  grid-area: 2 / 1;
+  width: 100%;
+  max-width: 940px;
+  height: 580px;
+  perspective: 1200px;
+}
+.pipe-transition-wrapper .pipe-stage-container::before {
+  content: "";
+  position: absolute;
+  width: min(600px, 95%);
+  height: 100%;
+  background: radial-gradient(ellipse, var(--oc-cyan), transparent 65%);
+  opacity: .09;
+  pointer-events: none;
+}
+.pipe-transition-wrapper .pipe-3d-card {
+  width: 320px;
+  height: 540px;
+  border-radius: 22px;
+  transform: translateX(0);
+  opacity: 1;
+  transition: transform 650ms cubic-bezier(.22,1,.36,1), opacity 500ms ease, filter 500ms ease, box-shadow 500ms ease;
+}
+.pipe-transition-wrapper .pipe-3d-card.active-center {
+  border-color: var(--card-accent);
+  box-shadow: 0 18px 40px -18px #000a, 0 0 28px -6px var(--card-glow), inset 0 0 0 1px #ffffff0d;
+}
+.pipe-transition-wrapper .pipe-3d-card[data-level="1"] {
+  transform: translateX(calc(var(--card-direction) * 205px)) translateZ(-100px) rotateY(calc(var(--card-direction) * -22deg)) scale(.9);
+  opacity: .5;
+}
+.pipe-transition-wrapper .pipe-3d-card[data-level="2"] {
+  transform: translateX(calc(var(--card-direction) * 340px)) translateZ(-220px) rotateY(calc(var(--card-direction) * -32deg)) scale(.75);
+  opacity: .18;
+}
+.pipe-transition-wrapper .pipe-3d-card[data-level="3"] { opacity: 0; visibility: hidden; pointer-events: none; }
+.pipe-transition-wrapper .pipe-3d-card.flanking-card { filter: brightness(.8) saturate(.8); }
+.pipe-transition-wrapper .pipe-3d-card.flanking-card:hover { filter: brightness(.95); }
+.pipe-transition-wrapper .pipe-card-top { padding: 10px 12px; gap: 6px; flex: 0 0 auto; }
+.pipe-transition-wrapper .pipe-card-num-badge { font-size: 10px; gap: 5px; white-space: nowrap; }
+.pipe-transition-wrapper .pipe-card-category-badge { font-size: 10px; padding: 3px 6px; letter-spacing: 0; }
+.pipe-transition-wrapper .pipe-card-hud-viewport { height: 96px; flex: 0 0 96px; }
+.pipe-transition-wrapper .pipe-card-content { min-height: 0; overflow: visible; padding: 12px 14px; gap: 8px; }
+.pipe-transition-wrapper .pipe-card-title { font-size: 25px; line-height: 1.1; margin: 0; color: var(--oc-text-primary); }
+.pipe-transition-wrapper .pipe-card-question { font-size: 13px; line-height: 1.3; margin: 0; color: var(--oc-text-secondary); }
+.pipe-transition-wrapper .pipe-specs-grid {
+  grid-template-columns: 1fr;
+  gap: 5px;
+  padding: 8px;
+  margin: 0;
+  flex-shrink: 0;
+  background: var(--oc-bg-surface);
+  border-color: var(--oc-border-subtle);
+}
+.pipe-transition-wrapper .pipe-spec-box { display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 6px; align-items: start; background: transparent; border: 0; }
+.pipe-transition-wrapper .pipe-spec-label { font-size: 9px; line-height: 1.4; letter-spacing: .02em; }
+.pipe-transition-wrapper .pipe-spec-val { font-size: 11px; line-height: 1.3; white-space: normal; overflow: visible; overflow-wrap: anywhere; color: var(--oc-text-primary); }
+.pipe-transition-wrapper .pipe-card-narrative { font-size: 13px; line-height: 1.3; margin: 0; color: var(--oc-text-secondary); }
+.pipe-transition-wrapper .pipe-card-action-bar { padding-top: 0; flex-shrink: 0; }
+.pipe-transition-wrapper .pipe-card-cta { padding: 8px 10px; min-height: 34px; font-size: 12px; box-shadow: none; }
+.pipe-transition-wrapper .pipe-nav-arrow {
+  grid-area: 2 / 1;
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  align-self: center;
+  transform: none;
+  width: 42px;
+  height: 42px;
+}
+.pipe-transition-wrapper .pipe-arrow-prev { justify-self: start; margin-left: 4px; }
+.pipe-transition-wrapper .pipe-arrow-next { justify-self: end; margin-right: 4px; }
+.pipe-transition-wrapper .pipe-nav-arrow:hover { transform: scale(1.08); }
+.pipe-transition-wrapper .pipe-bottom-summary { grid-area: 3 / 1; margin-top: 10px; padding: 8px 12px; max-width: 100%; gap: 8px; background: var(--oc-bg-card); font-size: 11px; }
+.pipe-transition-wrapper .pipe-summary-text { min-width: 0; overflow-wrap: anywhere; }
+.pipe-transition-wrapper :is(button, a, .pipe-3d-card):focus-visible { outline: 2px solid var(--oc-cyan); outline-offset: 3px; }
+
+@media (max-width: 1439px) {
+  .pipe-transition-wrapper { max-width: 760px; }
+  .pipe-transition-wrapper .pipe-3d-card { width: 310px; }
+  .pipe-transition-wrapper .pipe-3d-card[data-level="1"] { transform: translateX(calc(var(--card-direction) * min(190px, 26cqw))) translateZ(-110px) rotateY(calc(var(--card-direction) * -24deg)) scale(.86); }
+  .pipe-transition-wrapper .pipe-3d-card[data-level="2"] { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+@media (max-width: 767px) {
+  .pipe-transition-wrapper .pipe-3d-card { width: min(310px, calc(100cqw - 40px)); }
+  .pipe-transition-wrapper .pipe-3d-card[data-level="1"] { opacity: 0; visibility: hidden; pointer-events: none; }
+  .pipe-transition-wrapper .pipe-nav-arrow { grid-area: 3 / 1; width: 34px; height: 34px; }
+  .pipe-transition-wrapper .pipe-bottom-summary { width: calc(100% - 84px); flex-direction: column; text-align: center; }
+  .pipe-transition-wrapper .pipe-seq-step { padding: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pipe-transition-wrapper .pipe-3d-card,
+  .pipe-transition-wrapper .pipe-nav-arrow { transition: none; }
+  .pipe-transition-wrapper .pipe-hud-scanline,
+  .pipe-transition-wrapper .pipe-pill-pulse { animation: none; }
+}
