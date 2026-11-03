@@ -52,6 +52,7 @@ def test_historical_disk_cache_works_without_map_key(monkeypatch, tmp_path):
     assert source == "MODIS_SP"
     assert "23.5,90.2" in text
 
+
 def test_chunks_are_aligned_so_overlapping_periods_share_requests():
     from datetime import date, timedelta
     from firms_client import _chunks, MAX_DAY_RANGE_PER_REQUEST
@@ -87,6 +88,7 @@ def test_simultaneous_requests_for_one_chunk_share_a_single_download(monkeypatch
     monkeypatch.setattr(fc, "_get_with_retries", fake_get)
     monkeypatch.setattr(fc, "disk_read", lambda *a, **k: None)
     monkeypatch.setattr(fc, "disk_write", lambda *a, **k: None)
+    monkeypatch.setattr(fc, "FIRMS_MAP_KEY", "test-map-key")
     fc._CSV_CACHE.clear()
 
     async def both():

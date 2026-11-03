@@ -175,6 +175,7 @@ export default function OutcrowdEarthSatellite({
     let isDisposed = false;
     let needsRender = true;
     let isInView = true;
+    let revealed = false;
     const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
     let reducedMotion = motionPreference.matches;
 
@@ -194,7 +195,8 @@ export default function OutcrowdEarthSatellite({
       powerPreference: "high-performance",
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    // A modest pixel-ratio cap keeps pointer interaction fluid on dense/retina displays.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.3));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
@@ -220,7 +222,13 @@ export default function OutcrowdEarthSatellite({
     const earthRadius = 2.05;
 
     // Day texture
-    const dayTexture = textureLoader.load("/textures/earth_day_fast.webp", onTextureReady);
+    const dayTexture = textureLoader.load("/textures/earth_day_fast.webp", () => {
+      onTextureReady();
+      if (!isDisposed && !revealed) {
+        revealed = true;
+        setIsReady(true);
+      }
+    });
     dayTexture.colorSpace = THREE.SRGBColorSpace;
 
     // Normal & Specular textures
@@ -231,6 +239,7 @@ export default function OutcrowdEarthSatellite({
     // 4. Earth Globe Group
     const earthGroup = new THREE.Group();
     earthGroup.position.set(0, 0, 0);
+    earthGroup.rotation.set(-0.12, -0.34, -0.12);
     scene.add(earthGroup);
 
     // Custom Shader Material for Earth: Blends Day, Night City Lights, and Normal/Specular
@@ -295,13 +304,13 @@ export default function OutcrowdEarthSatellite({
       `,
     });
 
-    const earthGeometry = new THREE.SphereGeometry(earthRadius, 64, 64);
+    const earthGeometry = new THREE.SphereGeometry(earthRadius, 56, 48);
     const earthMesh = new THREE.Mesh(earthGeometry, earthCustomShader);
     earthGroup.add(earthMesh);
 
     // 5. Atmospheric Clouds Layer
     const cloudsTexture = textureLoader.load("/textures/earth_clouds_fast.webp", onTextureReady);
-    const cloudsGeometry = new THREE.SphereGeometry(earthRadius + 0.028, 64, 64);
+    const cloudsGeometry = new THREE.SphereGeometry(earthRadius + 0.028, 48, 40);
     const cloudsMaterial = new THREE.MeshStandardMaterial({
       map: cloudsTexture,
       transparent: true,
@@ -313,7 +322,7 @@ export default function OutcrowdEarthSatellite({
     earthGroup.add(cloudsMesh);
 
     // 6. Outer Atmosphere Rayleigh Glow
-    const atmosphereGeometry = new THREE.SphereGeometry(earthRadius + 0.16, 64, 64);
+    const atmosphereGeometry = new THREE.SphereGeometry(earthRadius + 0.16, 48, 40);
     const atmosphereShader = new THREE.ShaderMaterial({
       side: THREE.BackSide,
       blending: THREE.AdditiveBlending,
@@ -369,7 +378,7 @@ export default function OutcrowdEarthSatellite({
     // Five independent decorative orbits; Earth depth-testing naturally hides far-side models.
     const satelliteTemplate = createSatelliteModel();
     satelliteTemplate.scale.setScalar(0.23);
-    const trailSamples = 28;
+    const trailSamples = 22;
     const fleet = HERO_ORBITS.map((orbit) => {
       const model = satelliteTemplate.clone(true); // Share geometry/materials across the five models.
       model.name = `${orbit.name} ? ${orbit.sensor}`;
@@ -380,7 +389,7 @@ export default function OutcrowdEarthSatellite({
       );
       const label = createSatelliteLabel(orbit.name, orbit.sensor);
       scene.add(marker, label);
-      const pathPoints = Array.from({ length: 129 }, (_, i) => orbitPosition(orbit, i / 128 * Math.PI * 2));
+      const pathPoints = Array.from({ length: 97 }, (_, i) => orbitPosition(orbit, i / 96 * Math.PI * 2));
       const path = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pathPoints),
         new THREE.LineBasicMaterial({ color: orbit.color, transparent: true, opacity: 0.16, depthWrite: false }));
       scene.add(path);
@@ -400,7 +409,7 @@ export default function OutcrowdEarthSatellite({
     const orbitPoint = new THREE.Vector3();
 
     // 10. Starfield Background
-    const starCount = 1400;
+    const starCount = 1000;
     const starGeo = new THREE.BufferGeometry();
     const starPositions = new Float32Array(starCount * 3);
     const starColors = new Float32Array(starCount * 3);
@@ -449,44 +458,47 @@ export default function OutcrowdEarthSatellite({
     let prevPointerX = 0;
     let prevPointerY = 0;
     let earthRotVelocityX = 0;
-    let earthRotVelocityY = 0.0018;
+    let earthRotVelocityY = 0.0027;
+    let activePointerId: number | null = null;
 
-    const handlePointerDown = (e: MouseEvent | TouchEvent) => {
+    const handlePointerDown = (e: PointerEvent) => {
       isDragging = true;
-      const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-      const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
-      prevPointerX = clientX;
-      prevPointerY = clientY;
+      activePointerId = e.pointerId;
+      prevPointerX = e.clientX;
+      prevPointerY = e.clientY;
+      dom.setPointerCapture(e.pointerId);
+      dom.style.cursor = "grabbing";
+      e.preventDefault();
     };
 
-    const handlePointerMove = (e: MouseEvent | TouchEvent) => {
-      const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-      const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
-
-      if (isDragging) {
-        const deltaX = clientX - prevPointerX;
-        const deltaY = clientY - prevPointerY;
-        earthGroup.rotation.y += deltaX * 0.006;
-        earthGroup.rotation.x += deltaY * 0.004;
+    const handlePointerMove = (e: PointerEvent) => {
+      if (isDragging && e.pointerId === activePointerId) {
+        const deltaX = e.clientX - prevPointerX;
+        const deltaY = e.clientY - prevPointerY;
+        earthGroup.rotation.y += deltaX * 0.008;
+        earthGroup.rotation.x = THREE.MathUtils.clamp(earthGroup.rotation.x + deltaY * 0.0055, -0.8, 0.8);
         needsRender = true;
-        earthRotVelocityX = deltaY * 0.0008;
-        earthRotVelocityY = deltaX * 0.0012;
-        prevPointerX = clientX;
-        prevPointerY = clientY;
+        earthRotVelocityX = THREE.MathUtils.clamp(deltaY * 0.00075, -0.024, 0.024);
+        earthRotVelocityY = THREE.MathUtils.clamp(deltaX * 0.00105, -0.036, 0.036);
+        prevPointerX = e.clientX;
+        prevPointerY = e.clientY;
       }
     };
 
-    const handlePointerUp = () => {
+    const handlePointerUp = (e: PointerEvent) => {
+      if (activePointerId !== null && e.pointerId !== activePointerId) return;
       isDragging = false;
+      if (dom.hasPointerCapture(e.pointerId)) dom.releasePointerCapture(e.pointerId);
+      activePointerId = null;
+      dom.style.cursor = "grab";
     };
 
     const dom = renderer.domElement;
-    dom.addEventListener("mousedown", handlePointerDown);
-    window.addEventListener("mousemove", handlePointerMove);
-    window.addEventListener("mouseup", handlePointerUp);
-    dom.addEventListener("touchstart", handlePointerDown, { passive: true });
-    window.addEventListener("touchmove", handlePointerMove, { passive: true });
-    window.addEventListener("touchend", handlePointerUp);
+    dom.style.touchAction = "none";
+    dom.addEventListener("pointerdown", handlePointerDown);
+    dom.addEventListener("pointermove", handlePointerMove);
+    dom.addEventListener("pointerup", handlePointerUp);
+    dom.addEventListener("pointercancel", handlePointerUp);
 
     // 12. Resize Listener
     const handleResize = () => {
@@ -500,17 +512,19 @@ export default function OutcrowdEarthSatellite({
       // Fit a consistent circular globe inside the actual canvas, independent of aspect ratio.
       earthGroup.position.set(0, 0, 0);
       const halfFov = THREE.MathUtils.degToRad(camera.fov / 2);
-      const globeDiameter = Math.min(newWidth * 0.68, newHeight * 0.66, 420) * 1.27;
+      const globeDiameter = Math.min(newWidth * 0.72, newHeight * 0.70, 450) * 1.27;
       camera.position.z = Math.sqrt(earthRadius ** 2 + (earthRadius * newHeight / (globeDiameter * Math.tan(halfFov))) ** 2);
       // Fit every orbit, including miniature wings/labels, without crossing the canvas edge.
       for (const orbit of HERO_ORBITS) {
-        for (let i = 0; i < 96; i++) {
-          orbitPosition(orbit, i / 96 * Math.PI * 2, orbitPoint);
+        for (let i = 0; i < 48; i++) {
+          orbitPosition(orbit, i / 48 * Math.PI * 2, orbitPoint);
           camera.position.z = Math.max(camera.position.z,
             orbitPoint.z + (Math.abs(orbitPoint.x) + 0.30) / (Math.tan(halfFov) * camera.aspect * 0.97),
             orbitPoint.z + (Math.abs(orbitPoint.y) + 0.30) / (Math.tan(halfFov) * 0.97));
         }
       }
+      // Bring the complete scene a little closer while retaining the orbit framing.
+      camera.position.z = Math.max(earthRadius + 0.7, camera.position.z * 0.955);
       const actualDiameter = earthRadius * newHeight / (Math.tan(halfFov) * Math.sqrt(camera.position.z ** 2 - earthRadius ** 2));
       container.parentElement?.style.setProperty("--earth-preview-size", `${actualDiameter}px`);
       needsRender = true;
@@ -531,7 +545,6 @@ export default function OutcrowdEarthSatellite({
     motionPreference.addEventListener("change", handleMotionChange);
     let lastFrame = performance.now();
     let time = 0;
-    let revealed = false;
     const animate = (now: number) => {
       if (isDisposed) return;
       animationId = requestAnimationFrame(animate);
@@ -543,15 +556,17 @@ export default function OutcrowdEarthSatellite({
       if (!isDragging) {
         earthGroup.rotation.y += earthRotVelocityY * frameScale;
         earthGroup.rotation.x += earthRotVelocityX * frameScale;
-        earthRotVelocityY = THREE.MathUtils.lerp(earthRotVelocityY, 0.0018, 1 - Math.pow(0.97, frameScale));
-        earthRotVelocityX = THREE.MathUtils.lerp(earthRotVelocityX, 0, 1 - Math.pow(0.95, frameScale));
+        earthRotVelocityY = THREE.MathUtils.lerp(earthRotVelocityY, 0.0027, 1 - Math.pow(0.955, frameScale));
+        earthRotVelocityX = THREE.MathUtils.lerp(earthRotVelocityX, 0, 1 - Math.pow(0.925, frameScale));
       }
-      cloudsMesh.rotation.y += 0.0006 * frameScale;
-      cloudsMesh.rotation.x += 0.0002 * frameScale;
-      for (const { orbit, model, marker, label, positions } of fleet) {
+      earthGroup.rotation.z = -0.12 + Math.sin(time * 0.22) * 0.012;
+      cloudsMesh.rotation.y += 0.00095 * frameScale;
+      cloudsMesh.rotation.x += 0.00014 * frameScale;
+      for (const [fleetIndex, { orbit, model, marker, label, positions }] of fleet.entries()) {
         const angle = orbit.phase + time * orbit.speed;
         orbitPosition(orbit, angle, model.position);
         model.lookAt(earthGroup.position);
+        model.rotateZ(Math.sin(time * 1.1 + fleetIndex) * 0.055);
         marker.position.copy(model.position).multiplyScalar(1.045);
         label.position.copy(model.position);
         label.position.y += 0.18;
@@ -573,12 +588,13 @@ export default function OutcrowdEarthSatellite({
       camera.lookAt(earthGroup.position);
 
       // Subtle starfield twinkling
-      starField.rotation.y = time * 0.005;
+      starField.rotation.y = time * 0.008;
+      starField.rotation.x = Math.sin(time * 0.06) * 0.018;
 
       renderer.render(scene, camera);
       needsRender = false;
       // Keep the lightweight globe visible until the textured frame is painted.
-      if (!revealed && dayTexture.image && nightTexture.image && specularTexture.image) {
+      if (!revealed && dayTexture.image) {
         revealed = true;
         setIsReady(true);
       }
@@ -594,12 +610,10 @@ export default function OutcrowdEarthSatellite({
       visibilityObserver.disconnect();
       motionPreference.removeEventListener("change", handleMotionChange);
       window.removeEventListener("resize", handleResize);
-      window.removeEventListener("mousemove", handlePointerMove);
-      window.removeEventListener("mouseup", handlePointerUp);
-      window.removeEventListener("touchmove", handlePointerMove);
-      window.removeEventListener("touchend", handlePointerUp);
-      dom.removeEventListener("mousedown", handlePointerDown);
-      dom.removeEventListener("touchstart", handlePointerDown);
+      dom.removeEventListener("pointerdown", handlePointerDown);
+      dom.removeEventListener("pointermove", handlePointerMove);
+      dom.removeEventListener("pointerup", handlePointerUp);
+      dom.removeEventListener("pointercancel", handlePointerUp);
 
       if (container.contains(dom)) {
         container.removeChild(dom);
@@ -643,6 +657,8 @@ export default function OutcrowdEarthSatellite({
           zIndex: 1,
           cursor: "grab",
           opacity: isReady ? 1 : 0,
+          transition: "opacity 220ms ease-out",
+          touchAction: "none",
         }}
         aria-label="Interactive Earth with illustrative orbits of Terra, Aqua, Suomi-NPP, NOAA-20, and NOAA-21; positions are not live telemetry"
       />
