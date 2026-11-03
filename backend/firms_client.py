@@ -350,19 +350,10 @@ async def _fetch_csv(client: httpx.AsyncClient, sensor: str, bbox: tuple[float, 
             _CSV_CACHE[cache_key] = (time.time(), text)
             return text, source
 
-<<<<<<< HEAD
     # A MAP key is needed only for a cache miss. This keeps previously fetched
     # immutable science archives usable during demos and offline development.
     _require_firms_key()
-    url = f"{FIRMS_BASE_URL}/{FIRMS_MAP_KEY}/{source}/{area}/{days}/{start.isoformat()}"
-    started = time.perf_counter()
-    text = await _get_with_retries(client, url)
-    print(f"firms_request source={source} chunk_start={start} days={days} elapsed_ms={round((time.perf_counter() - started) * 1000, 1)}")
-    _CSV_CACHE[cache_key] = (time.time(), text)
-    if ttl is None or ttl >= 86400:
-        disk_write("firms", disk_key, text, ".csv")
-    return text, source
-=======
+
     # Two analyses asking for the same chunk at the same moment share one NASA request.
     pending = _IN_FLIGHT.get(cache_key)
     if pending is not None:
@@ -387,7 +378,6 @@ async def _fetch_csv(client: httpx.AsyncClient, sensor: str, bbox: tuple[float, 
             _IN_FLIGHT.pop(cache_key, None)
         else:
             task.add_done_callback(lambda _t: _IN_FLIGHT.pop(cache_key, None))
->>>>>>> origin/main
 
 
 async def _fetch_recent_csv(client: httpx.AsyncClient, sensor: str, area: str, days: int) -> tuple[str, str]:
