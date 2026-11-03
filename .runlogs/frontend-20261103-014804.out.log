@@ -1,0 +1,17 @@
+Re-optimizing dependencies because lockfile has changed
+
+  VITE v5.4.21  ready in 1333 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+02:22:36 [vite] hmr update /src/pages/DataSourcesPage.tsx, /src/components/VerificationPanel.tsx, /src/pages/SearchPage.tsx, /src/components/CesiumFireGlobe.tsx, /src/pages/FireDnaPage.tsx, /src/pages/HomePage.tsx, /src/pages/FireMemoryPage.tsx, /src/components/EventPanel.tsx, /src/components/AOISelector.tsx
+02:22:36 [vite] hmr update /src/pages/DataSourcesPage.tsx, /src/components/VerificationPanel.tsx, /src/pages/SearchPage.tsx, /src/components/CesiumFireGlobe.tsx, /src/pages/FireDnaPage.tsx, /src/pages/HomePage.tsx, /src/pages/FireMemoryPage.tsx, /src/components/EventPanel.tsx, /src/components/AOISelector.tsx
+02:22:36 [vite] hmr update /src/main.tsx
+02:22:36 [vite] hmr update /src/styles.css
+02:22:36 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx
+02:22:36 [vite] hmr update /src/pages/HomePage.tsx
+02:22:36 [vite] hmr update /src/pages/SearchPage.tsx
+02:22:36 [vite] vite.config.ts changed, restarting server...
+02:22:36 [vite] vite.config.ts changed, restarting server...
+02:22:37 [vite] vite.config.ts changed, restarting server...
+Re-optimizing dependencies because lockfile has changed
+02:22:46 [vite] server restarted.

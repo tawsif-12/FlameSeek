@@ -1,0 +1,64 @@
+
+> flameseek-frontend@0.1.0 dev
+> vite --host 127.0.0.1
+
+
+  VITE v5.4.21  ready in 4609 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+23:21:11 [vite] hmr update /src/main.tsx, /src/styles.css
+23:21:11 [vite] hmr update /src/styles.css
+23:21:11 [vite] hmr update /src/pages/SearchPage.tsx, /src/styles.css
+23:21:34 [vite] hmr update /src/main.tsx, /src/styles.css
+23:21:34 [vite] hmr update /src/pages/SearchPage.tsx, /src/styles.css
+23:21:34 [vite] hmr update /src/styles.css
+00:01:05 [vite] hmr update /src/pages/SearchPage.tsx, /src/styles.css
+00:01:12 [vite] hmr update /src/pages/FireMemoryPage.tsx, /src/styles.css
+00:01:15 [vite] hmr update /src/pages/FireDnaPage.tsx, /src/styles.css
+00:01:22 [vite] hmr update /src/styles.css
+00:01:27 [vite] hmr update /src/styles.css
+00:04:16 [vite] hmr update /src/styles.css
+00:15:34 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx, /src/styles.css
+00:15:34 [vite] hmr update /src/styles.css, /src/outcrowd-satellite.css
+00:26:53 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx, /src/styles.css
+00:26:53 [vite] hmr update /src/styles.css, /src/outcrowd-satellite.css
+00:26:53 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx, /src/styles.css
+00:27:01 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx, /src/styles.css
+00:40:03 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx, /src/styles.css
+00:40:03 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx, /src/styles.css
+00:45:07 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx, /src/styles.css
+00:45:07 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx, /src/styles.css
+00:45:11 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx, /src/styles.css
+00:45:22 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx, /src/styles.css
+01:29:16 [vite] page reload package.json
+01:29:16 [vite] hmr update /src/components/AnalysisNavigation.tsx, /src/styles.css
+01:29:16 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx, /src/styles.css
+01:29:16 [vite] hmr update /src/pages/FireDnaPage.tsx, /src/styles.css
+01:29:16 [vite] page reload package.json
+01:29:16 [vite] page reload postcss.config.js
+01:29:16 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx, /src/styles.css
+01:29:16 [vite] hmr update /src/styles.css
+01:29:16 [vite] hmr update /src/pages/FireMemoryPage.tsx, /src/styles.css
+01:29:16 [vite] hmr update /src/pages/SearchPage.tsx, /src/styles.css
+01:29:27 [vite] hmr update /src/styles.css, /src/outcrowd-satellite.css
+01:29:27 [vite] hmr update /src/components/MethodologyRoadmap.tsx, /src/styles.css
+01:29:27 [vite] hmr update /src/styles.css
+01:29:27 [vite] hmr update /src/styles.css, /src/outcrowd-satellite.css
+01:29:27 [vite] page reload postcss.config.js
+01:29:27 [vite] page reload tailwind.config.js
+01:36:54 [vite] hmr update /src/pages/SearchPage.tsx, /src/styles.css
+01:36:55 [vite] hmr update /src/pages/SearchPage.tsx, /src/styles.css
+01:36:55 [vite] hmr update /src/pages/FireMemoryPage.tsx, /src/styles.css
+01:36:55 [vite] hmr update /src/pages/FireDnaPage.tsx, /src/styles.css
+01:36:55 [vite] hmr update /src/styles.css
+01:36:55 [vite] hmr update /src/components/AnalysisNavigation.tsx
+01:45:19 [vite] hmr update /src/pages/FireDnaPage.tsx, /src/styles.css
+01:45:19 [vite] hmr update /src/styles.css
+01:45:19 [vite] hmr update /src/pages/FireMemoryPage.tsx, /src/styles.css
+01:45:19 [vite] hmr update /src/pages/SearchPage.tsx, /src/styles.css
+01:45:19 [vite] hmr update /src/components/AnalysisNavigation.tsx
+01:45:38 [vite] hmr update /src/components/AnalysisNavigation.tsx
+01:45:38 [vite] hmr update /src/pages/FireMemoryPage.tsx, /src/styles.css
+01:45:38 [vite] hmr update /src/styles.css
+01:45:38 [vite] hmr update /src/pages/FireDnaPage.tsx, /src/styles.css
+01:45:38 [vite] hmr update /src/pages/SearchPage.tsx, /src/styles.css

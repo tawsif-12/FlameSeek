@@ -1,0 +1,741 @@
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+event warm-up skipped: 502: {'error': 'firms_api_error', 'message': 'Live FIRMS is unavailable and no cached observations cover the requested time window.'}
+INFO:     127.0.0.1:54726 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54726 - "GET /api/places/search?q=Bangladesh HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54726 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54729 - "GET /api/jobs/43daef83c292 HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:57475 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:57476 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:64111 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:64112 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54648 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50846 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56315 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56316 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52732 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63230 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61638 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:55954 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:55955 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:65422 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49461 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50495 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50484 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51321 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:49220 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:56053 - "GET /api/places/search?q=melborn HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:51026 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:63759 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:63760 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60274 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60275 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:60276 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:60277 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:60278 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:60279 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:49802 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:61849 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:55639 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:61121 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:62747 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:56168 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:54548 - "GET /api/jobs/74a8bf205629 HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:55633 - "GET /api/jobs/eb53fdaf0a19 HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:54559 - "GET /api/jobs/5e7793a80790 HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:63007 - "GET /api/jobs/222492925d56 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55804 - "GET /api/jobs/d56c0ae0b42f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58154 - "GET /api/jobs/533311926954 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59720 - "GET /api/jobs/bffcb03ec267 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63749 - "GET /api/jobs/f087546f196a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62823 - "GET /api/jobs/dc5db1ea5208 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55996 - "GET /api/jobs/874ea67fe11f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54609 - "GET /api/jobs/61f5b1de9221 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61978 - "GET /api/jobs/0c9b103ac932 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61984 - "GET /api/places/search?q=Bangladesh HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51517 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:57624 - "GET /api/jobs/a37d2701bb43 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65469 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:58020 - "GET /api/jobs/304866e03d53 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63392 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:63393 - "GET /api/jobs/8050eaa01fdf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61039 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:58843 - "GET /api/jobs/3582ff11137e HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63297 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:54271 - "GET /api/jobs/715f3b189e74 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64438 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:58140 - "GET /api/jobs/295cb28bc620 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59732 - "GET /health HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:65325 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:65326 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61404 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:58877 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:58878 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:58879 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59369 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59746 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59327 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56659 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56660 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63864 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:61083 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60278 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60399 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:58243 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53436 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:58738 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:60182 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62085 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:63643 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:65047 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:62184 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:65458 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:61432 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:49942 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:54539 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:57084 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:57156 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:50913 - "GET /api/jobs/cb5374b103d0 HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 67, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 112, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(aoi.bbox, start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 411, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:55449 - "GET /api/jobs/afc1bfda3844 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54869 - "GET /api/jobs/aa28e21077c8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63134 - "GET /api/jobs/211dacf02c4a HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:62128 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51796 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62154 - "GET /api/jobs/0171631e1a3a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53917 - "GET /api/jobs/98f2610d35b8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60907 - "GET /api/jobs/646b6fd31d2f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50153 - "GET /api/jobs/6db92923939f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50653 - "GET /api/jobs/395c1b2715e8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59393 - "GET /api/jobs/c367bea0da9e HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59394 - "GET /api/jobs/d5aea22af5a6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55806 - "GET /api/jobs/cbe4909e612f HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55807 - "GET /api/jobs/b3f992e89d1c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60511 - "GET /api/jobs/30f89ef55646 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60512 - "GET /api/jobs/dcb26b6a96c4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60164 - "GET /api/places/search?q=bangladesh HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51128 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51618 - "GET /api/jobs/788cddb89c35 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59766 - "GET /api/jobs/788cddb89c35 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61163 - "GET /api/jobs/788cddb89c35 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55310 - "GET /api/jobs/788cddb89c35 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53732 - "GET /api/jobs/788cddb89c35 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64387 - "GET /api/jobs/788cddb89c35 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61607 - "GET /api/jobs/788cddb89c35 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54573 - "GET /api/jobs/788cddb89c35 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58737 - "GET /api/current_hotspots?days=1&limit=4000&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&date=2025-04-15&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49368 - "GET /api/current_hotspots?days=1&limit=4000&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&date=2025-04-15&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:51125 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51126 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56874 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53926 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52368 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56196 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60510 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:55645 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:65229 - "GET /api/places/search?q=California HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49569 - "GET /api/places/search?q=California HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50720 - "GET /api/places/search?q=California HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63097 - "GET /api/places/search?q=New+South+Wales HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59026 - "GET /api/places/search?q=Bangladesh HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:51132 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:51133 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:58515 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59517 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63967 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61724 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60483 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51646 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:60110 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:60111 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51414 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51415 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57089 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59104 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59651 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50178 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:54429 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:54430 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61611 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61612 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50351 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:64672 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:62257 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50106 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:51950 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:51951 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61028 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57003 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49278 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53448 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:64616 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51598 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51599 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52535 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52536 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:60092 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63523 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:60093 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:63522 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60594 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60595 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:65042 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49916 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53157 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49775 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:58210 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63194 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:65276 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57722 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50768 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50769 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51391 - "GET /api/places/search?q=Bangladesh HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:50663 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60252 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:58735 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:62812 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53848 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51357 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57710 - "GET /api/places/search?q=Amazon+Rainforest HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:52554 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:52555 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52558 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60940 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63332 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52456 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53974 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59417 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63998 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63999 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50970 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54253 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62947 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49438 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61516 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49557 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:56887 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56888 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51574 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51575 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:55461 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60253 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49719 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53767 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:64240 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:64241 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62648 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63518 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54285 - "GET /api/current_hotspots?days=1&limit=4000&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62024 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56071 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61099 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59020 - "GET /api/current_hotspots?days=1&limit=4000&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51759 - "GET /api/events?days=2&limit=4000&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60171 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:58667 - "GET /api/events?days=2&limit=4000&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60228 - "GET /docs HTTP/1.1" 200 OK

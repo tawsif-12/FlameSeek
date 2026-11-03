@@ -1,0 +1,4 @@
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+event warm-up skipped: 502: {'error': 'firms_api_error', 'message': 'Live FIRMS is unavailable and no cached observations cover the requested time window.'}
