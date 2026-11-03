@@ -1,0 +1,342 @@
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+event warm-up skipped: 502: {'error': 'firms_api_error', 'message': 'Live FIRMS is unavailable and no cached observations cover the requested time window.'}
+INFO:     127.0.0.1:52697 - "GET /openapi.json HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+INFO:     127.0.0.1:63527 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49866 - "GET /api/places/search?q=Bangladesh HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51912 - "GET /api/places/search?q=Bangladesh HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50886 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50889 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50899 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55065 - "GET /meta HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:50887 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60691 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52762 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:50888 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56401 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62719 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63001 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50690 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50692 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50693 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50691 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53468 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53469 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53467 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58424 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50291 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50292 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63840 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50293 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55141 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49671 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51471 - "GET /api/current_hotspots?days=1&limit=4000&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:64490 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59008 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59009 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:64489 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54569 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52224 - "GET /api/current_hotspots?days=1&limit=4000&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:58211 - "GET /api/events?days=2&limit=4000&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61723 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61915 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50061 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50062 - "GET /meta HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:61395 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:52540 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:51093 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:52078 - "GET /api/events?days=2&limit=4000&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53759 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62909 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:58449 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:58450 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62559 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53833 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59317 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59318 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53050 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54533 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50144 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50145 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51430 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61879 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is temporarily unavailable; no current cached observations are available. [world]
+INFO:     127.0.0.1:65376 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65379 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65389 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58115 - "GET /meta HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:65377 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:65378 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56229 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56001 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59952 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59953 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61382 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:64781 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62444 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62445 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62446 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62447 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60807 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:56845 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:60276 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:61758 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61485 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61486 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59015 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59016 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:62884 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:60404 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:64693 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:58756 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49901 - "GET /api/current_hotspots?days=1&limit=4000&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49276 - "GET /api/current_hotspots?days=1&limit=4000&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49277 - "GET /api/events?days=2&limit=4000&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57462 - "GET /api/events?days=2&limit=4000&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:65286 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:65287 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:65285 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65048 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63246 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62876 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53955 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51857 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54223 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51858 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54764 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52620 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51856 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59609 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59610 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54648 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61683 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59611 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63047 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54647 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58303 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:55780 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56565 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56568 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56578 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60804 - "GET /meta HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:56567 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:56566 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:58418 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:58419 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62923 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53736 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50061 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54111 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54112 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54110 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53422 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53423 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54113 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53421 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57798 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57799 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:65209 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53439 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56857 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60505 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51379 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64380 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61367 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53034 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53035 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56115 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56117 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56118 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56116 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55110 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63001 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64023 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57644 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52623 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56486 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57392 - "GET /meta HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:51241 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:51568 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:58657 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:59032 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56231 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56232 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56230 - "GET /meta HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:64021 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53923 - "GET /api/current_hotspots?days=1&limit=4000&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:59383 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:57391 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62238 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62239 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51738 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57870 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56247 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59041 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59042 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56246 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59040 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60634 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60635 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52046 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51080 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50279 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60633 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51164 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62282 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54777 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62285 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62286 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62287 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58749 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54523 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54010 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64269 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52742 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52743 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60447 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51634 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:51635 - "GET /api/current_hotspots?days=1&limit=4000&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:54970 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:54969 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:55092 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49890 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:55091 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54794 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:58590 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52574 - "GET /api/events?days=2&limit=4000&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57078 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57079 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:55027 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57077 - "GET /meta HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:55155 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59439 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59939 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50089 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59940 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59941 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55231 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is temporarily unavailable; no current cached observations are available. [world]
+INFO:     127.0.0.1:61443 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=TimeoutError muted_for_seconds=120.0
+INFO:     127.0.0.1:60884 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51726 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=TimeoutError muted_for_seconds=120.0
+INFO:     127.0.0.1:61507 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=TimeoutError muted_for_seconds=120.0
+INFO:     127.0.0.1:57181 - "GET /api/current_hotspots?days=1&limit=4000&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53095 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59585 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=TimeoutError muted_for_seconds=120.0
+INFO:     127.0.0.1:57122 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=TimeoutError muted_for_seconds=120.0
+INFO:     127.0.0.1:57123 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53675 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62134 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62138 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59467 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59468 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59469 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61629 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64276 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58770 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56426 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56427 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61166 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52649 - "GET /meta HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:62135 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:62136 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61743 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62968 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63235 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63236 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:58555 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54092 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:59470 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:59471 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54929 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61798 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61799 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53761 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53762 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:55854 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61947 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61572 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61573 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56416 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56417 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49693 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49694 - "GET /data-sources HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58211 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59906 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:58649 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58652 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58662 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52805 - "GET /meta HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:58651 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:58650 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59831 - "GET /api/current_hotspots?days=1&limit=4000&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56459 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59243 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54736 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54737 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61231 - "GET /api/current_hotspots?days=1&limit=4000&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54354 - "GET /api/events?days=2&limit=4000&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:65091 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:64640 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61844 - "GET /api/events?days=2&limit=4000&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52770 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59920 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52771 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50327 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51040 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53153 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62917 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50404 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58244 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50778 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50779 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51721 - "GET /meta HTTP/1.1" 200 OK

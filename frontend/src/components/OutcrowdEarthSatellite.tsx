@@ -5,7 +5,7 @@ import { HERO_ORBITS, orbitPosition } from "./heroOrbits";
 interface OutcrowdEarthSatelliteProps {
   activeSatellite?: "terra" | "aqua" | "snpp" | "noaa20";
   onSatelliteSelect?: (sat: "terra" | "aqua" | "snpp" | "noaa20") => void;
-  targetHotspot?: { lat: number; lon: number; frp?: number | null };
+  targetHotspots?: { lat: number; lon: number; frp?: number | null }[];
 }
 
 // Convert Lat/Lon to 3D Cartesian coordinates on sphere of given radius
@@ -155,17 +155,33 @@ function createSatelliteLabel(name: string, sensor: string): THREE.Sprite {
   return label;
 }
 
+// Decorative fallback locations for the homepage, explicitly labelled below.
+const ILLUSTRATIVE_HOTSPOTS = [
+  { lat: 23.8, lon: 90.4 }, { lat: 15, lon: 100 }, { lat: -2, lon: 112 },
+  { lat: 29, lon: 78 }, { lat: 35, lon: 105 }, { lat: -18, lon: 135 },
+  { lat: 5, lon: 22 }, { lat: -15, lon: 30 }, { lat: 40, lon: 24 },
+  { lat: -9, lon: -55 }, { lat: 38, lon: -120 }, { lat: 10, lon: -72 },
+];
+
 export default function OutcrowdEarthSatellite({
-  targetHotspot,
+  targetHotspots = [],
 }: OutcrowdEarthSatelliteProps) {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const targetPinRef = useRef<THREE.Group | null>(null);
-  const initialTargetRef = useRef(targetHotspot);
+  const targetPinsRef = useRef<THREE.Group[]>([]);
+  const displayedHotspots = targetHotspots.length ? targetHotspots : ILLUSTRATIVE_HOTSPOTS;
+  const initialTargetsRef = useRef(displayedHotspots);
 
   useEffect(() => {
-    targetPinRef.current?.position.copy(latLonToVector3(targetHotspot?.lat ?? 23.81, targetHotspot?.lon ?? 90.41, 2.065));
-  }, [targetHotspot?.lat, targetHotspot?.lon]);
+    targetPinsRef.current.forEach((pin, index) => {
+      const point = displayedHotspots[index];
+      pin.visible = !!point;
+      if (point) {
+        pin.position.copy(latLonToVector3(point.lat, point.lon, 2.11));
+        pin.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), pin.position.clone().normalize());
+      }
+    });
+  }, [displayedHotspots]);
 
   useEffect(() => {
     const container = mountRef.current;
@@ -176,6 +192,9 @@ export default function OutcrowdEarthSatellite({
     let needsRender = true;
     let isInView = true;
     let revealed = false;
+    let detailRequested = false;
+    let detailTexture: THREE.Texture | undefined;
+    let detailTimer: ReturnType<typeof setTimeout> | undefined;
     const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
     let reducedMotion = motionPreference.matches;
 
@@ -208,7 +227,7 @@ export default function OutcrowdEarthSatellite({
     scene.add(sunLight);
 
     // Soft celestial ambient light (deep space blue)
-    const ambientLight = new THREE.AmbientLight(0x0a1628, 0.35);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
     // Rim backlight for horizon specular glow
@@ -222,13 +241,8 @@ export default function OutcrowdEarthSatellite({
     const earthRadius = 2.05;
 
     // Day texture
-    const dayTexture = textureLoader.load("/textures/earth_day_fast.webp", () => {
-      onTextureReady();
-      if (!isDisposed && !revealed) {
-        revealed = true;
-        setIsReady(true);
-      }
-    });
+    // Match the small preloaded texture: the first frame must not wait for full detail.
+    const dayTexture = textureLoader.load("/textures/earth_day_fast.webp", onTextureReady);
     dayTexture.colorSpace = THREE.SRGBColorSpace;
 
     // Normal & Specular textures
@@ -248,7 +262,7 @@ export default function OutcrowdEarthSatellite({
         dayTexture: { value: dayTexture },
         nightTexture: { value: nightTexture },
         specularMap: { value: specularTexture },
-        sunDirection: { value: new THREE.Vector3(-0.7, 0.4, 0.6).normalize() },
+        sunDirection: { value: new THREE.Vector3(-0.3, 0.4, 1.0).normalize() },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -256,7 +270,7 @@ export default function OutcrowdEarthSatellite({
         varying vec3 vWorldPosition;
         void main() {
           vUv = uv;
-          vNormal = normalize(normalMatrix * normal);
+          vNormal = normalize(mat3(modelMatrix) * normal);
           vec4 worldPos = modelMatrix * vec4(position, 1.0);
           vWorldPosition = worldPos.xyz;
           gl_Position = projectionMatrix * viewMatrix * worldPos;
@@ -293,13 +307,16 @@ export default function OutcrowdEarthSatellite({
           // Atmospheric scattering tint on day side
           vec3 atmosphereTint = vec3(0.08, 0.35, 0.65) * pow(1.0 - max(dot(normal, viewDir), 0.0), 3.0) * dayMix;
 
-          // Night illumination: golden city lights boost
-          vec3 illuminatedNight = nightColor * vec3(1.3, 1.1, 0.8) * 1.5;
-
-          // Final color composition
-          vec3 finalColor = mix(illuminatedNight, dayColor, dayMix) + vec3(specular) + atmosphereTint;
+          // Presentation lighting keeps the natural-color surface readable on the shaded side.
+          // This illustrative globe does not represent the current solar terminator.
+          float surfaceLight = 0.65 + 0.35 * max(NdotL, 0.0);
+          vec3 finalColor = dayColor * surfaceLight
+            + nightColor * (1.0 - dayMix) * 0.12
+            + vec3(specular * 0.25) + atmosphereTint * 0.3;
 
           gl_FragColor = vec4(finalColor, 1.0);
+          #include <tonemapping_fragment>
+          #include <colorspace_fragment>
         }
       `,
     });
@@ -330,7 +347,7 @@ export default function OutcrowdEarthSatellite({
       vertexShader: `
         varying vec3 vNormal;
         void main() {
-          vNormal = normalize(normalMatrix * normal);
+          vNormal = normalize(mat3(modelMatrix) * normal);
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
       `,
@@ -347,33 +364,29 @@ export default function OutcrowdEarthSatellite({
     const atmosphereMesh = new THREE.Mesh(atmosphereGeometry, atmosphereShader);
     earthGroup.add(atmosphereMesh);
 
-    // 7. Active Target Hotspot Pin
-    const targetPinGroup = new THREE.Group();
-    targetPinRef.current = targetPinGroup;
-    const pinLat = initialTargetRef.current?.lat ?? 23.81;
-    const pinLon = initialTargetRef.current?.lon ?? 90.41;
-    const pinPos = latLonToVector3(pinLat, pinLon, earthRadius + 0.015);
-    targetPinGroup.position.copy(pinPos);
-
-    // Pin core dot
-    const pinDotGeo = new THREE.SphereGeometry(0.035, 16, 16);
-    const pinDotMat = new THREE.MeshBasicMaterial({ color: 0xff4d26 });
-    const pinDot = new THREE.Mesh(pinDotGeo, pinDotMat);
-    targetPinGroup.add(pinDot);
-
-    // Pulsing target beacon ring
-    const ringGeo = new THREE.RingGeometry(0.045, 0.075, 32);
-    const ringMat = new THREE.MeshBasicMaterial({
-      color: 0xff3b14,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.85,
+    // A bounded pool shares geometry and updates without rebuilding the globe.
+    const pinDotGeo = new THREE.SphereGeometry(0.035, 8, 8);
+    const pinDotMat = new THREE.MeshBasicMaterial({ color: 0xff6b2c });
+    const ringGeo = new THREE.RingGeometry(0.05, 0.085, 24);
+    const beacons = Array.from({ length: 24 }, (_, index) => {
+      const pin = new THREE.Group();
+      const point = initialTargetsRef.current[index];
+      pin.visible = !!point;
+      if (point) {
+        pin.position.copy(latLonToVector3(point.lat, point.lon, earthRadius + 0.06));
+        pin.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), pin.position.clone().normalize());
+      }
+      pin.add(new THREE.Mesh(pinDotGeo, pinDotMat));
+      const material = new THREE.MeshBasicMaterial({
+        color: 0xff4d26, side: THREE.DoubleSide, transparent: true,
+        opacity: 0.85, depthWrite: false,
+      });
+      const ring = new THREE.Mesh(ringGeo, material);
+      pin.add(ring);
+      earthMesh.add(pin);
+      return { pin, ring, material };
     });
-    const pinRing = new THREE.Mesh(ringGeo, ringMat);
-    pinRing.lookAt(pinPos.clone().multiplyScalar(2));
-    targetPinGroup.add(pinRing);
-
-    earthMesh.add(targetPinGroup);
+    targetPinsRef.current = beacons.map(({ pin }) => pin);
 
     // Five independent decorative orbits; Earth depth-testing naturally hides far-side models.
     const satelliteTemplate = createSatelliteModel();
@@ -524,7 +537,7 @@ export default function OutcrowdEarthSatellite({
         }
       }
       // Bring the complete scene a little closer while retaining the orbit framing.
-      camera.position.z = Math.max(earthRadius + 0.7, camera.position.z * 0.955);
+      camera.position.z = Math.max(earthRadius + 0.7, camera.position.z * 0.92);
       const actualDiameter = earthRadius * newHeight / (Math.tan(halfFov) * Math.sqrt(camera.position.z ** 2 - earthRadius ** 2));
       container.parentElement?.style.setProperty("--earth-preview-size", `${actualDiameter}px`);
       needsRender = true;
@@ -577,12 +590,13 @@ export default function OutcrowdEarthSatellite({
         positions.needsUpdate = true;
       }
 
-      // Target pin pulsing ring
-      const ringScale = 1.0 + (Math.sin(time * 4) * 0.5 + 0.5) * 1.2;
-      pinRing.scale.set(ringScale, ringScale, ringScale);
-      if (ringMat) {
-        ringMat.opacity = Math.max(0.1, 1.0 - (ringScale - 1.0) / 1.2);
-      }
+      // Stagger the pulses so multiple observations remain individually visible.
+      beacons.forEach(({ pin, ring, material }, index) => {
+        if (!pin.visible) return;
+        const pulse = (Math.sin(time * 3 + index * 1.7) + 1) * 0.5;
+        ring.scale.setScalar(1 + pulse * 1.4);
+        material.opacity = 0.85 - pulse * 0.65;
+      });
 
       // Keep the globe centered; pointer interaction rotates the Earth, not the camera.
       camera.lookAt(earthGroup.position);
@@ -598,6 +612,19 @@ export default function OutcrowdEarthSatellite({
         revealed = true;
         setIsReady(true);
       }
+      if (revealed && !detailRequested) {
+        detailRequested = true;
+        // Let the browser paint the lightweight globe before downloading the detailed map.
+        detailTimer = setTimeout(() => {
+          if (isDisposed) return;
+          detailTexture = textureLoader.load("/textures/earth_day_2048.jpg", (texture) => {
+            if (isDisposed) { texture.dispose(); return; }
+            texture.colorSpace = THREE.SRGBColorSpace;
+            earthCustomShader.uniforms.dayTexture.value = texture;
+            needsRender = true;
+          });
+        }, 250);
+      }
     };
 
     animate(performance.now());
@@ -606,6 +633,8 @@ export default function OutcrowdEarthSatellite({
     return () => {
       isDisposed = true;
       cancelAnimationFrame(animationId);
+      if (detailTimer !== undefined) clearTimeout(detailTimer);
+      detailTexture?.dispose();
       resizeObserver.disconnect();
       visibilityObserver.disconnect();
       motionPreference.removeEventListener("change", handleMotionChange);
@@ -638,12 +667,13 @@ export default function OutcrowdEarthSatellite({
       geometries.forEach((geometry) => geometry.dispose());
       textures.forEach((texture) => texture.dispose());
       renderer.dispose();
-      targetPinRef.current = null;
+      targetPinsRef.current = [];
     };
   }, []);
 
   return (
     <div className="outcrowd-3d-wrapper" style={{ position: "relative", width: "100%", height: "100%" }}>
+      {!targetHotspots.length && <small style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", color: "#9eb6c9", fontSize: 11, zIndex: 3 }}>Illustrative hotspot markers</small>}
       {!isReady && <div className="earth-instant-preview" aria-hidden="true"><div /></div>}
       {/* 3D Canvas Mount Point */}
       <div
@@ -657,13 +687,12 @@ export default function OutcrowdEarthSatellite({
           zIndex: 1,
           cursor: "grab",
           opacity: isReady ? 1 : 0,
-          transition: "opacity 220ms ease-out",
+          transition: "opacity 100ms ease-out",
           touchAction: "none",
         }}
         aria-label="Interactive Earth with illustrative orbits of Terra, Aqua, Suomi-NPP, NOAA-20, and NOAA-21; positions are not live telemetry"
       />
 
-      <small className="hero-orbit-caption">Illustrative orbits ? not live positions</small>
 
       {/* Futuristic Orbit HUD Overlays */}
       <div className="outcrowd-hud-overlay" style={{ pointerEvents: "none", position: "absolute", inset: 0, zIndex: 2 }}>

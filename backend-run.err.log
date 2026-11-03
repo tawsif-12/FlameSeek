@@ -1,1 +1,4 @@
-E:\anaconda\envs\flameseek\python.exe: No module named uvicorn
+INFO:     Started server process [42744]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)

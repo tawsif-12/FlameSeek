@@ -1,0 +1,109 @@
+/* Shared responsive rules. Keep wide data scrollable within their own panels. */
+.mobile-menu-toggle, .mobile-map-controls { display: none; }
+main, main section, main article, main aside, main form { min-width: 0; }
+main img, main video { max-width: 100%; }
+main :is(p, dd, h1, h2, h3, h4, a) { overflow-wrap: break-word; }
+main :is(.plot, .js-plotly-plot, .plot-container) { max-width: 100%; min-width: 0; }
+main pre { max-width: 100%; overflow-x: auto; }
+:is(button, a, input, select, summary):focus-visible { outline: 2px solid #38bdf8; outline-offset: 3px; }
+
+@media (max-width: 1000px) {
+  :root { --app-header-height: 72px; }
+  .app-header.mission-header { position: fixed; height: var(--app-header-height); min-height: 0; padding: 10px 16px; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 10px; }
+  .mission-header .brand-mark { min-width: 0; margin-right: auto; flex: 1 1 auto; }
+  .mission-header .brand-mark h1 { display: block; font-size: 19px; letter-spacing: .06em; }
+  .mission-header .brand-mark .eyebrow { display: none; }
+  .mission-header .header-actions { display: flex; gap: 6px; flex: 0 0 auto; }
+  .mission-header .header-actions :is(button, .theme-toggle) { min-height: 44px; min-width: 44px; font-size: 12px; padding: 8px; }
+  .mission-header .mobile-menu-toggle { display: block; min-height: 44px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--muted); color: var(--foreground); font: inherit; font-size: 14px; cursor: pointer; }
+  .mission-header nav.primary-navigation { display: none; }
+  .mission-header nav.primary-navigation.mobile-open { display: flex; position: absolute; top: 100%; left: 0; right: 0; margin: 0; padding: 12px 16px 20px; flex-direction: column; align-items: stretch; gap: 4px; overflow: auto; max-height: calc(100dvh - var(--app-header-height)); background: var(--background); border-bottom: 1px solid var(--border); box-shadow: 0 15px 30px #0005; }
+  .mission-header nav.primary-navigation a, .mission-header .header-more summary { min-height: 44px; width: 100%; font-size: 14px; letter-spacing: .04em; justify-content: flex-start; padding: 12px; white-space: normal; }
+  .mission-header .header-more { width: 100%; }
+  .mission-header .header-more > div { position: static; width: 100%; min-width: 0; max-height: none; box-shadow: none; margin-top: 4px; }
+  .oc-home .oc-hero { min-height: auto; }
+  .oc-home .oc-hero-main { grid-template-columns: minmax(0,1fr); min-height: auto; padding: 28px 20px; gap: 18px; }
+  .oc-home .oc-hero-content { grid-column: 1; grid-row: 1; align-self: auto; justify-content: flex-start; width: 100%; max-width: 680px; margin-inline: auto; }
+  .oc-home .oc-hero-title { font-size: clamp(32px,6.5vw,56px); margin-bottom: 18px; }
+  .oc-home .oc-hero-visual { grid-column: 1; grid-row: 2; width: 100%; height: clamp(340px,72vw,580px); min-height: 0; }
+  .oc-home .oc-hero-visual .outcrowd-3d-wrapper { height: 100% !important; }
+  .oc-home .oc-hero-stats { width: 100%; flex-wrap: wrap; gap: 20px; }
+  .oc-home .oc-section { padding-inline: 20px; }
+  .oc-home .oc-dashboard-grid { grid-template-columns: minmax(0,1fr); }
+  .memory-page .memory-setup, .memory-page .memory-grid, main .hz-map-layout { grid-template-columns: minmax(0,1fr); }
+  .memory-page .memory-grid > article.wide { grid-column: auto; }
+  .fire-dna-bento-shell .bento-row { grid-template-columns: minmax(0,1fr); }
+  .fire-dna-bento-shell .bento-card { min-width: 0; }
+  .mobile-map-controls { display: flex; position: absolute; top: 10px; left: 12px; gap: 8px; z-index: 8; }
+  .mobile-map-controls button { min-height: 44px; padding: 8px 12px; background: #0c2034; color: #e8f5ff; border: 1px solid #466a86; border-radius: 8px; font: inherit; font-size: 13px; }
+  .immersive-globe-page, .command-globe { height: calc(100dvh - var(--app-header-height)); min-height: 0; }
+  .command-globe :is(.scene-panel, .control-panel-3d) { display: none; transform: none; top: 64px; bottom: auto; left: 12px; right: 12px; width: auto; max-width: 400px; max-height: calc(100dvh - var(--app-header-height) - 150px); overflow-y: auto; overscroll-behavior: contain; z-index: 7; }
+  .command-globe :is(.scene-panel, .control-panel-3d).mobile-panel-open { display: block; transform: none; }
+  .command-globe .event-panel { inset: auto 10px 10px; width: auto; max-height: 65%; z-index: 10; }
+  .command-globe .insight-dock { top: auto; bottom: 12px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 24px); overflow-x: auto; flex-wrap: nowrap; }
+  .command-globe .insight-drawer { top: 64px; bottom: 72px; left: 12px; right: 12px; width: auto; max-width: 400px; max-height: none; }
+  .command-globe .insight-dock button { flex-shrink: 0; min-height: 44px; }
+}
+
+@media (max-width: 640px) {
+  .mission-header .brand-glyph { display: none; }
+  .mission-header .brand-mark h1 { font-size: 17px; letter-spacing: 0; }
+  .mission-header .header-actions .theme-toggle { width: 44px; }
+  main :is(input:not([type=checkbox]):not([type=radio]), select, textarea) { max-width: 100%; min-width: 0; font-size: 16px; }
+  main :is(button, summary) { min-height: 44px; }
+  main :is(input[type=checkbox], input[type=radio]) { min-width: 20px; min-height: 20px; }
+  main :is(.field-row, .stats-grid, .source-grid, .method-grid, .memory-stats, .memory-summary, .hz-two, .hz-tiles, .hz-card-row, .hz-qgrid, .hz-steps, .dna-selector-grid, .dna-chart-row, .dna-analysis-row) { grid-template-columns: minmax(0,1fr); }
+  main :is(.source-card-footer, .page-title-row, .memory-calendar-toolbar, .memory-calendar > header, .analysis-navigation, .bento-hero, .action-band) { flex-wrap: wrap; gap: 12px; }
+  main :is(.content-page, .memory-page, .hz-page) { padding-inline: 14px; }
+  main :is(.space-hero-strip, .nasa-page-intro) { padding-inline: 16px; }
+  main :is(.nasa-page-intro h2, .space-hero-strip h2, .minimal-search-heading h2) { font-size: clamp(28px,8vw,38px); }
+  main :is(.hero-chips, .intelligence-tabs, .analysis-navigation-links, .event-tabs) { flex-wrap: wrap; max-width: 100%; }
+  .oc-home .oc-hero-content { text-align: left; align-items: flex-start; }
+  .oc-home .oc-hero-subtitle { font-size: 15px; }
+  .oc-home .oc-hero-actions { width: 100%; gap: 12px; }
+  .oc-home .oc-hero-actions a { width: 100%; justify-content: center; min-height: 48px; }
+  .oc-home .oc-hero-stats { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
+  .oc-home .oc-stat-val { font-size: 28px; }
+  .oc-home .oc-stat-lbl { font-size: 11px; letter-spacing: .04em; }
+  .oc-home .oc-hero-visual { height: clamp(320px,90vw,440px); }
+  .oc-home .oc-section-title, .oc-home .oc-cta-title { font-size: clamp(26px,7vw,38px); }
+  .oc-home .oc-cta-horizon { padding: 32px 18px; }
+  .oc-home .oc-cta-btns { flex-wrap: wrap; }
+  .oc-home .oc-event-row { gap: 8px; }
+  .oc-home .oc-event-left { min-width: 0; }
+  .memory-page .memory-setup { padding: 12px; }
+  main .aoi-map { height: 300px; }
+  main .aoi-search { flex-wrap: wrap; }
+  main .aoi-search input { flex: 1 1 170px; width: 100%; }
+  main :is(.aoi-tools, .aoi-actions) { display: flex; flex-wrap: wrap; }
+  main :is(.sensor-grid, .bento-metric-quad, .dna-metric-grid, .dna-history-stats) { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .memory-page .viz-panel { padding: 14px; }
+  main .burning-pattern-scroll { max-width: 100%; overscroll-behavior-x: contain; }
+  main .burning-calendar-legend { display: flex; flex-wrap: wrap; gap: 8px; }
+  .fire-dna-bento-shell .bento-grid-container { padding-inline: 14px; gap: 16px; }
+  .fire-dna-bento-shell .bento-card { padding: 16px; }
+  .fire-dna-bento-shell .bento-hero { padding: 24px 16px; }
+  .fire-dna-bento-shell .bento-hero-title { font-size: clamp(28px,8vw,40px); }
+  .fire-dna-bento-shell .analysis-navigation { padding-inline: 14px; }
+  .fire-dna-bento-shell .bento-card-header { flex-wrap: wrap; }
+  .fire-dna-bento-shell .bento-data-row { gap: 8px; flex-wrap: wrap; }
+  .fire-dna-bento-shell .bento-card .flex { flex-wrap: wrap; }
+  .fire-dna-bento-shell .heatmap-matrix-grid { max-width: 100%; overflow-x: auto; }
+  main .hz-map-frame { min-height: 340px; height: 55dvh; }
+  main .hz-map-frame .leaflet-container { height: 100%; }
+  main .aoi-radius-row { flex-wrap: wrap; }
+  main .aoi-radius-row > * { max-width: 100%; min-width: 0; }
+  main .hz-side { max-height: none; }
+  main :is(.table-wrap, .hz-table-wrap) { max-width: 100%; overflow-x: auto; }
+  main :is(.table-wrap, .hz-table-wrap) table { min-width: 560px; }
+  .command-globe .insight-panel { max-width: calc(100% - 24px); left: 12px; right: 12px; }
+  .command-globe :is(.option-card, .theme-card, .mode-toggle button, .compact-layer-grid button) { min-height: 44px; }
+  .command-globe .hotspot-popup { left: 12px; right: 12px; width: auto; max-width: none; }
+}
+
+@media (max-width: 360px) {
+  .app-header.mission-header { padding-inline: 8px; gap: 5px; }
+  .mission-header .brand-mark h1 { font-size: 15px; }
+  .mission-header .mobile-menu-toggle { padding-inline: 8px; }
+  .fire-dna-bento-shell .bento-metric-quad { grid-template-columns: minmax(0,1fr); }
+}

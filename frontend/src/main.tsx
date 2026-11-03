@@ -9,6 +9,7 @@ import HomePage from "./pages/HomePage";
 import { LanguageProvider, useLanguage } from "./context/LanguageContext";
 import ThemeToggle from "./components/ThemeToggle";
 import "./theme.css";
+import "./responsive.css";
 
 const PRIMARY_NAVIGATION = [
   { to: "/", label: "Home", end: true },
@@ -46,8 +47,9 @@ function LanguageToggle() {
 }
 
 function Header() {
+  const [menuOpen, setMenuOpen] = React.useState(false);
   return (
-    <header className="app-header mission-header">
+    <header className="app-header mission-header" onKeyDown={(event) => { if (event.key === "Escape") setMenuOpen(false); }}>
       <Link to="/" className="brand-mark" style={{ textDecoration: "none" }}>
         <span className="brand-glyph brand-flame" aria-hidden="true">🔥</span>
         <div>
@@ -55,7 +57,8 @@ function Header() {
           <p className="eyebrow">Global Fire Intelligence</p>
         </div>
       </Link>
-      <nav className="primary-navigation" aria-label="Primary navigation">
+      <button type="button" className="mobile-menu-toggle" aria-expanded={menuOpen} aria-controls="primary-navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? "Close" : "Menu"}</button>
+      <nav id="primary-navigation" className={`primary-navigation ${menuOpen ? "mobile-open" : ""}`} aria-label="Primary navigation" onClick={(event) => { if ((event.target as HTMLElement).closest("a")) setMenuOpen(false); }}>
         {PRIMARY_NAVIGATION.map((item) => (
           <NavLink key={item.to} to={item.to} end={"end" in item ? item.end : undefined}>
             {item.label}

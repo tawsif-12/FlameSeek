@@ -1,8 +1,28 @@
-Port 5173 is in use, trying another one...
 
-  VITE v5.4.21  ready in 649 ms
+  VITE v5.4.21  ready in 2702 ms
 
-  ➜  Local:   http://127.0.0.1:5174/
-2:32:24 AM [vite] page reload index.html
-2:40:23 AM [vite] page reload index.html
-2:40:23 AM [vite] page reload index.html
+  ➜  Local:   http://127.0.0.1:5173/
+4:47:42 PM [vite] hmr update /src/main.tsx
+4:47:42 PM [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx
+4:47:42 PM [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx
+4:47:42 PM [vite] hmr update /src/main.tsx
+4:47:42 PM [vite] hmr update /src/outcrowd-satellite.css
+4:47:42 PM [vite] hmr update /src/styles.css
+4:47:42 PM [vite] hmr update /src/theme.css
+5:03:43 PM [vite] hmr update /src/pages/HomePage.tsx
+5:03:43 PM [vite] hmr update /src/outcrowd-satellite.css
+5:04:48 PM [vite] hmr update /src/pages/HomePage.tsx
+5:04:48 PM [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx
+5:05:14 PM [vite] hmr update /src/pages/HomePage.tsx
+5:07:29 PM [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx
+5:07:29 PM [vite] hmr update /src/pages/HomePage.tsx
+5:07:29 PM [vite] hmr update /src/outcrowd-satellite.css
+5:08:31 PM [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx
+5:09:31 PM [vite] hmr update /src/pages/HomePage.tsx
+5:10:10 PM [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx
+5:12:19 PM [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx
+5:13:53 PM [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx
+5:13:53 PM [vite] hmr update /src/pages/HomePage.tsx
+5:16:03 PM [vite] hmr update /src/pages/HomePage.tsx
+5:16:03 PM [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx
+5:18:23 PM [vite] hmr update /src/main.tsx

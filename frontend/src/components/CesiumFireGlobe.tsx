@@ -198,6 +198,7 @@ export default function CesiumFireGlobe() {
   const [searchParams, setSearchParams] = useSearchParams();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
+  const [mobilePanel, setMobilePanel] = useState<"filters" | "display" | null>(null);
   const [layers, setLayers] = useState<Record<LayerKey, boolean>>(layerDefaults);
   const layersRef = useRef(layers);
   layersRef.current = layers;
@@ -961,6 +962,10 @@ export default function CesiumFireGlobe() {
   return (
     <section className={`cesium-shell command-globe ${themeClass(theme)} ${drawing ? "drawing" : ""} ${activeInsight ? "insight-open" : ""}`}>
       <div ref={containerRef} className="cesium-container" />
+      <div className="mobile-map-controls">
+        <button type="button" aria-expanded={mobilePanel === "filters"} aria-controls="map-filters" onClick={() => setMobilePanel(mobilePanel === "filters" ? null : "filters")}>{mobilePanel === "filters" ? "Close filters" : "Filters & place"}</button>
+        <button type="button" aria-expanded={mobilePanel === "display"} aria-controls="map-display" onClick={() => setMobilePanel(mobilePanel === "display" ? null : "display")}>{mobilePanel === "display" ? "Close display" : "Display"}</button>
+      </div>
 
       <nav className="insight-dock" aria-label="Data insights">
         {([
@@ -1094,7 +1099,7 @@ export default function CesiumFireGlobe() {
         </aside>
       )}
 
-      <aside className="scene-panel globe-left">
+      <aside id="map-filters" className={`scene-panel globe-left ${mobilePanel === "filters" ? "mobile-panel-open" : ""}`}>
         <section>
           <p className="panel-title">Fires seen from space</p>
           <p className="map-howto">Each dot is heat seen by a satellite. A circle groups dots into one fire. Click a circle to find out if it is real, what kind it is and whether it is still burning.</p>
@@ -1174,7 +1179,7 @@ export default function CesiumFireGlobe() {
           )}
         </section>
       </aside>
-      <aside className="control-panel-3d">
+      <aside id="map-display" className={`control-panel-3d ${mobilePanel === "display" ? "mobile-panel-open" : ""}`}>
         <section>
           <p className="panel-title">Lighting</p>
           <div className="option-grid">
