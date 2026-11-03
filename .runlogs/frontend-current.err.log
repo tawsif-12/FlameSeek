@@ -1,0 +1,6 @@
+6:08:32 PM [vite] http proxy error: /api/harmonized_hotspots?days=1&limit=4000
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+6:08:32 PM [vite] http proxy error: /api/harmonized_hotspots?days=1&limit=4000
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)

@@ -1,0 +1,17 @@
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+event warm-up skipped: 502: {'error': 'firms_api_error', 'message': 'Live FIRMS is unavailable and no cached observations cover the requested time window.'}
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+INFO:     127.0.0.1:62465 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52739 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56735 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56736 - "GET /api/events?days=2&limit=4000&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53903 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59983 - "GET /api/events?days=2&limit=4000&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:65462 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53302 - "GET /api/events?days=2&limit=4000&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:56165 - "GET /api/events?days=2&limit=4000&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:51496 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50323 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50331 - "GET /health HTTP/1.1" 200 OK

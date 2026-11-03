@@ -26,6 +26,8 @@ export interface GenerateCalendarRequest {
 }
 
 export interface HotspotRecord {
+  harmonized?: { event_id: string; observations: number; platforms: string; confidence: number; footprint_area_km2: number };
+  lookup_detection?: { sensor: string; lat: number; lon: number; acq_datetime: string };
   lat: number;
   lon: number;
   acq_datetime: string;
@@ -45,6 +47,7 @@ export interface HotspotRecord {
 }
 
 export interface CurrentHotspotsResponse {
+  raw_hotspots?: HotspotRecord[];
   hotspots: HotspotRecord[];
   metadata: Record<string, unknown>;
 }

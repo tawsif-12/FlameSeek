@@ -1,0 +1,24 @@
+firms_recent_request source=VIIRS_SNPP_NRT area=world days=1 elapsed_ms=3120.1
+firms_recent_request source=MODIS_NRT area=world days=1 elapsed_ms=4282.8
+firms_recent_request source=VIIRS_NOAA20_NRT area=world days=1 elapsed_ms=5311.8
+firms_recent_request source=MODIS_NRT area=world days=2 elapsed_ms=10091.1
+firms_recent_request source=VIIRS_SNPP_NRT area=world days=2 elapsed_ms=14077.7
+firms_recent_request source=VIIRS_NOAA21_NRT area=world days=1 elapsed_ms=14493.6
+current hotspots warmed
+firms_recent_request source=VIIRS_NOAA21_NRT area=world days=2 elapsed_ms=38183.2
+firms_recent_request source=VIIRS_NOAA20_NRT area=world days=2 elapsed_ms=55749.2
+event set warmed
+INFO:     127.0.0.1:61298 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54825 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63100 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63890 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57895 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50890 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50891 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63095 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61834 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64769 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63670 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62745 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56466 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56467 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK

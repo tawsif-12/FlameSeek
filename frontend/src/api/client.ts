@@ -33,6 +33,11 @@ export function normalizeApiError(error: unknown): string {
 
 const repeatParams = { paramsSerializer: { indexes: null } };
 
+export async function getHarmonizedHotspots(days = 1): Promise<CurrentHotspotsResponse> {
+  const { data } = await api.get<CurrentHotspotsResponse>('/api/harmonized_hotspots', { params: { days, limit: 4000 }, timeout: 360000 });
+  return data;
+}
+
 export async function getCurrentHotspots(sensors: SensorName[], days = 1, limit = 10000, date?: string, includeDemo = false): Promise<CurrentHotspotsResponse> {
   const { data } = await api.get<CurrentHotspotsResponse>("/api/current_hotspots", { params: { days, limit, sensors, date, include_demo: includeDemo }, timeout: 120000, ...repeatParams });
   return data;
