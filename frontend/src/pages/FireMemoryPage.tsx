@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Plot from "react-plotly.js";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { normalizeApiError, runJob, startFireMemory } from "../api/client";
+import AnalysisNavigation from "../components/AnalysisNavigation";
 import AOISelector from "../components/AOISelector";
 import WorldviewButton from "../components/WorldviewButton";
 import DataCoverageNotice from "../components/DataCoverageNotice";
@@ -49,11 +50,20 @@ function csvValue(value: unknown) {
 
 export default function FireMemoryPage() {
   const { aoi, sensors, setSensors, memory, setMemory } = useAppContext();
+  const location = useLocation();
   const [years, setYears] = useState(5);
   const [windowDays, setWindowDays] = useState(30);
   const [job, setJob] = useState<Job<FireMemoryResult> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const running = job?.status === "queued" || job?.status === "running";
+
+  useEffect(() => {
+    if (location.pathname !== "/fire-calendar") return;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById("fire-calendar")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [location.pathname, memory]);
 
   async function run() {
     if (!aoi) return;
@@ -72,6 +82,7 @@ export default function FireMemoryPage() {
 
   return (
     <main className="memory-page space-shell space-page">
+      <AnalysisNavigation />
       <div className="space-hero-strip">
         <div className="space-hero-orbit" aria-hidden="true"><span /><span /></div>
         <header className="memory-intro nasa-page-intro">
@@ -138,7 +149,7 @@ export default function FireMemoryPage() {
         </div>
       </section>
       {!memory && (
-        <section className="burning-calendar-placeholder glass-card" aria-labelledby="burning-calendar-title">
+        <section className="burning-calendar-placeholder glass-card" id="fire-calendar" aria-labelledby="burning-calendar-title">
           <p className="eyebrow"><span className="dot" /> Historical calendar</p>
           <h3 id="burning-calendar-title">Earth's Burning Calendar</h3>
           <p>Choose a place and select <strong>Show this place's fire history</strong>. Monthly satellite-observed burning activity will appear here.</p>

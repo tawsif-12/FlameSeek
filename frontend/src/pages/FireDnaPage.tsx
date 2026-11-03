@@ -3,6 +3,7 @@ import Plot from "react-plotly.js";
 import { Link, useNavigate } from "react-router-dom";
 import { normalizeApiError, runJob, searchPlaces, startFireMemory } from "../api/client";
 import AOISelector from "../components/AOISelector";
+import AnalysisNavigation from "../components/AnalysisNavigation";
 import FireDnaEmptyDashboard from "../components/FireDnaEmptyDashboard";
 import FireDnaFingerprint from "../components/FireDnaFingerprint";
 import { DEFAULT_SENSORS, SENSOR_LABELS, describeAoi, useAppContext } from "../context/AppContext";
@@ -106,6 +107,7 @@ export default function FireDnaPage() {
 
   const trendColor = profile?.trend.direction === "Increasing" ? "#ff653d" : profile?.trend.direction === "Decreasing" ? "#55d8ef" : "#f0b45b";
   return <main className="fire-dna-page space-shell">
+    <AnalysisNavigation />
     <section className="dna-hero"><div><p className="eyebrow">Global Fire Intelligence</p><h2>FIRE DNA PROFILE</h2><h1>Every Region Has a Fire History.</h1><p>Discover the unique seasonal patterns, historical trends, and unusual burning activity of any selected region.</p><small>Fire DNA summarizes patterns in satellite-detected hotspot activity. It does not determine the cause of every fire.</small></div><aside className="dna-hero-region"><span>◎</span><div><strong>{regionName}</strong><small>{memory ? "Analyzed fire-observation boundary" : "Select an area to begin"}</small></div></aside></section>
 
     <section className="dna-workspace">

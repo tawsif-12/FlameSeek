@@ -20,6 +20,7 @@ export default function SearchPage() {
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showDestinations, setShowDestinations] = useState(false);
   const requestRef = useRef(0);
 
   async function findPlaces(value = query) {
@@ -50,6 +51,7 @@ export default function SearchPage() {
     setQuery(place.name.split(",").slice(0, 2).join(","));
     setResults([]);
     setError(null);
+    setShowDestinations(true);
   }
 
   function resetSelection() {
@@ -58,6 +60,7 @@ export default function SearchPage() {
     setQuery("");
     setResults([]);
     setError(null);
+    setShowDestinations(false);
   }
 
   return (
@@ -88,7 +91,7 @@ export default function SearchPage() {
             </div>
           )}
 
-          {!aoi && !searching && results.length === 0 && (
+          {!showDestinations && !searching && results.length === 0 && (
             <div className="minimal-search-suggestions" aria-label="Suggested areas">
               {SUGGESTIONS.map((suggestion) => <button type="button" key={suggestion} onClick={() => void findPlaces(suggestion)}>{suggestion}</button>)}
             </div>
@@ -96,7 +99,7 @@ export default function SearchPage() {
 
           {error && <p className="minimal-search-error" role="alert">{error}</p>}
 
-          {aoi && results.length === 0 && (
+          {showDestinations && aoi && results.length === 0 && (
             <section className="area-destinations" aria-labelledby="selected-area-title">
               <header>
                 <div><small>Selected area</small><h3 id="selected-area-title">{describeAoi(aoi)}</h3></div>
