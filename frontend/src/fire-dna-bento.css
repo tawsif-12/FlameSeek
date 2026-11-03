@@ -1,0 +1,888 @@
+/* ==========================================================================
+   FLAMESEEK - FIRE DNA BENTO GRID DESIGN SYSTEM
+   Seamless Dual-Theme: Deep Cosmic Space (Night Mode) & Minimalist White Bento (Day Mode)
+   ========================================================================== */
+
+/* Page Outer Canvas - Night Mode (Default) */
+.fire-dna-bento-shell {
+  min-height: 100vh;
+  padding-top: calc(var(--app-header-height, 76px) + 12px);
+  padding-bottom: 80px;
+  background: radial-gradient(1200px 700px at 15% -10%, rgba(70, 140, 220, 0.22), transparent 60%),
+              radial-gradient(900px 700px at 100% 20%, rgba(126, 90, 255, 0.16), transparent 60%),
+              linear-gradient(180deg, #05080f 0%, #030509 100%);
+  color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Page Outer Canvas - Day Mode */
+html[data-theme="day"] .fire-dna-bento-shell {
+  background-color: #f4f5f8;
+  background-image: radial-gradient(#d1d5db 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+  color: #0f172a;
+}
+
+/* Navigation - Night Mode */
+.fire-dna-bento-shell .analysis-navigation {
+  background: rgba(3, 10, 22, 0.85);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.16);
+  padding: 10px clamp(16px, 3vw, 48px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.fire-dna-bento-shell .analysis-back {
+  background: rgba(15, 28, 50, 0.8);
+  color: #e2e8f0;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.fire-dna-bento-shell .analysis-back:hover {
+  background: rgba(25, 45, 80, 0.9);
+  color: #38bdf8;
+  border-color: #38bdf8;
+}
+
+.fire-dna-bento-shell .analysis-navigation-links {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(5, 20, 35, 0.86);
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(72, 164, 204, 0.24);
+}
+
+.fire-dna-bento-shell .analysis-navigation-links a {
+  color: #7899af;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.fire-dna-bento-shell .analysis-navigation-links a:hover {
+  color: #dff7ff;
+}
+
+.fire-dna-bento-shell .analysis-navigation-links a.active {
+  color: #03131d;
+  background: linear-gradient(145deg, #76eaff, #35bce5);
+  box-shadow: 0 4px 14px rgba(38, 184, 224, 0.35);
+}
+
+/* Navigation - Day Mode Overrides */
+html[data-theme="day"] .fire-dna-bento-shell .analysis-navigation {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+html[data-theme="day"] .fire-dna-bento-shell .analysis-back {
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+html[data-theme="day"] .fire-dna-bento-shell .analysis-back:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+html[data-theme="day"] .fire-dna-bento-shell .analysis-navigation-links {
+  background: #e2e8f0;
+  border-color: transparent;
+}
+
+html[data-theme="day"] .fire-dna-bento-shell .analysis-navigation-links a {
+  color: #64748b;
+}
+
+html[data-theme="day"] .fire-dna-bento-shell .analysis-navigation-links a.active {
+  background: #ffffff;
+  color: #1d4ed8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Header Banner Section */
+.bento-hero {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 24px clamp(16px, 3vw, 48px) 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 900px) {
+  .bento-hero {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.bento-hero-left {
+  max-width: 800px;
+}
+
+.bento-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  background: rgba(3, 105, 161, 0.25);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+html[data-theme="day"] .bento-eyebrow {
+  background: #e0f2fe;
+  color: #0369a1;
+  border-color: #bae6fd;
+}
+
+.bento-hero-title {
+  font-size: clamp(28px, 3.5vw, 44px);
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0 0 8px 0;
+}
+
+html[data-theme="day"] .bento-hero-title {
+  color: #0f172a;
+}
+
+.bento-hero-subtitle {
+  font-size: 15px;
+  color: #94a3b8;
+  line-height: 1.5;
+  margin: 0;
+}
+
+html[data-theme="day"] .bento-hero-subtitle {
+  color: #64748b;
+}
+
+.bento-hero-region-badge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(180deg, rgba(8, 20, 37, 0.9), rgba(4, 12, 24, 0.95));
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 14px 20px;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+html[data-theme="day"] .bento-hero-region-badge {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.bento-hero-region-badge .icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+html[data-theme="day"] .bento-hero-region-badge .icon-box {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.bento-hero-region-badge .region-name {
+  font-size: 17px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+html[data-theme="day"] .bento-hero-region-badge .region-name {
+  color: #0f172a;
+}
+
+.bento-hero-region-badge .region-status {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+html[data-theme="day"] .bento-hero-region-badge .region-status {
+  color: #64748b;
+}
+
+/* ==========================================================================
+   BENTO GRID CONTAINER & RESPONSIVE ROWS
+   ========================================================================== */
+.bento-grid-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3vw, 48px);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Bento Row Layouts */
+.bento-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .bento-row-8-4 {
+    grid-template-columns: 8fr 4fr;
+  }
+  .bento-row-7-5 {
+    grid-template-columns: 7fr 5fr;
+  }
+  .bento-row-6-6 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Heatmap Grid Row */
+.heatmap-cols-13 {
+  display: grid;
+  grid-template-columns: 32px repeat(12, 1fr);
+  gap: 4px;
+  align-items: center;
+}
+
+/* Standard Bento Card - Night Mode (Default) */
+.bento-card {
+  background: linear-gradient(180deg, rgba(8, 20, 37, 0.88), rgba(4, 12, 24, 0.94));
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 28px;
+  padding: 24px 28px;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(125, 211, 252, 0.08);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  color: #f8fafc;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bento-card:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.65), 0 0 20px rgba(56, 189, 248, 0.1);
+}
+
+/* Standard Bento Card - Day Mode */
+html[data-theme="day"] .bento-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  color: #0f172a;
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+}
+
+html[data-theme="day"] .bento-card:hover {
+  box-shadow: 0 16px 36px -6px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+  border-color: #cbd5e1;
+}
+
+/* Dark Accent Card (Radial Radar Fingerprint) */
+.bento-card-dark {
+  background: #020610;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 28px;
+  padding: 24px 28px;
+  color: #ffffff;
+  box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.7), 0 0 25px rgba(2, 132, 199, 0.2);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Warm Amber Note Card - Night Mode */
+.bento-card-amber {
+  background: linear-gradient(180deg, rgba(42, 22, 6, 0.8), rgba(26, 13, 3, 0.9));
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 28px;
+  padding: 24px 28px;
+  color: #fed7aa;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Warm Amber Note Card - Day Mode */
+html[data-theme="day"] .bento-card-amber {
+  background: #fef8e7;
+  border: 1px solid #fde68a;
+  color: #78350f;
+  box-shadow: 0 8px 24px -4px rgba(217, 119, 6, 0.08);
+}
+
+/* Card Header Structure */
+.bento-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.bento-card-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bento-card-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #38bdf8;
+}
+
+html[data-theme="day"] .bento-card-kicker {
+  color: #94a3b8;
+}
+
+.bento-card-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+html[data-theme="day"] .bento-card-title {
+  color: #0f172a;
+}
+
+.bento-card-amber .bento-card-title {
+  color: #fef3c7;
+}
+
+html[data-theme="day"] .bento-card-amber .bento-card-title {
+  color: #92400e;
+}
+
+/* Big Bold Statistics */
+.bento-stat-hero {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 4px 0 16px 0;
+}
+
+.stat-value-huge {
+  font-size: clamp(32px, 3.2vw, 44px);
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+html[data-theme="day"] .stat-value-huge {
+  color: #0f172a;
+}
+
+.stat-unit {
+  font-size: 14px;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+html[data-theme="day"] .stat-unit {
+  color: #1d4ed8;
+}
+
+/* Candy-Striped Progress Bar */
+.candy-striped-progress {
+  height: 22px;
+  border-radius: 12px;
+  background: rgba(15, 28, 50, 0.85);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  border: 1px solid rgba(56, 189, 248, 0.15);
+}
+
+html[data-theme="day"] .candy-striped-progress {
+  background: #e2e8f0;
+  border: 0;
+}
+
+.candy-striped-fill-cyan {
+  height: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    #0284c7,
+    #0284c7 10px,
+    #38bdf8 10px,
+    #38bdf8 20px
+  );
+  border-radius: 12px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.candy-striped-fill-green {
+  height: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    #059669,
+    #059669 10px,
+    #34d399 10px,
+    #34d399 20px
+  );
+  border-radius: 12px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Equalizer Bars */
+.bento-equalizer-grid {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  height: 160px;
+  padding: 16px 10px 8px;
+  background: rgba(10, 20, 36, 0.75);
+  border-radius: 18px;
+  border: 1px solid rgba(56, 189, 248, 0.16);
+}
+
+html[data-theme="day"] .bento-equalizer-grid {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.bento-equalizer-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.bento-equalizer-bar {
+  width: 100%;
+  max-width: 28px;
+  border-radius: 6px;
+  transition: height 0.3s ease;
+}
+
+.bento-equalizer-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+html[data-theme="day"] .bento-equalizer-label {
+  color: #64748b;
+}
+
+/* Metric Quad Grids */
+.bento-metric-quad {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .bento-metric-quad {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.bento-stat-tile {
+  background: rgba(15, 28, 50, 0.65);
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.bento-stat-tile:hover {
+  background: rgba(22, 40, 70, 0.8);
+  border-color: #38bdf8;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.12);
+}
+
+html[data-theme="day"] .bento-stat-tile {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+html[data-theme="day"] .bento-stat-tile:hover {
+  background: #ffffff;
+  border-color: #93c5fd;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.06);
+}
+
+.bento-stat-tile .tile-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+html[data-theme="day"] .bento-stat-tile .tile-label {
+  color: #64748b;
+}
+
+.bento-stat-tile .tile-value {
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+html[data-theme="day"] .bento-stat-tile .tile-value {
+  color: #0f172a;
+}
+
+.bento-stat-tile .tile-desc {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+html[data-theme="day"] .bento-stat-tile .tile-desc {
+  color: #94a3b8;
+}
+
+/* Controls & Selectors in Bento Cards */
+.bento-card select,
+.bento-card input {
+  background: rgba(6, 17, 32, 0.95);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #f8fafc;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.bento-card select:focus,
+.bento-card input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+html[data-theme="day"] .bento-card select,
+html[data-theme="day"] .bento-card input {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+html[data-theme="day"] .bento-card select:focus,
+html[data-theme="day"] .bento-card input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Modern Primary CTA Button */
+.bento-btn-primary {
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  color: #ffffff;
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bento-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0369a1, #1d4ed8);
+  box-shadow: 0 6px 22px rgba(2, 132, 199, 0.5);
+  transform: translateY(-1px);
+}
+
+.bento-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bento-btn-secondary {
+  background: rgba(15, 28, 50, 0.8);
+  color: #e2e8f0;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.bento-btn-secondary:hover {
+  background: rgba(25, 45, 80, 0.95);
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+html[data-theme="day"] .bento-btn-secondary {
+  background: #ffffff;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="day"] .bento-btn-secondary:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+/* Statistical Data Rows */
+.bento-data-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bento-data-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(15, 28, 50, 0.65);
+  border: 1px solid rgba(56, 189, 248, 0.12);
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+html[data-theme="day"] .bento-data-row {
+  background: #f8fafc;
+  border-color: transparent;
+}
+
+.bento-data-row .row-label {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+html[data-theme="day"] .bento-data-row .row-label {
+  color: #64748b;
+}
+
+.bento-data-row .row-value {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+html[data-theme="day"] .bento-data-row .row-value {
+  color: #0f172a;
+}
+
+/* Decadal Heatmap Matrix */
+.heatmap-matrix-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: rgba(10, 20, 36, 0.75);
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(56, 189, 248, 0.16);
+}
+
+html[data-theme="day"] .heatmap-matrix-grid {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.heatmap-cell {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  min-height: 14px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.heatmap-cell:hover {
+  transform: scale(1.3);
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.heatmap-cell.bg-slate-200 {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="day"] .heatmap-cell.bg-slate-200 {
+  background: #e2e8f0;
+}
+
+/* Footnotes & Method Disclaimers */
+.bento-disclaimer {
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.5;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(56, 189, 248, 0.12);
+}
+
+html[data-theme="day"] .bento-disclaimer {
+  color: #64748b;
+  border-top-color: #f1f5f9;
+}
+
+.bento-card-dark .bento-disclaimer {
+  color: #94a3b8;
+  border-top-color: #1e293b;
+}
+
+/* Radar Fingerprint in Dark Card */
+.bento-fingerprint-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.bento-fingerprint-wrap svg {
+  max-width: 240px;
+  filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.25));
+}
+
+/* ==========================================================================
+   ADAPTIVE THEME UTILITY OVERRIDES (NIGHT VS DAY)
+   ========================================================================== */
+
+/* Night Mode (Default) - Inner utility classes */
+.fire-dna-bento-shell .bg-slate-50 {
+  background: rgba(15, 28, 50, 0.65) !important;
+  border-color: rgba(56, 189, 248, 0.16) !important;
+  color: #f8fafc !important;
+}
+
+.fire-dna-bento-shell .bg-slate-100 {
+  background: rgba(15, 28, 50, 0.8) !important;
+  color: #e2e8f0 !important;
+}
+
+.fire-dna-bento-shell .text-slate-900,
+.fire-dna-bento-shell .text-slate-950 {
+  color: #ffffff !important;
+}
+
+.fire-dna-bento-shell .text-slate-700,
+.fire-dna-bento-shell .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+.fire-dna-bento-shell .text-slate-500,
+.fire-dna-bento-shell .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+.fire-dna-bento-shell .border-slate-100,
+.fire-dna-bento-shell .border-slate-200 {
+  border-color: rgba(56, 189, 248, 0.15) !important;
+}
+
+.fire-dna-bento-shell .bg-blue-50 {
+  background: rgba(2, 132, 199, 0.18) !important;
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+}
+
+.fire-dna-bento-shell .bg-emerald-50 {
+  background: rgba(5, 150, 105, 0.18) !important;
+  color: #34d399 !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+}
+
+.fire-dna-bento-shell .bg-rose-50 {
+  background: rgba(225, 29, 72, 0.18) !important;
+  color: #fb7185 !important;
+  border-color: rgba(251, 113, 133, 0.3) !important;
+}
+
+/* Day Mode Overrides for utilities */
+html[data-theme="day"] .fire-dna-bento-shell .bg-slate-50 {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="day"] .fire-dna-bento-shell .bg-slate-100 {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="day"] .fire-dna-bento-shell .text-slate-900,
+html[data-theme="day"] .fire-dna-bento-shell .text-slate-950 {
+  color: #0f172a !important;
+}
+
+html[data-theme="day"] .fire-dna-bento-shell .text-slate-700 {
+  color: #334155 !important;
+}
+
+html[data-theme="day"] .fire-dna-bento-shell .text-slate-600 {
+  color: #475569 !important;
+}
+
+html[data-theme="day"] .fire-dna-bento-shell .text-slate-500 {
+  color: #64748b !important;
+}
+
+html[data-theme="day"] .fire-dna-bento-shell .border-slate-100,
+html[data-theme="day"] .fire-dna-bento-shell .border-slate-200 {
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="day"] .fire-dna-bento-shell .bg-blue-50 {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border-color: #bfdbfe !important;
+}
+
