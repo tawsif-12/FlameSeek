@@ -15,7 +15,9 @@
   background: radial-gradient(circle at 30% 30%, transparent 25%, #02081770 65%, #020817ed 100%),
     url('/textures/earth_day_fast.webp') center / auto 100%, #0b4976;
   box-shadow: inset -24px -14px 48px #020817bb, inset 5px 3px 14px #8de5ff99, 0 0 32px #38bdf833;
+  animation: earth-preview-drift 12s ease-in-out infinite alternate;
 }
+@keyframes earth-preview-drift { to { transform: rotate(2.5deg) scale(1.015); } }
 
 /* ==========================================================================
    OUTCROWD SATELLITE DESIGN SYSTEM - FLAMESEEK

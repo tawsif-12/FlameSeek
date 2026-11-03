@@ -139,6 +139,10 @@ html[data-theme="day"] .mission-header {
 html[data-theme="day"] .mission-header :is(.eyebrow, nav a) { color: #365e7c; }
 html[data-theme="day"] .mission-header nav a.active { color: #0369a1; background: #e0f2fe; }
 html[data-theme="day"] .mission-header .theme-toggle { background: #e0f2fe; color: #075985; border-color: #99cfee; }
+html[data-theme="day"] .mission-header .header-language { background: #f5fbff; color: #365e7c; border-color: #b4d6ec; }
+html[data-theme="day"] .header-more summary { color: #365e7c; }
+html[data-theme="day"] .header-more[open] summary, html[data-theme="day"] .header-more:has(a.active) summary { color: #0369a1; background: #e0f2fe; border-color: #99cfee; }
+html[data-theme="day"] .header-more > div { background: rgba(255,255,255,.99); border-color: #b4d6ec; box-shadow: 0 18px 42px rgba(61,112,145,.18); }
 
 html[data-theme="day"] :is(.content-page, .mission-home, .space-shell) { background: #f3faff; color: #153552; }
 html[data-theme="day"] :is(.glass-card, .viz-panel, .space-hero-strip, .hz-flow-step, .hz-provenance li, .hz-side select, .hz-seg button, .oc-hud-card, .oc-dashboard-panel) {
@@ -163,8 +167,68 @@ html[data-theme="day"] .hz-honesty { background: #fff7ed; color: #874209; }
 html[data-theme="day"] .hz-honesty strong { color: #874209; }
 html[data-theme="day"] :is(input, select, textarea) { color-scheme: light; background-color: #fff; color: #153552; border-color: #a9d1eb; }
 
+/* Search and analysis routes use the same daylight palette as the shared pages. */
+html[data-theme="day"] .minimal-search-page {
+  color: #153552;
+  background: radial-gradient(circle at 50% 12%, rgba(112, 197, 243, .24), transparent 36%), linear-gradient(180deg, #f7fcff 0%, #eaf6ff 100%);
+}
+html[data-theme="day"] .minimal-search-page::before { opacity: .24; filter: saturate(.72) contrast(.82); mix-blend-mode: multiply; }
+html[data-theme="day"] .minimal-search-page::after { background: linear-gradient(180deg, rgba(247,252,255,.28), rgba(234,246,255,.72) 54%, #eaf6ff 88%); }
+html[data-theme="day"] .minimal-search-stage::before { border-color: rgba(3, 105, 161, .15); box-shadow: 0 0 100px rgba(112, 188, 227, .13); }
+html[data-theme="day"] .minimal-search-heading > p { color: #0879b6; }
+html[data-theme="day"] .minimal-search-heading h2 { color: #153552; }
+html[data-theme="day"] .minimal-search-heading > span { color: #526e85; }
+html[data-theme="day"] .minimal-search-box {
+  background: rgba(255, 255, 255, .97);
+  border-color: #a9d1eb;
+  box-shadow: 0 24px 70px rgba(61, 112, 145, .16), inset 0 1px #fff;
+}
+html[data-theme="day"] .minimal-search-box:focus-within { border-color: #48a8d8; box-shadow: 0 24px 70px rgba(61, 112, 145, .16), 0 0 0 4px rgba(64, 166, 215, .12); }
+html[data-theme="day"] .minimal-search-box > span { color: #0879b6; }
+html[data-theme="day"] .minimal-search-box input { color: #153552; background: transparent; }
+html[data-theme="day"] .minimal-search-box input::placeholder { color: #6b8295; }
+html[data-theme="day"] .minimal-search-box > button { color: #fff; background: linear-gradient(145deg, #1684ba, #0369a1); }
+html[data-theme="day"] .minimal-search-suggestions button { color: #365e7c; background: #f7fcff; border-color: #c2dfee; }
+html[data-theme="day"] .minimal-search-suggestions button:hover { color: #075985; background: #e0f2fe; border-color: #75b7de; }
+html[data-theme="day"] .minimal-place-results { background: rgba(255, 255, 255, .99); border-color: #b4d6ec; box-shadow: 0 25px 60px rgba(61, 112, 145, .2); }
+html[data-theme="day"] .minimal-place-results > button { color: #153552; }
+html[data-theme="day"] .minimal-place-results > button:hover { background: #eaf6ff; }
+html[data-theme="day"] .minimal-place-results > button > span:first-child { color: #0879b6; }
+html[data-theme="day"] .minimal-place-results small, html[data-theme="day"] .minimal-place-results em { color: #526e85; }
+html[data-theme="day"] .minimal-place-results em { border-color: #c2dfee; }
+html[data-theme="day"] .minimal-search-error { color: #9f2f2f; background: #fff1f1; border-color: #f0b9b9; }
+html[data-theme="day"] .area-destinations > header { border-color: #c2dfee; }
+html[data-theme="day"] .area-destinations > header small { color: #0879b6; }
+html[data-theme="day"] .area-destinations > header h3 { color: #153552; }
+html[data-theme="day"] .area-destinations > header button { color: #365e7c; background: #fff; border-color: #b4d6ec; }
+html[data-theme="day"] .area-destinations > p { color: #526e85; }
+html[data-theme="day"] .area-destinations a, html[data-theme="day"] .hz-open-intel {
+  color: #153552;
+  background: linear-gradient(145deg, #fff, #e8f5ff);
+  border-color: #b4d6ec;
+  box-shadow: 0 12px 32px rgba(71, 120, 150, .1);
+}
+html[data-theme="day"] .area-destinations a:hover, html[data-theme="day"] .hz-open-intel:hover { background: #e0f2fe; border-color: #62add9; }
+html[data-theme="day"] .area-destinations a h4, html[data-theme="day"] .hz-open-intel strong { color: #153552; }
+html[data-theme="day"] .area-destinations a p, html[data-theme="day"] .hz-open-intel small { color: #526e85; }
+html[data-theme="day"] .area-destinations a > span, html[data-theme="day"] .area-destinations a b, html[data-theme="day"] .hz-open-intel b { color: #0879b6; }
+
+html[data-theme="day"] :is(.analysis-back, .analysis-navigation-links) { background: rgba(255, 255, 255, .92); border-color: #b4d6ec; }
+html[data-theme="day"] .analysis-back, html[data-theme="day"] .analysis-navigation-links a { color: #365e7c; }
+html[data-theme="day"] .analysis-back:hover, html[data-theme="day"] .analysis-navigation-links a:hover { color: #075985; border-color: #62add9; }
+html[data-theme="day"] .analysis-navigation-links a.active { color: #fff; background: linear-gradient(145deg, #1684ba, #0369a1); box-shadow: 0 5px 18px rgba(3, 105, 161, .18); }
+
+html[data-theme="day"] .dna-hero { background: linear-gradient(90deg, rgba(247, 252, 255, .98) 0%, rgba(234, 246, 255, .92) 48%, rgba(234, 246, 255, .42) 78%), url('/flameseek-earth-hero.png') right 37%/70% auto no-repeat; border-color: #c2dfee; }
+html[data-theme="day"] .dna-hero :is(h1, h2), html[data-theme="day"] .dna-hero-region strong { color: #153552; }
+html[data-theme="day"] .dna-hero p, html[data-theme="day"] .dna-hero small { color: #526e85; }
+html[data-theme="day"] .dna-hero-region, html[data-theme="day"] .dna-panel { background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(234,246,255,.97)); border-color: #b4d6ec; box-shadow: 0 12px 32px rgba(71,120,150,.1); }
+html[data-theme="day"] .dna-panel :is(h3, strong, dd), html[data-theme="day"] .dna-fingerprint figcaption { color: #153552; }
+html[data-theme="day"] :is(.dna-metric-grid > div, .dna-history-stats > div, .dna-anomaly-table > span, .dna-selected dl div, .dna-reliability > div > span, .dna-preview-rows span, .dna-summary > button, .dna-meaning) { background: #edf7fe; border-color: #c2dfee; }
+html[data-theme="day"] :is(.dna-panel small, .dna-panel p, .dna-panel label, .dna-panel dt, .dna-panel em, .dna-method, .dna-interpretation) { color: #526e85; }
+html[data-theme="day"] :is(.dna-panel select, .dna-mode button, .dna-selector .aoi-search input) { color: #153552; background: #fff; border-color: #b4d6ec; }
+
 @media (max-width: 760px) {
-  .mission-header { flex-wrap: wrap; gap: 8px; }
-  .mission-header nav { flex-wrap: wrap; justify-content: center; }
+  .mission-header { flex-wrap: nowrap; gap: 6px; }
+  .mission-header nav { flex-wrap: nowrap; justify-content: flex-start; }
   .mission-header .theme-toggle { padding: 7px 10px; }
 }
