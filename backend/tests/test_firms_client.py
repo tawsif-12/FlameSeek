@@ -84,6 +84,7 @@ def test_simultaneous_requests_for_one_chunk_share_a_single_download(monkeypatch
         await asyncio.sleep(0.05)
         return "latitude,longitude\n1,2\n"
 
+    monkeypatch.setattr(fc, "FIRMS_MAP_KEY", "test_key")
     monkeypatch.setattr(fc, "_get_with_retries", fake_get)
     monkeypatch.setattr(fc, "disk_read", lambda *a, **k: None)
     monkeypatch.setattr(fc, "disk_write", lambda *a, **k: None)
