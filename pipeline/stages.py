@@ -192,7 +192,10 @@ def detect_day(cfg: dict, day: date, force: bool = False) -> dict:
     import io
     with contextlib.redirect_stdout(io.StringIO()):
         fp = footprints.run(clean, cfg)
-    gdf = fp.set_index("det_id", drop=False)
+    # pandas 3 turns a 2-element evenly spaced int64 index into a RangeIndex; with 64-bit hash ids
+    # the step overflows and the index comes out empty. Build the index from the values directly.
+    gdf = fp.copy()
+    gdf.index = pd.Index(fp["det_id"].to_numpy(), name="det_id")
     links = ev_mod.daily_links(gdf)
     g = nx.Graph()
     g.add_nodes_from(gdf.index)
@@ -275,7 +278,7 @@ def link_day(cfg: dict, day: date, force: bool = False) -> dict:
     n_multi = 0
     if have_prev:
         pg = shapely.from_wkb(pdet["geometry_wkb"].to_numpy())
-        fid_of = pas.set_index("det_id")["fire_id"]
+        fid_of = pd.Series(pas["fire_id"].to_numpy(), index=pd.Index(pas["det_id"].to_numpy(), name="det_id"))  # see detect_day: pandas 3 RangeIndex overflow
         tree = shapely.STRtree(pg)
         ia, ib = tree.query(gcur.geometry.to_numpy(), predicate="intersects")
         n_multi = len(ia)
@@ -453,6 +456,11 @@ def finalize(cfg: dict, write_outputs: bool = True) -> dict:
     events = pd.concat(ev_parts, ignore_index=True).sort_values(["start_time", "fire_id"]).reset_index(drop=True)
     ov = pd.concat(ov_parts, ignore_index=True)
     det = pd.concat(det_parts, ignore_index=True).sort_values("det_id").reset_index(drop=True)
+    # Hive partition columns can come back as text in some month chunks and as integers in others
+    # (seen over multi-year windows); one type keeps the parquet writer happy.
+    for col in ("year", "month", "day"):
+        if col in det.columns:
+            det[col] = det[col].astype(str)
     pairs = ev_mod.matched_pairs(ov, cfg)
     gov = P.duck(root, "grid_overpass", d0, d1, con=con)
     gcd = P.duck(root, "grid_cellday", d0, d1, con=con)

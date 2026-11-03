@@ -99,11 +99,76 @@ images come from a scripted browser run: Search → "Bangladesh" → Fire Events
   Existing live-FIRMS pages are not stamped with snapshot provenance, because they show
   different (live) data.
 
+## Fire Intelligence now runs the FlameSeek pipeline (D80)
+
+Searching a place and opening its Fire Intelligence page now processes that place's history
+with the same pipeline as the study windows. Before, the history came only from the older
+Fire Memory harmonization.
+
+**What the page does**
+
+1. Live hotspots and the 12-month quick look appear first (seconds).
+2. The Fire Memory 5-year history follows (seconds when saved).
+3. A fourth step, **FlameSeek pipeline**, then:
+   - downloads the place's FIRMS archive (MODIS + Suomi-NPP), reusing the cached NASA files;
+   - runs footprints → events → energy-conserving grid;
+   - shows each stage's progress.
+4. When it finishes, these answers switch to the pipeline and name it as their source:
+   - history;
+   - where hotspots repeat;
+   - seasons;
+   - change over time;
+   - whether current activity is unusual;
+   - future risk.
+
+**Labels on every year**
+
+The reliability answer labels each year's calibration from the measured Aqua orbit drift:
+
+| Years (Sundarbans run) | Label |
+|---|---|
+| 2021–2023 | synchronized era, calibration v2 (validated on 2016) |
+| 2024–2026 | drift-affected, calibration v1 (provisional) |
+
+The latent fire rate (λ) is shown as *awaiting data*. It needs historical satellite orbits
+(TLEs) for these years.
+
+**One rule for "inside the place"**
+
+Detections, events (by centroid) and hotspot cells all count only fires inside the place
+outline. An earlier draft kept 0.1° grid cells whose centre was inside. The map then showed
+edge cells with fire on up to 5 days, while the history counted 1 event. The map is now built
+from the same inside detections.
+
+**Sundarbans, 5 years (2021-11-02 → 2026-11-01)**
+
+| | Forest outline (from search) | Rectangle around it |
+|---|---|---|
+| Fire events | 1 (27 Feb 2024) | 37 |
+| Clean detections | 1 | 40 |
+| Energy conserved on grid | pass | pass |
+| Run time, first visit | ≈ 2.5–3 min | ≈ 110 s |
+
+Most fire near the Sundarbans is on the farmland around the forest, not inside it. Future
+risk stays withheld: it needs 5 complete years, and the 5-year choice gives 4. The page offers
+10 years.
+
+**Pipeline fixes found on the way** (each now has a test):
+
+- **Two-detection days.** With pandas 3, two int64 hash ids of opposite sign made an
+  overflowing, empty RangeIndex. `tests/test_place_run.py` forces such ids; it fails on the
+  old code and passes on the fix.
+- **Days with every detection outside the place.** The quality step returned tables instead
+  of columns (`tests/test_quality_empty_day.py`).
+- **Finalize.** Month partitions with mixed types are now written as text.
+
+Screenshot: `website_screenshots/08_area_intelligence_pipeline.png`.
+
 ## Tests and checks
 
-- 129 harmonization and 74 backend tests pass (the `/fires` endpoint is tested).
+- 131 harmonization and 87 backend tests pass (including the place pipeline job and the end-to-end place run).
 - TypeScript type-check: 0 errors.
-- All routes return 200 on the dev server, and the Search → Fire Events flow was run end-to-end in a browser.
+- All routes return 200 on the dev server. The Search → Fire Events and Search → Fire Intelligence (with the pipeline step) flows were run end-to-end in a browser.
 
 ## Known limits
 

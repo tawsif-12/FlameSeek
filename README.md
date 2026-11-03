@@ -166,6 +166,13 @@ python -m pytest tests                      # energy, footprint, FRP-time and ca
 Raw FIRMS CSVs go in `data/raw/` and are never modified. Himawari data for a later phase goes in
 `data/raw/himawari/`.
 
+**Fire Intelligence pipeline.** Searching a place and opening its Fire Intelligence page also runs the
+FlameSeek pipeline for that place (`POST /api/place_pipeline`). The backend calls the pipeline's own
+Python. Set `FLAMESEEK_PIPELINE_PYTHON` if it is not `E:\anaconda\envs\flameseek\python.exe`.
+To run it by hand:
+
+    python -m pipeline.place_run --id <id> --raw-dir data/raw/places/<id> --start YYYY-MM-DD --end YYYY-MM-DD --bbox w,s,e,n [--geometry outline.json]
+
 ### Phase 2: Step 6 sensor calibration
 
 ```bash

@@ -633,3 +633,29 @@ export interface WitnessResult {
   };
   cell_days_recent: Array<{ cell_lat: number; cell_lon: number; local_day: string; sensors_seen: string[]; detections: Record<string, number>; fire_probability: number; frp_aqua_equiv: number }>;
 }
+
+/** Fire Intelligence: FlameSeek pipeline run for one place (backend /api/place_pipeline). */
+export interface PlaceCalibration { aqua_lst_h: number | null; offset_min: number | null; status: string; version: string | null }
+export interface PlaceYear {
+  year: number; months_in_record: number; full_year: boolean; n_events: number; n_detections: number;
+  fire_days: number; frp_sum_mw: number; platforms: string[]; detections_by_platform: Record<string, number>;
+  viirs_present: boolean; calibration: PlaceCalibration;
+}
+export interface PlacePipelineSummary {
+  version: number; place_id: string; method: string; data_version: string;
+  period: { start: string; end: string; years: number }; run_seconds: number;
+  quality: {
+    clean_detections: number; low_confidence_set_aside: number; events: number;
+    energy_conservation: { frp_before_mw: number; frp_after_mw: number; rel_diff: number; pass: boolean };
+    lambda: string; platform_detections: Record<string, number>;
+  };
+  yearly: PlaceYear[];
+  monthly: Array<{ year: number; month: number; n_events: number; fire_days: number }>;
+  seasonal_profile: { months: Array<{ month: number; name: string; median_events: number; mean_events: number; years: number }>; peak_months: string[]; quiet_months: string[]; full_years: number[]; basis: string };
+  hotspot_map: { cell_deg: number; cells: Array<{ cell_id: string; lat: number; lon: number; days: number; years: number; first: string; last: string; frp_max_mw: number }>; n_cells_with_fire: number; method: string };
+  unusual: { status: string; window?: { start: string; end: string }; current_events?: number; history_events?: number[]; robust_z?: number | null; percentile_rank?: number; category?: string; note?: string };
+  change: { status: string; slope_events_per_year?: number; slope_90?: [number, number]; relative_per_year?: number | null; direction?: string; method: string; caveat?: string; note?: string };
+  area_risk: AreaRisk & { complete_years?: number; min_years?: number };
+  provenance?: { firms_requests: number; failed_chunks: number; raw_rows_by_source: Record<string, number>; sensors: string[]; place_id: string; generated_at: string };
+  served_from_cache?: boolean;
+}

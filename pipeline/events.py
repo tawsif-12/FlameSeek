@@ -308,7 +308,8 @@ def piece_extents(gdf, piece: np.ndarray) -> np.ndarray:
 def run(fp: gpd.GeoDataFrame, cfg: dict) -> dict:
     e = cfg["events"]
     day_col = "local_solar_date" if e.get("day_basis", "local_solar") == "local_solar" else "utc_date"
-    gdf = fp.set_index("det_id", drop=False)
+    gdf = fp.copy()  # not set_index: pandas 3 can turn 2 int64 hash ids into an overflowing RangeIndex
+    gdf.index = pd.Index(fp["det_id"].to_numpy(), name="det_id")
 
     # A. Daily links.
     daily = pd.concat([daily_links(g) for _, g in gdf.groupby(day_col)], ignore_index=True)

@@ -876,3 +876,37 @@ recorded before scoring the test days.**
 - *Remaining limit.* One FIRMS map key (5,000 requests per 10 minutes) is shared by FireNow,
   Fire Memory and the hub. Heavy use can still queue the first build of a new place's
   history.
+
+## D80 — Fire Intelligence history runs through the FlameSeek pipeline
+
+- *Decision.* A searched place's history is processed by the same pipeline as the study
+  windows (raw split → footprints → events → energy-conserving grid → finalize), not only by
+  the older Fire Memory harmonization.
+- *How.*
+  - `POST /api/place_pipeline {aoi, history_years}` (backend/routers/place_pipeline.py) starts a
+    job. It downloads the FIRMS archive with the same cached, shared chunks as Fire Memory and
+    keeps each chunk's CSV text (`raw_sink`).
+  - It writes that text to `data/raw/places/<place_id>/`, then runs
+    `python -m pipeline.place_run` in the pipeline environment (`FLAMESEEK_PIPELINE_PYTHON`).
+    Stage progress is relayed to the page.
+  - `data/places/<place_id>/place_summary.json` is cached for 7 days when no chunk failed.
+- *One rule for "inside the place".* Detections, events (by centroid) and hotspot cells all use
+  the place outline. Hotspot cells are built from inside detections binned to the 0.1° grid,
+  not from grid cells whose centre is inside (that counted fires just outside the outline).
+- *Calibration labels per year.*
+  - Measured Aqua drift (data/processed/drift_by_year.csv) and the D68 sync-gate thresholds
+    decide each year's label:
+    - synchronized era → v2 (validated on 2016);
+    - drift-affected → v1 (provisional);
+    - no measurement → awaiting.
+  - The latent fire rate λ is reported as awaiting data (needs historical TLEs).
+- *Page.*
+  - Fire Memory still gives the fast first answers.
+  - The pipeline runs as a fourth loading step. When it finishes, the history, hotspot,
+    season, change, unusual and risk answers switch to it and say so.
+  - The reliability answer lists each year's calibration label.
+- *Fixes found on the way.* These were pandas 3 empty and tiny-day failures, now covered by tests:
+  - int64 hash ids overflowed through `set_index` (stages.py, events.py);
+  - mixed hive partition types broke finalize;
+  - a zero-row day in quality.py turned the flags and mask into DataFrames.
+- *Measured.* Sundarbans, 5 years, all chunks cached: 733 requests, about 110 s end to end.

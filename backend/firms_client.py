@@ -394,8 +394,10 @@ async def fetch_hotspots_with_report(
     sensors: list[str] = DEFAULT_SENSORS,
     progress: ProgressCallback | None = None,
     concurrency: int = 16,
+    raw_sink: list[tuple[str, str]] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Fetch every sensor/chunk in a window. Failed chunks are reported, not fatal,
+    """Fetch every sensor/chunk in a window. With raw_sink, the original FIRMS CSV text of every
+    chunk is also collected as (source, text) for the FlameSeek pipeline. Failed chunks are reported, not fatal,
     so observation sufficiency can mark those days as missing opportunities."""
 
     _require_firms_key()
@@ -419,6 +421,8 @@ async def fetch_hotspots_with_report(
             try:
                 text, source = await _fetch_csv(client, sensor, bbox, chunk_start, days)
                 sources_used.add(source)
+                if raw_sink is not None:
+                    raw_sink.append((source, text))
                 return _parse_csv(text, sensor, source)
             except FirmsAPIError as exc:
                 failures.append({"sensor": sensor, "start": chunk_start.isoformat(), "days": days, "status_code": exc.status_code, "message": exc.message[:160]})

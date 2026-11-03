@@ -1,5 +1,6 @@
 import axios from "axios";
 import type {
+  PlacePipelineSummary,
   AOI,
   CurrentHotspotsResponse,
   DataSource,
@@ -108,4 +109,9 @@ export function startOutlook(eventId: string, years = 8) {
 
 export function startFireMemory(aoi: AOI, historyYears: number, sensors: SensorName[], comparisonWindowDays: number, endDate?: string) {
   return startJob<FireMemoryResult>("/api/fire_memory", { aoi, history_years: historyYears, sensors, comparison_window_days: comparisonWindowDays, end_date: endDate });
+}
+
+/** FlameSeek pipeline for one place: footprints, events and energy-conserving grid over its history. */
+export function startPlacePipeline(aoi: AOI, historyYears: number) {
+  return startJob<PlacePipelineSummary>("/api/place_pipeline", { aoi, history_years: historyYears });
 }
