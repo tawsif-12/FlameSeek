@@ -58,7 +58,18 @@ def test_baseline_stage_log(client,caplog):
         client.post('/fires/search',json={'bbox':[88,20,93,27]})
     metric=json.loads(next(r.message[12:] for r in caplog.records if r.message.startswith('fire_search ')))
     assert metric['path']=='fallback'
-    assert all(metric[name]>=0 for name in ['candidate_filter_ms','exact_containment_ms','count_ms','sort_limit_ms','serialization_ms'])
+    assert all(metric[name]>=0 for name in ['candidate_setup_ms','exact_containment_ms','count_ms','sort_limit_ms','serialization_ms'])
+
+
+def test_explicit_candidate_profiling_does_not_change_response(client,caplog):
+    area={'bbox':[88,20,93,27]}
+    baseline=client.post('/fires/search',json=area).json()
+    with caplog.at_level('INFO',logger='flameseek.search'):
+        profiled=client.post('/fires/search?profile_stages=true',json=area).json()
+    assert profiled==baseline
+    metric=json.loads(next(r.message[12:] for r in caplog.records if r.message.startswith('fire_search ')))
+    assert metric['candidate_filter_ms']>=0 and metric['diagnostic_exact_ms']>=0
+    assert metric['diagnostic_matching_count']==baseline['count']
 
 
 def test_query_plans_use_spatial_and_ordering_indexes(client,tmp_path):

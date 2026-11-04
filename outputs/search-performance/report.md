@@ -107,3 +107,45 @@ Both require separate approval and regression coverage before implementation.
 Prepared-geometry behavior follows [Shapely documentation](https://shapely.readthedocs.io/en/stable/manual.html#prepared-geometry-operations).
 Read-only/immutable safety follows [SQLite URI documentation](https://www.sqlite.org/uri.html);
 float32 edge rechecks follow the [SQLite R-Tree rounding guidance](https://www.sqlite.org/rtree.html#roundoff_error).
+
+## Cold-cache and larger pages
+
+These additional measurements ran after all eight tasks. The cold reference loads the actual
+instrumented baseline source from commit `3f95ca7` into memory without changing the working tree.
+Forced-cold runs clear process-local count and prepared-geometry caches before every request;
+they do not flush the operating-system filesystem cache. Both reference and final omit gzip
+for this comparison, with limit 200 and 5 samples. Larger-page runs use warm repeat caches,
+negotiated gzip and 3 samples, so their p95 is only the maximum observed sample.
+
+| Query | Cold reference p50 / p95 | Cold final p50 / p95 | 2000-event page p50 / p95 | 5000-event page p50 / p95 |
+|---|---:|---:|---:|---:|
+| small | 300.8 / 355.8 | 132.2 / 154.8 | 87.7 / 97.5 | 85.9 / 114.1 |
+| medium | 165.5 / 176.0 | 127.8 / 138.4 | 358.8 / 389.3 | 824.6 / 879.4 |
+| continent | 220.0 / 223.1 | 169.7 / 179.3 | 443.7 / 472.1 | 977.7 / 1030.8 |
+| complex_polygon | 1567.7 / 1610.9 | 284.2 / 336.7 | 425.7 / 496.0 | 1168.4 / 1326.2 |
+| circle | 285.3 / 295.3 | 159.8 / 165.9 | 425.1 / 426.0 | 985.6 / 990.0 |
+| deep_offset | 338.1 / 489.3 | 224.3 / 246.0 | 406.9 / 455.5 | 884.9 / 887.7 |
+
+Larger pages still pay to enrich/serialize/transmit every returned event; clustering reduces
+client drawing work, not response size. The full count remains independent of page size.
+
+## Isolated candidate diagnostics
+
+`profile_stages=true` explicitly adds a coordinate-only candidate scan and exact-predicate pass.
+It leaves normal response bytes unchanged. This isolates candidate traversal rather than
+mislabeling SQL construction time as filter execution. Production requests do not pay this extra scan.
+The original T1–T8 JSON field `candidate_filter_ms` was query-construction time; the current
+logger correctly calls it `candidate_setup_ms`. Normal count/page timings still include
+candidate traversal and exact callback time; timings are overlapping, not additive.
+
+| Query | Candidate scan median ms | Diagnostic exact median ms |
+|---|---:|---:|
+| small | 24.155 | 0.023 |
+| medium | 69.534 | 2.299 |
+| continent | 104.155 | 15.805 |
+| complex_polygon | 69.788 | 119.632 |
+| circle | 66.240 | 15.482 |
+| deep_offset | 127.760 | 33.161 |
+
+Reproduce with `--cold`, `--reference-commit 3f95ca7`, `--profile-stages`, or `--limit 5000`
+on `benchmarks/search.py`. Isolated diagnostic totals must not be compared as normal endpoint latencies.

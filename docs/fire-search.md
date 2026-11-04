@@ -65,6 +65,22 @@ indexes to published snapshots. Ensure the local pipeline inputs/dependencies ex
 then run `python -m pipeline.snapshot` from the project root. Stop a Windows server
 first if persistent reuse was explicitly enabled.
 
+SQL pipelines candidate traversal with count/page execution, so normal logs name
+the inexpensive query-construction stage `candidate_setup_ms`. To isolate actual
+candidate traversal, use `profile_stages=true`: an additional coordinate-only scan
+logs `candidate_filter_ms`, `diagnostic_exact_ms`, candidate count and exact match
+count. This is an opt-in diagnostic and increases request latency; it changes no
+response fields or results. Exact predicate callback time overlaps normal count and
+sort/limit timings, so those timings must not be added as exclusive stages.
+
+SQL pipelines candidate traversal with count/page execution, so normal logs name
+the inexpensive query-construction stage `candidate_setup_ms`. To isolate actual
+candidate traversal, use `profile_stages=true`: an additional coordinate-only scan
+logs `candidate_filter_ms`, `diagnostic_exact_ms`, candidate count and exact match
+count. This is an opt-in diagnostic and increases request latency; it changes no
+response fields or results. Exact predicate callback time overlaps normal count and
+sort/limit timings, so those timings must not be added as exclusive stages.
+
 ## Frontend requests
 
 The map retains its 5000-event page limit and full-place search by default. A 250 ms

@@ -72,10 +72,17 @@ def run(args,root):
     for name,area,offset in cases():
         samples=[];hashes=[];stages=[]
         for i in range(args.repeats+1):
+            if args.cold:
+                from search_cache import COUNTS
+                from search_geometry import prepared_polygons
+                with COUNTS.lock:COUNTS.items.clear()
+                prepared_polygons.cache_clear()
             params=dict(window=window,limit=args.limit,offset=offset,geometry=True)
             if args.simplify:params['simplify_footprints']=True
+            if args.profile_stages:params['profile_stages']=True
             tick=perf_counter();r=client.post('/fires/search',params=params,json=area)
             elapsed=(perf_counter()-tick)*1000;r.raise_for_status()
+            if i==0:first_request_ms=elapsed
             if i:
                 samples.append(elapsed);hashes.append(hashlib.sha256(r.content).hexdigest());stages.append(capture.items[-1])
         con,_=snapshot.connect(window)
@@ -84,18 +91,35 @@ def run(args,root):
             con.create_function('area_contains',2,lambda x,y:True)
             where+=' AND area_contains(lon,lat)'
             count_plan=[list(r) for r in con.execute('EXPLAIN QUERY PLAN SELECT count(*) FROM events WHERE '+where,values)]
-            sql,page_params,_=snapshot.search_page_sql(con,area['bbox'],where,values,args.limit,offset,r.json()['count'])
+            if hasattr(snapshot,'search_page_sql'):
+                sql,page_params,_=snapshot.search_page_sql(con,area['bbox'],where,values,args.limit,offset,r.json()['count'])
+            else:
+                sql='SELECT payload FROM events WHERE '+where+' ORDER BY end_time DESC,fire_id ASC LIMIT ? OFFSET ?';page_params=values+[args.limit,offset]
             page_plan=[list(r) for r in con.execute('EXPLAIN QUERY PLAN '+sql,page_params)]
         finally:con.close()
         metrics={key:round(statistics.median([s[key] for s in stages]),3) for key in stages[0] if key.endswith('_ms')}
         report['cases'][name]=dict(p50_ms=round(statistics.median(samples),3),p95_ms=round(sorted(samples)[math.ceil(.95*len(samples))-1],3),sha256=hashes[0],stable=len(set(hashes))==1,stages_p50=metrics,path=stages[0]['path'],count=r.json()['count'],response_bytes=len(r.content),wire_bytes=int(r.headers.get('content-length',len(r.content))),count_plan=count_plan,page_plan=page_plan)
+        report['cases'][name]['first_request_ms']=round(first_request_ms,3)
         print(name,report['cases'][name]['p50_ms'],report['cases'][name]['p95_ms'],flush=True)
+    report['cache_mode']='forced-cold' if args.cold else 'warm-repeats'
+    report['reference_commit']=args.reference_commit
+    report['limit']=args.limit
     args.output.parent.mkdir(parents=True,exist_ok=True);args.output.write_text(json.dumps(report,indent=2)+'\n')
-    snapshot.POOL.clear()
+    if hasattr(snapshot,'POOL'):snapshot.POOL.clear()
 
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--root',type=Path);parser.add_argument('--window');parser.add_argument('--output',type=Path,required=True);parser.add_argument('--repeats',type=int,default=7);parser.add_argument('--limit',type=int,default=200);parser.add_argument('--gzip',action='store_true');parser.add_argument('--simplify',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--root',type=Path);parser.add_argument('--window');parser.add_argument('--output',type=Path,required=True);parser.add_argument('--repeats',type=int,default=7);parser.add_argument('--limit',type=int,default=200);parser.add_argument('--gzip',action='store_true');parser.add_argument('--simplify',action='store_true');parser.add_argument('--cold',action='store_true');parser.add_argument('--profile-stages',action='store_true');parser.add_argument('--reference-commit');args=parser.parse_args()
+    if args.reference_commit:
+        # Load the actual instrumented baseline from Git into memory, without changing
+        # the working tree or writing any published snapshot. Local trusted repo only.
+        import subprocess,types
+        repo=Path(__file__).resolve().parents[2]
+        source=subprocess.run(['git','-c','safe.directory='+str(repo),'show',args.reference_commit+':backend/routers/snapshot.py'],cwd=repo,check=True,capture_output=True,text=True).stdout
+        reference=types.ModuleType('search_benchmark_reference');reference.__file__=snapshot.__file__
+        sys.modules[reference.__name__]=reference
+        exec(compile(source,reference.__file__,'exec'),reference.__dict__)
+        snapshot=reference
     if args.root:run(args,args.root.resolve())
     else:
         with tempfile.TemporaryDirectory(prefix='fire-search-') as temp:

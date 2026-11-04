@@ -82,5 +82,40 @@ lines+=['','The optional-detail workload is separately recorded in [05-payload-o
         'Prepared-geometry behavior follows [Shapely documentation](https://shapely.readthedocs.io/en/stable/manual.html#prepared-geometry-operations).',
         'Read-only/immutable safety follows [SQLite URI documentation](https://www.sqlite.org/uri.html);',
         'float32 edge rechecks follow the [SQLite R-Tree rounding guidance](https://www.sqlite.org/rtree.html#roundoff_error).', '']
+if (root/'09-limit-5000.json').exists():
+    cold_reference=json.loads((root/'09-cold-reference.json').read_text())['cases']
+    cold_final=json.loads((root/'09-cold-final.json').read_text())['cases']
+    large={limit:json.loads((root/f'09-limit-{limit}.json').read_text())['cases'] for limit in [2000,5000]}
+    profile=json.loads((root/'09-stage-profile.json').read_text())['cases']
+    lines+=['## Cold-cache and larger pages','',
+            'These additional measurements ran after all eight tasks. The cold reference loads the actual',
+            'instrumented baseline source from commit `3f95ca7` into memory without changing the working tree.',
+            'Forced-cold runs clear process-local count and prepared-geometry caches before every request;',
+            'they do not flush the operating-system filesystem cache. Both reference and final omit gzip',
+            'for this comparison, with limit 200 and 5 samples. Larger-page runs use warm repeat caches,',
+            'negotiated gzip and 3 samples, so their p95 is only the maximum observed sample.', '',
+            '| Query | Cold reference p50 / p95 | Cold final p50 / p95 | 2000-event page p50 / p95 | 5000-event page p50 / p95 |',
+            '|---|---:|---:|---:|---:|']
+    for name,old in cold_reference.items():
+        new=cold_final[name]
+        assert old['sha256']==new['sha256']
+        assert new['sha256']==profile[name]['sha256']
+        cells=[f"{case['p50_ms']:.1f} / {case['p95_ms']:.1f}" for case in [old,new,large[2000][name],large[5000][name]]]
+        lines.append('| '+name+' | '+' | '.join(cells)+' |')
+    lines+=['','Larger pages still pay to enrich/serialize/transmit every returned event; clustering reduces',
+            'client drawing work, not response size. The full count remains independent of page size.', '',
+            '## Isolated candidate diagnostics','',
+            '`profile_stages=true` explicitly adds a coordinate-only candidate scan and exact-predicate pass.',
+            'It leaves normal response bytes unchanged. This isolates candidate traversal rather than',
+            'mislabeling SQL construction time as filter execution. Production requests do not pay this extra scan.',
+            'The original T1–T8 JSON field `candidate_filter_ms` was query-construction time; the current',
+            'logger correctly calls it `candidate_setup_ms`. Normal count/page timings still include',
+            'candidate traversal and exact callback time; timings are overlapping, not additive.', '',
+            '| Query | Candidate scan median ms | Diagnostic exact median ms |', '|---|---:|---:|']
+    for name,case in profile.items():
+        timing=case['stages_p50']
+        lines.append(f"| {name} | {timing['candidate_filter_ms']:.3f} | {timing['diagnostic_exact_ms']:.3f} |")
+    lines+=['','Reproduce with `--cold`, `--reference-commit 3f95ca7`, `--profile-stages`, or `--limit 5000`',
+            'on `benchmarks/search.py`. Isolated diagnostic totals must not be compared as normal endpoint latencies.', '']
 (root/'report.md').write_text('\n'.join(lines),encoding='utf-8')
 print('All sequential checkpoint response hashes match; report.md written.')

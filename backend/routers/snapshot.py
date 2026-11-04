@@ -135,7 +135,7 @@ def search_page_sql(con,box,where,params,limit,offset,matching_count=None):
 
 
 @router.post('/fires/search')
-def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge=1,le=5000),offset:int=Query(0,ge=0),geometry:bool=False,simplify_footprints:bool=False):
+def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge=1,le=5000),offset:int=Query(0,ge=0),geometry:bool=False,simplify_footprints:bool=False,profile_stages:bool=False):
     """Search event centroids: exact containment precedes counting and pagination."""
     started=perf_counter();exact_seconds=0.;exact_calls=0
     area=PreparedArea(search_area(payload))
@@ -143,6 +143,7 @@ def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge
     try:
         stage=perf_counter()
         where,params=event_candidates(con,area.bbox)
+        candidate_where,candidate_params=where,list(params)
         candidate_ms=(perf_counter()-stage)*1000
         path='rtree' if 'event_spatial_index' in where else 'fallback'
         if path=='fallback' and FALLBACK_WARNINGS.get(con.identity) is None:
@@ -176,10 +177,22 @@ def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge
         response={**meta,'data':data,'count':count,'limit':limit,'offset':offset,'has_more':offset+len(data)<count,
                 'basis':'event centroid inside selected area; exact containment before pagination'}
         encoded=JSONResponse(response)
-        SEARCH_LOG.info('fire_search %s',json.dumps(dict(path=path,ordering_path=strategy,count_cache_hit=count_cache_hit,candidate_filter_ms=candidate_ms,
+        serialization_ms=(perf_counter()-stage)*1000
+        diagnostics={}
+        if profile_stages:
+            # SQL pipelines candidate traversal, predicates, and ordering. Isolate
+            # candidate traversal only on explicit profiling requests: an extra scan.
+            stage=perf_counter()
+            candidates=con.execute('SELECT lon,lat FROM events WHERE '+candidate_where,candidate_params).fetchall()
+            diagnostics['candidate_filter_ms']=(perf_counter()-stage)*1000
+            stage=perf_counter()
+            diagnostics['diagnostic_matching_count']=sum(area.contains(row['lat'],row['lon']) for row in candidates)
+            diagnostics['diagnostic_exact_ms']=(perf_counter()-stage)*1000
+            diagnostics['diagnostic_candidates']=len(candidates)
+        SEARCH_LOG.info('fire_search %s',json.dumps(dict(path=path,ordering_path=strategy,count_cache_hit=count_cache_hit,candidate_setup_ms=candidate_ms,
             exact_containment_ms=exact_seconds*1000,exact_calls=exact_calls,count_ms=count_ms,
-            sort_limit_ms=sort_ms,serialization_ms=(perf_counter()-stage)*1000,
-            total_ms=(perf_counter()-started)*1000,count=count,offset=offset,limit=limit)))
+            sort_limit_ms=sort_ms,serialization_ms=serialization_ms,
+            total_ms=(perf_counter()-started)*1000,count=count,offset=offset,limit=limit,**diagnostics)))
         return encoded
     finally:con.close()
 
