@@ -69,3 +69,17 @@ def test_query_plans_use_spatial_and_ordering_indexes(client,tmp_path):
             sql,params,strategy=snapshot.search_page_sql(con,box,where+' AND area_contains(lon,lat)',params,10,0)
             details=' '.join(row[3] for row in con.execute('EXPLAIN QUERY PLAN '+sql,params))
             assert expected in details
+
+
+def test_count_cache_handles_deep_first_requests_and_snapshot_changes(client,tmp_path,caplog):
+    area={'bbox':[88,20,93,27]}
+    with caplog.at_level('INFO',logger='flameseek.search'):
+        first=client.post('/fires/search?offset=100',json=area).json()
+        second=client.post('/fires/search?limit=1',json=area).json()
+    assert first['count']==second['count']==2 and first['data']==[]
+    logs=[json.loads(r.message[12:]) for r in caplog.records if r.message.startswith('fire_search ')]
+    assert not logs[0]['count_cache_hit'] and logs[1]['count_cache_hit']
+    with sqlite3.connect(tmp_path/'data/processed/snapshots/current_2026.sqlite') as con:
+        event={'fire_id':'extra','end_time':'2026-11-02 12:00:00+00:00'}
+        con.execute('INSERT INTO events VALUES(?,?,?,?,?,?)',('extra','2026-11-01',event['end_time'],90.,24.,json.dumps(event)))
+    assert client.post('/fires/search',json=area).json()['count']==3

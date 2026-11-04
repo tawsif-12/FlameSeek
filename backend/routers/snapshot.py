@@ -12,6 +12,7 @@ from fastapi.routing import APIRoute
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
 from geo import AOI
+from search_cache import COUNTS, query_hash, snapshot_id
 SEARCH_LOG=logging.getLogger('flameseek.search')
 ROOT=Path(__file__).resolve().parents[2]
 MANIFEST_PATH=ROOT/'data/processed/snapshot_manifest.json'
@@ -149,7 +150,12 @@ def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge
         con.create_function('area_contains',2,contains,deterministic=True)
         where+=' AND area_contains(lon,lat)'
         stage=perf_counter()
-        count=con.execute('SELECT count(*) FROM events WHERE '+where,params).fetchone()[0]
+        identity=snapshot_id(ROOT/'data/processed/snapshots'/(window+'.sqlite'))
+        count_key=(identity,query_hash(payload))
+        count=COUNTS.get(count_key);count_cache_hit=count is not None
+        if count is None:
+            count=con.execute('SELECT count(*) FROM events WHERE '+where,params).fetchone()[0]
+            COUNTS.put(count_key,count)
         count_ms=(perf_counter()-stage)*1000
         stage=perf_counter()
         sql,page_params,strategy=search_page_sql(con,area.bbox,where,params,limit,offset,count)
@@ -162,7 +168,7 @@ def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge
         response={**meta,'data':data,'count':count,'limit':limit,'offset':offset,'has_more':offset+len(data)<count,
                 'basis':'event centroid inside selected area; exact containment before pagination'}
         encoded=JSONResponse(response)
-        SEARCH_LOG.info('fire_search %s',json.dumps(dict(path=path,ordering_path=strategy,candidate_filter_ms=candidate_ms,
+        SEARCH_LOG.info('fire_search %s',json.dumps(dict(path=path,ordering_path=strategy,count_cache_hit=count_cache_hit,candidate_filter_ms=candidate_ms,
             exact_containment_ms=exact_seconds*1000,exact_calls=exact_calls,count_ms=count_ms,
             sort_limit_ms=sort_ms,serialization_ms=(perf_counter()-stage)*1000,
             total_ms=(perf_counter()-started)*1000,count=count,offset=offset,limit=limit)))
