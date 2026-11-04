@@ -81,7 +81,7 @@ export interface HarmonizedEvent {
 }
 
 export interface Detection { fire_id: string; lon: number; lat: number; time: string; platform: string; sensor: string; frp: number | null; conf_class: string }
-export interface ListResponse<T> extends SnapshotMeta { data: T[]; count: number; limit: number; basis?: string }
+export interface ListResponse<T> extends SnapshotMeta { data: T[]; count: number; limit: number; offset: number; has_more: boolean; basis?: string }
 
 /** The section if it was computed, else null. */
 export function computed<T>(v: T | Awaiting): T | null {
@@ -90,10 +90,10 @@ export function computed<T>(v: T | Awaiting): T | null {
 
 const BASE = import.meta.env.VITE_API_BASE_URL || "";
 
-export async function snapshotGet<T>(path: string, params: Record<string, string | number | boolean | undefined> = {}): Promise<T> {
+export async function snapshotGet<T>(path: string, params: Record<string, string | number | boolean | undefined> = {}, payload?: unknown): Promise<T> {
   const q = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => v !== undefined && q.set(k, String(v)));
-  const r = await fetch(`${BASE}${path}${q.toString() ? `?${q}` : ""}`);
+  const r = await fetch(`${BASE}${path}${q.toString() ? `?${q}` : ""}`, payload === undefined ? undefined : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
   const body = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(body.detail || `HTTP ${r.status}`);
   return body as T;

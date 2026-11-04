@@ -8,6 +8,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
 from fastapi.encoders import jsonable_encoder
+from pydantic import BaseModel, Field
+from geo import AOI
 ROOT=Path(__file__).resolve().parents[2]
 MANIFEST_PATH=ROOT/'data/processed/snapshot_manifest.json'
 _spec=importlib.util.spec_from_file_location('flameseek_snapshot_translation',ROOT/'pipeline/translate.py')
@@ -56,6 +58,73 @@ def parse_bbox(value):
         if not (-180<=w<e<=180 and -90<=s<n<=90):raise ValueError()
     except (ValueError,TypeError):raise HTTPException(400,'bbox must be west,south,east,north in valid geographic bounds')
     return box
+
+
+class FireSearch(BaseModel):
+    bbox: tuple[float,float,float,float]
+    geometry: dict | None = None
+    center: tuple[float,float] | None = None
+    radius_km: float | None = Field(default=None,gt=0,le=20000)
+
+
+def search_area(payload):
+    """Validate the boundary before registering an exact SQLite predicate."""
+    parse_bbox(','.join(map(str,payload.bbox)))
+    if (payload.center is None)!=(payload.radius_km is None):
+        raise HTTPException(400,'center and radius_km must be supplied together')
+    if payload.center:
+        lon,lat=payload.center
+        if not (-180<=lon<=180 and -90<=lat<=90 and math.isfinite(payload.radius_km)):
+            raise HTTPException(400,'Invalid radius search')
+    if payload.geometry is not None:
+        try:
+            kind=payload.geometry['type'];coords=payload.geometry['coordinates']
+            if kind not in ('Polygon','MultiPolygon'):raise ValueError()
+            polygons=[coords] if kind=='Polygon' else coords
+            if not polygons:raise ValueError()
+            count=0
+            for polygon in polygons:
+                if not polygon:raise ValueError()
+                for ring in polygon:
+                    if len(ring)<4 or ring[0]!=ring[-1]:raise ValueError()
+                    for point in ring:
+                        lon,lat=point[:2];count+=1
+                        if not (-180<=lon<=180 and -90<=lat<=90):raise ValueError()
+            if count>100000:raise ValueError()
+        except (ValueError,TypeError,KeyError,IndexError):
+            raise HTTPException(400,'Expected closed Polygon or MultiPolygon rings with valid coordinates (maximum 100000 vertices)')
+    # Keep the supplied candidate box; exact radius/polygon tests follow it.
+    from geo import geojson_to_polygons
+    return AOI(payload.bbox,geojson_to_polygons(payload.geometry),payload.center,payload.radius_km)
+
+
+def event_candidates(con,box):
+    w,s,e,n=box
+    exact='lon BETWEEN ? AND ? AND lat BETWEEN ? AND ?';params=[w,e,s,n]
+    if con.execute("SELECT 1 FROM sqlite_master WHERE name='event_spatial_index'").fetchone():
+        # R-Tree uses outward-rounded float32 bounds; always recheck exact coordinates.
+        exact='rowid IN (SELECT event_id FROM event_spatial_index WHERE min_lon<=? AND max_lon>=? AND min_lat<=? AND max_lat>=?) AND '+exact
+        params=[e,w,n,s]+params
+    return exact,params
+
+
+@router.post('/fires/search')
+def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge=1,le=5000),offset:int=Query(0,ge=0),geometry:bool=False):
+    """Search event centroids: exact containment precedes counting and pagination."""
+    area=search_area(payload)
+    con,window=connect(window);meta=metadata(window)
+    try:
+        where,params=event_candidates(con,area.bbox)
+        con.create_function('area_contains',2,lambda lon,lat:lon is not None and lat is not None and area.contains(lat,lon),deterministic=True)
+        where+=' AND area_contains(lon,lat)'
+        count=con.execute('SELECT count(*) FROM events WHERE '+where,params).fetchone()[0]
+        rows=con.execute('SELECT payload FROM events WHERE '+where+' ORDER BY end_time DESC,fire_id ASC LIMIT ? OFFSET ?',params+[limit,offset]).fetchall()
+        data=[describe(row,con,meta) for row in rows]
+        if geometry:
+            for event in data:event['footprint']=footprint(con,event['fire_id'])
+        return {**meta,'data':data,'count':count,'limit':limit,'offset':offset,'has_more':offset+len(data)<count,
+                'basis':'event centroid inside selected area; exact containment before pagination'}
+    finally:con.close()
 
 
 def describe(row,con,meta):
@@ -117,10 +186,9 @@ def window_fires(bbox:str,window:str|None=None,limit:int=Query(2000,ge=1,le=5000
     """All fire events of the window inside a box (e.g. a searched place), most recent first."""
     con,window=connect(window);meta=metadata(window)
     try:
-        w,s,e,n=parse_bbox(bbox)
-        where='lon BETWEEN ? AND ? AND lat BETWEEN ? AND ?';params=[w,e,s,n]
+        where,params=event_candidates(con,parse_bbox(bbox))
         count=con.execute('SELECT count(*) FROM events WHERE '+where,params).fetchone()[0]
-        rows=con.execute('SELECT payload FROM events WHERE '+where+' ORDER BY end_time DESC LIMIT ? OFFSET ?',params+[limit,offset]).fetchall()
+        rows=con.execute('SELECT payload FROM events WHERE '+where+' ORDER BY end_time DESC,fire_id ASC LIMIT ? OFFSET ?',params+[limit,offset]).fetchall()
         data=[describe(row,con,meta) for row in rows]
         if geometry:
             for event in data:event['footprint']=footprint(con,event['fire_id'])

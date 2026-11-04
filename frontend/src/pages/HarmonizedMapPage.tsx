@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { GeoJSON, MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import L, { type LatLngBoundsExpression } from "leaflet";
 import { HarmonizedEvent, ListResponse, snapshotGet, SnapshotMeta, useSiteData } from "../api/harmonized";
-import { aoiBBox, aoiContains, describeAoi, useAppContext } from "../context/AppContext";
+import { aoiBBox, describeAoi, useAppContext } from "../context/AppContext";
 import { useLanguage } from "../context/LanguageContext";
 import HarmonizedProvenance, { StatusPill } from "../components/HarmonizedProvenance";
 import "../harmonized.css";
@@ -21,11 +21,6 @@ function ZoomWatcher({ onZoom }: { onZoom: (z: number) => void }) {
   const map = useMapEvents({ zoomend: () => onZoom(map.getZoom()) });
   useEffect(() => onZoom(map.getZoom()), [map, onZoom]);
   return null;
-}
-
-function clampBox(b: [number, number, number, number]) {
-  const c = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
-  return [c(b[0], -180, 180), c(b[1], -90, 90), c(b[2], -180, 180), c(b[3], -90, 90)].map((x) => x.toFixed(4)).join(",");
 }
 
 /** Frames the map on the place, or on one event when it is selected. */
@@ -70,15 +65,15 @@ export default function HarmonizedMapPage() {
     setLoading(true);
     setError(null);
     setSelected(null);
-    snapshotGet<ListResponse<HarmonizedEvent>>("/fires", { window: win, bbox: clampBox(box), limit: 5000, geometry: true })
+    snapshotGet<ListResponse<HarmonizedEvent>>("/fires/search", { window: win, limit: 5000, geometry: true }, { bbox: box, geometry: aoi?.geometry, center: aoi?.center, radius_km: aoi?.radius_km })
       .then((r) => id === req.current && setList(r))
       .catch((e) => id === req.current && (setError((e as Error).message), setList(null)))
       .finally(() => id === req.current && setLoading(false));
-  }, [box, win]);
+  }, [box, win, aoi]);
 
-  // Keep only events inside the place's own outline (not just its bounding box), strongest first.
+  // Exact containment is authoritative on the backend; display this page strongest first.
   const events = useMemo(() => {
-    const inside = (list?.data ?? []).filter((e) => !aoi || aoiContains(aoi, e.centroid_lat, e.centroid_lon));
+    const inside = [...(list?.data ?? [])];
     return inside.sort((a, b) => peak(b) - peak(a));
   }, [list, aoi]);
 
@@ -194,7 +189,7 @@ export default function HarmonizedMapPage() {
           <div className="hz-count">
             {loading && <span>{t("loading")}</span>}
             {error && <span style={{ color: "var(--sp-warn)" }}>{t("error")}: {error}</span>}
-            {list && !loading && <><b>{fmt(events.length)} {t("events_found")}</b> — {t("window_basis")}{list.count > list.data.length ? ` (${t("first")} ${fmt(list.data.length)} ${t("map_of")} ${fmt(list.count)})` : ""}</>}
+            {list && !loading && <><b>{fmt(list.count)} {t("events_found")}</b> — {t("window_basis")}{list.count > list.data.length ? ` (${t("first")} ${fmt(list.data.length)} ${t("map_of")} ${fmt(list.count)})` : ""}</>}
           </div>
 
           {selected && tr ? (
