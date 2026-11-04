@@ -13,6 +13,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
 from geo import AOI
 from search_cache import COUNTS, query_hash, snapshot_id
+from search_geometry import PreparedArea
 SEARCH_LOG=logging.getLogger('flameseek.search')
 ROOT=Path(__file__).resolve().parents[2]
 MANIFEST_PATH=ROOT/'data/processed/snapshot_manifest.json'
@@ -135,7 +136,7 @@ def search_page_sql(con,box,where,params,limit,offset,matching_count=None):
 def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge=1,le=5000),offset:int=Query(0,ge=0),geometry:bool=False):
     """Search event centroids: exact containment precedes counting and pagination."""
     started=perf_counter();exact_seconds=0.;exact_calls=0
-    area=search_area(payload)
+    area=PreparedArea(search_area(payload))
     con,window=connect(window);meta=metadata(window)
     try:
         stage=perf_counter()

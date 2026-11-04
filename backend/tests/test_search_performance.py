@@ -38,7 +38,10 @@ def test_search_matches_original(client,tmp_path,indexed,shape):
         con.row_factory=sqlite3.Row
         expected=[]
         for row in con.execute('SELECT payload,lon,lat FROM events ORDER BY end_time DESC,fire_id ASC'):
-            if original.contains(row['lat'],row['lon']):expected.append(json.loads(row['payload'])['fire_id'])
+            match=original.contains(row['lat'],row['lon'])
+            # Approved bug fix: combined searches previously ignored the polygon.
+            if shape=='both':match=match and AOI(original.bbox,original.polygons).contains(row['lat'],row['lon'])
+            if match:expected.append(json.loads(row['payload'])['fire_id'])
     actual=[]
     for offset in range(0,len(expected)+7,7):
         response=client.post(f'/fires/search?limit=7&offset={offset}',json=payload)
@@ -83,3 +86,28 @@ def test_count_cache_handles_deep_first_requests_and_snapshot_changes(client,tmp
         event={'fire_id':'extra','end_time':'2026-11-02 12:00:00+00:00'}
         con.execute('INSERT INTO events VALUES(?,?,?,?,?,?)',('extra','2026-11-01',event['end_time'],90.,24.,json.dumps(event)))
     assert client.post('/fires/search',json=area).json()['count']==3
+
+
+def test_prepared_polygon_keeps_diagonal_and_horizontal_boundaries():
+    from search_geometry import PreparedArea
+    outer=[[0,0],[4,0],[4,4],[0,4],[0,0]]
+    hole=[[1,1],[3,1],[2,3],[1,1]]
+    original=AOI((-1,-1,5,5),[[outer,hole]])
+    prepared=PreparedArea(original)
+    for ring in [outer,hole]:
+        for a,b in zip(ring,ring[1:]):
+            for t in [0,.25,.5,.75,1]:
+                x=a[0]+t*(b[0]-a[0]);y=a[1]+t*(b[1]-a[1])
+                for dx in [-1e-12,0,1e-12]:
+                    assert prepared.contains(y,x+dx)==original.contains(y,x+dx)
+
+
+@pytest.mark.parametrize('center,radius', [([0,0],100),([179,0],500),([0,89],500),([0,-89],500),([0,0],19000)])
+def test_circle_candidate_box_never_excludes_matches(center,radius):
+    from search_geometry import PreparedArea
+    original=AOI((-180,-90,180,90),center=center,radius_km=radius)
+    prepared=PreparedArea(original);w,s,e,n=prepared.bbox
+    rng=random.Random(17)
+    for _ in range(2000):
+        lon,lat=rng.uniform(-180,180),rng.uniform(-90,90)
+        if original.contains(lat,lon):assert w<=lon<=e and s<=lat<=n

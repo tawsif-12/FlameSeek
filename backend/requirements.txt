@@ -9,3 +9,4 @@ lightgbm
 pytest
 pytest-mock
 skyfield
+shapely>=2.0,<3
