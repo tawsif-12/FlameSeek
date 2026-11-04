@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 from geo import AOI
 from search_cache import COUNTS, query_hash, snapshot_id
 from search_geometry import PreparedArea
+from snapshot_connections import POOL
 SEARCH_LOG=logging.getLogger('flameseek.search')
 ROOT=Path(__file__).resolve().parents[2]
 MANIFEST_PATH=ROOT/'data/processed/snapshot_manifest.json'
@@ -50,7 +51,7 @@ def connect(window):
     if window not in data['windows']:raise HTTPException(400,'Unknown or unavailable processing window')
     path=ROOT/'data/processed/snapshots'/(window+'.sqlite')
     if not path.exists():raise HTTPException(503,'Awaiting local snapshot build')
-    con=sqlite3.connect(path.as_uri()+'?mode=ro',uri=True);con.row_factory=sqlite3.Row
+    con=POOL.acquire(path)
     return con,window
 
 
@@ -151,7 +152,7 @@ def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge
         con.create_function('area_contains',2,contains,deterministic=True)
         where+=' AND area_contains(lon,lat)'
         stage=perf_counter()
-        identity=snapshot_id(ROOT/'data/processed/snapshots'/(window+'.sqlite'))
+        identity=con.identity
         count_key=(identity,query_hash(payload))
         count=COUNTS.get(count_key);count_cache_hit=count is not None
         if count is None:

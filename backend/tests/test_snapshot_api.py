@@ -31,7 +31,8 @@ def client(tmp_path,monkeypatch):
     manifest=root/'data/processed/snapshot_manifest.json';manifest.write_text(json.dumps(dict(default_window='current_2026',windows=windows,translation={'active_hours':24})))
     monkeypatch.setattr(snapshot,'ROOT',root);monkeypatch.setattr(snapshot,'MANIFEST_PATH',manifest)
     app=FastAPI();app.include_router(snapshot.router)
-    return TestClient(app)
+    yield TestClient(app)
+    snapshot.POOL.clear()
 
 
 def test_metadata_uses_window_end_not_wall_clock(client):

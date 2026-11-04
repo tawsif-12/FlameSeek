@@ -91,6 +91,7 @@ def run(args,root):
         report['cases'][name]=dict(p50_ms=round(statistics.median(samples),3),p95_ms=round(sorted(samples)[math.ceil(.95*len(samples))-1],3),sha256=hashes[0],stable=len(set(hashes))==1,stages_p50=metrics,path=stages[0]['path'],count=r.json()['count'],response_bytes=len(r.content),wire_bytes=int(r.headers.get('content-length',len(r.content))),count_plan=count_plan,page_plan=page_plan)
         print(name,report['cases'][name]['p50_ms'],report['cases'][name]['p95_ms'],flush=True)
     args.output.parent.mkdir(parents=True,exist_ok=True);args.output.write_text(json.dumps(report,indent=2)+'\n')
+    snapshot.POOL.clear()
 
 
 if __name__=='__main__':

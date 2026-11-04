@@ -136,3 +136,41 @@ def test_search_gzip_preserves_decoded_contract_and_other_routes(client):
     assert zipped.headers['content-encoding']=='gzip'
     assert zipped.json()==plain.json()
     assert 'content-encoding' not in compressed.get('/events/recent',headers={'Accept-Encoding':'gzip'}).headers
+
+
+def test_pool_reuses_exclusive_readonly_connections(client,monkeypatch):
+    # Explicitly opt in for the reuse test; Windows defaults to releasing handles.
+    monkeypatch.setattr(snapshot.POOL,'reuse',True)
+    first,_=snapshot.connect('current_2026');underlying=first.connection
+    assert first.execute('PRAGMA query_only').fetchone()[0]==1
+    assert first.execute('PRAGMA cache_size').fetchone()[0]==-8192
+    first.close()
+    second,_=snapshot.connect('current_2026')
+    try:
+        assert second.connection is underlying
+        simultaneous,_=snapshot.connect('current_2026')
+        try:assert simultaneous.connection is not second.connection
+        finally:simultaneous.close()
+    finally:second.close()
+
+
+def test_pool_handles_atomic_snapshot_replacement(client,tmp_path):
+    import shutil
+    path=tmp_path/'data/processed/snapshots/current_2026.sqlite'
+    con,_=snapshot.connect('current_2026');old_id=con.identity;con.close()
+    replacement=tmp_path/'replacement.sqlite'
+    shutil.copyfile(path,replacement)
+    replacement.replace(path)
+    con,_=snapshot.connect('current_2026')
+    try:assert con.identity!=old_id
+    finally:con.close()
+    assert client.post('/fires/search',json={'bbox':[88,20,93,27]}).json()['count']==2
+
+
+def test_concurrent_searches_do_not_share_geometry_callbacks(client):
+    from concurrent.futures import ThreadPoolExecutor
+    def search(i):
+        area={'bbox':[88,20,93,27]} if i%2 else {'bbox':[0,0,1,1]}
+        body=client.post('/fires/search',json=area).json()
+        assert body['count']==(2 if i%2 else 0)
+    with ThreadPoolExecutor(max_workers=12) as executor:list(executor.map(search,range(36)))
