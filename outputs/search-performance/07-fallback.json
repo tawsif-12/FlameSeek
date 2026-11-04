@@ -1,0 +1,547 @@
+{
+  "dataset": "seed43-30000",
+  "window": "bench",
+  "repeats": 7,
+  "cases": {
+    "small": {
+      "p50_ms": 15.307,
+      "p95_ms": 18.386,
+      "sha256": "19f398518d106f225a1cf2af9d0afd52bdee04f7be5352deba8aa766253e9b86",
+      "stable": true,
+      "stages_p50": {
+        "candidate_filter_ms": 0.118,
+        "exact_containment_ms": 0.01,
+        "count_ms": 0.045,
+        "sort_limit_ms": 0.731,
+        "serialization_ms": 8.464,
+        "total_ms": 10.819
+      },
+      "path": "rtree",
+      "count": 35,
+      "response_bytes": 174171,
+      "wire_bytes": 174171,
+      "count_plan": [
+        [
+          3,
+          0,
+          91,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          7,
+          0,
+          0,
+          "LIST SUBQUERY 1"
+        ],
+        [
+          10,
+          7,
+          186,
+          "SCAN event_spatial_index VIRTUAL TABLE INDEX 2:B0D1B2D3"
+        ],
+        [
+          22,
+          7,
+          0,
+          "CREATE BLOOM FILTER"
+        ]
+      ],
+      "page_plan": [
+        [
+          3,
+          0,
+          0,
+          "MATERIALIZE page"
+        ],
+        [
+          11,
+          3,
+          91,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          15,
+          3,
+          0,
+          "LIST SUBQUERY 1"
+        ],
+        [
+          18,
+          15,
+          186,
+          "SCAN event_spatial_index VIRTUAL TABLE INDEX 2:B0D1B2D3"
+        ],
+        [
+          30,
+          15,
+          0,
+          "CREATE BLOOM FILTER"
+        ],
+        [
+          66,
+          3,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        [
+          79,
+          0,
+          59,
+          "SCAN page"
+        ],
+        [
+          81,
+          0,
+          45,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ]
+    },
+    "medium": {
+      "p50_ms": 60.249,
+      "p95_ms": 82.195,
+      "sha256": "79a2bdc72923de1022862df3e4d84b7463e03b7370b1364b03fdaad812187aa5",
+      "stable": true,
+      "stages_p50": {
+        "candidate_filter_ms": 0.128,
+        "exact_containment_ms": 0.304,
+        "count_ms": 0.051,
+        "sort_limit_ms": 4.716,
+        "serialization_ms": 46.835,
+        "total_ms": 53.577
+      },
+      "path": "rtree",
+      "count": 1265,
+      "response_bytes": 995528,
+      "wire_bytes": 995528,
+      "count_plan": [
+        [
+          3,
+          0,
+          91,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          7,
+          0,
+          0,
+          "LIST SUBQUERY 1"
+        ],
+        [
+          10,
+          7,
+          186,
+          "SCAN event_spatial_index VIRTUAL TABLE INDEX 2:B0D1B2D3"
+        ],
+        [
+          22,
+          7,
+          0,
+          "CREATE BLOOM FILTER"
+        ]
+      ],
+      "page_plan": [
+        [
+          3,
+          0,
+          0,
+          "MATERIALIZE page"
+        ],
+        [
+          11,
+          3,
+          91,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          15,
+          3,
+          0,
+          "LIST SUBQUERY 1"
+        ],
+        [
+          18,
+          15,
+          186,
+          "SCAN event_spatial_index VIRTUAL TABLE INDEX 2:B0D1B2D3"
+        ],
+        [
+          30,
+          15,
+          0,
+          "CREATE BLOOM FILTER"
+        ],
+        [
+          66,
+          3,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        [
+          79,
+          0,
+          59,
+          "SCAN page"
+        ],
+        [
+          81,
+          0,
+          45,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ]
+    },
+    "continent": {
+      "p50_ms": 70.403,
+      "p95_ms": 94.449,
+      "sha256": "ea4ff6985a06f5f06c77021ce5208177b53abd4c5b26785bf73745ffb937cdea",
+      "stable": true,
+      "stages_p50": {
+        "candidate_filter_ms": 0.15,
+        "exact_containment_ms": 1.118,
+        "count_ms": 0.053,
+        "sort_limit_ms": 12.18,
+        "serialization_ms": 47.695,
+        "total_ms": 62.325
+      },
+      "path": "rtree",
+      "count": 4888,
+      "response_bytes": 1005772,
+      "wire_bytes": 1005772,
+      "count_plan": [
+        [
+          3,
+          0,
+          91,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          7,
+          0,
+          0,
+          "LIST SUBQUERY 1"
+        ],
+        [
+          10,
+          7,
+          186,
+          "SCAN event_spatial_index VIRTUAL TABLE INDEX 2:B0D1B2D3"
+        ],
+        [
+          22,
+          7,
+          0,
+          "CREATE BLOOM FILTER"
+        ]
+      ],
+      "page_plan": [
+        [
+          3,
+          0,
+          0,
+          "MATERIALIZE page"
+        ],
+        [
+          11,
+          3,
+          91,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          15,
+          3,
+          0,
+          "LIST SUBQUERY 1"
+        ],
+        [
+          18,
+          15,
+          186,
+          "SCAN event_spatial_index VIRTUAL TABLE INDEX 2:B0D1B2D3"
+        ],
+        [
+          30,
+          15,
+          0,
+          "CREATE BLOOM FILTER"
+        ],
+        [
+          66,
+          3,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        [
+          79,
+          0,
+          59,
+          "SCAN page"
+        ],
+        [
+          81,
+          0,
+          45,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ]
+    },
+    "complex_polygon": {
+      "p50_ms": 67.11,
+      "p95_ms": 79.632,
+      "sha256": "44eaa681381ec7fd05e933cdc53d9b4a4bd276935a9718febc968ac96190bd6c",
+      "stable": true,
+      "stages_p50": {
+        "candidate_filter_ms": 0.129,
+        "exact_containment_ms": 5.614,
+        "count_ms": 0.668,
+        "sort_limit_ms": 9.711,
+        "serialization_ms": 46.46,
+        "total_ms": 59.411
+      },
+      "path": "rtree",
+      "count": 426,
+      "response_bytes": 1005358,
+      "wire_bytes": 1005358,
+      "count_plan": [
+        [
+          3,
+          0,
+          91,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          7,
+          0,
+          0,
+          "LIST SUBQUERY 1"
+        ],
+        [
+          10,
+          7,
+          186,
+          "SCAN event_spatial_index VIRTUAL TABLE INDEX 2:B0D1B2D3"
+        ],
+        [
+          22,
+          7,
+          0,
+          "CREATE BLOOM FILTER"
+        ]
+      ],
+      "page_plan": [
+        [
+          3,
+          0,
+          0,
+          "MATERIALIZE page"
+        ],
+        [
+          11,
+          3,
+          91,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          15,
+          3,
+          0,
+          "LIST SUBQUERY 1"
+        ],
+        [
+          18,
+          15,
+          186,
+          "SCAN event_spatial_index VIRTUAL TABLE INDEX 2:B0D1B2D3"
+        ],
+        [
+          30,
+          15,
+          0,
+          "CREATE BLOOM FILTER"
+        ],
+        [
+          66,
+          3,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        [
+          79,
+          0,
+          59,
+          "SCAN page"
+        ],
+        [
+          81,
+          0,
+          45,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ]
+    },
+    "circle": {
+      "p50_ms": 58.039,
+      "p95_ms": 70.941,
+      "sha256": "70b760b3a99ddf65f53871e85a5b21343aa2f311bb359510f808054caf896ca5",
+      "stable": true,
+      "stages_p50": {
+        "candidate_filter_ms": 0.128,
+        "exact_containment_ms": 0.271,
+        "count_ms": 0.052,
+        "sort_limit_ms": 2.024,
+        "serialization_ms": 47.861,
+        "total_ms": 51.859
+      },
+      "path": "rtree",
+      "count": 214,
+      "response_bytes": 1003415,
+      "wire_bytes": 1003415,
+      "count_plan": [
+        [
+          3,
+          0,
+          91,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          7,
+          0,
+          0,
+          "LIST SUBQUERY 1"
+        ],
+        [
+          10,
+          7,
+          186,
+          "SCAN event_spatial_index VIRTUAL TABLE INDEX 2:B0D1B2D3"
+        ],
+        [
+          22,
+          7,
+          0,
+          "CREATE BLOOM FILTER"
+        ]
+      ],
+      "page_plan": [
+        [
+          3,
+          0,
+          0,
+          "MATERIALIZE page"
+        ],
+        [
+          11,
+          3,
+          91,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          15,
+          3,
+          0,
+          "LIST SUBQUERY 1"
+        ],
+        [
+          18,
+          15,
+          186,
+          "SCAN event_spatial_index VIRTUAL TABLE INDEX 2:B0D1B2D3"
+        ],
+        [
+          30,
+          15,
+          0,
+          "CREATE BLOOM FILTER"
+        ],
+        [
+          66,
+          3,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        [
+          79,
+          0,
+          59,
+          "SCAN page"
+        ],
+        [
+          81,
+          0,
+          45,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ]
+    },
+    "deep_offset": {
+      "p50_ms": 75.39,
+      "p95_ms": 76.217,
+      "sha256": "c26d0217f02f2eaa37553160f1b90671f20d7d2bf08d979a31d935a038ab2be1",
+      "stable": true,
+      "stages_p50": {
+        "candidate_filter_ms": 0.13,
+        "exact_containment_ms": 3.406,
+        "count_ms": 0.044,
+        "sort_limit_ms": 19.697,
+        "serialization_ms": 45.693,
+        "total_ms": 67.656
+      },
+      "path": "rtree",
+      "count": 30000,
+      "response_bytes": 1010768,
+      "wire_bytes": 1010768,
+      "count_plan": [
+        [
+          3,
+          0,
+          91,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ],
+        [
+          7,
+          0,
+          0,
+          "LIST SUBQUERY 1"
+        ],
+        [
+          10,
+          7,
+          186,
+          "SCAN event_spatial_index VIRTUAL TABLE INDEX 2:B0D1B2D3"
+        ],
+        [
+          22,
+          7,
+          0,
+          "CREATE BLOOM FILTER"
+        ]
+      ],
+      "page_plan": [
+        [
+          3,
+          0,
+          0,
+          "MATERIALIZE page"
+        ],
+        [
+          12,
+          3,
+          225,
+          "SCAN events USING INDEX event_order"
+        ],
+        [
+          43,
+          0,
+          92,
+          "SCAN page"
+        ],
+        [
+          45,
+          0,
+          45,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ]
+    }
+  }
+}

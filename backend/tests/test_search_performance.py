@@ -174,3 +174,10 @@ def test_concurrent_searches_do_not_share_geometry_callbacks(client):
         body=client.post('/fires/search',json=area).json()
         assert body['count']==(2 if i%2 else 0)
     with ThreadPoolExecutor(max_workers=12) as executor:list(executor.map(search,range(36)))
+
+
+def test_missing_rtree_warning_is_actionable_and_rate_limited(client,caplog):
+    with caplog.at_level('WARNING',logger='flameseek.search'):
+        for _ in range(2):client.post('/fires/search',json={'bbox':[88,20,93,27]})
+    warnings=[r.message for r in caplog.records if 'lacks event_spatial_index' in r.message]
+    assert len(warnings)==1 and 'python -m pipeline.snapshot' in warnings[0]

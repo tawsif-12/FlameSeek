@@ -12,10 +12,11 @@ from fastapi.routing import APIRoute
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
 from geo import AOI
-from search_cache import COUNTS, query_hash, snapshot_id
+from search_cache import COUNTS, BoundedCache, query_hash
 from search_geometry import PreparedArea
 from snapshot_connections import POOL
 SEARCH_LOG=logging.getLogger('flameseek.search')
+FALLBACK_WARNINGS=BoundedCache(size=128,ttl=3600)
 ROOT=Path(__file__).resolve().parents[2]
 MANIFEST_PATH=ROOT/'data/processed/snapshot_manifest.json'
 _spec=importlib.util.spec_from_file_location('flameseek_snapshot_translation',ROOT/'pipeline/translate.py')
@@ -144,6 +145,9 @@ def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge
         where,params=event_candidates(con,area.bbox)
         candidate_ms=(perf_counter()-stage)*1000
         path='rtree' if 'event_spatial_index' in where else 'fallback'
+        if path=='fallback' and FALLBACK_WARNINGS.get(con.identity) is None:
+            SEARCH_LOG.warning('Snapshot %s lacks event_spatial_index; using coordinate-filter fallback. Rebuild with python -m pipeline.snapshot from the project root.',window)
+            FALLBACK_WARNINGS.put(con.identity,True)
         def contains(lon,lat):
             nonlocal exact_seconds,exact_calls
             tick=perf_counter()
