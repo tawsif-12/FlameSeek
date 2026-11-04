@@ -133,7 +133,7 @@ def search_page_sql(con,box,where,params,limit,offset,matching_count=None):
 
 
 @router.post('/fires/search')
-def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge=1,le=5000),offset:int=Query(0,ge=0),geometry:bool=False):
+def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge=1,le=5000),offset:int=Query(0,ge=0),geometry:bool=False,simplify_footprints:bool=False):
     """Search event centroids: exact containment precedes counting and pagination."""
     started=perf_counter();exact_seconds=0.;exact_calls=0
     area=PreparedArea(search_area(payload))
@@ -163,9 +163,11 @@ def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge
         rows=con.execute(sql,page_params).fetchall()
         sort_ms=(perf_counter()-stage)*1000
         stage=perf_counter()
-        data=[describe(row,con,meta) for row in rows]
+        translation_settings=manifest()['translation']
+        data=[describe(row,con,meta,translation_settings) for row in rows]
         if geometry:
-            for event in data:event['footprint']=footprint(con,event['fire_id'])
+            shapes=search_footprints(con,[event['fire_id'] for event in data],payload.bbox if simplify_footprints else None)
+            for event in data:event['footprint']=shapes.get(event['fire_id'])
         response={**meta,'data':data,'count':count,'limit':limit,'offset':offset,'has_more':offset+len(data)<count,
                 'basis':'event centroid inside selected area; exact containment before pagination'}
         encoded=JSONResponse(response)
@@ -177,7 +179,7 @@ def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge
     finally:con.close()
 
 
-def describe(row,con,meta):
+def describe(row,con,meta,translation_settings=None):
     event=json.loads(row['payload']);fire_id=event['fire_id']
     recent=con.execute('SELECT platform,frp,time FROM overpasses WHERE fire_id=? ORDER BY time DESC LIMIT 1',(fire_id,)).fetchone()
     comparable=[];power=event.get('FRP_VIIRS_max') or event.get('FRP_MODIS_max')
@@ -188,7 +190,7 @@ def describe(row,con,meta):
     satellites=[s for s in (event.get('platforms_seen') or '').split(';') if s]
     event['translation']=_translation.translate(p=None,p_clim=None,frp_mw=power,last_overpasses=comparable,
                          confidence=event.get('p_conf_max'),last_seen=event.get('end_time'),satellites=satellites,
-                         now=meta['now'],cfg={'translation':manifest()['translation']})
+                         now=meta['now'],cfg={'translation':manifest()['translation'] if translation_settings is None else translation_settings})
     return event
 
 
@@ -197,6 +199,24 @@ def footprint(con,fire_id):
     try:row=con.execute('SELECT geojson FROM footprints WHERE fire_id=?',(fire_id,)).fetchone()
     except sqlite3.OperationalError:return None
     return json.loads(row['geojson']) if row else None
+
+
+def search_footprints(con,fire_ids,simplify_bbox=None):
+    shapes={}
+    if not fire_ids:return shapes
+    exists=con.execute("SELECT 1 FROM sqlite_master WHERE name='footprints'").fetchone()
+    if not exists:return shapes
+    for start in range(0,len(fire_ids),400):
+        ids=fire_ids[start:start+400];marks=','.join('?' for _ in ids)
+        for row in con.execute('SELECT fire_id,geojson FROM footprints WHERE fire_id IN ('+marks+')',ids):
+            shapes[row['fire_id']]=json.loads(row['geojson'])
+    if simplify_bbox is not None:
+        from shapely.geometry import shape,mapping
+        w,s,e,n=simplify_bbox;tolerance=min(.05,max(.0005,max(e-w,n-s)/4000))
+        for fire_id,geometry in shapes.items():
+            simplified=shape(geometry).simplify(tolerance,preserve_topology=True)
+            shapes[fire_id]=mapping(simplified)
+    return shapes
 
 
 def active_period(meta):

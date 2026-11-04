@@ -65,8 +65,8 @@ def run(args,root):
     window=args.window or snapshot.manifest()['default_window']
     app=FastAPI();app.include_router(snapshot.router)
     if args.gzip:
-        from starlette.middleware.gzip import GZipMiddleware
-        app.add_middleware(GZipMiddleware,minimum_size=1000,compresslevel=5)
+        from search_http import SearchGZipMiddleware
+        app.add_middleware(SearchGZipMiddleware)
     client=TestClient(app);capture=Capture();snapshot.SEARCH_LOG.addHandler(capture);snapshot.SEARCH_LOG.setLevel(logging.INFO)
     report=dict(dataset='published' if args.root else 'seed43-30000',window=window,repeats=args.repeats,cases={})
     for name,area,offset in cases():
@@ -88,7 +88,7 @@ def run(args,root):
             page_plan=[list(r) for r in con.execute('EXPLAIN QUERY PLAN '+sql,page_params)]
         finally:con.close()
         metrics={key:round(statistics.median([s[key] for s in stages]),3) for key in stages[0] if key.endswith('_ms')}
-        report['cases'][name]=dict(p50_ms=round(statistics.median(samples),3),p95_ms=round(sorted(samples)[math.ceil(.95*len(samples))-1],3),sha256=hashes[0],stable=len(set(hashes))==1,stages_p50=metrics,path=stages[0]['path'],count=r.json()['count'],response_bytes=len(r.content),count_plan=count_plan,page_plan=page_plan)
+        report['cases'][name]=dict(p50_ms=round(statistics.median(samples),3),p95_ms=round(sorted(samples)[math.ceil(.95*len(samples))-1],3),sha256=hashes[0],stable=len(set(hashes))==1,stages_p50=metrics,path=stages[0]['path'],count=r.json()['count'],response_bytes=len(r.content),wire_bytes=int(r.headers.get('content-length',len(r.content))),count_plan=count_plan,page_plan=page_plan)
         print(name,report['cases'][name]['p50_ms'],report['cases'][name]['p95_ms'],flush=True)
     args.output.parent.mkdir(parents=True,exist_ok=True);args.output.write_text(json.dumps(report,indent=2)+'\n')
 

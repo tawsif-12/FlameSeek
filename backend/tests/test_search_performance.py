@@ -111,3 +111,28 @@ def test_circle_candidate_box_never_excludes_matches(center,radius):
     for _ in range(2000):
         lon,lat=rng.uniform(-180,180),rng.uniform(-90,90)
         if original.contains(lat,lon):assert w<=lon<=e and s<=lat<=n
+
+
+def test_footprint_defaults_and_opt_in_simplification(client):
+    area={'bbox':[88,20,93,27]}
+    baseline=client.post('/fires/search?geometry=true',json=area).json()
+    simplified=client.post('/fires/search?geometry=true&simplify_footprints=true',json=area).json()
+    original=client.get('/events/recent').json()['data']['footprint']
+    assert baseline['data'][0]['footprint']==original
+    assert baseline['count']==simplified['count']
+    assert [e['fire_id'] for e in baseline['data']]==[e['fire_id'] for e in simplified['data']]
+    assert 'footprint' not in client.post('/fires/search',json=area).json()['data'][0]
+
+
+def test_search_gzip_preserves_decoded_contract_and_other_routes(client):
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from search_http import SearchGZipMiddleware
+    app=FastAPI();app.include_router(snapshot.router);app.add_middleware(SearchGZipMiddleware)
+    compressed=TestClient(app)
+    payload={'bbox':[88,20,93,27]}
+    plain=client.post('/fires/search?geometry=true',json=payload)
+    zipped=compressed.post('/fires/search?geometry=true',json=payload,headers={'Accept-Encoding':'gzip'})
+    assert zipped.headers['content-encoding']=='gzip'
+    assert zipped.json()==plain.json()
+    assert 'content-encoding' not in compressed.get('/events/recent',headers={'Accept-Encoding':'gzip'}).headers

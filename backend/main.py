@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from search_http import SearchGZipMiddleware
 
 from config import APP_NAME, APP_VERSION, FRONTEND_ORIGINS
 from routers.analysis import router as analysis_router
@@ -58,6 +59,7 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="FlameSeek API", version=APP_VERSION, lifespan=lifespan)
+app.add_middleware(SearchGZipMiddleware)
 app.include_router(live_harmonized_router, prefix='/api')
 
 app.add_middleware(
