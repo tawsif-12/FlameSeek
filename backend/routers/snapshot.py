@@ -3,6 +3,8 @@ from pathlib import Path
 from datetime import timedelta
 import importlib.util
 import json,math,sqlite3
+import logging
+from time import perf_counter
 from fastapi import APIRouter,HTTPException,Query,Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -10,6 +12,7 @@ from fastapi.routing import APIRoute
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
 from geo import AOI
+SEARCH_LOG=logging.getLogger('flameseek.search')
 ROOT=Path(__file__).resolve().parents[2]
 MANIFEST_PATH=ROOT/'data/processed/snapshot_manifest.json'
 _spec=importlib.util.spec_from_file_location('flameseek_snapshot_translation',ROOT/'pipeline/translate.py')
@@ -111,19 +114,39 @@ def event_candidates(con,box):
 @router.post('/fires/search')
 def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge=1,le=5000),offset:int=Query(0,ge=0),geometry:bool=False):
     """Search event centroids: exact containment precedes counting and pagination."""
+    started=perf_counter();exact_seconds=0.;exact_calls=0
     area=search_area(payload)
     con,window=connect(window);meta=metadata(window)
     try:
+        stage=perf_counter()
         where,params=event_candidates(con,area.bbox)
-        con.create_function('area_contains',2,lambda lon,lat:lon is not None and lat is not None and area.contains(lat,lon),deterministic=True)
+        candidate_ms=(perf_counter()-stage)*1000
+        path='rtree' if 'event_spatial_index' in where else 'fallback'
+        def contains(lon,lat):
+            nonlocal exact_seconds,exact_calls
+            tick=perf_counter()
+            try:return lon is not None and lat is not None and area.contains(lat,lon)
+            finally:exact_seconds+=perf_counter()-tick;exact_calls+=1
+        con.create_function('area_contains',2,contains,deterministic=True)
         where+=' AND area_contains(lon,lat)'
+        stage=perf_counter()
         count=con.execute('SELECT count(*) FROM events WHERE '+where,params).fetchone()[0]
+        count_ms=(perf_counter()-stage)*1000
+        stage=perf_counter()
         rows=con.execute('SELECT payload FROM events WHERE '+where+' ORDER BY end_time DESC,fire_id ASC LIMIT ? OFFSET ?',params+[limit,offset]).fetchall()
+        sort_ms=(perf_counter()-stage)*1000
+        stage=perf_counter()
         data=[describe(row,con,meta) for row in rows]
         if geometry:
             for event in data:event['footprint']=footprint(con,event['fire_id'])
-        return {**meta,'data':data,'count':count,'limit':limit,'offset':offset,'has_more':offset+len(data)<count,
+        response={**meta,'data':data,'count':count,'limit':limit,'offset':offset,'has_more':offset+len(data)<count,
                 'basis':'event centroid inside selected area; exact containment before pagination'}
+        encoded=JSONResponse(response)
+        SEARCH_LOG.info('fire_search %s',json.dumps(dict(path=path,candidate_filter_ms=candidate_ms,
+            exact_containment_ms=exact_seconds*1000,exact_calls=exact_calls,count_ms=count_ms,
+            sort_limit_ms=sort_ms,serialization_ms=(perf_counter()-stage)*1000,
+            total_ms=(perf_counter()-started)*1000,count=count,offset=offset,limit=limit)))
+        return encoded
     finally:con.close()
 
 
