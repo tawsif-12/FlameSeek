@@ -404,6 +404,7 @@ async def fetch_hotspots_with_report(
     progress: ProgressCallback | None = None,
     concurrency: int = 16,
     raw_sink: list[tuple[str, str]] | None = None,
+    parse_rows: bool = True,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Fetch every sensor/chunk in a window. With raw_sink, the original FIRMS CSV text of every
     chunk is also collected as (source, text) for the FlameSeek pipeline. Failed chunks are reported, not fatal,
@@ -431,7 +432,9 @@ async def fetch_hotspots_with_report(
                 sources_used.add(source)
                 if raw_sink is not None:
                     raw_sink.append((source, text))
-                return _parse_csv(text, sensor, source)
+                # The place pipeline consumes raw CSV directly: parsing a second
+                # copy here wastes CPU/memory. Keep parsing off the event loop.
+                return await asyncio.to_thread(_parse_csv,text,sensor,source) if parse_rows else []
             except FirmsAPIError as exc:
                 failures.append({"sensor": sensor, "start": chunk_start.isoformat(), "days": days, "status_code": exc.status_code, "message": exc.message[:160]})
                 return []

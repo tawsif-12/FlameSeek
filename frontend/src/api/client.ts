@@ -120,3 +120,13 @@ export function startFireMemory(aoi: AOI, historyYears: number, sensors: SensorN
 export function startPlacePipeline(aoi: AOI, historyYears: number) {
   return startJob<PlacePipelineSummary>("/api/place_pipeline", { aoi, history_years: historyYears });
 }
+
+export async function savedFireMemory(aoi: AOI, historyYears: number, sensors: SensorName[]) {
+  const { data } = await api.post<{ result: FireMemoryResult | null }>("/api/fire_memory/saved", { aoi, history_years: historyYears, sensors, comparison_window_days: 30 });
+  return data.result;
+}
+
+export async function savedPlacePipeline(aoi: AOI, historyYears: number) {
+  const { data } = await api.post<{ result: PlacePipelineSummary | null }>("/api/place_pipeline/saved", { aoi, history_years: historyYears });
+  return data.result;
+}

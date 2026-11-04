@@ -659,6 +659,6 @@ export interface PlacePipelineSummary {
   unusual: { status: string; window?: { start: string; end: string }; current_events?: number; history_events?: number[]; robust_z?: number | null; percentile_rank?: number; category?: string; note?: string };
   change: { status: string; slope_events_per_year?: number; slope_90?: [number, number]; relative_per_year?: number | null; direction?: string; method: string; caveat?: string; note?: string };
   area_risk: AreaRisk & { complete_years?: number; min_years?: number };
-  provenance?: { firms_requests: number; failed_chunks: number; raw_rows_by_source: Record<string, number>; sensors: string[]; place_id: string; generated_at: string };
+  provenance?: { firms_requests: number; failed_chunks: number; raw_rows_by_source: Record<string, number>; sensors: string[]; place_id: string; generated_at: string; saved_preview?: boolean };
   served_from_cache?: boolean;
 }
