@@ -65,6 +65,21 @@ indexes to published snapshots. Ensure the local pipeline inputs/dependencies ex
 then run `python -m pipeline.snapshot` from the project root. Stop a Windows server
 first if persistent reuse was explicitly enabled.
 
+## Frontend requests
+
+The map retains its 5000-event page limit and full-place search by default. A 250 ms
+debounce coalesces rapidly changing queries. AbortController cancels superseded
+searches and event-detail requests, and stale responses cannot update the page.
+Results are cached by normalized query, window and exported snapshot data version
+for 30 seconds (12 entries, conservative 24 MiB serialized-size budget).
+Below zoom 8, centroid clusters represent all returned events; zooming in draws
+the individual footprints. Clustering does not sample or discard events.
+
+`Search current map view` is opt-in. It intersects the visible bounds with the
+selected place's candidate box, retaining the exact polygon/radius constraints.
+Counts then describe that intersection, as labeled in the UI. Moving the map
+without enabling this option never changes whole-place search results.
+
 Date filters, keyset pagination, antimeridian support, and footprint-intersection
 search are follow-up work. Nominatim's existing cache and request throttling are
 unchanged. This change does not alter the separate live NASA hotspot search.

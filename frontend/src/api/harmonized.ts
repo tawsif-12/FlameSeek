@@ -90,10 +90,10 @@ export function computed<T>(v: T | Awaiting): T | null {
 
 const BASE = import.meta.env.VITE_API_BASE_URL || "";
 
-export async function snapshotGet<T>(path: string, params: Record<string, string | number | boolean | undefined> = {}, payload?: unknown): Promise<T> {
+export async function snapshotGet<T>(path: string, params: Record<string, string | number | boolean | undefined> = {}, payload?: unknown, signal?: AbortSignal): Promise<T> {
   const q = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => v !== undefined && q.set(k, String(v)));
-  const r = await fetch(`${BASE}${path}${q.toString() ? `?${q}` : ""}`, payload === undefined ? undefined : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+  const r = await fetch(`${BASE}${path}${q.toString() ? `?${q}` : ""}`, payload === undefined ? { signal } : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), signal });
   const body = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(body.detail || `HTTP ${r.status}`);
   return body as T;
