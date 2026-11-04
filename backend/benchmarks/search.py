@@ -81,8 +81,11 @@ def run(args,root):
         con,_=snapshot.connect(window)
         try:
             where,values=snapshot.event_candidates(con,area['bbox'])
+            con.create_function('area_contains',2,lambda x,y:True)
+            where+=' AND area_contains(lon,lat)'
             count_plan=[list(r) for r in con.execute('EXPLAIN QUERY PLAN SELECT count(*) FROM events WHERE '+where,values)]
-            page_plan=[list(r) for r in con.execute('EXPLAIN QUERY PLAN SELECT payload FROM events WHERE '+where+' ORDER BY end_time DESC,fire_id ASC LIMIT ? OFFSET ?',values+[args.limit,offset])]
+            sql,page_params,_=snapshot.search_page_sql(con,area['bbox'],where,values,args.limit,offset,r.json()['count'])
+            page_plan=[list(r) for r in con.execute('EXPLAIN QUERY PLAN '+sql,page_params)]
         finally:con.close()
         metrics={key:round(statistics.median([s[key] for s in stages]),3) for key in stages[0] if key.endswith('_ms')}
         report['cases'][name]=dict(p50_ms=round(statistics.median(samples),3),p95_ms=round(sorted(samples)[math.ceil(.95*len(samples))-1],3),sha256=hashes[0],stable=len(set(hashes))==1,stages_p50=metrics,path=stages[0]['path'],count=r.json()['count'],response_bytes=len(r.content),count_plan=count_plan,page_plan=page_plan)

@@ -111,6 +111,25 @@ def event_candidates(con,box):
     return exact,params
 
 
+def search_page_sql(con,box,where,params,limit,offset,matching_count=None):
+    """Sort narrow IDs before fetching payloads. Broad boxes can walk event order."""
+    w,s,e,n=box
+    broad=(e-w)*(n-s)>=360*180*.15 or ('event_spatial_index' not in where and matching_count is not None and matching_count>limit*4)
+    indexes={row[1] for row in con.execute('PRAGMA index_list(events)')}
+    order_index='event_order' if 'event_order' in indexes else 'event_end' if 'event_end' in indexes else None
+    if broad and order_index:
+        source='events INDEXED BY '+order_index
+        where='lon BETWEEN ? AND ? AND lat BETWEEN ? AND ? AND area_contains(lon,lat)'
+        params=[w,e,s,n];strategy='ordered_scan'
+    else:
+        # Prevent legacy snapshots walking the entire end_time index for a tiny box.
+        source='events NOT INDEXED';strategy='rtree_ids_sort' if 'event_spatial_index' in where else 'scan_ids_sort'
+    sql=('WITH page AS MATERIALIZED (SELECT rowid AS id,end_time,fire_id FROM '+source+' WHERE '+where+
+         ' ORDER BY end_time DESC,fire_id ASC LIMIT ? OFFSET ?) '
+         'SELECT events.payload FROM page JOIN events ON events.rowid=page.id ORDER BY page.end_time DESC,page.fire_id ASC')
+    return sql,params+[limit,offset],strategy
+
+
 @router.post('/fires/search')
 def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge=1,le=5000),offset:int=Query(0,ge=0),geometry:bool=False):
     """Search event centroids: exact containment precedes counting and pagination."""
@@ -133,7 +152,8 @@ def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge
         count=con.execute('SELECT count(*) FROM events WHERE '+where,params).fetchone()[0]
         count_ms=(perf_counter()-stage)*1000
         stage=perf_counter()
-        rows=con.execute('SELECT payload FROM events WHERE '+where+' ORDER BY end_time DESC,fire_id ASC LIMIT ? OFFSET ?',params+[limit,offset]).fetchall()
+        sql,page_params,strategy=search_page_sql(con,area.bbox,where,params,limit,offset,count)
+        rows=con.execute(sql,page_params).fetchall()
         sort_ms=(perf_counter()-stage)*1000
         stage=perf_counter()
         data=[describe(row,con,meta) for row in rows]
@@ -142,7 +162,7 @@ def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge
         response={**meta,'data':data,'count':count,'limit':limit,'offset':offset,'has_more':offset+len(data)<count,
                 'basis':'event centroid inside selected area; exact containment before pagination'}
         encoded=JSONResponse(response)
-        SEARCH_LOG.info('fire_search %s',json.dumps(dict(path=path,candidate_filter_ms=candidate_ms,
+        SEARCH_LOG.info('fire_search %s',json.dumps(dict(path=path,ordering_path=strategy,candidate_filter_ms=candidate_ms,
             exact_containment_ms=exact_seconds*1000,exact_calls=exact_calls,count_ms=count_ms,
             sort_limit_ms=sort_ms,serialization_ms=(perf_counter()-stage)*1000,
             total_ms=(perf_counter()-started)*1000,count=count,offset=offset,limit=limit)))

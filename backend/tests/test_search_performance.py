@@ -56,3 +56,16 @@ def test_baseline_stage_log(client,caplog):
     metric=json.loads(next(r.message[12:] for r in caplog.records if r.message.startswith('fire_search ')))
     assert metric['path']=='fallback'
     assert all(metric[name]>=0 for name in ['candidate_filter_ms','exact_containment_ms','count_ms','sort_limit_ms','serialization_ms'])
+
+
+def test_query_plans_use_spatial_and_ordering_indexes(client,tmp_path):
+    with sqlite3.connect(tmp_path/'data/processed/snapshots/current_2026.sqlite') as con:
+        con.execute('CREATE VIRTUAL TABLE event_spatial_index USING rtree(event_id,min_lon,max_lon,min_lat,max_lat)')
+        con.execute('INSERT INTO event_spatial_index SELECT rowid,lon,lon,lat,lat FROM events')
+        con.execute('CREATE INDEX event_order ON events(end_time DESC,fire_id ASC)')
+        con.create_function('area_contains',2,lambda x,y:True)
+        for box,expected in [([88,20,93,27],'VIRTUAL TABLE INDEX'),([-180,-90,180,90],'USING INDEX event_order')]:
+            where,params=snapshot.event_candidates(con,box)
+            sql,params,strategy=snapshot.search_page_sql(con,box,where+' AND area_contains(lon,lat)',params,10,0)
+            details=' '.join(row[3] for row in con.execute('EXPLAIN QUERY PLAN '+sql,params))
+            assert expected in details
