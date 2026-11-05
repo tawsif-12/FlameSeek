@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { normalizeApiError, searchPlaces } from "../api/client";
 import { describeAoi, useAppContext } from "../context/AppContext";
 import type { PlaceResult } from "../types/api";
@@ -16,31 +16,13 @@ const DESTINATIONS = [
 
 export default function SearchPage() {
   const { aoi, setAoi, setMemory } = useAppContext();
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDestinations, setShowDestinations] = useState(false);
   const requestRef = useRef(0);
-
-  async function findPlaces(value = query) {
-    const trimmed = value.trim();
-    if (trimmed.length < 2) return;
-    const request = ++requestRef.current;
-    setQuery(trimmed);
-    setSearching(true);
-    setError(null);
-    try {
-      const found = await searchPlaces(trimmed);
-      if (request !== requestRef.current) return;
-      setResults(found);
-      if (!found.length) setError(`No area matched “${trimmed}”. Try a city, district, state, country, forest, or protected area.`);
-    } catch (reason) {
-      if (request === requestRef.current) setError(normalizeApiError(reason));
-    } finally {
-      if (request === requestRef.current) setSearching(false);
-    }
-  }
 
   function chooseArea(place: PlaceResult) {
     const selected = place.geometry
@@ -52,6 +34,34 @@ export default function SearchPage() {
     setResults([]);
     setError(null);
     setShowDestinations(true);
+    navigate("/area");
+  }
+
+  async function findPlaces(value = query, autoNavigate = true) {
+    const trimmed = value.trim();
+    if (trimmed.length < 2) return;
+    const request = ++requestRef.current;
+    setQuery(trimmed);
+    setSearching(true);
+    setError(null);
+    try {
+      const found = await searchPlaces(trimmed);
+      if (request !== requestRef.current) return;
+      if (found.length > 0) {
+        if (autoNavigate) {
+          chooseArea(found[0]);
+          return;
+        }
+        setResults(found);
+      } else {
+        setResults([]);
+        setError(`No area matched “${trimmed}”. Try a city, district, state, country, forest, or protected area.`);
+      }
+    } catch (reason) {
+      if (request === requestRef.current) setError(normalizeApiError(reason));
+    } finally {
+      if (request === requestRef.current) setSearching(false);
+    }
   }
 
   function resetSelection() {
@@ -73,7 +83,7 @@ export default function SearchPage() {
         </div>
 
         <div className="minimal-search-workspace">
-          <form className="minimal-search-box" onSubmit={(event) => { event.preventDefault(); void findPlaces(); }}>
+          <form className="minimal-search-box" onSubmit={(event) => { event.preventDefault(); void findPlaces(query, true); }}>
             <span aria-hidden="true">⌕</span>
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search a country, state, district, or forest" aria-label="Search for a specific area" autoFocus />
             <button type="submit" disabled={searching || query.trim().length < 2}>{searching ? <i className="search-spinner" /> : "Search"}</button>
@@ -93,7 +103,7 @@ export default function SearchPage() {
 
           {!showDestinations && !searching && results.length === 0 && (
             <div className="minimal-search-suggestions" aria-label="Suggested areas">
-              {SUGGESTIONS.map((suggestion) => <button type="button" key={suggestion} onClick={() => void findPlaces(suggestion)}>{suggestion}</button>)}
+              {SUGGESTIONS.map((suggestion) => <button type="button" key={suggestion} onClick={() => void findPlaces(suggestion, true)}>{suggestion}</button>)}
             </div>
           )}
 

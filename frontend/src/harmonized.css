@@ -41,6 +41,299 @@
 .hz-link-card p { color: var(--oc-text-secondary, #94a3b8); font-size: 13px; margin: 0; }
 .hz-open { color: var(--oc-cyan, #00f2fe); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; }
 
+/* ==========================================================================
+   SCROLL REVEAL & TRANSITIONAL ANIMATIONS (ONE RECORD FROM FIVE SATELLITES)
+   Dramatic, slow, cinematic side-to-side transitions with blur & spring depth
+   ========================================================================== */
+.hz-section-animated {
+  overflow-x: clip;
+}
+
+/* 1. Header: Text slides in slowly and majestically from the left side */
+.hz-anim-header {
+  opacity: 0;
+  transform: translate3d(-140px, 0, 0);
+  filter: blur(8px);
+  transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+.hz-anim-header.hz-anim-in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+
+.hz-anim-header .oc-section-tag {
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(-50px, 0, 0);
+  filter: blur(4px);
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.15s,
+              transform 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.15s,
+              filter 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+}
+.hz-anim-header.hz-anim-in .oc-section-tag {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+
+.hz-anim-header .oc-section-title {
+  opacity: 0;
+  transform: translate3d(-90px, 0, 0);
+  filter: blur(6px);
+  transition: opacity 1.35s cubic-bezier(0.16, 1, 0.3, 1) 0.32s,
+              transform 1.35s cubic-bezier(0.16, 1, 0.3, 1) 0.32s,
+              filter 1.35s cubic-bezier(0.16, 1, 0.3, 1) 0.32s;
+}
+.hz-anim-header.hz-anim-in .oc-section-title {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+
+.hz-anim-header .oc-section-desc {
+  opacity: 0;
+  transform: translate3d(-70px, 0, 0);
+  filter: blur(6px);
+  transition: opacity 1.35s cubic-bezier(0.16, 1, 0.3, 1) 0.5s,
+              transform 1.35s cubic-bezier(0.16, 1, 0.3, 1) 0.5s,
+              filter 1.35s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
+}
+.hz-anim-header.hz-anim-in .oc-section-desc {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+
+/* 2. Main Dashboard Panels: Slow, dramatic Side-to-Side entry */
+.hz-anim-panel-left {
+  opacity: 0;
+  transform: translate3d(-170px, 0, 0) scale(0.92);
+  filter: blur(10px);
+  transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s,
+              transform 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s,
+              filter 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s,
+              border-color 0.4s ease, box-shadow 0.4s ease;
+  will-change: opacity, transform, filter;
+}
+.hz-anim-panel-left.hz-anim-in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
+}
+
+.hz-anim-panel-right {
+  opacity: 0;
+  transform: translate3d(170px, 0, 0) scale(0.92);
+  filter: blur(10px);
+  transition: opacity 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.38s,
+              transform 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.38s,
+              filter 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.38s,
+              border-color 0.4s ease, box-shadow 0.4s ease;
+  will-change: opacity, transform, filter;
+}
+.hz-anim-panel-right.hz-anim-in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
+}
+
+/* 3. Steps inside right panel cascade sequentially and slowly ("after by after") */
+.hz-anim-step {
+  opacity: 0;
+  transform: translate3d(90px, 0, 0) scale(0.94);
+  filter: blur(6px);
+  transition: opacity 1.25s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1.25s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 1.25s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.3s ease, border-color 0.3s ease;
+  will-change: opacity, transform, filter;
+}
+.hz-anim-panel-right.hz-anim-in .hz-anim-step:nth-child(1) {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
+  transition-delay: 0.65s;
+}
+.hz-anim-panel-right.hz-anim-in .hz-anim-step:nth-child(2) {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
+  transition-delay: 1.05s;
+}
+.hz-anim-panel-right.hz-anim-in .hz-anim-step:nth-child(3) {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
+  transition-delay: 1.45s;
+}
+
+.hz-flow-step {
+  transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.hz-flow-step:hover {
+  background: rgba(16, 32, 64, 0.9);
+  border-color: rgba(56, 189, 248, 0.5);
+  transform: translateX(8px);
+  box-shadow: 0 4px 20px rgba(56, 189, 248, 0.15);
+}
+
+/* 4. Link Cards Row: Slow, distinct alternating side-to-side and center entries */
+.hz-anim-card-item {
+  opacity: 0;
+  filter: blur(8px);
+  transition: opacity 1.45s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1.45s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 1.45s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s ease, background 0.35s ease, box-shadow 0.35s ease;
+  will-change: opacity, transform, filter;
+}
+.hz-anim-card-item.from-left {
+  transform: translate3d(-150px, 35px, 0) scale(0.9);
+}
+.hz-anim-card-item.from-center {
+  transform: translate3d(0, 80px, 0) scale(0.9);
+}
+.hz-anim-card-item.from-right {
+  transform: translate3d(150px, 35px, 0) scale(0.9);
+}
+
+.hz-card-row.hz-anim-in .hz-anim-card-item:nth-child(1) {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
+  transition-delay: 0.18s;
+}
+.hz-card-row.hz-anim-in .hz-anim-card-item:nth-child(2) {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
+  transition-delay: 0.55s;
+}
+.hz-card-row.hz-anim-in .hz-anim-card-item:nth-child(3) {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
+  transition-delay: 0.92s;
+}
+
+.hz-link-card {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s ease,
+              box-shadow 0.35s ease,
+              background 0.35s ease;
+}
+.hz-link-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: var(--oc-border-glow, rgba(0, 242, 254, 0.55));
+  box-shadow: 0 18px 40px -10px rgba(0, 242, 254, 0.28);
+  background: var(--oc-bg-card-hover, rgba(16, 28, 56, 0.92));
+}
+.hz-link-card .hz-open {
+  transition: transform 0.3s ease, color 0.3s ease;
+  display: inline-block;
+}
+.hz-link-card:hover .hz-open {
+  transform: translateX(8px);
+  color: #fff;
+}
+
+/* 5. Provenance Chips & Notice Box: Slow, luminous arrival */
+.hz-anim-provenance-wrap {
+  opacity: 0;
+  transform: translate3d(0, 45px, 0);
+  filter: blur(6px);
+  transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+.hz-anim-provenance-wrap.hz-anim-in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+
+.hz-anim-provenance-wrap .hz-provenance {
+  opacity: 0;
+  transform: translate3d(-100px, 0, 0);
+  filter: blur(6px);
+  transition: opacity 1.3s cubic-bezier(0.16, 1, 0.3, 1) 0.18s,
+              transform 1.3s cubic-bezier(0.16, 1, 0.3, 1) 0.18s,
+              filter 1.3s cubic-bezier(0.16, 1, 0.3, 1) 0.18s;
+}
+.hz-anim-provenance-wrap.hz-anim-in .hz-provenance {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+}
+
+.hz-anim-provenance-wrap .hz-anim-notice {
+  opacity: 0;
+  transform: translate3d(100px, 20px, 0) scale(0.95);
+  filter: blur(8px);
+  transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.58s,
+              transform 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.58s,
+              filter 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.58s,
+              border-color 0.4s ease, box-shadow 0.4s ease;
+}
+.hz-anim-provenance-wrap.hz-anim-in .hz-anim-notice {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
+}
+
+/* Mobile responsive transforms */
+@media (max-width: 768px) {
+  .hz-anim-header {
+    transform: translate3d(-50px, 0, 0);
+  }
+  .hz-anim-panel-left {
+    transform: translate3d(-50px, 0, 0) scale(0.96);
+  }
+  .hz-anim-panel-right {
+    transform: translate3d(50px, 0, 0) scale(0.96);
+  }
+  .hz-anim-step {
+    transform: translate3d(40px, 0, 0) scale(0.96);
+  }
+  .hz-anim-card-item.from-left {
+    transform: translate3d(-50px, 20px, 0) scale(0.95);
+  }
+  .hz-anim-card-item.from-right {
+    transform: translate3d(50px, 20px, 0) scale(0.95);
+  }
+  .hz-anim-provenance-wrap .hz-provenance {
+    transform: translate3d(-40px, 0, 0);
+  }
+  .hz-anim-provenance-wrap .hz-anim-notice {
+    transform: translate3d(40px, 0, 0) scale(0.96);
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .hz-anim-header,
+  .hz-anim-header .oc-section-tag,
+  .hz-anim-header .oc-section-title,
+  .hz-anim-header .oc-section-desc,
+  .hz-anim-panel-left,
+  .hz-anim-panel-right,
+  .hz-anim-step,
+  .hz-anim-card-item,
+  .hz-anim-provenance-wrap,
+  .hz-anim-provenance-wrap .hz-provenance,
+  .hz-anim-provenance-wrap .hz-anim-notice {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}
+
 /* Fire Events page */
 .hz-map-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; }
 .hz-map-frame { position: relative; height: min(72vh, 760px); min-height: 460px; border-radius: 22px; overflow: hidden; border: 1px solid var(--sp-border, rgba(148, 197, 255, 0.16)); }
