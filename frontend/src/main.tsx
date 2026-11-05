@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Link, NavLink, Navigate, Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
+import { Link, NavLink, Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "./styles.css";
@@ -25,12 +25,6 @@ const MORE_NAVIGATION = [
   { to: "/about", label: "About" },
 ] as const;
 
-const AREA_NAVIGATION = [
-  { to: "/fire-memory", label: "Fire Memory" },
-  { to: "/fire-dna", label: "Fire DNA" },
-  { to: "/fire-calendar", label: "Burning Calendar" },
-] as const;
-
 // Download map engines and analysis charts only when their route is opened.
 const DataSourcesPage = React.lazy(() => import("./pages/DataSourcesPage"));
 const FireGlobePage = React.lazy(() => import("./pages/FireGlobePage"));
@@ -52,11 +46,6 @@ function LanguageToggle() {
 }
 
 function Header() {
-  const location = useLocation();
-  const isAreaMode = ["/area", "/fire-memory", "/fire-dna", "/fire-calendar"].some(
-    (prefix) => location.pathname === prefix || location.pathname.startsWith(prefix)
-  );
-
   return (
     <header className="app-header mission-header">
       <Link to="/" className="brand-mark" style={{ textDecoration: "none" }}>
@@ -67,31 +56,21 @@ function Header() {
         </div>
       </Link>
       <nav className="primary-navigation" aria-label="Primary navigation">
-        {isAreaMode ? (
-          AREA_NAVIGATION.map((item) => (
-            <NavLink key={item.to} to={item.to}>
-              {item.label}
-            </NavLink>
-          ))
-        ) : (
-          <>
-            {PRIMARY_NAVIGATION.map((item) => (
-              <NavLink key={item.to} to={item.to} end={"end" in item ? item.end : undefined}>
+        {PRIMARY_NAVIGATION.map((item) => (
+          <NavLink key={item.to} to={item.to} end={"end" in item ? item.end : undefined}>
+            {item.label}
+          </NavLink>
+        ))}
+        <details className="header-more">
+          <summary>More <span aria-hidden="true">▾</span></summary>
+          <div>
+            {MORE_NAVIGATION.map((item) => (
+              <NavLink key={item.to} to={item.to} onClick={(event) => event.currentTarget.closest("details")?.removeAttribute("open")}>
                 {item.label}
               </NavLink>
             ))}
-            <details className="header-more">
-              <summary>More <span aria-hidden="true">▾</span></summary>
-              <div>
-                {MORE_NAVIGATION.map((item) => (
-                  <NavLink key={item.to} to={item.to} onClick={(event) => event.currentTarget.closest("details")?.removeAttribute("open")}>
-                    {item.label}
-                  </NavLink>
-                ))}
-              </div>
-            </details>
-          </>
-        )}
+          </div>
+        </details>
       </nav>
       <div className="header-actions">
         <LanguageToggle />
