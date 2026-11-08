@@ -111,6 +111,12 @@ html[data-theme="day"] :is(.oc-hud-tag, .oc-partner-pill, .oc-sat-tab-btn, .sat-
   border-color: #c2dfee;
   box-shadow: none;
 }
+html[data-theme="day"] .roadmap-outer-wrapper {
+  background: transparent;
+  border-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
 html[data-theme="day"] .oc-hud-tag.alert { background: #fff3e6; color: #a25314; border-color: #f2d3ae; }
 html[data-theme="day"] :is(.sat-3d-card, .pipe-3d-card, .oc-sat-showcase-card, .roadmap-card-pill, .roadmap-inspector-panel, .roadmap-mobile-card) {
   background: linear-gradient(155deg, #fff, #e9f5ff);

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import Plot from "react-plotly.js";
 import { GeoJSON, MapContainer, Rectangle, TileLayer, Tooltip, useMap } from "react-leaflet";
 import type { LatLngBoundsExpression } from "leaflet";
-import { getHotspotsInBox, normalizeApiError, runJob, startFireMemory, startPlacePipeline } from "../api/client";
+import { getHotspotsInBox, normalizeApiError, runJob, startFireMemory, startPlacePipeline, savedFireMemory, savedPlacePipeline } from "../api/client";
 import { aoiBBox, aoiContains, describeAoi, useAppContext } from "../context/AppContext";
 import type { FireMemoryResult, HotspotRecord, Job, PlacePipelineSummary, SensorName } from "../types/api";
 import { StatusPill } from "../components/HarmonizedProvenance";
@@ -91,6 +91,13 @@ export default function AreaIntelligencePage() {
     const mine = () => id === runRef.current;
     setQuick(null); setFull(null); setQuickError(null); setFullError(null); setQuickJob(null); setFullJob(null);
     setPipe(null); setPipeJob(null); setPipeError(null);
+    // Show exact-query saved results before waiting on fresh NASA downloads.
+    savedFireMemory(aoi, years, HUB_SENSORS).then((saved) => {
+      if (saved && mine()) setFull((current) => current && !current.provenance?.saved_preview ? current : saved);
+    }).catch(() => {});
+    savedPlacePipeline(aoi, years).then((saved) => {
+      if (saved && mine()) setPipe((current) => current && !current.provenance?.saved_preview ? current : saved);
+    }).catch(() => {});
     (async () => {
       try {
         const q = await runJob(startFireMemory(aoi, QUICK_YEARS, HUB_SENSORS, 30), (j) => mine() && setQuickJob(j));
@@ -110,6 +117,7 @@ export default function AreaIntelligencePage() {
         if (mine()) setFullError(normalizeApiError(e));
       }
     })();
+    return () => { ++runRef.current; };
   }, [aoi, years]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Live FIRMS hotspots in and around the place (last 24 hours; cut from the shared worldwide download when fresh).
@@ -192,11 +200,11 @@ export default function AreaIntelligencePage() {
   const quickNote = isQuick ? " (last 12 months; full history still loading)" : "";
   const quotaWait = /quota/i.test(fullJob?.message ?? "");
   const pipePct = pipeJob ? Math.round(pipeJob.progress * 100) : 0;
-  const pipeStatus = pipeError ? pipeError : pipe ? (pipe.served_from_cache ? "loaded from saved run" : `ready · ${pipe.quality.events} event${pipe.quality.events === 1 ? "" : "s"} from ${pipe.quality.clean_detections} detection${pipe.quality.clean_detections === 1 ? "" : "s"}`)
+  const pipeStatus = pipe?.provenance?.saved_preview ? `Saved through ${pipe.period.end}; ${pipeError ? `update unavailable: ${pipeError}` : `updating in background · ${pipePct}% · ${pipeJob?.message ?? "starting"}`}` : pipeError ? pipeError : pipe ? (pipe.served_from_cache ? "loaded from saved run" : `ready · ${pipe.quality.events} event${pipe.quality.events === 1 ? "" : "s"} from ${pipe.quality.clean_detections} detection${pipe.quality.clean_detections === 1 ? "" : "s"}`)
     : quick || quickError ? `${pipePct}% · ${pipeJob?.message ?? "starting"}` : "starts after the quick look";
   const historyStatus = quotaWait
     ? `${pct(fullJob)}% · paused: NASA allows 5,000 requests per 10 minutes, resumes automatically — keep reading meanwhile`
-    : `${pct(fullJob)}% · ${years > 5 ? "a longer history takes a few minutes the first time" : "usually 1–3 minutes the first time"}, then saved`;
+    : `${pct(fullJob)}% · ${fullJob?.message ?? "Preparing history"}. First-time downloads depend on NASA; completed runs are saved.`;
 
   return (
     <main className="content-page space-shell space-page">
@@ -232,12 +240,12 @@ export default function AreaIntelligencePage() {
         </li>
         <li className={quick ? "done" : quickError ? "fail" : "active"}>
           <b>{quick ? "✓" : quickError ? "!" : "…"}</b>
-          <span><strong>Quick look: last 12 months</strong><small>{quick ? "ready" : quickError ? quickError : `${pct(quickJob)}% · usually under a minute`}</small></span>
+          <span><strong>Quick look: last 12 months</strong><small>{quick ? "ready" : quickError ? quickError : `${pct(quickJob)}% · ${quickJob?.message ?? "Checking saved data"}`}</small></span>
           {!quick && !quickError && <i className="hz-bar"><span style={{ width: `${pct(quickJob)}%` }} /></i>}
         </li>
         <li className={full ? "done" : fullError ? "fail" : quick || quickError ? "active" : "waiting"}>
           <b>{full ? "✓" : fullError ? "!" : quick || quickError ? "…" : "3"}</b>
-          <span><strong>Full {years}-year history</strong><small>{full ? (full.provenance?.served_from_cache ? "loaded from saved analysis" : "ready") : fullError ? fullError : quick || quickError ? historyStatus : "starts after the quick look"}</small></span>
+          <span><strong>Full {years}-year history</strong><small>{full?.provenance?.saved_preview ? `Saved through ${full.period.end}; ${fullError ? `update unavailable: ${fullError}` : `updating in background · ${historyStatus}`}` : full ? (full.provenance?.served_from_cache ? "loaded from saved analysis" : "ready") : fullError ? fullError : quick || quickError ? historyStatus : "starts after the quick look"}</small></span>
           {!full && !fullError && (quick || quickError) && <i className="hz-bar"><span style={{ width: `${pct(fullJob)}%` }} /></i>}
         </li>
         <li className={pipe ? "done" : pipeError ? "fail" : quick || quickError ? "active" : "waiting"}>

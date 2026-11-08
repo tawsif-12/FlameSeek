@@ -1,0 +1,13 @@
+
+  VITE v5.4.21  ready in 1538 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+5:53:21 PM [vite] hmr update /src/pages/HomePage.tsx, /src/components/CesiumFireGlobe.tsx, /src/components/EventPanel.tsx, /src/pages/SearchPage.tsx, /src/pages/FireDnaPage.tsx, /src/components/AOISelector.tsx
+5:53:23 PM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+5:54:53 PM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+5:58:09 PM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+6:07:34 PM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+6:07:54 PM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+6:08:28 PM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+6:13:01 PM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+6:13:27 PM [vite] hmr update /src/components/CesiumFireGlobe.tsx

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Plot from "react-plotly.js";
+import "../memory-refinements.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { normalizeApiError, runJob, startFireMemory } from "../api/client";
 import AnalysisNavigation from "../components/AnalysisNavigation";
@@ -87,27 +88,23 @@ export default function FireMemoryPage() {
         <div className="space-hero-orbit" aria-hidden="true"><span /><span /></div>
         <header className="memory-intro nasa-page-intro">
           <p className="eyebrow"><span className="dot" /> Fire Memory</p>
-          <h2>What normally happens in this area?</h2>
-          <p className="lead">
-            Pick a place and we look back through up to 26 years of NASA satellite records to show when it usually burns, how this year compares, and whether fires are becoming more or less common.
-            Older and newer satellites see fires differently, so we first correct their records to make all years comparable.
-          </p>
-          <ul className="hero-chips">
-            <li><span className="dot" />Up to 26 years</li>
-            <li><span className="dot" />Four satellites, one fair record</li>
-            <li><span className="dot" />Spots unusual years</li>
-            <li><span className="dot" />Finds long-term changes</li>
-          </ul>
+          <h2>Fire Memory</h2>
+          <p className="lead">Explore historical fire activity and long-term patterns for any selected location.</p>
+          <p className="memory-method-intro">Harmonized estimates account for sensor differences. Comparability depends on observation coverage and validation for the selected region and period.</p>
         </header>
       </div>
-      <DataCoverageNotice start={memory?.period.start} end={memory?.period.end} />
+      <details className="memory-coverage-info">
+        <summary>Understanding missing satellite data <span>Missing data does not mean zero fires</span></summary>
+        <DataCoverageNotice start={memory?.period.start} end={memory?.period.end} />
+      </details>
       <section className="memory-setup glass-card">
         <div className="memory-setup-map">
-          <h3>1. Choose a place</h3>
+          <h3>1. Select location</h3>
+          <p className="memory-selection-help">Search for a place, or use the rectangle, polygon or circle tools on the map to select a smaller area. Drag to move the map; zoom in for detail.</p>
           <AOISelector />
         </div>
         <div className="memory-setup-controls">
-          <h3>2. How far back, and which satellites</h3>
+          <h3>2. Configure history</h3>
           <label>
             How many years to look back
             <select value={years} onChange={(e) => setYears(Number(e.target.value))}>
@@ -131,7 +128,7 @@ export default function FireMemoryPage() {
             ))}
           </div>
           <button className="primary-button" type="button" disabled={!aoi || running || sensors.length === 0} onClick={run}>
-            {running ? "Looking back through the records..." : "Show this place's fire history"}
+            {running ? "Looking back through the records..." : "Generate fire history"}
           </button>
           {job && (
             <div className="job-progress" role="status">
@@ -145,17 +142,18 @@ export default function FireMemoryPage() {
               {error.includes("FIRMS_MAP_KEY") && <a href="https://firms.modaps.eosdis.nasa.gov/api/map_key/" target="_blank" rel="noreferrer">Get a free NASA FIRMS key ↗</a>}
             </div>
           )}
-          <p className="meta-text">The first time for a place can take a few minutes, because the records are downloaded from NASA. After that the same place opens in about a second.</p>
+          <p className="meta-text">The first analysis may take a few minutes while satellite records are retrieved. Cached analyses usually load faster.</p>
         </div>
       </section>
       {!memory && (
         <section className="burning-calendar-placeholder glass-card" id="fire-calendar" aria-labelledby="burning-calendar-title">
-          <p className="eyebrow"><span className="dot" /> Historical calendar</p>
-          <h3 id="burning-calendar-title">Earth's Burning Calendar</h3>
-          <p>Choose a place and select <strong>Show this place's fire history</strong>. Monthly satellite-observed burning activity will appear here.</p>
-          <div className="calendar-placeholder-grid" aria-hidden="true">
-            {Array.from({ length: 36 }, (_, index) => <span key={index} />)}
+          <p className="eyebrow">3. Fire history results</p>
+          <h3 id="burning-calendar-title">Monthly fire activity</h3>
+          <p>Monthly activity, annual trends and observation coverage appear here after analysis. Each cell represents one month; these preview cells contain no results.</p>
+          <div className="memory-month-preview" aria-label={running ? "Analysis processing; monthly results not ready" : "Calendar preview; no analysis yet"} aria-busy={running}>
+            {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((month) => <div key={month}><span>{month}</span><i className={running ? "processing" : "not-analyzed"}>{running ? "Processing" : "Not analyzed"}</i></div>)}
           </div>
+          <p className="meta-text">{running ? "Analysis in progress. Cells are not zero-fire results." : "Select a location and generate fire history to populate the calendar."}</p>
         </section>
       )}
       {memory && <MemoryResults memory={memory} />}
@@ -210,7 +208,7 @@ function MemorySummary({ memory }: { memory: FireMemoryResult }) {
       {changes.length ? `Over the years, the level of fire ${changes[changes.length - 1].direction === "increase" ? "went up" : "went down"} around ${changes[changes.length - 1].date}.` : "Over these years, the overall level of fire has not clearly changed."}
       <small>
         Based on {memory.summary.total_hotspots.toLocaleString()} satellite fire sightings from {memory.period.start.slice(0, 4)} to {memory.period.end.slice(0, 4)}.
-        {step ? ` When sharper satellites started in ${step.date.slice(0, 4)}, raw sightings became about ${Number(step.raw_count_ratio).toFixed(1)} times as many. That jump is not real: after our correction the record stays level.` : ""}
+        {step ? ` When sharper satellites started in ${step.date.slice(0, 4)}, raw sightings became about ${Number(step.raw_count_ratio).toFixed(1)} times as many. Sensor changes can contribute to this jump; consult the validation results before interpreting the harmonized trend.` : ""}
       </small>
     </section>
   );
@@ -222,6 +220,19 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
   const [selectedMonth, setSelectedMonth] = useState<{ year: number; month: number } | null>(null);
   const cmp = memory.current_vs_historical;
   const bbox = aoiBBox(memory.aoi as never) ?? (memory.aoi.bbox as [number, number, number, number]);
+  const monthlyObservationStates = useMemo(() => {
+    const groups = new Map<string, typeof memory.daily>();
+    for (const day of memory.daily) {
+      const key = day.date.slice(0, 7);
+      groups.set(key, [...(groups.get(key) ?? []), day]);
+    }
+    return new Map([...groups].map(([key, days]) => {
+      const [year, month] = key.split("-").map(Number);
+      const expectedDays = new Date(Date.UTC(year, month, 0)).getUTCDate();
+      const fullMonth = new Set(days.map((day) => day.date)).size === expectedDays;
+      return [key, fullMonth && days.every((day) => day.observation_status === "valid_no_fire")];
+    }));
+  }, [memory]);
   const monthRows = useMemo(() => new Map(memory.monthly.map((row) => [`${row.year}-${row.month}`, row])), [memory]);
   const historicalMedian = (month: number, excludeYear: number) => medianOf(memory.monthly.filter((row) => row.month === month && row.year !== excludeYear && row.days_in_record >= 20).map((row) => row.harmonized_activity));
   const anomalyGrid = memory.calendar.years.map((year) => memory.calendar.months.map((_, index) => {
@@ -290,7 +301,7 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
               <h3>Monthly Burning Patterns</h3>
               <p className="meta-text">Each square is one month of one year. Click a square for its raw detections, corrected activity, historical median, anomaly, uncertainty and observation coverage.</p>
             </div>
-            <span className="method-badge">Four-Witness consistent record</span>
+            <span className="method-badge">Harmonized estimates ? review validation</span>
           </header>
           <div className="memory-calendar-toolbar">
             <div role="group" aria-label="Calendar metric">
@@ -309,12 +320,17 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
                 ...memory.calendar.months.map((month, monthIndex) => {
                   const value = calendarGrid[yearIndex][monthIndex];
                   const limited = lowCoverageKeys.has(`${year}-${month}`);
-                  const label = value === null ? `${month} ${year}: missing observation` : `${month} ${year}: ${value.toFixed(1)}${calendarMode === "anomaly" ? "% from historical median" : calendarMode === "raw" ? " raw detections" : " corrected activity"}${limited ? ", low observation sufficiency" : ""}`;
+                  const row = monthRows.get(`${year}-${monthIndex + 1}`);
+                  const hasDetections = (row?.hotspot_count ?? 0) > 0;
+                  const reportedClear = !hasDetections && monthlyObservationStates.get(`${year}-${String(monthIndex + 1).padStart(2, "0")}`) === true;
+                  const unverifiedZero = !hasDetections && !reportedClear;
+                  const observationLabel = hasDetections ? "satellite fire detections recorded" : reportedClear ? "reported clear observations with no detections; coverage is model-derived, not independently verified" : "missing or unverified coverage; no-fire status unknown";
+                  const label = observationLabel + ". " + (value === null ? `${month} ${year}: missing observation` : `${month} ${year}: ${value.toFixed(1)}${calendarMode === "anomaly" ? "% from historical median" : calendarMode === "raw" ? " raw detections" : " corrected activity"}${limited ? ", low observation sufficiency" : ""}`);
                   return <button
                     type="button"
                     role="gridcell"
                     key={`${year}-${month}`}
-                    className={`burning-month-cell${value === null ? " missing" : ""}${limited ? " limited" : ""}`}
+                    className={`burning-month-cell${reportedClear ? " reported-clear" : unverifiedZero ? " unverified-zero" : ""}${value === null ? " missing" : ""}${limited ? " limited" : ""}`}
                     style={value === null ? undefined : { backgroundColor: cellColor(value) }}
                     title={label}
                     aria-label={label}
@@ -324,6 +340,13 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
               ])}
             </div>
           </div>
+          <div className="memory-calendar-states" aria-label="Calendar observation states">
+            <span><i className="detected" /> Satellite detections recorded</span>
+            <span><i className="reported-clear" /> Reported clear coverage, no detections*</span>
+            <span><i className="unknown" /> Missing or unverified coverage</span>
+            <span><i className="processing" /> Processing (preview only)</span>
+          </div>
+          <p className="meta-text">*Coverage is estimated by the current pipeline, not independently verified. Green requires every day of the month to be reported as a clear observation without detections; it does not establish that no fire occurred. Patterned cells must not be read as zero-fire months.</p>
           <div className="burning-calendar-legend" aria-label="Activity color scale">
             <span>Lower activity</span><div>{calendarColors.map((color) => <i key={color} style={{ backgroundColor: color }} />)}</div><span>Higher activity</span>
           </div>

@@ -1,0 +1,355 @@
+{
+  "dataset": "published",
+  "window": "current_2026",
+  "repeats": 5,
+  "cases": {
+    "small": {
+      "p50_ms": 87.493,
+      "p95_ms": 88.794,
+      "sha256": "d185ab5de373b8e8ec2b967d9fd86a91199d5762fbef3b59ae36c3b1af79b23d",
+      "stable": true,
+      "stages_p50": {
+        "candidate_filter_ms": 0.071,
+        "exact_containment_ms": 0.03,
+        "count_ms": 0.048,
+        "sort_limit_ms": 62.43,
+        "serialization_ms": 4.888,
+        "total_ms": 68.633
+      },
+      "path": "fallback",
+      "count": 26,
+      "response_bytes": 84082,
+      "wire_bytes": 7038,
+      "count_plan": [
+        [
+          3,
+          0,
+          216,
+          "SCAN events"
+        ]
+      ],
+      "page_plan": [
+        [
+          3,
+          0,
+          0,
+          "MATERIALIZE page"
+        ],
+        [
+          11,
+          3,
+          216,
+          "SCAN events"
+        ],
+        [
+          41,
+          3,
+          0,
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        [
+          54,
+          0,
+          92,
+          "SCAN page"
+        ],
+        [
+          56,
+          0,
+          45,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ]
+    },
+    "medium": {
+      "p50_ms": 37.69,
+      "p95_ms": 40.578,
+      "sha256": "aa9f7970897f8dc3a2f2097998363f0e4cf63f0d2c5d9d8765ce8d93fe090fe2",
+      "stable": true,
+      "stages_p50": {
+        "candidate_filter_ms": 0.085,
+        "exact_containment_ms": 0.062,
+        "count_ms": 0.045,
+        "sort_limit_ms": 1.998,
+        "serialization_ms": 24.775,
+        "total_ms": 28.374
+      },
+      "path": "fallback",
+      "count": 10510,
+      "response_bytes": 641598,
+      "wire_bytes": 36356,
+      "count_plan": [
+        [
+          3,
+          0,
+          216,
+          "SCAN events"
+        ]
+      ],
+      "page_plan": [
+        [
+          3,
+          0,
+          0,
+          "MATERIALIZE page"
+        ],
+        [
+          12,
+          3,
+          224,
+          "SCAN events USING INDEX event_end"
+        ],
+        [
+          50,
+          3,
+          0,
+          "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+        ],
+        [
+          66,
+          0,
+          92,
+          "SCAN page"
+        ],
+        [
+          68,
+          0,
+          45,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ]
+    },
+    "continent": {
+      "p50_ms": 58.159,
+      "p95_ms": 81.952,
+      "sha256": "3fcd97242ac5ca2e3e9470c881542c0a34076cfa13576fad21362bb6901c6cc6",
+      "stable": true,
+      "stages_p50": {
+        "candidate_filter_ms": 0.069,
+        "exact_containment_ms": 0.063,
+        "count_ms": 0.051,
+        "sort_limit_ms": 6.344,
+        "serialization_ms": 35.975,
+        "total_ms": 43.757
+      },
+      "path": "fallback",
+      "count": 71726,
+      "response_bytes": 806379,
+      "wire_bytes": 113924,
+      "count_plan": [
+        [
+          3,
+          0,
+          216,
+          "SCAN events"
+        ]
+      ],
+      "page_plan": [
+        [
+          3,
+          0,
+          0,
+          "MATERIALIZE page"
+        ],
+        [
+          12,
+          3,
+          224,
+          "SCAN events USING INDEX event_end"
+        ],
+        [
+          50,
+          3,
+          0,
+          "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+        ],
+        [
+          66,
+          0,
+          92,
+          "SCAN page"
+        ],
+        [
+          68,
+          0,
+          45,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ]
+    },
+    "complex_polygon": {
+      "p50_ms": 76.168,
+      "p95_ms": 101.815,
+      "sha256": "134f477a98cd9b166a213af2b0b59738e8551858b1159670fad82eeedfe1a4c6",
+      "stable": true,
+      "stages_p50": {
+        "candidate_filter_ms": 0.08,
+        "exact_containment_ms": 2.24,
+        "count_ms": 0.774,
+        "sort_limit_ms": 9.854,
+        "serialization_ms": 44.73,
+        "total_ms": 57.757
+      },
+      "path": "fallback",
+      "count": 15527,
+      "response_bytes": 951946,
+      "wire_bytes": 174910,
+      "count_plan": [
+        [
+          3,
+          0,
+          216,
+          "SCAN events"
+        ]
+      ],
+      "page_plan": [
+        [
+          3,
+          0,
+          0,
+          "MATERIALIZE page"
+        ],
+        [
+          12,
+          3,
+          224,
+          "SCAN events USING INDEX event_end"
+        ],
+        [
+          50,
+          3,
+          0,
+          "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+        ],
+        [
+          66,
+          0,
+          92,
+          "SCAN page"
+        ],
+        [
+          68,
+          0,
+          45,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ]
+    },
+    "circle": {
+      "p50_ms": 71.361,
+      "p95_ms": 73.746,
+      "sha256": "a67e8c4756baf3ee658d1df1b0b47d5ba7facea5ea48c200e4836158183df0f0",
+      "stable": true,
+      "stages_p50": {
+        "candidate_filter_ms": 0.071,
+        "exact_containment_ms": 0.292,
+        "count_ms": 0.049,
+        "sort_limit_ms": 8.109,
+        "serialization_ms": 44.507,
+        "total_ms": 54.079
+      },
+      "path": "fallback",
+      "count": 17567,
+      "response_bytes": 979530,
+      "wire_bytes": 185150,
+      "count_plan": [
+        [
+          3,
+          0,
+          216,
+          "SCAN events"
+        ]
+      ],
+      "page_plan": [
+        [
+          3,
+          0,
+          0,
+          "MATERIALIZE page"
+        ],
+        [
+          12,
+          3,
+          224,
+          "SCAN events USING INDEX event_end"
+        ],
+        [
+          50,
+          3,
+          0,
+          "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+        ],
+        [
+          66,
+          0,
+          92,
+          "SCAN page"
+        ],
+        [
+          68,
+          0,
+          45,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ]
+    },
+    "deep_offset": {
+      "p50_ms": 70.954,
+      "p95_ms": 71.794,
+      "sha256": "81db907324af80a2f708e7f2a3e6f8377085386a21b6578e4d8012057a48cbf8",
+      "stable": true,
+      "stages_p50": {
+        "candidate_filter_ms": 0.071,
+        "exact_containment_ms": 3.528,
+        "count_ms": 0.047,
+        "sort_limit_ms": 32.399,
+        "serialization_ms": 25.629,
+        "total_ms": 59.488
+      },
+      "path": "fallback",
+      "count": 138575,
+      "response_bytes": 659134,
+      "wire_bytes": 44357,
+      "count_plan": [
+        [
+          3,
+          0,
+          216,
+          "SCAN events"
+        ]
+      ],
+      "page_plan": [
+        [
+          3,
+          0,
+          0,
+          "MATERIALIZE page"
+        ],
+        [
+          12,
+          3,
+          224,
+          "SCAN events USING INDEX event_end"
+        ],
+        [
+          50,
+          3,
+          0,
+          "USE TEMP B-TREE FOR LAST TERM OF ORDER BY"
+        ],
+        [
+          66,
+          0,
+          92,
+          "SCAN page"
+        ],
+        [
+          68,
+          0,
+          45,
+          "SEARCH events USING INTEGER PRIMARY KEY (rowid=?)"
+        ]
+      ]
+    }
+  }
+}

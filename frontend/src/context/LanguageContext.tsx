@@ -2,6 +2,8 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 
 export type Lang = "en" | "bn";
 
+const LANGUAGE_STORAGE_KEY = "flameseek-lang-v2";
+
 /* English / Bangla strings for the harmonized-record pages. Fire descriptions (intensity,
    confidence, trend, honesty notes) come from the pipeline translation layer via the API.
    Bangla interface strings are a first draft for native-speaker review. */
@@ -91,14 +93,15 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const fromUrl = new URLSearchParams(window.location.search).get("lang");
     if (fromUrl === "en" || fromUrl === "bn") return fromUrl;
     try {
-      return (localStorage.getItem("flameseek-lang") as Lang) || "en";
+      const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+      return saved === "en" || saved === "bn" ? saved : "en";
     } catch {
       return "en";
     }
   });
   useEffect(() => {
     try {
-      localStorage.setItem("flameseek-lang", lang);
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
     } catch {
       /* per-viewer convenience only */
     }

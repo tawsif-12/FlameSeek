@@ -33,6 +33,11 @@ export function normalizeApiError(error: unknown): string {
 
 const repeatParams = { paramsSerializer: { indexes: null } };
 
+export async function getHarmonizedHotspots(days = 1): Promise<CurrentHotspotsResponse> {
+  const { data } = await api.get<CurrentHotspotsResponse>('/api/harmonized_hotspots', { params: { days, limit: 4000 }, timeout: 360000 });
+  return data;
+}
+
 export async function getCurrentHotspots(sensors: SensorName[], days = 1, limit = 10000, date?: string, includeDemo = false): Promise<CurrentHotspotsResponse> {
   const { data } = await api.get<CurrentHotspotsResponse>("/api/current_hotspots", { params: { days, limit, sensors, date, include_demo: includeDemo }, timeout: 120000, ...repeatParams });
   return data;
@@ -114,4 +119,14 @@ export function startFireMemory(aoi: AOI, historyYears: number, sensors: SensorN
 /** FlameSeek pipeline for one place: footprints, events and energy-conserving grid over its history. */
 export function startPlacePipeline(aoi: AOI, historyYears: number) {
   return startJob<PlacePipelineSummary>("/api/place_pipeline", { aoi, history_years: historyYears });
+}
+
+export async function savedFireMemory(aoi: AOI, historyYears: number, sensors: SensorName[]) {
+  const { data } = await api.post<{ result: FireMemoryResult | null }>("/api/fire_memory/saved", { aoi, history_years: historyYears, sensors, comparison_window_days: 30 });
+  return data.result;
+}
+
+export async function savedPlacePipeline(aoi: AOI, historyYears: number) {
+  const { data } = await api.post<{ result: PlacePipelineSummary | null }>("/api/place_pipeline/saved", { aoi, history_years: historyYears });
+  return data.result;
 }

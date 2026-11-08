@@ -117,7 +117,7 @@ async def run_place_pipeline(job: Job, payload: PlacePipelineRequest) -> dict[st
 
     async def on_progress(done: int, total: int) -> None:
         counts.update(done=done, total=total)
-        await job.update(f"Downloading NASA FIRMS archive: {done}/{total} requests", 0.02 + 0.56 * done / max(total, 1))
+        await job.update(f"Loading NASA FIRMS archive: {done}/{total} chunks (saved downloads reused)", 0.02 + 0.56 * done / max(total, 1))
 
     async def quota_notice() -> None:
         while True:
@@ -131,7 +131,7 @@ async def run_place_pipeline(job: Job, payload: PlacePipelineRequest) -> dict[st
     await job.update("Planning NASA FIRMS archive requests", 0.01)
     notice = asyncio.create_task(quota_notice())
     try:
-        _, report = await fetch_hotspots_with_report(snap_bbox(aoi.bbox), start, end, SENSORS, progress=on_progress, raw_sink=raw_sink)
+        _, report = await fetch_hotspots_with_report(snap_bbox(aoi.bbox), start, end, SENSORS, progress=on_progress, raw_sink=raw_sink,parse_rows=False)
     finally:
         notice.cancel()
 
@@ -155,6 +155,26 @@ async def run_place_pipeline(job: Job, payload: PlacePipelineRequest) -> dict[st
     if not report["failed_chunks"]:
         disk_write("place_pipeline", place_id, json.dumps(result, default=str), ".json")
     return result
+
+
+def saved_pipeline(payload):
+    from routers.memory import history_start
+    if payload.refresh:return None
+    end=datetime.now(timezone.utc).date()-timedelta(days=1)
+    for days in range(8):
+        candidate=end-timedelta(days=days)
+        key=_place_id(payload,history_start(candidate,payload.history_years),candidate)
+        text=disk_read('place_pipeline',key,'.json',CACHE_TTL_SECONDS)
+        if text is None:continue
+        result=json.loads(text);result['served_from_cache']=True
+        result['provenance']={**result.get('provenance',{}),'saved_preview':True}
+        return result
+    return None
+
+
+@router.post('/place_pipeline/saved')
+async def get_saved_pipeline(payload:PlacePipelineRequest):
+    return {'result':await asyncio.to_thread(saved_pipeline,payload)}
 
 
 @router.post("/place_pipeline")

@@ -4,14 +4,16 @@ import { normalizeApiError, searchPlaces } from "../api/client";
 import { describeAoi, useAppContext } from "../context/AppContext";
 import type { PlaceResult } from "../types/api";
 import "../harmonized.css";
+import "../search-refinements.css";
 
 const SUGGESTIONS = ["Bangladesh", "California", "Amazon Rainforest", "New South Wales"];
 
 const DESTINATIONS = [
-  { to: "/fire-memory", number: "01", title: "Fire Memory", description: "Explore the area's long-term fire history and recurring patterns." },
-  { to: "/fire-dna", number: "02", title: "Fire DNA", description: "Reveal its seasonal signature, trends, and unusual activity." },
-  { to: "/fire-calendar", number: "03", title: "Burning Calendar", description: "See when burning activity typically rises and falls through the year." },
-  { to: "/fire-events", number: "04", title: "Fire Events", description: "See each recent fire event in the area as its true burned-ground outline." },
+  { to: "/fire-map?aoi=1", number: "01", title: "Fire Now", description: "Explore recent satellite detections in the selected area." },
+  { to: "/fire-memory", number: "02", title: "Fire Memory", description: "Explore the area's long-term fire history and recurring patterns." },
+  { to: "/fire-dna", number: "03", title: "Fire DNA", description: "Reveal its seasonal signature, trends, and unusual activity." },
+  { to: "/fire-calendar", number: "04", title: "Burning Calendar", description: "See when burning activity typically rises and falls through the year." },
+  { to: "/fire-events", number: "05", title: "Fire Events", description: "See each recent fire event in the area as its true burned-ground outline." },
 ] as const;
 
 export default function SearchPage() {
@@ -20,16 +22,17 @@ export default function SearchPage() {
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showDestinations, setShowDestinations] = useState(false);
+  const [showDestinations, setShowDestinations] = useState(Boolean(aoi));
   const requestRef = useRef(0);
 
   async function findPlaces(value = query) {
     const trimmed = value.trim();
-    if (trimmed.length < 2) return;
+    if (trimmed.length < 2) { setError("Enter at least two characters, then select Search."); return; }
     const request = ++requestRef.current;
     setQuery(trimmed);
     setSearching(true);
     setError(null);
+    setResults([]);
     try {
       const found = await searchPlaces(trimmed);
       if (request !== requestRef.current) return;
@@ -75,12 +78,16 @@ export default function SearchPage() {
         <div className="minimal-search-workspace">
           <form className="minimal-search-box" onSubmit={(event) => { event.preventDefault(); void findPlaces(); }}>
             <span aria-hidden="true">⌕</span>
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search a country, state, district, or forest" aria-label="Search for a specific area" autoFocus />
-            <button type="submit" disabled={searching || query.trim().length < 2}>{searching ? <i className="search-spinner" /> : "Search"}</button>
+            <input aria-describedby="search-guidance" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search a country, state, district, or forest" aria-label="Search for a specific area" autoFocus />
+            <button type="submit" disabled={searching} aria-label={searching ? "Searching for matching areas" : "Search for matching areas"}>{searching ? <i className="search-spinner" /> : "Search"}</button>
           </form>
 
+          <p id="search-guidance" className="search-guidance">Enter a place name and press Search, then choose a matching result. For a custom boundary, <Link to="/fire-memory">select an area on the map</Link>.</p>
+          {error && <p className="minimal-search-error" role="alert">{error}</p>}
+          {searching && <p className="search-status" role="status">Finding matching locations?</p>}
+
           {results.length > 0 && (
-            <div className="minimal-place-results" role="listbox" aria-label="Matching areas">
+            <div className="minimal-place-results" role="group" aria-label="Matching areas">
               {results.map((place) => (
                 <button key={`${place.name}-${place.center.join(",")}`} type="button" onClick={() => chooseArea(place)}>
                   <span aria-hidden="true">⌖</span>
@@ -93,11 +100,9 @@ export default function SearchPage() {
 
           {!showDestinations && !searching && results.length === 0 && (
             <div className="minimal-search-suggestions" aria-label="Suggested areas">
-              {SUGGESTIONS.map((suggestion) => <button type="button" key={suggestion} onClick={() => void findPlaces(suggestion)}>{suggestion}</button>)}
+              {SUGGESTIONS.map((suggestion) => <button type="button" key={suggestion} aria-pressed={query === suggestion} onClick={() => void findPlaces(suggestion)}>{suggestion}</button>)}
             </div>
           )}
-
-          {error && <p className="minimal-search-error" role="alert">{error}</p>}
 
           {showDestinations && aoi && results.length === 0 && (
             <section className="area-destinations" aria-labelledby="selected-area-title">

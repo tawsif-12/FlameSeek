@@ -31,7 +31,8 @@ def client(tmp_path,monkeypatch):
     manifest=root/'data/processed/snapshot_manifest.json';manifest.write_text(json.dumps(dict(default_window='current_2026',windows=windows,translation={'active_hours':24})))
     monkeypatch.setattr(snapshot,'ROOT',root);monkeypatch.setattr(snapshot,'MANIFEST_PATH',manifest)
     app=FastAPI();app.include_router(snapshot.router)
-    return TestClient(app)
+    yield TestClient(app)
+    snapshot.POOL.clear()
 
 
 def test_metadata_uses_window_end_not_wall_clock(client):
@@ -102,3 +103,42 @@ def test_window_fires_returns_all_window_events_in_box_with_footprints(client):
     assert body['data'][0]['fire_id']=='recent' and body['data'][0]['footprint']['type']=='Polygon'
     assert 'whole' not in body['basis'] and body['data_version']
     assert client.get('/fires').status_code in [400,422]
+
+
+@pytest.mark.parametrize('indexed',[False,True])
+def test_exact_search_filters_before_count_and_pagination(client,indexed):
+    path=snapshot.ROOT/'data/processed/snapshots/current_2026.sqlite'
+    with sqlite3.connect(path) as con:
+        # Newest candidate is outside the triangle but inside its bounding box.
+        event=dict(fire_id='outside',end_time='2026-11-02 22:00:00+00:00')
+        con.execute('INSERT INTO events VALUES(?,?,?,?,?,?)',('outside','2026-11-01',event['end_time'],92.,26.,json.dumps(event)))
+        if indexed:
+            con.execute('CREATE VIRTUAL TABLE event_spatial_index USING rtree(event_id,min_lon,max_lon,min_lat,max_lat)')
+            con.execute('INSERT INTO event_spatial_index SELECT rowid,lon,lon,lat,lat FROM events')
+    area=dict(bbox=[88,20,93,27],geometry=dict(type='Polygon',coordinates=[[[88,20],[93,20],[88,27],[88,20]]]))
+    first=client.post('/fires/search?limit=1',json=area).json()
+    second=client.post('/fires/search?limit=1&offset=1',json=area).json()
+    assert first['count']==second['count']==2
+    assert first['data'][0]['fire_id']=='recent' and first['has_more']
+    assert second['data'][0]['fire_id']=='old' and not second['has_more']
+
+
+def test_search_holes_multipolygon_radius_and_validation(client):
+    outer=[[88,20],[93,20],[93,27],[88,27],[88,20]]
+    hole=[[89,23],[91,23],[91,25],[89,25],[89,23]]
+    area=dict(bbox=[88,20,93,27],geometry=dict(type='MultiPolygon',coordinates=[[outer,hole]]))
+    assert client.post('/fires/search',json=area).json()['count']==0
+    radius=dict(bbox=[88,20,93,27],center=[90,24],radius_km=1)
+    assert client.post('/fires/search',json=radius).json()['count']==2
+    radius['center']=[91,24]
+    assert client.post('/fires/search',json=radius).json()['count']==0
+    for invalid in [dict(bbox=[88,20,93,27],center=[90,24]),dict(bbox=[88,20,93,27],geometry={'type':'Point','coordinates':[90,24]}),dict(bbox=[88,20,93,27],geometry={'type':'Polygon','coordinates':[[]]})]:
+        response=client.post('/fires/search',json=invalid)
+        assert response.status_code==400 and 'data_version' in response.json()
+
+
+def test_search_ties_have_stable_pagination(client):
+    with sqlite3.connect(snapshot.ROOT/'data/processed/snapshots/current_2026.sqlite') as con:
+        con.execute('UPDATE events SET end_time=?',('2026-11-02 12:00:00+00:00',))
+    pages=[client.post(f'/fires/search?limit=1&offset={offset}',json={'bbox':[88,20,93,27]}).json() for offset in [0,1]]
+    assert [page['data'][0]['fire_id'] for page in pages]==['old','recent']

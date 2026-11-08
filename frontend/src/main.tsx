@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Link, NavLink, Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Link, NavLink, Navigate, Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "./styles.css";
@@ -9,18 +9,13 @@ import HomePage from "./pages/HomePage";
 import { LanguageProvider, useLanguage } from "./context/LanguageContext";
 import ThemeToggle from "./components/ThemeToggle";
 import "./theme.css";
+import "./responsive.css";
 
 const PRIMARY_NAVIGATION = [
   { to: "/", label: "Home", end: true },
   { to: "/fire-map", label: "Fire Now" },
   { to: "/search", label: "Search" },
   { to: "/fire-memory", label: "Memory" },
-] as const;
-
-const MORE_NAVIGATION = [
-  { to: "/fire-dna", label: "Fire DNA" },
-  { to: "/fire-events", label: "Events" },
-  { to: "/data-sources", label: "Sources" },
   { to: "/methodology", label: "Methodology" },
   { to: "/about", label: "About" },
 ] as const;
@@ -46,8 +41,29 @@ function LanguageToggle() {
 }
 
 function Header() {
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const headerRef = React.useRef<HTMLElement>(null);
+  const location = useLocation();
+  React.useEffect(() => {
+    setMenuOpen(false);
+  }, [location]);
+  React.useEffect(() => {
+    const outside = (event: PointerEvent) => {
+      if (!headerRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", escape);
+    };
+  }, []);
   return (
-    <header className="app-header mission-header">
+    <header ref={headerRef} className="app-header mission-header" onKeyDown={(event) => { if (event.key === "Escape") setMenuOpen(false); }}>
       <Link to="/" className="brand-mark" style={{ textDecoration: "none" }}>
         <span className="brand-glyph brand-flame" aria-hidden="true">🔥</span>
         <div>
@@ -55,22 +71,13 @@ function Header() {
           <p className="eyebrow">Global Fire Intelligence</p>
         </div>
       </Link>
-      <nav className="primary-navigation" aria-label="Primary navigation">
+      <button type="button" className="mobile-menu-toggle" aria-expanded={menuOpen} aria-controls="primary-navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? "Close" : "Menu"}</button>
+      <nav id="primary-navigation" className={`primary-navigation ${menuOpen ? "mobile-open" : ""}`} aria-label="Primary navigation" onClick={(event) => { if ((event.target as HTMLElement).closest("a")) setMenuOpen(false); }}>
         {PRIMARY_NAVIGATION.map((item) => (
           <NavLink key={item.to} to={item.to} end={"end" in item ? item.end : undefined}>
             {item.label}
           </NavLink>
         ))}
-        <details className="header-more">
-          <summary>More <span aria-hidden="true">▾</span></summary>
-          <div>
-            {MORE_NAVIGATION.map((item) => (
-              <NavLink key={item.to} to={item.to} onClick={(event) => event.currentTarget.closest("details")?.removeAttribute("open")}>
-                {item.label}
-              </NavLink>
-            ))}
-          </div>
-        </details>
       </nav>
       <div className="header-actions">
         <LanguageToggle />

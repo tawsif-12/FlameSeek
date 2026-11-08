@@ -36,6 +36,37 @@ RESULT_CACHE_VERSION = 3  # 3: adds hotspot_map and area_risk (area fire intelli
 RESULT_CACHE_TTL_SECONDS = 7 * 86400
 
 
+def memory_cache_key(payload, start, end):
+    return hashlib.sha1(json.dumps([RESULT_CACHE_VERSION, payload.aoi.model_dump(mode='json'),
+        start.isoformat(), end.isoformat(), sorted(str(s) for s in payload.sensors),
+        payload.comparison_window_days], sort_keys=True).encode()).hexdigest()
+
+
+def history_start(end,years):
+    try:start=end.replace(year=end.year-years)+timedelta(days=1)
+    except ValueError:start=end.replace(year=end.year-years,day=28)+timedelta(days=1)
+    return max(start,SENSOR_START_DATES['modis'])
+
+
+def saved_memory(payload):
+    """An exact-query saved preview, with its original dates; never fetch NASA here."""
+    if payload.refresh:return None
+    end=payload.end_date or (datetime.now(timezone.utc).date()-timedelta(days=1))
+    for days in range(8 if payload.end_date is None else 1):
+        candidate=end-timedelta(days=days)
+        text=disk_read('fire_memory',memory_cache_key(payload,history_start(candidate,payload.history_years),candidate),'.json',RESULT_CACHE_TTL_SECONDS)
+        if text is None:continue
+        result=json.loads(text)
+        result['provenance']={**result.get('provenance',{}),'served_from_cache':True,'saved_preview':True}
+        return result
+    return None
+
+
+@router.post('/fire_memory/saved')
+async def get_saved_memory(payload:FireMemoryRequest):
+    return {'result':await asyncio.to_thread(saved_memory,payload)}
+
+
 def _compact_daily(row: dict[str, Any]) -> dict[str, Any]:
     obs = row["observation"]
     return {
@@ -81,9 +112,7 @@ async def run_fire_memory(job: Job, payload: FireMemoryRequest) -> dict[str, Any
     sensors = [str(s) for s in payload.sensors]
 
     # A finished analysis for the same area, period and settings is reused from disk.
-    cache_key = hashlib.sha1(
-        json.dumps([RESULT_CACHE_VERSION, payload.aoi.model_dump(mode="json"), start.isoformat(), end.isoformat(), sorted(sensors), payload.comparison_window_days], sort_keys=True).encode()
-    ).hexdigest()
+    cache_key = memory_cache_key(payload,start,end)
     if not payload.refresh:
         cached = disk_read("fire_memory", cache_key, ".json", RESULT_CACHE_TTL_SECONDS)
         if cached is not None:
@@ -96,7 +125,7 @@ async def run_fire_memory(job: Job, payload: FireMemoryRequest) -> dict[str, Any
 
     async def on_progress(done: int, total: int) -> None:
         counts.update(done=done, total=total)
-        await job.update(f"Downloading MODIS/VIIRS archive: {done}/{total} FIRMS requests", 0.05 + 0.75 * done / max(total, 1))
+        await job.update(f"Loading MODIS/VIIRS archive: {done}/{total} chunks (saved downloads reused)", 0.05 + 0.75 * done / max(total, 1))
 
     async def quota_notice() -> None:
         # The download is not stuck when NASA's request limit is reached: say so while it waits.

@@ -56,6 +56,13 @@ def add_spatial(con,window,root=ROOT):
     return n,len(det)
 
 
+def create_event_spatial_index(con):
+    """Build once before publishing an immutable snapshot; rowids identify centroids."""
+    con.execute('CREATE VIRTUAL TABLE event_spatial_index USING rtree(event_id,min_lon,max_lon,min_lat,max_lat)')
+    con.execute('INSERT INTO event_spatial_index SELECT rowid,lon,lon,lat,lat FROM events WHERE lon IS NOT NULL AND lat IS NOT NULL')
+    con.execute('CREATE INDEX event_order ON events(end_time DESC,fire_id ASC)')
+
+
 def build_window(window,root=ROOT):
     cfg=load_settings(window=window);processed=root/'data/processed/windows'/window
     dest=root/'data/processed/snapshots';dest.mkdir(parents=True,exist_ok=True)
@@ -74,6 +81,7 @@ def build_window(window,root=ROOT):
         when=row.get('end_time')
         if when is not None and (last is None or when>last):last=when
         n_events+=1
+    create_event_spatial_index(con)
     n_grid=0
     for file in sorted((root/'data/processed'/window/'grid_daily_lambda').glob('year=*/month=*/day=*/part.csv')):
         for row in rows(file,cfg['data_version']):

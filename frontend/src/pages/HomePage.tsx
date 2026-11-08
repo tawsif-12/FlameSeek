@@ -176,7 +176,7 @@ export default function HomePage() {
       }
     };
 
-    Promise.allSettled([loadHotspots(), loadEvents()]).then(([hotspotResult, eventResult]) => {
+    Promise.allSettled([loadHotspots()]).then(([hotspotResult]) => {
       if (cancelled) return;
 
       if (hotspotResult.status === "fulfilled") {
@@ -198,9 +198,10 @@ export default function HomePage() {
         setError("NASA FIRMS is temporarily offline. Live backup observations remain ready in Fire Now.");
       }
 
-      if (eventResult.status === "fulfilled") setEvents(eventResult.value.events);
+
       setLoading(false);
     });
+    loadEvents().then((result) => { if (!cancelled) setEvents(result.events); }).catch(() => {});
     return () => {
       cancelled = true;
     };
@@ -210,6 +211,15 @@ export default function HomePage() {
     () => [...events].sort((a, b) => +new Date(b.latest_detection) - +new Date(a.latest_detection)).slice(0, 4),
     [events]
   );
+  const globeHotspots = useMemo(() => {
+    const cells = new Set<string>();
+    return [...hotspots].sort((a, b) => (b.frp ?? 0) - (a.frp ?? 0)).filter((point) => {
+      const cell = `${Math.floor(point.lat / 8)},${Math.floor(point.lon / 8)}`;
+      if (cells.has(cell)) return false;
+      cells.add(cell);
+      return true;
+    }).slice(0, 24);
+  }, [hotspots]);
   const strongest = [...hotspots].sort((a, b) => (b.frp ?? 0) - (a.frp ?? 0))[0];
 
   const scrollToSatellite = (id: "terra" | "aqua" | "snpp" | "noaa20") => {
@@ -300,89 +310,10 @@ export default function HomePage() {
           <div className="oc-hero-visual">
             <OutcrowdEarthSatellite
               activeSatellite={activeSat}
-              targetHotspot={strongest ? { lat: strongest.lat, lon: strongest.lon, frp: strongest.frp } : undefined}
+              targetHotspots={globeHotspots}
             />
 
-            {/* Floating HUD Widget 1: Top Right Telemetry */}
-            <div className="oc-hud-card oc-hud-telemetry">
-              <div className="oc-hud-header">
-                <span className="oc-hud-title">ORBITAL TELEMETRY</span>
-                <span className="oc-hud-tag">
-                  <Radar size={10} />
-                  SYNC
-                </span>
-              </div>
-              <div className="oc-hud-body">
-                <div className="oc-hud-row">
-                  <span>PLATFORM</span>
-                  <strong className="accent">NOAA-20 / VIIRS</strong>
-                </div>
-                <div className="oc-hud-row">
-                  <span>ALTITUDE</span>
-                  <strong>824.2 KM</strong>
-                </div>
-                <div className="oc-hud-row">
-                  <span>INCLINATION</span>
-                  <strong>98.7° SUN-SYNC</strong>
-                </div>
-                <div className="oc-hud-row">
-                  <span>SWATH WIDTH</span>
-                  <strong>3,040 KM</strong>
-                </div>
-              </div>
-            </div>
 
-            {/* Floating HUD Widget 2: Mid Left Target Coordinates */}
-            <div className="oc-hud-card oc-hud-target">
-              <div className="oc-hud-header">
-                <span className="oc-hud-title">TARGET SECTOR</span>
-                <span className="oc-hud-tag alert">
-                  <Flame size={10} />
-                  THERMAL
-                </span>
-              </div>
-              <div className="oc-hud-body">
-                <div className="oc-hud-row">
-                  <span>COORDINATES</span>
-                  <strong>
-                    {strongest ? `${strongest.lat.toFixed(2)}°N, ${strongest.lon.toFixed(2)}°E` : "23.81°N, 90.41°E"}
-                  </strong>
-                </div>
-                <div className="oc-hud-row">
-                  <span>PEAK FIRE POWER</span>
-                  <strong className="accent">{strongest?.frp ? `${strongest.frp.toFixed(1)} MW` : "142.8 MW"}</strong>
-                </div>
-                <div className="oc-hud-row">
-                  <span>DETECTIONS</span>
-                  <strong>{totalDetections ? `${totalDetections.toLocaleString()} Hotspots` : "Active Scan"}</strong>
-                </div>
-              </div>
-            </div>
-
-            {/* Floating HUD Widget 3: Bottom Right Fleet Status */}
-            <div className="oc-hud-card oc-hud-fleet">
-              <div className="oc-hud-header">
-                <span className="oc-hud-title">FOUR-WITNESS PIPELINE</span>
-                <span className="oc-hud-tag">
-                  <Activity size={10} />
-                  4/4
-                </span>
-              </div>
-              <div className="oc-hud-body">
-                <div className="oc-hud-row">
-                  <span>MODIS FLEET</span>
-                  <strong>TERRA + AQUA</strong>
-                </div>
-                <div className="oc-hud-row">
-                  <span>VIIRS FLEET</span>
-                  <strong>S-NPP + NOAA-20</strong>
-                </div>
-                <div className="oc-hud-row">
-                  <span>CALIBRATION</span>
-                  <strong className="accent">AQUA 13:30 EQV</strong>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>

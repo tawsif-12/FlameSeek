@@ -16,7 +16,7 @@
   --app-header-height: 72px;
   --globe-panel-gap: 20px;
   --globe-left-panel-width: clamp(232px, 15vw, 268px);
-  --globe-right-panel-width: clamp(220px, 14vw, 252px);
+  --globe-right-panel-width: 0px;
   --mission-font: "Orbitron", "Michroma", "Eurostile", "Bank Gothic", "Rajdhani", "Arial Narrow", Inter, sans-serif;
 }
 
@@ -1511,9 +1511,9 @@ select {
   --sp-panel-bg: linear-gradient(180deg, rgba(20, 34, 60, 0.72), rgba(6, 12, 24, 0.72));
   --sp-hud-bg: linear-gradient(180deg, rgba(18, 32, 58, 0.82), rgba(6, 14, 28, 0.78));
   display: block;
-  height: calc(100vh - var(--app-header-height));
+  height: 100vh;
   min-height: 0;
-  padding: 0;
+  padding: var(--app-header-height) 0 0;
   background: #05080f;
   overflow: hidden;
   color: var(--sp-text);
@@ -1670,10 +1670,13 @@ select {
 
 .scene-panel {
   top: 20px;
+  bottom: 20px;
   left: 24px;
   display: flex;
   flex-direction: column;
   width: var(--globe-left-panel-width);
+  max-height: none;
+  overscroll-behavior: contain;
 }
 
 .scene-panel > .panel-title {
@@ -2207,9 +2210,7 @@ select {
 }
 
 .command-globe .cesium-viewer-bottom {
-  left: calc(var(--globe-left-panel-width) + 40px);
-  right: calc(var(--globe-right-panel-width) + 40px);
-  bottom: 68px;
+  display: none;
 }
 
 .cesium-error-panel h3 {
@@ -2414,8 +2415,16 @@ td {
 
   .immersive-globe-page,
   .command-globe {
-    height: calc(100vh - var(--app-header-height));
     min-height: 0;
+  }
+
+  .immersive-globe-page {
+    height: 100vh;
+    padding-top: var(--app-header-height);
+  }
+
+  .command-globe {
+    height: calc(100vh - var(--app-header-height));
   }
 
   .cesium-container {

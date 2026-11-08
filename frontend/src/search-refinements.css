@@ -1,0 +1,67 @@
+/* Search imagery is tuned independently for legibility in each application theme. */
+.minimal-search-page {
+  --search-muted: #b1c6d7;
+  --search-card: rgba(10,29,46,.94);
+  --search-outline: #47728b;
+}
+.minimal-search-page::before {
+  background-position: 50% 20%;
+  opacity: .72;
+  filter: brightness(.72) contrast(1.16) saturate(1.08);
+}
+.minimal-search-page::after {
+  background:
+    linear-gradient(180deg,rgba(3,11,22,.22),rgba(3,11,22,.6) 70%,#030b16 100%),
+    radial-gradient(ellipse at 50% 28%,transparent 0 20%,rgba(3,11,22,.26) 72%);
+}
+.minimal-search-page .minimal-search-stage { max-width: 1180px; min-height: auto; padding: clamp(36px,5vh,60px) 24px 48px; }
+.minimal-search-page .minimal-search-heading h2 { font-size: clamp(34px,4vw,60px); line-height: 1.12; }
+.minimal-search-page .minimal-search-heading > span { color: var(--search-muted); margin-top: 14px; }
+.minimal-search-page .minimal-search-workspace { width: min(1000px,100%); margin-top: 28px; }
+.minimal-search-page .minimal-search-box { min-height: 72px; border-radius: 18px; }
+.minimal-search-page .minimal-search-box input::placeholder { color: #a9c0d2; opacity: 1; }
+.minimal-search-page .minimal-search-box > button { min-height: 48px; height: 52px; color: #042032; background: #65e1fa; border: 1px solid #b2f3ff; border-radius: 12px; opacity: 1; box-shadow: 0 4px 18px #16b8df30; }
+.minimal-search-page .minimal-search-box > button:hover:not(:disabled) { background: #a5efff; transform: translateY(-1px); }
+.minimal-search-page .minimal-search-box > button:disabled { opacity: .75; cursor: progress; }
+.search-guidance, .search-status { margin: 12px 4px; color: var(--search-muted); font-size: 13px; line-height: 1.6; text-align: center; }
+.search-guidance a { color: #8ce6fa; text-underline-offset: 3px; }
+.minimal-search-page .minimal-place-results { position: relative; width: 100%; margin-top: 12px; max-height: 350px; }
+.minimal-search-page .minimal-search-suggestions { margin-top: 16px; gap: 10px; }
+.minimal-search-page .minimal-search-suggestions button { min-height: 44px; color: #d4e8f7; background: var(--search-card); border-color: var(--search-outline); font-size: 13px; }
+.minimal-search-page .minimal-search-suggestions button:hover,
+.minimal-search-page .minimal-search-suggestions button[aria-pressed="true"] { color: #f1fbff; border-color: #81def4; background: #17445d; box-shadow: 0 0 0 2px #65e1fa20; }
+.minimal-search-page :is(button,a):focus-visible { outline: 3px solid #38bdf8; outline-offset: 3px; }
+.minimal-search-page .area-destinations { margin-top: 28px; }
+.minimal-search-page .area-destinations > div { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.minimal-search-page .area-destinations a { min-height: 156px; padding: 20px; }
+.minimal-search-page .area-destinations a h4 { font-size: 22px; margin-top: 18px; }
+.minimal-search-page .area-destinations a p { color: var(--search-muted); font-size: 13px; }
+html[data-theme="day"] .minimal-search-page { --search-muted: #48657b; --search-card: rgba(255,255,255,.94); --search-outline: #b2cedf; }
+html[data-theme="day"] .minimal-search-page::before {
+  background-position: 50% 20%;
+  opacity: .48;
+  filter: brightness(1.18) contrast(.88) saturate(.82);
+}
+html[data-theme="day"] .minimal-search-page::after {
+  background:
+    linear-gradient(180deg,rgba(247,252,255,.48),rgba(243,250,255,.7) 70%,#f3faff 100%),
+    radial-gradient(ellipse at 50% 28%,rgba(255,255,255,.08) 0 20%,rgba(234,246,255,.34) 72%);
+}
+html[data-theme="day"] .minimal-search-page .minimal-search-box input::placeholder { color: #536c80; }
+html[data-theme="day"] .minimal-search-page .minimal-search-box > button { color: #fff; background: #086aa7; border-color: #075a91; box-shadow: 0 4px 18px #086aa725; }
+html[data-theme="day"] .minimal-search-page .minimal-search-box > button:hover:not(:disabled) { background: #075485; }
+html[data-theme="day"] .minimal-search-page .minimal-search-suggestions button { color: #254f6e; }
+html[data-theme="day"] .minimal-search-page .minimal-search-suggestions button:hover,
+html[data-theme="day"] .minimal-search-page .minimal-search-suggestions button[aria-pressed="true"] { color: #064773; background: #dcefff; border-color: #468dbb; }
+html[data-theme="day"] .search-guidance a { color: #086397; }
+@media(max-width:700px) {
+  .minimal-search-page .minimal-search-stage { padding: 30px 16px; }
+  .minimal-search-page .minimal-search-box { grid-template-columns: 24px minmax(0,1fr) auto; gap: 8px; padding: 10px; }
+  .minimal-search-page .minimal-search-box input { font-size: 16px; }
+  .minimal-search-page .minimal-search-box > button { min-width: 76px; padding-inline: 10px; }
+  .minimal-search-page .minimal-search-box > span { font-size: 24px; }
+  .minimal-search-page .area-destinations > div { grid-template-columns: minmax(0,1fr); }
+  .minimal-search-page .area-destinations > header { flex-wrap: wrap; align-items: flex-start; }
+  .minimal-search-page .area-destinations a { min-height: 140px; }
+}
+@media(prefers-reduced-motion:reduce) { .minimal-search-page .area-destinations { animation: none; } }

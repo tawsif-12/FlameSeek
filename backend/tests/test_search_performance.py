@@ -1,0 +1,194 @@
+"""Original ray casting is the compatibility oracle. All databases are pytest fixtures."""
+import json
+import random
+import sqlite3
+
+import pytest
+from geo import AOI, geojson_to_polygons
+from routers import snapshot
+from test_snapshot_api import client
+
+
+@pytest.mark.parametrize('indexed',[False,True])
+@pytest.mark.parametrize('shape',['box','polygon','multi','circle','both','invalid_polygon'])
+def test_search_matches_original(client,tmp_path,indexed,shape):
+    outer=[[88,20],[93,20],[93,27],[88,27],[88,20]]
+    hole=[[89,23],[91,23],[91,25],[89,25],[89,23]]
+    payload=dict(bbox=[88,20,93,27])
+    if shape in ('polygon','both'):payload['geometry']=dict(type='Polygon',coordinates=[outer,hole])
+    if shape=='multi':payload['geometry']=dict(type='MultiPolygon',coordinates=[[outer,hole],[[[94,20],[95,20],[95,21],[94,20]]]])
+    if shape=='invalid_polygon':payload['geometry']=dict(type='Polygon',coordinates=[[[88,20],[93,27],[93,20],[88,27],[88,20]]])
+    if shape in ('circle','both'):payload.update(center=[90,24],radius_km=160)
+    # The imported client fixture monkeypatches ROOT to this test's tmp_path.
+    assert snapshot.ROOT.resolve()==tmp_path.resolve()
+    path=tmp_path/'data/processed/snapshots/current_2026.sqlite'
+    assert path.resolve().is_relative_to(tmp_path.resolve())
+    rng=random.Random(1)
+    points=[(88,20),(93,27),(88,24),(93,24),(90,20),(90,27),(89,24),(91,24),(90,23),(90,25),
+            (88-1e-7,24),(88+1e-7,24),(93-1e-7,24),(93+1e-7,24),(90,24)]
+    points += [(rng.uniform(87,94),rng.uniform(19,28)) for _ in range(120)]
+    with sqlite3.connect(path) as con:
+        for i,(lon,lat) in enumerate(points):
+            event=dict(fire_id=f'f{i:04d}',end_time=f'2026-11-02 {i%24:02d}:00:00+00:00')
+            con.execute('INSERT INTO events VALUES(?,?,?,?,?,?)',(event['fire_id'],'2026-11-01',event['end_time'],lon,lat,json.dumps(event)))
+        if indexed:
+            con.execute('CREATE VIRTUAL TABLE event_spatial_index USING rtree(event_id,min_lon,max_lon,min_lat,max_lat)')
+            con.execute('INSERT INTO event_spatial_index SELECT rowid,lon,lon,lat,lat FROM events')
+        original=AOI(tuple(payload['bbox']),geojson_to_polygons(payload.get('geometry')),payload.get('center'),payload.get('radius_km'))
+        con.row_factory=sqlite3.Row
+        expected=[]
+        for row in con.execute('SELECT payload,lon,lat FROM events ORDER BY end_time DESC,fire_id ASC'):
+            match=original.contains(row['lat'],row['lon'])
+            # Approved bug fix: combined searches previously ignored the polygon.
+            if shape=='both':match=match and AOI(original.bbox,original.polygons).contains(row['lat'],row['lon'])
+            if match:expected.append(json.loads(row['payload'])['fire_id'])
+    actual=[]
+    for offset in range(0,len(expected)+7,7):
+        response=client.post(f'/fires/search?limit=7&offset={offset}',json=payload)
+        assert response.status_code==200,response.text
+        body=response.json()
+        assert body['count']==len(expected)
+        assert body['has_more']==(offset+len(body['data'])<len(expected))
+        actual.extend(e['fire_id'] for e in body['data'])
+    assert actual==expected
+
+
+def test_baseline_stage_log(client,caplog):
+    with caplog.at_level('INFO',logger='flameseek.search'):
+        client.post('/fires/search',json={'bbox':[88,20,93,27]})
+    metric=json.loads(next(r.message[12:] for r in caplog.records if r.message.startswith('fire_search ')))
+    assert metric['path']=='fallback'
+    assert all(metric[name]>=0 for name in ['candidate_setup_ms','exact_containment_ms','count_ms','sort_limit_ms','serialization_ms'])
+
+
+def test_explicit_candidate_profiling_does_not_change_response(client,caplog):
+    area={'bbox':[88,20,93,27]}
+    baseline=client.post('/fires/search',json=area).json()
+    with caplog.at_level('INFO',logger='flameseek.search'):
+        profiled=client.post('/fires/search?profile_stages=true',json=area).json()
+    assert profiled==baseline
+    metric=json.loads(next(r.message[12:] for r in caplog.records if r.message.startswith('fire_search ')))
+    assert metric['candidate_filter_ms']>=0 and metric['diagnostic_exact_ms']>=0
+    assert metric['diagnostic_matching_count']==baseline['count']
+
+
+def test_query_plans_use_spatial_and_ordering_indexes(client,tmp_path):
+    with sqlite3.connect(tmp_path/'data/processed/snapshots/current_2026.sqlite') as con:
+        con.execute('CREATE VIRTUAL TABLE event_spatial_index USING rtree(event_id,min_lon,max_lon,min_lat,max_lat)')
+        con.execute('INSERT INTO event_spatial_index SELECT rowid,lon,lon,lat,lat FROM events')
+        con.execute('CREATE INDEX event_order ON events(end_time DESC,fire_id ASC)')
+        con.create_function('area_contains',2,lambda x,y:True)
+        for box,expected in [([88,20,93,27],'VIRTUAL TABLE INDEX'),([-180,-90,180,90],'USING INDEX event_order')]:
+            where,params=snapshot.event_candidates(con,box)
+            sql,params,strategy=snapshot.search_page_sql(con,box,where+' AND area_contains(lon,lat)',params,10,0)
+            details=' '.join(row[3] for row in con.execute('EXPLAIN QUERY PLAN '+sql,params))
+            assert expected in details
+
+
+def test_count_cache_handles_deep_first_requests_and_snapshot_changes(client,tmp_path,caplog):
+    area={'bbox':[88,20,93,27]}
+    with caplog.at_level('INFO',logger='flameseek.search'):
+        first=client.post('/fires/search?offset=100',json=area).json()
+        second=client.post('/fires/search?limit=1',json=area).json()
+    assert first['count']==second['count']==2 and first['data']==[]
+    logs=[json.loads(r.message[12:]) for r in caplog.records if r.message.startswith('fire_search ')]
+    assert not logs[0]['count_cache_hit'] and logs[1]['count_cache_hit']
+    with sqlite3.connect(tmp_path/'data/processed/snapshots/current_2026.sqlite') as con:
+        event={'fire_id':'extra','end_time':'2026-11-02 12:00:00+00:00'}
+        con.execute('INSERT INTO events VALUES(?,?,?,?,?,?)',('extra','2026-11-01',event['end_time'],90.,24.,json.dumps(event)))
+    assert client.post('/fires/search',json=area).json()['count']==3
+
+
+def test_prepared_polygon_keeps_diagonal_and_horizontal_boundaries():
+    from search_geometry import PreparedArea
+    outer=[[0,0],[4,0],[4,4],[0,4],[0,0]]
+    hole=[[1,1],[3,1],[2,3],[1,1]]
+    original=AOI((-1,-1,5,5),[[outer,hole]])
+    prepared=PreparedArea(original)
+    for ring in [outer,hole]:
+        for a,b in zip(ring,ring[1:]):
+            for t in [0,.25,.5,.75,1]:
+                x=a[0]+t*(b[0]-a[0]);y=a[1]+t*(b[1]-a[1])
+                for dx in [-1e-12,0,1e-12]:
+                    assert prepared.contains(y,x+dx)==original.contains(y,x+dx)
+
+
+@pytest.mark.parametrize('center,radius', [([0,0],100),([179,0],500),([0,89],500),([0,-89],500),([0,0],19000)])
+def test_circle_candidate_box_never_excludes_matches(center,radius):
+    from search_geometry import PreparedArea
+    original=AOI((-180,-90,180,90),center=center,radius_km=radius)
+    prepared=PreparedArea(original);w,s,e,n=prepared.bbox
+    rng=random.Random(17)
+    for _ in range(2000):
+        lon,lat=rng.uniform(-180,180),rng.uniform(-90,90)
+        if original.contains(lat,lon):assert w<=lon<=e and s<=lat<=n
+
+
+def test_footprint_defaults_and_opt_in_simplification(client):
+    area={'bbox':[88,20,93,27]}
+    baseline=client.post('/fires/search?geometry=true',json=area).json()
+    simplified=client.post('/fires/search?geometry=true&simplify_footprints=true',json=area).json()
+    original=client.get('/events/recent').json()['data']['footprint']
+    assert baseline['data'][0]['footprint']==original
+    assert baseline['count']==simplified['count']
+    assert [e['fire_id'] for e in baseline['data']]==[e['fire_id'] for e in simplified['data']]
+    assert 'footprint' not in client.post('/fires/search',json=area).json()['data'][0]
+
+
+def test_search_gzip_preserves_decoded_contract_and_other_routes(client):
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from search_http import SearchGZipMiddleware
+    app=FastAPI();app.include_router(snapshot.router);app.add_middleware(SearchGZipMiddleware)
+    compressed=TestClient(app)
+    payload={'bbox':[88,20,93,27]}
+    plain=client.post('/fires/search?geometry=true',json=payload)
+    zipped=compressed.post('/fires/search?geometry=true',json=payload,headers={'Accept-Encoding':'gzip'})
+    assert zipped.headers['content-encoding']=='gzip'
+    assert zipped.json()==plain.json()
+    assert 'content-encoding' not in compressed.get('/events/recent',headers={'Accept-Encoding':'gzip'}).headers
+
+
+def test_pool_reuses_exclusive_readonly_connections(client,monkeypatch):
+    # Explicitly opt in for the reuse test; Windows defaults to releasing handles.
+    monkeypatch.setattr(snapshot.POOL,'reuse',True)
+    first,_=snapshot.connect('current_2026');underlying=first.connection
+    assert first.execute('PRAGMA query_only').fetchone()[0]==1
+    assert first.execute('PRAGMA cache_size').fetchone()[0]==-8192
+    first.close()
+    second,_=snapshot.connect('current_2026')
+    try:
+        assert second.connection is underlying
+        simultaneous,_=snapshot.connect('current_2026')
+        try:assert simultaneous.connection is not second.connection
+        finally:simultaneous.close()
+    finally:second.close()
+
+
+def test_pool_handles_atomic_snapshot_replacement(client,tmp_path):
+    import shutil
+    path=tmp_path/'data/processed/snapshots/current_2026.sqlite'
+    con,_=snapshot.connect('current_2026');old_id=con.identity;con.close()
+    replacement=tmp_path/'replacement.sqlite'
+    shutil.copyfile(path,replacement)
+    replacement.replace(path)
+    con,_=snapshot.connect('current_2026')
+    try:assert con.identity!=old_id
+    finally:con.close()
+    assert client.post('/fires/search',json={'bbox':[88,20,93,27]}).json()['count']==2
+
+
+def test_concurrent_searches_do_not_share_geometry_callbacks(client):
+    from concurrent.futures import ThreadPoolExecutor
+    def search(i):
+        area={'bbox':[88,20,93,27]} if i%2 else {'bbox':[0,0,1,1]}
+        body=client.post('/fires/search',json=area).json()
+        assert body['count']==(2 if i%2 else 0)
+    with ThreadPoolExecutor(max_workers=12) as executor:list(executor.map(search,range(36)))
+
+
+def test_missing_rtree_warning_is_actionable_and_rate_limited(client,caplog):
+    with caplog.at_level('WARNING',logger='flameseek.search'):
+        for _ in range(2):client.post('/fires/search',json={'bbox':[88,20,93,27]})
+    warnings=[r.message for r in caplog.records if 'lacks event_spatial_index' in r.message]
+    assert len(warnings)==1 and 'python -m pipeline.snapshot' in warnings[0]

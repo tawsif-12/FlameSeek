@@ -2,12 +2,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import { getCurrentHotspots, getEvent, getEvents, lookupEvent, normalizeApiError, runJob, searchPlaces, startEvidence } from "../api/client";
+import { globePointKey, uniqueGlobePoints } from "../utils/globePoints";
+import { getHarmonizedHotspots, getCurrentHotspots, getEvent, getEvents, lookupEvent, normalizeApiError, runJob, searchPlaces, startEvidence } from "../api/client";
 import { DEFAULT_SENSORS, aoiBBox, aoiContains, describeAoi, useAppContext } from "../context/AppContext";
 import type { AOI, CaseMarker, FireEvent, FireEventSummary, ForecastHorizon, HotspotRecord, PlaceResult } from "../types/api";
 import EventPanel, { BEHAVIOUR_COLORS, BEHAVIOUR_PLAIN, KIND_COLORS, KIND_LABELS, REALITY_WEIGHT } from "./EventPanel";
 
-type LayerKey = "MODIS" | "VIIRS" | "Fire Events" | "FRP Columns" | "Forecast Corridor" | "Exposure" | "Boundaries";
+type SatelliteLayer = "Terra" | "Aqua" | "S-NPP" | "NOAA-20" | "NOAA-21";
+type LayerKey = SatelliteLayer | "Harmonized" | "Fire Events" | "FRP Columns" | "Forecast Corridor" | "Exposure" | "Boundaries";
 type LightingMode = "Dawn" | "Day" | "Dusk" | "Night";
 type ThemeMode = "Default" | "Faded" | "Mono" | "Ocean" | "Warm" | "Vivid";
 type EarthMode = "Map" | "3D Terrain" | "Photorealistic";
@@ -42,13 +44,22 @@ const locations = {
 const nadirOrientation = { heading: 0, pitch: Cesium.Math.toRadians(-90), roll: 0 };
 const obliqueOrientation = { heading: Cesium.Math.toRadians(18), pitch: Cesium.Math.toRadians(-52), roll: 0 };
 
-const layerDefaults: Record<LayerKey, boolean> = { MODIS: true, VIIRS: true, "Fire Events": true, "FRP Columns": false, "Forecast Corridor": true, Exposure: true, Boundaries: true };
+const layerDefaults: Record<LayerKey, boolean> = { Terra: false, Aqua: false, "S-NPP": false, "NOAA-20": false, "NOAA-21": false, Harmonized: true, "Fire Events": false, "FRP Columns": false, "Forecast Corridor": true, Exposure: true, Boundaries: true };
+const satelliteLayers: SatelliteLayer[] = ["Terra", "Aqua", "S-NPP", "NOAA-20", "NOAA-21"];
+const satelliteColors: Record<SatelliteLayer, string> = { Terra: "#22c55e", Aqua: "#38bdf8", "S-NPP": "#facc15", "NOAA-20": "#fb923c", "NOAA-21": "#e879f9" };
 // Esri's free reference overlay: country, state and district lines with place labels.
 const BOUNDARIES_URL = "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer";
-const lightingModes: LightingMode[] = ["Dawn", "Day", "Dusk", "Night"];
-const themeModes: ThemeMode[] = ["Default", "Faded", "Mono", "Ocean", "Warm", "Vivid"];
 const periodLabels: Record<Period, string> = { "1": "Last 24 hours", "2": "Last 2 days", "5": "Last 5 days", historical: "Pick a past date" };
-const LAYER_LABEL: Record<LayerKey, string> = { MODIS: "MODIS satellites", VIIRS: "VIIRS satellites", "Fire Events": "Fires (grouped)", "FRP Columns": "Fire power bars", "Forecast Corridor": "Forecast area", Exposure: "Places nearby", Boundaries: "Administrative boundaries" };
+const LAYER_LABEL: Record<LayerKey, string> = { Terra: "MODIS · Terra", Aqua: "MODIS · Aqua", "S-NPP": "VIIRS · S-NPP", "NOAA-20": "VIIRS · NOAA-20", "NOAA-21": "VIIRS · NOAA-21", Harmonized: "Harmonized events", "Fire Events": "Fire cases", "FRP Columns": "Fire power bars", "Forecast Corridor": "Forecast area", Exposure: "Places nearby", Boundaries: "Administrative boundaries" };
+
+function satelliteLayer(h: HotspotRecord): SatelliteLayer | null {
+  if (h.sensor === "viirs_snpp") return "S-NPP";
+  if (h.sensor === "viirs_noaa20") return "NOAA-20";
+  if (h.sensor === "viirs_noaa21") return "NOAA-21";
+  if (h.sensor !== "modis") return null;
+  const satellite = h.satellite.trim().toLowerCase();
+  return ["terra", "t"].includes(satellite) ? "Terra" : ["aqua", "a"].includes(satellite) ? "Aqua" : null;
+}
 const EXPOSURE_COLORS: Record<string, string> = {
   settlements: "#f8fafc",
   schools: "#60a5fa",
@@ -65,7 +76,7 @@ function sensorFamily(sensor: string) {
 }
 
 function hotspotKey(h: HotspotRecord) {
-  return `hs:${h.sensor}|${h.lat}|${h.lon}|${h.acq_datetime}`;
+  return globePointKey(h);
 }
 
 function distanceKm(aLat: number, aLon: number, bLat: number, bLon: number) {
@@ -104,8 +115,9 @@ function crossSensorSet(hotspots: HotspotRecord[]) {
 
 function hotspotColor(h: HotspotRecord, confirmed: Set<string>, sensorColors: boolean) {
   if (sensorColors) {
-    if (confirmed.has(hotspotKey(h))) return Cesium.Color.RED.withAlpha(0.95);
-    return h.sensor === "modis" ? Cesium.Color.LIME.withAlpha(0.95) : Cesium.Color.YELLOW.withAlpha(0.95);
+    if (h.harmonized) return Cesium.Color.fromCssColorString("#f43f5e");
+    const platform = satelliteLayer(h);
+    return Cesium.Color.fromCssColorString(platform ? satelliteColors[platform] : "#94a3b8");
   }
   const frp = h.frp ?? 0;
   if (frp >= 100) return Cesium.Color.fromCssColorString("#b91c1c");
@@ -198,21 +210,22 @@ export default function CesiumFireGlobe() {
   const [searchParams, setSearchParams] = useSearchParams();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
+  const [mobilePanel, setMobilePanel] = useState<"filters" | null>(null);
   const [layers, setLayers] = useState<Record<LayerKey, boolean>>(layerDefaults);
   const layersRef = useRef(layers);
   layersRef.current = layers;
-  const [selectedLocation, setSelectedLocation] = useState<keyof typeof locations>("Atlantic View");
-  const [lighting, setLighting] = useState<LightingMode>("Day");
-  const [theme, setTheme] = useState<ThemeMode>("Default");
-  const [showImagery, setShowImagery] = useState(true);
-  const [earthMode, setEarthMode] = useState<EarthMode>("3D Terrain");
+  const [lighting] = useState<LightingMode>("Day");
+  const [theme] = useState<ThemeMode>("Default");
+  const [showImagery] = useState(true);
+  const [earthMode] = useState<EarthMode>("3D Terrain");
   const [sensorColors, setSensorColors] = useState(true);
-  const [showBuildings, setShowBuildings] = useState(true);
+  const [showBuildings] = useState(true);
   const [tilesStatus, setTilesStatus] = useState<string | null>(null);
   const calendarDate = searchParams.get("date");
   const [period, setPeriod] = useState<Period>(calendarDate ? "historical" : "1");
   const [historicalDate, setHistoricalDate] = useState(() => calendarDate ?? new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10));
   const [hotspots, setHotspots] = useState<HotspotRecord[]>([]);
+  const [rawHotspots, setRawHotspots] = useState<HotspotRecord[]>([]);
   const [events, setEvents] = useState<FireEventSummary[]>([]);
   const [autoVerify, setAutoVerify] = useState(true);
   const [verifying, setVerifying] = useState<Set<string>>(new Set());
@@ -260,8 +273,11 @@ export default function CesiumFireGlobe() {
   const removeCameraOcclusionRef = useRef<Cesium.Event.RemoveCallback | null>(null);
 
   const visibleHotspots = useMemo(
-    () => hotspots.filter((h) => layers[sensorFamily(h.sensor) as "MODIS" | "VIIRS"] && (!filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon))),
-    [hotspots, layers, filterToAoi, aoi],
+    () => [
+      ...(layers.Harmonized ? hotspots.filter((h) => Boolean(h.harmonized)) : []),
+      ...rawHotspots.filter((h) => { const platform = satelliteLayer(h); return platform !== null && layers[platform]; }),
+    ].filter((h) => !filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon)),
+    [hotspots, rawHotspots, layers, filterToAoi, aoi],
   );
   const visibleEvents = useMemo(
     () => events.filter((e) => e.observation_count >= 3 && (!filterToAoi || !aoi || aoiContains(aoi, e.centroid.lat, e.centroid.lon))),
@@ -340,21 +356,36 @@ export default function CesiumFireGlobe() {
     const days = historical ? 1 : Number(period);
     if (!historical) {
       setHotspots([]);
-      setDataStatus("Loading live FIRMS MODIS/VIIRS data...");
+      setRawHotspots([]);
+      setDataStatus("Harmonizing FIRMS detections: quality checks, pixel footprints and event merging...");
     } else {
       setDataStatus(`Loading what satellites saw on ${historicalDate}...`);
     }
     try {
-      const response = await getCurrentHotspots(DEFAULT_SENSORS, days, 4000, historical ? historicalDate : undefined, false);
-      setHotspots(response.hotspots);
+      const response = historical
+        ? await getCurrentHotspots(DEFAULT_SENSORS, days, 4000, historicalDate, false)
+        : await getHarmonizedHotspots(days);
+      setHotspots(uniqueGlobePoints(response.hotspots));
+      setRawHotspots(uniqueGlobePoints(historical ? response.hotspots : response.raw_hotspots ?? []));
+      if (historical) setLayers((cur) => ({ ...cur, Harmonized: false, Terra: true, Aqua: true, "S-NPP": true, "NOAA-20": true, "NOAA-21": true }));
       const m = response.metadata as Record<string, number | string>;
       const sourceLabel = m.data_source === "live" ? "LIVE FIRMS" : m.data_source === "cached_actual" ? "cached FIRMS fallback" : String(m.data_source ?? "FIRMS");
       setDataStatus(
-        `${sourceLabel} · ${historical ? `On ${historicalDate}` : periodLabels[period]}: satellites saw heat at ${Number(m.filtered_hotspot_count).toLocaleString()} spots worldwide. The map shows the ${Number(m.returned_hotspot_count).toLocaleString()} strongest.`,
+        historical ? `${sourceLabel} · On ${historicalDate}: ${Number(m.returned_hotspot_count).toLocaleString()} satellite detections.`
+          : `${sourceLabel} · ${periodLabels[period]}: ${Number(m.raw_hotspot_count).toLocaleString()} detections → ${Number(m.events_total ?? 0).toLocaleString()} footprint-merged events; showing ${Number(m.returned_hotspot_count).toLocaleString()}. Procedure Steps 1–4. Calibrated activity and Monte Carlo uncertainty await data.`,
       );
+      if (!historical) {
+        setEvents([]);
+        setEventStatus("One point per footprint-merged event. Click a point for its observation count, satellites and footprint uncertainty. FRP is the maximum per-overpass sum, never a sum across time.");
+        return;
+      }
     } catch (error) {
       setHotspots([]);
+      setRawHotspots([]);
+      setEvents([]);
       setDataStatus(`FIRMS request failed: ${normalizeApiError(error)}. No fire points loaded.`);
+      setEventStatus("Fire grouping paused because observations could not be loaded. Refresh to retry.");
+      return;
     }
     if (historical) {
       setEvents([]);
@@ -421,6 +452,11 @@ export default function CesiumFireGlobe() {
   }
 
   async function openDetection(h: HotspotRecord) {
+    if (h.harmonized) {
+      const a = h.harmonized;
+      setSelectionStatus(`Merged fire event · ${a.observations} observations · ${a.platforms} · footprint union ${a.footprint_area_km2.toFixed(2)} km² · fused confidence ${(a.confidence * 100).toFixed(1)}% (not calibrated fire probability). Peak overpass FRP ${(h.frp ?? 0).toFixed(1)} MW. Latent activity awaiting data.`);
+      return;
+    }
     setSelectionStatus(h.place_hint
       ? `${h.place_hint} · loading fire event…`
       : "Finding the fire event this detection belongs to...");
@@ -484,7 +520,7 @@ export default function CesiumFireGlobe() {
         viewer.selectedEntityChanged.addEventListener((entity) => {
           if (drawingRef.current || !entity) return;
           const id = String(entity.id);
-          if (id.startsWith("hs:")) {
+          if (id.startsWith("hs:") || id.startsWith("hz:")) {
             const h = lookupRef.current.get(id.split("#")[0]);
             if (h) void openDetection(h);
           } else if (id.startsWith("ev:")) {
@@ -686,7 +722,7 @@ export default function CesiumFireGlobe() {
       const basePx = h.sensor === "modis" ? 9 : 7;
       const entityName = h.place_hint
         ? `${sensorFamily(h.sensor)} · ${h.place_hint}`
-        : `${sensorFamily(h.sensor)} detection`;
+        : h.harmonized ? `Merged fire event · ${h.harmonized.observations} observations · ${h.harmonized.platforms}` : `${satelliteLayer(h) ?? sensorFamily(h.sensor)} detection`;
       viewer.entities.add({
         id,
         name: entityName,
@@ -894,22 +930,6 @@ export default function CesiumFireGlobe() {
     viewerRef.current?.camera.flyTo({ destination: Cesium.Rectangle.fromDegrees(b[0], b[1], b[2], b[3]), duration: 1.2 });
   }
 
-  function flyToLocation(name: keyof typeof locations) {
-    setSelectedLocation(name);
-    const d = locations[name];
-    const camera = viewerRef.current?.camera;
-    if (!camera) return;
-    if (name === "Atlantic View" || earthMode === "Map") {
-      camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(d.lon, d.lat, d.height), orientation: nadirOrientation, duration: 1.2 });
-      return;
-    }
-    // Oblique view that keeps the named place in the centre of the screen.
-    camera.flyToBoundingSphere(new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(d.lon, d.lat, 0), 0), {
-      offset: new Cesium.HeadingPitchRange(obliqueOrientation.heading, obliqueOrientation.pitch, Math.min(d.height, 1250000) * 1.25),
-      duration: 1.2,
-    });
-  }
-
   function zoom(direction: "in" | "out") {
     const camera = viewerRef.current?.camera;
     if (!camera) return;
@@ -961,6 +981,9 @@ export default function CesiumFireGlobe() {
   return (
     <section className={`cesium-shell command-globe ${themeClass(theme)} ${drawing ? "drawing" : ""} ${activeInsight ? "insight-open" : ""}`}>
       <div ref={containerRef} className="cesium-container" />
+      <div className="mobile-map-controls">
+        <button type="button" aria-expanded={mobilePanel === "filters"} aria-controls="map-filters" onClick={() => setMobilePanel(mobilePanel === "filters" ? null : "filters")}>{mobilePanel === "filters" ? "Close filters" : "Filters & place"}</button>
+      </div>
 
       <nav className="insight-dock" aria-label="Data insights">
         {([
@@ -1094,7 +1117,7 @@ export default function CesiumFireGlobe() {
         </aside>
       )}
 
-      <aside className="scene-panel globe-left">
+      <aside id="map-filters" className={`scene-panel globe-left ${mobilePanel === "filters" ? "mobile-panel-open" : ""}`}>
         <section>
           <p className="panel-title">Fires seen from space</p>
           <p className="map-howto">Each dot is heat seen by a satellite. A circle groups dots into one fire. Click a circle to find out if it is real, what kind it is and whether it is still burning.</p>
@@ -1114,12 +1137,27 @@ export default function CesiumFireGlobe() {
         <section>
           <p className="panel-title">Show on the map</p>
           <div className="compact-layer-grid">
-            {(Object.keys(layerDefaults) as LayerKey[]).map((layer) => (
+            {satelliteLayers.map((platform) => {
+              const count = rawHotspots.filter((h) => satelliteLayer(h) === platform && (!filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon))).length;
+              return <button key={platform} className={layers[platform] ? "active" : ""} type="button" aria-pressed={layers[platform]} onClick={() => setLayers((cur) => ({ ...cur, [platform]: !cur[platform] }))}>
+                <i style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: satelliteColors[platform], marginRight: 6 }} />
+                {LAYER_LABEL[platform]} · {count.toLocaleString()}
+              </button>;
+            })}
+          </div>
+          <p className="panel-title">Harmonized</p>
+          <div className="compact-layer-grid">
+            <button className={layers.Harmonized ? "active" : ""} type="button" aria-pressed={layers.Harmonized} disabled={period === "historical"} onClick={() => setLayers((cur) => ({ ...cur, Harmonized: !cur.Harmonized }))}>Harmonized events · {hotspots.filter((h) => h.harmonized && (!filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon))).length.toLocaleString()}</button>
+          </div>
+          <p className="tiles-status">Satellite buttons show individual observations. Harmonized shows footprint-merged events (Steps 1–4). Toggle layers independently to compare. A count of 0 means no observations were returned for that satellite in this window.</p>
+          <p className="panel-title">Map overlays</p>
+          <div className="compact-layer-grid">
+            {(["FRP Columns", "Forecast Corridor", "Exposure", "Boundaries"] as LayerKey[]).map((layer) => (
               <button key={layer} className={layers[layer] ? "active" : ""} type="button" onClick={() => setLayers((cur) => ({ ...cur, [layer]: !cur[layer] }))}>{LAYER_LABEL[layer]}</button>
             ))}
           </div>
           <label className="switch-row"><span>Colour dots by satellite</span><input type="checkbox" checked={sensorColors} onChange={(e) => setSensorColors(e.target.checked)} /></label>
-          <p className="tiles-status">{sensorColors ? "Green dots: MODIS satellites. Yellow: VIIRS satellites. Red: both saw the same place." : "Dot colour shows fire strength: pale = weak, amber = medium, orange = strong, red = very strong."}</p>
+          <p className="tiles-status">{sensorColors ? "Terra: green · Aqua: blue · S-NPP: yellow · NOAA-20: orange · NOAA-21: purple · Harmonized: pink." : "Dot colour shows fire strength: pale = weak, amber = medium, orange = strong, red = very strong."}</p>
           {layers["Fire Events"] && (
             <div className="behaviour-legend">
               {(Object.keys(KIND_COLORS) as Array<keyof typeof KIND_COLORS>).map((kind) => (
@@ -1172,50 +1210,6 @@ export default function CesiumFireGlobe() {
               </div>
             </div>
           )}
-        </section>
-      </aside>
-      <aside className="control-panel-3d">
-        <section>
-          <p className="panel-title">Lighting</p>
-          <div className="option-grid">
-            {lightingModes.map((mode) => (
-              <button key={mode} className={lighting === mode ? "option-card active" : "option-card"} type="button" onClick={() => setLighting(mode)}>
-                <span>{mode === "Day" ? "SUN" : mode === "Night" ? "MOON" : "LIT"}</span>
-                {mode}
-              </button>
-            ))}
-          </div>
-        </section>
-        <section>
-          <p className="panel-title">Color Theme</p>
-          <div className="theme-grid">
-            {themeModes.map((mode) => (
-              <button key={mode} className={theme === mode ? "theme-card active" : "theme-card"} type="button" onClick={() => setTheme(mode)}>
-                <span className={`theme-dots ${themeClass(mode)}`} />
-                {mode}
-              </button>
-            ))}
-          </div>
-        </section>
-        <section>
-          <p className="panel-title">View</p>
-          <div className="mode-toggle" aria-label="Earth display mode">
-            {(["Map", "3D Terrain", "Photorealistic"] as EarthMode[]).map((mode) => (
-              <button key={mode} className={earthMode === mode ? "active" : ""} type="button" onClick={() => setEarthMode(mode)}>{mode}</button>
-            ))}
-          </div>
-          <label className="switch-row"><span>Imagery</span><input type="checkbox" checked={showImagery} onChange={(e) => setShowImagery(e.target.checked)} /></label>
-          <label className="switch-row">
-            <span>OSM Buildings</span>
-            <input type="checkbox" checked={earthMode === "3D Terrain" && showBuildings} disabled={earthMode !== "3D Terrain"} onChange={(e) => setShowBuildings(e.target.checked)} />
-          </label>
-          {tilesStatus && <p className="tiles-status">{tilesStatus}</p>}
-          <label className="select-row">
-            <span>Location</span>
-            <select value={selectedLocation} onChange={(e) => flyToLocation(e.target.value as keyof typeof locations)}>
-              {Object.keys(locations).map((name) => <option key={name}>{name}</option>)}
-            </select>
-          </label>
         </section>
       </aside>
       {viewerError && (

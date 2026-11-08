@@ -1,0 +1,17 @@
+{
+  "scenario": "20 rapidly superseded distinct view changes, seeded 5000-event page, zoom 3",
+  "before": {
+    "burst_requests": 20,
+    "repeated_query_requests": 1,
+    "map_shapes": 5000
+  },
+  "after": {
+    "burst_requests": 1,
+    "repeated_query_requests": 0,
+    "map_clusters": 416,
+    "represented_events": 5000
+  },
+  "clustering_p50_ms": 0.49200000000001864,
+  "clustering_p95_ms": 0.8540000000000134,
+  "note": "Node lifecycle simulation and grouping CPU only, not browser paint or network latency. Production debounce is 250 ms (20 ms here to bound test duration). Whole-place searches stay whole-place by default; viewport searches are opt-in."
+}

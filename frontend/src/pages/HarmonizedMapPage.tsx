@@ -1,12 +1,31 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { GeoJSON, MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { CircleMarker, GeoJSON, MapContainer, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet";
 import L, { type LatLngBoundsExpression } from "leaflet";
 import { HarmonizedEvent, ListResponse, snapshotGet, SnapshotMeta, useSiteData } from "../api/harmonized";
-import { aoiBBox, aoiContains, describeAoi, useAppContext } from "../context/AppContext";
+import { aoiBBox, describeAoi, useAppContext } from "../context/AppContext";
 import { useLanguage } from "../context/LanguageContext";
 import HarmonizedProvenance, { StatusPill } from "../components/HarmonizedProvenance";
 import "../harmonized.css";
+import { SearchCache, scheduleSearch, queryKey, clusterCentroids } from "../api/searchRequests";
+
+const searchCache = new SearchCache<ListResponse<HarmonizedEvent>>();
+type Box = [number, number, number, number];
+type EventCluster = ReturnType<typeof clusterCentroids<HarmonizedEvent>>[number];
+
+function ClusterMarkers({ clusters, open, label }: { clusters: EventCluster[]; open: (id: string) => Promise<void>; label: (n: number) => string }) {
+  const map = useMap();
+  return <>{clusters.map((cluster) => (
+    <CircleMarker key={cluster.key} center={[cluster.lat, cluster.lon]} radius={Math.min(22, 5 + Math.log2(cluster.events.length + 1) * 2)}
+      pathOptions={{ color: "#ffc78a", fillColor: "#d4561f", fillOpacity: .85 }}
+      eventHandlers={{ click: () => {
+        if (cluster.events.length === 1) { void open(cluster.events[0].fire_id); return; }
+        map.fitBounds(L.latLngBounds(cluster.events.map((e) => [e.centroid_lat, e.centroid_lon] as [number, number])), { maxZoom: 12, padding: [40, 40] });
+      } }}>
+      <Tooltip>{label(cluster.events.length)}</Tooltip>
+    </CircleMarker>
+  ))}</>;
+}
 
 /* Fire events of a searched place (Search → "Fire Events"). Each event is drawn as its true
    ground footprint; the side list names every event so nothing on the map is unexplained. */
@@ -17,15 +36,15 @@ const UNKNOWN_HEX = "#6b7a90";
    drawn with a thick border in its intensity colour to stay visible (still the event's own shape). */
 const TRUE_SHAPE_ZOOM = 11;
 
-function ZoomWatcher({ onZoom }: { onZoom: (z: number) => void }) {
-  const map = useMapEvents({ zoomend: () => onZoom(map.getZoom()) });
-  useEffect(() => onZoom(map.getZoom()), [map, onZoom]);
+function ZoomWatcher({ onZoom, onView }: { onZoom: (z: number) => void; onView: (box: Box) => void }) {
+  const report = () => {
+    onZoom(map.getZoom());
+    const b = map.getBounds();
+    onView([Math.max(-180, b.getWest()), Math.max(-90, b.getSouth()), Math.min(180, b.getEast()), Math.min(90, b.getNorth())]);
+  };
+  const map = useMapEvents({ moveend: report, zoomend: report });
+  useEffect(report, [map, onZoom, onView]);
   return null;
-}
-
-function clampBox(b: [number, number, number, number]) {
-  const c = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
-  return [c(b[0], -180, 180), c(b[1], -90, 90), c(b[2], -180, 180), c(b[3], -90, 90)].map((x) => x.toFixed(4)).join(",");
 }
 
 /** Frames the map on the place, or on one event when it is selected. */
@@ -53,10 +72,20 @@ export default function HarmonizedMapPage() {
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<HarmonizedEvent | null>(null);
   const [zoom, setZoom] = useState(6);
+  const [viewBox, setViewBox] = useState<Box | null>(null);
+  const [searchView, setSearchView] = useState(false);
   const req = useRef(0);
+  const detailRequest = useRef<AbortController | null>(null);
   const small = zoom < TRUE_SHAPE_ZOOM;
 
   const box = useMemo(() => (aoi ? aoiBBox(aoi) : null), [aoi]);
+  const onView = useCallback((next: Box) => setViewBox((old) => old?.every((v, i) => v === next[i]) ? old : next), []);
+  const searchBox = useMemo(() => {
+    if (!box || !searchView || !viewBox) return box;
+    return [Math.max(box[0], viewBox[0]), Math.max(box[1], viewBox[1]), Math.min(box[2], viewBox[2]), Math.min(box[3], viewBox[3])] as Box;
+  }, [box, searchView, viewBox]);
+  const searchBody = useMemo(() => ({ bbox: searchBox, geometry: aoi?.geometry, center: aoi?.center, radius_km: aoi?.radius_km }), [searchBox, aoi]);
+  const searchKey = queryKey({ window: win, version: site?.meta.windows[win]?.data_version, limit: 5000, geometry: true, body: searchBody });
   const words = (site?.translation.words.en.intensity as string[] | undefined) ?? [];
   const thresholds = site?.intensity_classes_mw ?? [];
   const classOf = useCallback((e: HarmonizedEvent) => words.indexOf(String(e.translation?.en?.intensity ?? "")), [words]);
@@ -65,20 +94,28 @@ export default function HarmonizedMapPage() {
 
   // All events of the window in the searched place.
   useEffect(() => {
-    if (!box) return;
     const id = ++req.current;
+    detailRequest.current?.abort();
+    setSelected(null);
+    if (!searchBox) { setList(null); setLoading(false); return; }
+    if (searchBox[0] >= searchBox[2] || searchBox[1] >= searchBox[3]) {
+      setList(null); setError(null); setLoading(false); return;
+    }
     setLoading(true);
     setError(null);
     setSelected(null);
-    snapshotGet<ListResponse<HarmonizedEvent>>("/fires", { window: win, bbox: clampBox(box), limit: 5000, geometry: true })
-      .then((r) => id === req.current && setList(r))
-      .catch((e) => id === req.current && (setError((e as Error).message), setList(null)))
-      .finally(() => id === req.current && setLoading(false));
-  }, [box, win]);
+    setList(null);
+    return scheduleSearch({ key: searchKey, cache: searchCache,
+      load: (signal) => snapshotGet<ListResponse<HarmonizedEvent>>("/fires/search", { window: win, limit: 5000, geometry: true }, searchBody, signal),
+      onResult: (r) => { if (id === req.current) setList(r); },
+      onError: (e) => { if (id === req.current) { setError(e.message); setList(null); } },
+      onSettled: () => { if (id === req.current) setLoading(false); },
+    });
+  }, [searchKey]);
 
-  // Keep only events inside the place's own outline (not just its bounding box), strongest first.
+  // Exact containment is authoritative on the backend; display this page strongest first.
   const events = useMemo(() => {
-    const inside = (list?.data ?? []).filter((e) => !aoi || aoiContains(aoi, e.centroid_lat, e.centroid_lon));
+    const inside = [...(list?.data ?? [])];
     return inside.sort((a, b) => peak(b) - peak(a));
   }, [list, aoi]);
 
@@ -86,6 +123,7 @@ export default function HarmonizedMapPage() {
     type: "FeatureCollection" as const,
     features: events.filter((e) => e.footprint).map((e) => ({ type: "Feature" as const, geometry: e.footprint!, properties: { fire_id: e.fire_id, cls: classOf(e) } })),
   }), [events, classOf]);
+  const clusters = useMemo(() => zoom < 8 ? clusterCentroids(events, zoom) : [], [events, zoom]);
 
   const placeOutline = useMemo(() => {
     if (!aoi) return null;
@@ -96,13 +134,16 @@ export default function HarmonizedMapPage() {
   }, [aoi, box]);
 
   const open = useCallback(async (fireId: string) => {
+    detailRequest.current?.abort();
+    const controller = new AbortController(); detailRequest.current = controller;
     try {
-      const r = await snapshotGet<SnapshotMeta & { data: HarmonizedEvent }>(`/events/${encodeURIComponent(fireId)}`, { window: win });
-      setSelected(r.data);
+      const r = await snapshotGet<SnapshotMeta & { data: HarmonizedEvent }>(`/events/${encodeURIComponent(fireId)}`, { window: win }, undefined, controller.signal);
+      if (!controller.signal.aborted) setSelected(r.data);
     } catch (e) {
-      setError((e as Error).message);
+      if (!controller.signal.aborted) setError((e as Error).message);
     }
   }, [win]);
+  useEffect(() => () => { detailRequest.current?.abort(); }, []);
 
   const legend = useMemo(() => {
     const local = (site?.translation.words[lang]?.intensity as string[] | undefined) ?? [];
@@ -152,12 +193,12 @@ export default function HarmonizedMapPage() {
             <TileLayer attribution="Labels &copy; Esri"
               url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}" />
             <Frame box={box} focus={selected?.footprint ?? null} />
-            <ZoomWatcher onZoom={setZoom} />
+            <ZoomWatcher onZoom={setZoom} onView={onView} />
             {placeOutline && (
               <GeoJSON key={`aoi-${describeAoi(aoi)}`} data={placeOutline} interactive={false}
                 style={{ color: "#6ad7ff", weight: 2, dashArray: "6 5", fill: false }} />
             )}
-            <GeoJSON
+            {zoom < 8 ? <ClusterMarkers clusters={clusters} open={open} label={(n) => `${fmt(n)} ${t("events_found")}`} /> : <GeoJSON
               key={`fp-${win}-${events.length}-${events[0]?.fire_id ?? ""}-${selected?.fire_id ?? ""}-${small}`}
               data={footprints}
               style={(f) => {
@@ -175,7 +216,7 @@ export default function HarmonizedMapPage() {
                 if (e) layer.bindTooltip(`${String(e.translation?.[lang]?.intensity ?? "")} · ${e.end_time.slice(0, 10)}`, { sticky: true });
                 layer.on("click", () => open(f.properties.fire_id));
               }}
-            />
+            />}
           </MapContainer>
           <div className="hz-honesty hz-honesty-float" role="note">
             <strong>{t("honesty_title")}</strong>
@@ -184,6 +225,9 @@ export default function HarmonizedMapPage() {
         </div>
 
         <aside className="glass-card hz-side">
+          <label><input type="checkbox" checked={searchView} onChange={(e) => setSearchView(e.target.checked)} /> Search current map view</label>
+          {searchView && <p className="hz-src">Results and totals apply to the visible part of the selected place.</p>}
+          {zoom < 8 && <p className="hz-src">Nearby events are grouped. Zoom in to see individual footprints.</p>}
           <div>
             <label htmlFor="hz-win">{t("map_window")}</label>
             <select id="hz-win" value={win} onChange={(e) => setWin(e.target.value)}>
@@ -194,7 +238,7 @@ export default function HarmonizedMapPage() {
           <div className="hz-count">
             {loading && <span>{t("loading")}</span>}
             {error && <span style={{ color: "var(--sp-warn)" }}>{t("error")}: {error}</span>}
-            {list && !loading && <><b>{fmt(events.length)} {t("events_found")}</b> — {t("window_basis")}{list.count > list.data.length ? ` (${t("first")} ${fmt(list.data.length)} ${t("map_of")} ${fmt(list.count)})` : ""}</>}
+            {list && !loading && <><b>{fmt(list.count)} {t("events_found")}</b> — {t("window_basis")}{list.count > list.data.length ? ` (${t("first")} ${fmt(list.data.length)} ${t("map_of")} ${fmt(list.count)})` : ""}</>}
           </div>
 
           {selected && tr ? (
