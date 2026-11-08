@@ -1,0 +1,47 @@
+
+> flameseek-frontend@0.1.0 dev
+> vite --host 127.0.0.1
+
+
+  VITE v5.4.21  ready in 2037 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+00:36:57 [vite] hmr update /src/pages/HomePage.tsx
+00:36:57 [vite] hmr update /src/responsive.css
+00:36:57 [vite] hmr update /src/components/HarmonizedRecordSection.tsx, /src/components/HarmonizedProvenance.tsx
+00:36:57 [vite] hmr update /src/context/LanguageContext.tsx
+00:36:57 [vite] hmr update /src/components/DataCoverageNotice.tsx
+00:36:57 [vite] hmr update /src/components/HarmonizedProvenance.tsx
+00:36:57 [vite] hmr update /src/components/HarmonizedRecordSection.tsx
+00:36:57 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx
+00:36:57 [vite] hmr update /src/harmonized.css
+00:36:57 [vite] hmr update /src/main.tsx
+00:36:57 [vite] hmr update /src/outcrowd-satellite.css
+00:36:58 [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx
+00:36:58 [vite] hmr update /src/styles.css
+00:36:58 [vite] hmr update /src/theme.css
+00:36:58 [vite] hmr update /src/pages/HomePage.tsx
+00:36:58 [vite] hmr update /src/responsive.css
+00:36:58 [vite] hmr invalidate /src/context/LanguageContext.tsx Could not Fast Refresh ("useLanguage" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+00:36:58 [vite] hmr update /src/main.tsx, /src/components/HarmonizedRecordSection.tsx, /src/components/HarmonizedProvenance.tsx
+00:37:38 [vite] hmr update /src/components/HarmonizedRecordSection.tsx, /src/components/HarmonizedProvenance.tsx
+00:37:38 [vite] hmr update /src/components/DataCoverageNotice.tsx
+00:37:38 [vite] hmr update /src/components/HarmonizedProvenance.tsx
+00:37:38 [vite] hmr update /src/context/LanguageContext.tsx
+00:37:38 [vite] hmr update /src/harmonized.css
+00:37:38 [vite] hmr update /src/main.tsx
+00:37:39 [vite] hmr update /src/pages/HomePage.tsx
+00:37:39 [vite] hmr update /src/components/HarmonizedRecordSection.tsx
+00:37:39 [vite] hmr update /src/outcrowd-satellite.css
+00:37:39 [vite] hmr update /src/responsive.css
+00:37:39 [vite] hmr update /src/styles.css
+00:37:39 [vite] hmr update /src/theme.css
+00:37:41 [vite] hmr invalidate /src/context/LanguageContext.tsx Could not Fast Refresh ("useLanguage" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+00:37:41 [vite] hmr update /src/main.tsx, /src/components/HarmonizedRecordSection.tsx, /src/components/HarmonizedProvenance.tsx
+00:37:43 [vite] hmr invalidate /src/main.tsx Could not Fast Refresh ("true" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+00:37:43 [vite] page reload src/main.tsx
+00:44:55 [vite] hmr update /src/pages/SearchPage.tsx
+00:44:55 [vite] hmr update /src/search-refinements.css
+00:53:40 [vite] hmr update /src/pages/SearchPage.tsx
+00:53:40 [vite] hmr update /src/search-refinements.css
+00:55:45 [vite] hmr update /src/search-refinements.css

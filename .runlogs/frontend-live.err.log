@@ -1,0 +1,134 @@
+00:36:58 [vite] Internal server error: C:\nasapace\FlameSeek\frontend\src\main.tsx: Unexpected token (56:1)
+
+  54 |
+  55 | function Header() {
+> 56 | <<<<<<< HEAD
+     |  ^
+  57 |   const location = useLocation();
+  58 |   const isAreaMode = ["/area", "/fire-memory", "/fire-dna", "/fire-calendar"].some(
+  59 |     (prefix) => location.pathname === prefix || location.pathname.startsWith(prefix)
+  Plugin: vite:react-babel
+  File: C:/nasapace/FlameSeek/frontend/src/main.tsx:56:1
+  56 |  <<<<<<< HEAD
+  57 |    const location = useLocation();
+  58 |    const isAreaMode = ["/area", "/fire-memory", "/fire-dna", "/fire-calendar"].some(
+     |           ^
+  59 |      (prefix) => location.pathname === prefix || location.pathname.startsWith(prefix)
+  60 |    );
+      at constructor (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at TypeScriptParserMixin.raise (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:6622:19)
+      at TypeScriptParserMixin.unexpected (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:6642:16)
+      at TypeScriptParserMixin.jsxParseIdentifier (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:4587:12)
+      at TypeScriptParserMixin.jsxParseNamespacedName (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:4594:23)
+      at TypeScriptParserMixin.jsxParseElementName (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:4603:21)
+      at TypeScriptParserMixin.jsxParseOpeningElementAt (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:4679:22)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:4704:33)
+      at TypeScriptParserMixin.jsxParseElement (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:4767:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:4777:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:11107:23)
+      at TypeScriptParserMixin.parseUpdate (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:11092:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:11072:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:9860:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10925:61)
+      at TypeScriptParserMixin.parseExprOps (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10930:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10907:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10857:21)
+      at C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:9798:39
+      at TypeScriptParserMixin.tryParse (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:6930:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:9798:18)
+      at TypeScriptParserMixin.parseExpressionBase (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10810:23)
+      at C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10806:39
+      at TypeScriptParserMixin.allowInAnd (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12455:16)
+      at TypeScriptParserMixin.parseExpression (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10806:17)
+      at TypeScriptParserMixin.parseStatementContent (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12929:23)
+      at TypeScriptParserMixin.parseStatementContent (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:9531:18)
+      at TypeScriptParserMixin.parseStatementLike (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12801:17)
+      at TypeScriptParserMixin.parseStatementListItem (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12781:17)
+      at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13350:61)
+      at TypeScriptParserMixin.parseBlockBody (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13343:10)
+      at TypeScriptParserMixin.parseBlock (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13331:10)
+      at TypeScriptParserMixin.parseFunctionBody (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12134:24)
+      at TypeScriptParserMixin.parseFunctionBodyAndFinish (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12120:10)
+      at TypeScriptParserMixin.parseFunctionBodyAndFinish (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:9195:18)
+      at C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13479:12
+      at TypeScriptParserMixin.withSmartMixTopicForbiddingContext (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12437:14)
+      at TypeScriptParserMixin.parseFunction (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13478:10)
+      at TypeScriptParserMixin.parseFunctionStatement (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13159:17)
+      at TypeScriptParserMixin.parseStatementContent (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12825:21)
+      at TypeScriptParserMixin.parseStatementContent (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:9531:18)
+      at TypeScriptParserMixin.parseStatementLike (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12801:17)
+      at TypeScriptParserMixin.parseModuleItem (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12778:17)
+      at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13350:36)
+      at TypeScriptParserMixin.parseBlockBody (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13343:10)
+      at TypeScriptParserMixin.parseProgram (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12656:10)
+      at TypeScriptParserMixin.parseTopLevel (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12646:25)
+      at TypeScriptParserMixin.parse (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:14522:25)
+      at TypeScriptParserMixin.parse (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10149:18)
+      at parse (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:14556:38)
+00:36:58 [vite] Internal server error: C:\nasapace\FlameSeek\frontend\src\main.tsx: Unexpected token (56:1)
+
+  54 |
+  55 | function Header() {
+> 56 | <<<<<<< HEAD
+     |  ^
+  57 |   const location = useLocation();
+  58 |   const isAreaMode = ["/area", "/fire-memory", "/fire-dna", "/fire-calendar"].some(
+  59 |     (prefix) => location.pathname === prefix || location.pathname.startsWith(prefix)
+  Plugin: vite:react-babel
+  File: C:/nasapace/FlameSeek/frontend/src/main.tsx:56:1
+  56 |  <<<<<<< HEAD
+  57 |    const location = useLocation();
+  58 |    const isAreaMode = ["/area", "/fire-memory", "/fire-dna", "/fire-calendar"].some(
+     |           ^
+  59 |      (prefix) => location.pathname === prefix || location.pathname.startsWith(prefix)
+  60 |    );
+      at constructor (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:369:19)
+      at TypeScriptParserMixin.raise (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:6622:19)
+      at TypeScriptParserMixin.unexpected (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:6642:16)
+      at TypeScriptParserMixin.jsxParseIdentifier (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:4587:12)
+      at TypeScriptParserMixin.jsxParseNamespacedName (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:4594:23)
+      at TypeScriptParserMixin.jsxParseElementName (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:4603:21)
+      at TypeScriptParserMixin.jsxParseOpeningElementAt (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:4679:22)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:4704:33)
+      at TypeScriptParserMixin.jsxParseElement (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:4767:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:4777:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:11107:23)
+      at TypeScriptParserMixin.parseUpdate (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:11092:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:11072:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:9860:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10925:61)
+      at TypeScriptParserMixin.parseExprOps (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10930:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10907:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10857:21)
+      at C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:9798:39
+      at TypeScriptParserMixin.tryParse (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:6930:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:9798:18)
+      at TypeScriptParserMixin.parseExpressionBase (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10810:23)
+      at C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10806:39
+      at TypeScriptParserMixin.allowInAnd (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12455:16)
+      at TypeScriptParserMixin.parseExpression (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10806:17)
+      at TypeScriptParserMixin.parseStatementContent (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12929:23)
+      at TypeScriptParserMixin.parseStatementContent (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:9531:18)
+      at TypeScriptParserMixin.parseStatementLike (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12801:17)
+      at TypeScriptParserMixin.parseStatementListItem (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12781:17)
+      at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13350:61)
+      at TypeScriptParserMixin.parseBlockBody (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13343:10)
+      at TypeScriptParserMixin.parseBlock (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13331:10)
+      at TypeScriptParserMixin.parseFunctionBody (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12134:24)
+      at TypeScriptParserMixin.parseFunctionBodyAndFinish (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12120:10)
+      at TypeScriptParserMixin.parseFunctionBodyAndFinish (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:9195:18)
+      at C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13479:12
+      at TypeScriptParserMixin.withSmartMixTopicForbiddingContext (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12437:14)
+      at TypeScriptParserMixin.parseFunction (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13478:10)
+      at TypeScriptParserMixin.parseFunctionStatement (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13159:17)
+      at TypeScriptParserMixin.parseStatementContent (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12825:21)
+      at TypeScriptParserMixin.parseStatementContent (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:9531:18)
+      at TypeScriptParserMixin.parseStatementLike (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12801:17)
+      at TypeScriptParserMixin.parseModuleItem (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12778:17)
+      at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13350:36)
+      at TypeScriptParserMixin.parseBlockBody (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:13343:10)
+      at TypeScriptParserMixin.parseProgram (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12656:10)
+      at TypeScriptParserMixin.parseTopLevel (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:12646:25)
+      at TypeScriptParserMixin.parse (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:14522:25)
+      at TypeScriptParserMixin.parse (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:10149:18)
+      at parse (C:\nasapace\FlameSeek\frontend\node_modules\@babel\parser\lib\index.js:14556:38)

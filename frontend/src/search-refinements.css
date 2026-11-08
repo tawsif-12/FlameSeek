@@ -19,6 +19,9 @@
 .minimal-search-page .minimal-search-heading > span { color: var(--search-muted); margin-top: 14px; }
 .minimal-search-page .minimal-search-workspace { width: min(1000px,100%); margin-top: 28px; }
 .minimal-search-page .minimal-search-box { min-height: 72px; border-radius: 18px; }
+.minimal-search-page .minimal-search-box input,
+.minimal-search-page .minimal-search-box input:focus,
+.minimal-search-page .minimal-search-box input:focus-visible { background: transparent; border: 0; outline: 0; box-shadow: none; }
 .minimal-search-page .minimal-search-box input::placeholder { color: #a9c0d2; opacity: 1; }
 .minimal-search-page .minimal-search-box > button { min-height: 48px; height: 52px; color: #042032; background: #65e1fa; border: 1px solid #b2f3ff; border-radius: 12px; opacity: 1; box-shadow: 0 4px 18px #16b8df30; }
 .minimal-search-page .minimal-search-box > button:hover:not(:disabled) { background: #a5efff; transform: translateY(-1px); }

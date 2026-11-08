@@ -1,0 +1,125 @@
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+event warm-up skipped: 502: {'error': 'firms_api_error', 'message': 'Live FIRMS is unavailable and no cached observations cover the requested time window.'}
+INFO:     127.0.0.1:58995 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58995 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61488 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61489 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:61487 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:55444 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57731 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59736 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:49521 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59735 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:52891 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:58290 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60765 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:50286 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:63834 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:63835 - "GET /meta HTTP/1.1" 400 Bad Request
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:63836 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54694 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63102 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63103 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:58269 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:65163 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54664 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54665 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:52492 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:58593 - "GET /meta HTTP/1.1" 400 Bad Request
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+INFO:     127.0.0.1:56560 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:56561 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56562 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56564 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56565 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:56563 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:54088 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53780 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62304 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50484 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60442 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:60443 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50485 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:52854 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:61747 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:57782 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:62147 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:64077 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:55835 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:50461 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63240 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63241 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:63239 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:59190 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59191 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59189 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:50867 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50868 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:50866 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:54986 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54983 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:65510 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54984 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:54985 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:57029 - "POST /api/fire_memory HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 92, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 143, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(snap_bbox(aoi.bbox), start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 456, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:64394 - "GET /meta HTTP/1.1" 400 Bad Request
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:64523 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:60680 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:54433 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62483 - "GET /api/events?days=2&limit=40&include_demo=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:53862 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:51924 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57026 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:53148 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54698 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57320 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57321 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+Traceback (most recent call last):
+  File "C:\nasapace\FlameSeek\backend\jobs.py", line 92, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\routers\memory.py", line 143, in run_fire_memory
+    rows, report = await fetch_hotspots_with_report(snap_bbox(aoi.bbox), start, end, sensors, progress=on_progress)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\nasapace\FlameSeek\backend\firms_client.py", line 456, in fetch_hotspots_with_report
+    raise FirmsAPIError(first["status_code"], first["message"], "multiple")
+firms_client.FirmsAPIError: FIRMS request failed (503): NASA FIRMS_MAP_KEY is not configured. Create backend/.env, set FIRMS_MAP_KEY to your free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/, then resta [multiple]
+
+INFO:     127.0.0.1:64898 - "GET /api/jobs/ba17119167c2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55776 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:55777 - "GET /api/jobs/4277b4170cfc HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62977 - "GET /api/jobs/ba17119167c2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60188 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:57378 - "GET /api/events?days=2&limit=40&include_demo=true HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:64154 - "GET /api/places/search?q=Bangladesh HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62887 - "GET /meta?window=current_2026 HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:61080 - "GET /meta?window=current_2026 HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:64834 - "POST /fires/search?window=current_2026&limit=5000&geometry=true HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:61877 - "GET /meta?window=sync_2016 HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:59631 - "POST /fires/search?window=sync_2016&limit=5000&geometry=true HTTP/1.1" 400 Bad Request
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+INFO:     127.0.0.1:63872 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:56000 - "GET /meta HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:50577 - "GET /meta HTTP/1.1" 400 Bad Request
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:50578 - "GET /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false HTTP/1.1" 502 Bad Gateway
