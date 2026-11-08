@@ -15,7 +15,6 @@ const PRIMARY_NAVIGATION = [
   { to: "/", label: "Home", end: true },
   { to: "/fire-map", label: "Fire Now" },
   { to: "/search", label: "Search" },
-  { to: "/fire-memory", label: "Memory" },
   { to: "/methodology", label: "Methodology" },
   { to: "/about", label: "About" },
 ] as const;
