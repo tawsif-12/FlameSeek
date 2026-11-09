@@ -11,3 +11,73 @@
 4:08:49 PM [vite] hmr update /src/components/PipelineFreshness.tsx
 4:11:21 PM [vite] hmr update /src/components/HarmonizedRecordSection.tsx, /src/components/HarmonizedProvenance.tsx
 4:22:11 PM [vite] hmr update /src/components/PipelineFreshness.tsx
+5:37:47 PM [vite] hmr update /src/pages/HomePage.tsx, /src/components/CesiumFireGlobe.tsx, /src/components/EventPanel.tsx, /src/pages/SearchPage.tsx, /src/pages/FireMemoryPage.tsx, /src/components/AOISelector.tsx, /src/pages/FireDnaPage.tsx, /src/pages/AreaIntelligencePage.tsx
+5:37:47 PM [vite] hmr invalidate /src/components/EventPanel.tsx Could not Fast Refresh ("BEHAVIOUR_COLORS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+5:37:47 PM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+5:37:48 PM [vite] hmr update /src/context/AppContext.tsx
+5:37:48 PM [vite] hmr invalidate /src/context/AppContext.tsx Could not Fast Refresh ("DEFAULT_SENSORS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+5:37:48 PM [vite] hmr update /src/main.tsx, /src/pages/HomePage.tsx, /src/components/CesiumFireGlobe.tsx, /src/pages/SearchPage.tsx, /src/pages/FireMemoryPage.tsx, /src/components/AccumulatedHistory.tsx, /src/components/AOISelector.tsx, /src/pages/FireDnaPage.tsx, /src/pages/AreaIntelligencePage.tsx, /src/pages/HarmonizedMapPage.tsx
+5:37:49 PM [vite] hmr invalidate /src/main.tsx Could not Fast Refresh ("true" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+5:37:49 PM [vite] page reload src/main.tsx
+5:39:01 PM [vite] hmr update /src/pages/SearchPage.tsx
+5:39:02 PM [vite] hmr update /src/pages/SearchPage.tsx
+5:39:55 PM [vite] hmr update /src/components/AOISelector.tsx
+5:39:56 PM [vite] hmr update /src/pages/FireDnaPage.tsx
+5:41:38 PM [vite] hmr update /src/search-refinements.css
+5:43:00 PM [vite] hmr update /src/main.tsx
+5:43:00 PM [vite] hmr invalidate /src/main.tsx Could not Fast Refresh ("true" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+5:43:00 PM [vite] page reload src/main.tsx
+5:43:01 PM [vite] hmr update /src/pages/SearchPage.tsx
+5:43:02 PM [vite] hmr update /src/context/AppContext.tsx
+5:43:02 PM [vite] hmr invalidate /src/context/AppContext.tsx Could not Fast Refresh ("DEFAULT_SENSORS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+5:43:02 PM [vite] hmr update /src/main.tsx, /src/pages/HomePage.tsx, /src/components/CesiumFireGlobe.tsx, /src/pages/FireMemoryPage.tsx, /src/components/AccumulatedHistory.tsx, /src/components/AOISelector.tsx, /src/pages/FireDnaPage.tsx, /src/pages/AreaIntelligencePage.tsx, /src/pages/HarmonizedMapPage.tsx, /src/pages/SearchPage.tsx, /src/components/AreaLinkSync.tsx
+5:43:02 PM [vite] hmr invalidate /src/main.tsx Could not Fast Refresh ("true" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+5:43:02 PM [vite] page reload src/main.tsx
+5:46:00 PM [vite] hmr update /src/context/AppContext.tsx
+5:46:00 PM [vite] hmr update /src/components/AreaLinkSync.tsx
+5:47:16 PM [vite] hmr update /src/pages/HomePage.tsx, /src/components/CesiumFireGlobe.tsx, /src/components/EventPanel.tsx, /src/pages/FireMemoryPage.tsx, /src/components/AOISelector.tsx, /src/pages/FireDnaPage.tsx, /src/pages/AreaIntelligencePage.tsx, /src/pages/SearchPage.tsx, /src/components/AreaLinkSync.tsx
+5:47:16 PM [vite] hmr update /src/components/AOISelector.tsx
+5:47:16 PM [vite] hmr update /src/context/AppContext.tsx
+5:47:16 PM [vite] hmr update /src/pages/FireDnaPage.tsx
+5:47:16 PM [vite] hmr update /src/main.tsx
+5:47:16 PM [vite] hmr update /src/search-refinements.css
+5:47:16 PM [vite] hmr update /src/pages/SearchPage.tsx
+5:47:30 PM [vite] hmr update /src/context/AppContext.tsx, /src/pages/SearchPage.tsx, /src/components/AreaLinkSync.tsx
+5:47:30 PM [vite] hmr update /src/components/AreaLinkSync.tsx
+5:51:16 PM [vite] hmr update /src/pages/HomePage.tsx, /src/components/CesiumFireGlobe.tsx, /src/components/EventPanel.tsx, /src/pages/FireMemoryPage.tsx, /src/components/AOISelector.tsx, /src/pages/FireDnaPage.tsx, /src/pages/AreaIntelligencePage.tsx, /src/pages/SearchPage.tsx
+5:51:17 PM [vite] hmr update /src/context/AppContext.tsx
+5:52:54 PM [vite] hmr update /src/main.tsx
+5:54:00 PM [vite] hmr update /src/pages/SearchPage.tsx
+5:54:01 PM [vite] hmr update /src/pages/SearchPage.tsx
+5:54:02 PM [vite] hmr update /src/components/AOISelector.tsx
+5:54:45 PM [vite] hmr update /src/components/AnalysisNavigation.tsx
+5:54:45 PM [vite] hmr update /src/pages/AreaIntelligencePage.tsx
+5:54:46 PM [vite] hmr update /src/pages/FireMemoryPage.tsx
+5:54:47 PM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+5:55:59 PM [vite] hmr update /src/pages/FireMemoryPage.tsx
+5:55:59 PM [vite] hmr update /src/pages/FireDnaPage.tsx
+5:57:06 PM [vite] hmr update /src/search-refinements.css
+6:02:52 PM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+6:02:53 PM [vite] hmr update /src/pages/FireMemoryPage.tsx
+6:02:54 PM [vite] hmr update /src/pages/FireDnaPage.tsx
+6:03:49 PM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+6:03:50 PM [vite] hmr update /src/pages/FireDnaPage.tsx
+6:03:51 PM [vite] hmr update /src/pages/SearchPage.tsx
+6:06:21 PM [vite] hmr update /src/context/AppContext.tsx
+6:06:23 PM [vite] hmr update /src/pages/SearchPage.tsx
+6:06:24 PM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+6:12:08 PM [vite] hmr update /src/pages/SearchPage.tsx
+6:17:17 PM [vite] page reload index.html
+6:17:17 PM [vite] hmr update /src/components/HarmonizedRecordSection.tsx, /src/components/HarmonizedProvenance.tsx, /src/pages/MethodologyPage.tsx, /src/pages/HarmonizedMapPage.tsx
+6:17:17 PM [vite] hmr update /src/components/AOISelector.tsx
+6:17:17 PM [vite] hmr update /src/context/AppContext.tsx
+6:17:17 PM [vite] hmr update /src/main.tsx
+6:17:17 PM [vite] hmr update /src/pages/AreaIntelligencePage.tsx
+6:17:17 PM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+6:17:17 PM [vite] hmr update /src/components/EventPanel.tsx
+6:17:17 PM [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx
+6:17:17 PM [vite] hmr update /src/components/OutcrowdEarthSatellite.tsx
+6:17:17 PM [vite] hmr update /src/styles.css
+6:17:17 PM [vite] hmr update /src/theme.css
+6:17:17 PM [vite] hmr update /src/pages/HarmonizedMapPage.tsx
+6:17:17 PM [vite] hmr update /src/pages/MethodologyPage.tsx
