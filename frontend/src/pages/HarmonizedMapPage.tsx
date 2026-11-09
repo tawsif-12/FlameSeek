@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { CircleMarker, GeoJSON, MapContainer, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet";
 import L, { type LatLngBoundsExpression } from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { HarmonizedEvent, ListResponse, snapshotGet, SnapshotMeta, useSiteData } from "../api/harmonized";
 import { aoiBBox, describeAoi, useAppContext } from "../context/AppContext";
 import { useLanguage } from "../context/LanguageContext";

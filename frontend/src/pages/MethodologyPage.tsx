@@ -1,11 +1,11 @@
 import { useState } from "react";
-import Plot from "react-plotly.js";
+import LazyPlot from "../components/LazyPlot";
 import { CalibrationData, CalibrationRow, computed, DriftData, EnergyData, GeoData, Labelled, SiteData, useSiteData } from "../api/harmonized";
 import { useLanguage } from "../context/LanguageContext";
 import HarmonizedProvenance, { StatusPill } from "../components/HarmonizedProvenance";
 import "../harmonized.css";
 
-type PlotProps = React.ComponentProps<typeof Plot>;
+type PlotProps = React.ComponentProps<typeof LazyPlot>;
 type Data = PlotProps["data"][number];
 type Layout = NonNullable<PlotProps["layout"]>;
 
@@ -91,7 +91,7 @@ function DriftChart({ d, fmt }: { d: DriftData; fmt: (n: number, d?: number) => 
         <span>┆ design crossing {hhmm(d.nominal_lst_h)}</span>
       </div>
       <div style={{ height: 300 }}>
-        <Plot data={[...links, ...dots] as Data[]} config={CONFIG} style={{ width: "100%", height: "100%" }}
+        <LazyPlot data={[...links, ...dots] as Data[]} config={CONFIG} style={{ width: "100%", height: "100%" }}
           layout={{ ...BASE_LAYOUT, margin: { ...BASE_LAYOUT.margin, l: 90 },
             xaxis: { ...BASE_LAYOUT.xaxis, tickvals: ticks, ticktext: ticks.map(hhmm), range: [Math.min(...xs) - 0.6, Math.max(...xs) + 0.6] },
             shapes: [{ type: "line", x0: d.nominal_lst_h, x1: d.nominal_lst_h, yref: "paper", y0: 0, y1: 1, line: { color: "#94a3b8", dash: "dot", width: 1 } }] } as Partial<Layout>} />
@@ -118,7 +118,7 @@ function IntervalChart({ rows, title, unit, log, reference, intervalLabel, fmt }
     <div className="glass-card hz-chart-card">
       <div className="hz-chart-legend"><b style={{ color: "#e6f1ff" }}>{title}</b><span>● estimate</span><span>— {intervalLabel}</span></div>
       <div style={{ height: 70 + rows.length * 56 }}>
-        <Plot data={traces as Data[]} config={CONFIG} style={{ width: "100%", height: "100%" }}
+        <LazyPlot data={traces as Data[]} config={CONFIG} style={{ width: "100%", height: "100%" }}
           layout={{ ...BASE_LAYOUT, xaxis: { ...BASE_LAYOUT.xaxis, type: log ? "log" : "linear", ...(log ? logTicks(rows) : {}) },
             yaxis: { ...BASE_LAYOUT.yaxis, autorange: "reversed" },
             shapes: reference !== undefined ? [{ type: "line", x0: reference, x1: reference, yref: "paper", y0: 0, y1: 1, line: { color: "#94a3b8", dash: "dot", width: 1 } }] : [] } as Partial<Layout>} />

@@ -224,7 +224,7 @@ html[data-theme="day"] .analysis-back, html[data-theme="day"] .analysis-navigati
 html[data-theme="day"] .analysis-back:hover, html[data-theme="day"] .analysis-navigation-links a:hover { color: #075985; border-color: #62add9; }
 html[data-theme="day"] .analysis-navigation-links a.active { color: #fff; background: linear-gradient(145deg, #1684ba, #0369a1); box-shadow: 0 5px 18px rgba(3, 105, 161, .18); }
 
-html[data-theme="day"] .dna-hero { background: linear-gradient(90deg, rgba(247, 252, 255, .98) 0%, rgba(234, 246, 255, .92) 48%, rgba(234, 246, 255, .42) 78%), url('/flameseek-earth-hero.png') right 37%/70% auto no-repeat; border-color: #c2dfee; }
+html[data-theme="day"] .dna-hero { background: linear-gradient(90deg, rgba(247, 252, 255, .98) 0%, rgba(234, 246, 255, .92) 48%, rgba(234, 246, 255, .42) 78%), url('/flameseek-earth-hero.jpg') right 37%/70% auto no-repeat; border-color: #c2dfee; }
 html[data-theme="day"] .dna-hero :is(h1, h2), html[data-theme="day"] .dna-hero-region strong { color: #153552; }
 html[data-theme="day"] .dna-hero p, html[data-theme="day"] .dna-hero small { color: #526e85; }
 html[data-theme="day"] .dna-hero-region, html[data-theme="day"] .dna-panel { background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(234,246,255,.97)); border-color: #b4d6ec; box-shadow: 0 12px 32px rgba(71,120,150,.1); }

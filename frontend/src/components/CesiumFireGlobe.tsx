@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
@@ -6,7 +6,9 @@ import { globePointKey, uniqueGlobePoints } from "../utils/globePoints";
 import { getHarmonizedHotspots, getCurrentHotspots, getEvent, getEvents, lookupEvent, normalizeApiError, runJob, searchPlaces, startEvidence } from "../api/client";
 import { DEFAULT_SENSORS, aoiBBox, aoiContains, describeAoi, useAppContext } from "../context/AppContext";
 import type { AOI, CaseMarker, FireEvent, FireEventSummary, ForecastHorizon, HotspotRecord, PlaceResult } from "../types/api";
-import EventPanel, { BEHAVIOUR_COLORS, BEHAVIOUR_PLAIN, KIND_COLORS, KIND_LABELS, REALITY_WEIGHT } from "./EventPanel";
+import { BEHAVIOUR_COLORS, BEHAVIOUR_PLAIN, KIND_COLORS, KIND_LABELS, REALITY_WEIGHT } from "./fireCasePresentation";
+
+const EventPanel = React.lazy(() => import("./EventPanel"));
 
 type SatelliteLayer = "Terra" | "Aqua" | "S-NPP" | "NOAA-20" | "NOAA-21";
 type LayerKey = SatelliteLayer | "Harmonized" | "Fire Events" | "FRP Columns" | "Forecast Corridor" | "Exposure" | "Boundaries";
@@ -1225,6 +1227,7 @@ export default function CesiumFireGlobe() {
         <button type="button" aria-label="Zoom out" onClick={() => zoom("out")}>-</button>
       </div>
       {selectedEvent && (
+        <Suspense fallback={<div className="event-panel-loading" role="status">Loading fire details…</div>}>
         <EventPanel
           event={selectedEvent}
           detection={selectedDetection}
@@ -1233,6 +1236,7 @@ export default function CesiumFireGlobe() {
           onExposure={setExposure}
           onCaseUpdate={applyCaseMarker}
         />
+        </Suspense>
       )}
     </section>
   );
