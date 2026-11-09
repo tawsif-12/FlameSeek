@@ -45,3 +45,6 @@
 00:53:40 [vite] hmr update /src/pages/SearchPage.tsx
 00:53:40 [vite] hmr update /src/search-refinements.css
 00:55:45 [vite] hmr update /src/search-refinements.css
+01:43:02 [vite] hmr update /src/main.tsx
+01:43:02 [vite] hmr invalidate /src/main.tsx Could not Fast Refresh ("true" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+01:43:02 [vite] page reload src/main.tsx
