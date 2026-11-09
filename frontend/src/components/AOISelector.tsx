@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet-draw";
+import "leaflet/dist/leaflet.css";
+import "leaflet-draw/dist/leaflet.draw.css";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import { useLocation } from "react-router-dom";
 import { normalizeApiError, searchPlaces } from "../api/client";

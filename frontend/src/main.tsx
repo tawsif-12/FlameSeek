@@ -1,13 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Link, NavLink, Navigate, Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
-import "leaflet/dist/leaflet.css";
-import "leaflet-draw/dist/leaflet.draw.css";
 import "./styles.css";
 import { AppProvider } from "./context/AppContext";
-import HomePage from "./pages/HomePage";
 import { LanguageProvider, useLanguage } from "./context/LanguageContext";
 import ThemeToggle from "./components/ThemeToggle";
+import RouteLoadingFallback from "./components/RouteLoadingFallback";
 import "./theme.css";
 import "./responsive.css";
 
@@ -19,16 +17,36 @@ const PRIMARY_NAVIGATION = [
   { to: "/about", label: "About" },
 ] as const;
 
-// Download map engines and analysis charts only when their route is opened.
-const DataSourcesPage = React.lazy(() => import("./pages/DataSourcesPage"));
-const FireGlobePage = React.lazy(() => import("./pages/FireGlobePage"));
-const FireMemoryPage = React.lazy(() => import("./pages/FireMemoryPage"));
-const FireDnaPage = React.lazy(() => import("./pages/FireDnaPage"));
-const SearchPage = React.lazy(() => import("./pages/SearchPage"));
-const HarmonizedMapPage = React.lazy(() => import("./pages/HarmonizedMapPage"));
-const MethodologyPage = React.lazy(() => import("./pages/MethodologyPage"));
-const AboutPage = React.lazy(() => import("./pages/AboutPage"));
-const AreaIntelligencePage = React.lazy(() => import("./pages/AreaIntelligencePage"));
+// Keep every route out of the startup graph. The same stable loaders power
+// navigation-intent prefetching; the browser deduplicates module requests.
+const routeLoaders = {
+  "/": () => import("./pages/HomePage"),
+  "/fire-map": () => import("./pages/FireGlobePage"),
+  "/search": () => import("./pages/SearchPage"),
+  "/methodology": () => import("./pages/MethodologyPage"),
+  "/about": () => import("./pages/AboutPage"),
+  "/fire-memory": () => import("./pages/FireMemoryPage"),
+  "/fire-dna": () => import("./pages/FireDnaPage"),
+  "/data-sources": () => import("./pages/DataSourcesPage"),
+  "/fire-events": () => import("./pages/HarmonizedMapPage"),
+  "/area": () => import("./pages/AreaIntelligencePage"),
+} as const;
+type PrefetchableRoute = keyof typeof routeLoaders;
+const prefetchRoute = (route: string) => {
+  const loader = routeLoaders[route as PrefetchableRoute];
+  if (loader) void loader();
+};
+
+const HomePage = React.lazy(routeLoaders["/"]);
+const DataSourcesPage = React.lazy(routeLoaders["/data-sources"]);
+const FireGlobePage = React.lazy(routeLoaders["/fire-map"]);
+const FireMemoryPage = React.lazy(routeLoaders["/fire-memory"]);
+const FireDnaPage = React.lazy(routeLoaders["/fire-dna"]);
+const SearchPage = React.lazy(routeLoaders["/search"]);
+const HarmonizedMapPage = React.lazy(routeLoaders["/fire-events"]);
+const MethodologyPage = React.lazy(routeLoaders["/methodology"]);
+const AboutPage = React.lazy(routeLoaders["/about"]);
+const AreaIntelligencePage = React.lazy(routeLoaders["/area"]);
 
 function LanguageToggle() {
   const { lang, setLang, t } = useLanguage();
@@ -61,6 +79,18 @@ function Header() {
       document.removeEventListener("keydown", escape);
     };
   }, []);
+  React.useEffect(() => {
+    // Warm small primary routes after first paint. The 3D globe is intentionally
+    // fetched only on hover/focus so mobile users do not pay for it speculatively.
+    const warm = () => ["/search", "/methodology", "/about"].forEach(prefetchRoute);
+    const win = window as typeof window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+    if (win.requestIdleCallback) {
+      const id = win.requestIdleCallback(warm, { timeout: 2500 });
+      return () => win.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(warm, 1500);
+    return () => window.clearTimeout(id);
+  }, []);
   return (
     <header ref={headerRef} className="app-header mission-header" onKeyDown={(event) => { if (event.key === "Escape") setMenuOpen(false); }}>
       <Link to="/" className="brand-mark" style={{ textDecoration: "none" }}>
@@ -73,7 +103,8 @@ function Header() {
       <button type="button" className="mobile-menu-toggle" aria-expanded={menuOpen} aria-controls="primary-navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? "Close" : "Menu"}</button>
       <nav id="primary-navigation" className={`primary-navigation ${menuOpen ? "mobile-open" : ""}`} aria-label="Primary navigation" onClick={(event) => { if ((event.target as HTMLElement).closest("a")) setMenuOpen(false); }}>
         {PRIMARY_NAVIGATION.map((item) => (
-          <NavLink key={item.to} to={item.to} end={"end" in item ? item.end : undefined}>
+          <NavLink key={item.to} to={item.to} end={"end" in item ? item.end : undefined}
+            onPointerEnter={() => prefetchRoute(item.to)} onFocus={() => prefetchRoute(item.to)} onTouchStart={() => prefetchRoute(item.to)}>
             {item.label}
           </NavLink>
         ))}
@@ -92,7 +123,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <LanguageProvider>
       <Router>
         <Header />
-        <React.Suspense fallback={<main className="content-page" role="status">Loading page…</main>}>
+        <React.Suspense fallback={<RouteLoadingFallback />}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/fire-map" element={<FireGlobePage />} />
