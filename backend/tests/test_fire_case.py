@@ -27,11 +27,41 @@ def test_scores_sum_to_100_and_follow_votes():
     assert scores[0]["category"] == "agricultural_burn"
 
 
-def test_passes_are_classified_seen_clear_cloudy_and_uncovered():
+def test_predicted_passes_and_weather_do_not_establish_clear_observations():
     passes = [_pass("snpp", 0), _pass("noaa20", 12, hour=1.5), _pass("aqua", 24), _pass("terra", 26, in_swath=False), _pass("noaa20", 40)]
     hourly = [{"time": (T0 + timedelta(hours=h)).strftime("%Y-%m-%dT%H:00"), "cloud_cover": 90 if h == 24 else 10} for h in range(0, 48)]
     out = classify_passes(passes, [_det()], hourly, (23.85, 90.38), 1.0, NOW)
-    assert [p["outcome"] for p in out] == ["first_detection", "clear_no_fire", "cloud_or_smoke", "not_covered", "expected"]
+    assert [p["outcome"] for p in out] == ["first_detection", "unverified", "unverified", "not_covered", "expected"]
+
+
+def test_recorded_acquisition_time_is_not_replaced_by_orbit_prediction():
+    out = classify_passes([_pass('snpp', .1)], [_det()], [], (23.85, 90.38), 1, NOW)
+    assert out[0]['time'] == T0
+    assert out[0]['method'] == 'recorded FIRMS detection'
+
+
+def test_no_nominal_passes_are_substituted_when_orbit_sources_fail(monkeypatch):
+    import overpass
+    async def missing(witness):
+        return None
+    monkeypatch.setattr(overpass, '_tle', missing)
+    result = asyncio.run(overpass.predict_passes(23.85, 90.38, T0, NOW))
+    assert result['passes'] == []
+    assert 'unavailable' in result['method']
+    assert result['errors']
+
+
+def test_slow_report_and_satellite_sources_return_unavailable_not_no_match(monkeypatch):
+    import evidence
+    async def stalled(*args):
+        await asyncio.sleep(10)
+    for name in ('regional_satellite_evidence', 'official_evidence', 'news_evidence'):
+        monkeypatch.setattr(evidence, name, stalled)
+    monkeypatch.setattr(evidence, 'SOURCE_STREAM_TIMEOUT_SECONDS', .01)
+    regional, official, news = asyncio.run(evidence._gather_streams({}, {}, None))
+    assert regional['checks'][0]['status'] == 'unavailable'
+    assert official['checks'][0]['status'] == 'unavailable'
+    assert news['searched']['gdelt_error']
 
 
 def _stub(monkeypatch, passes, season, hourly=None):
@@ -54,7 +84,7 @@ EMPTY_OFFICIAL = {"matches": [], "checks": [], "has_official_match": False, "con
 EMPTY_NEWS = {"articles": [], "searched": {}}
 
 
-def test_cropland_in_season_short_burn_reads_as_agricultural(monkeypatch):
+def test_cropland_and_news_do_not_establish_fire_type_or_extinction(monkeypatch):
     season = {"status": "ok", "years_checked": 5, "years_with_fire_within_5km": 5, "years_with_heat_within_1km": 1, "detections_by_year": {}}
     passes = [_pass("snpp", 0), _pass("noaa20", 11, hour=1.0), _pass("aqua", 25)]
     _stub(monkeypatch, passes, season)
@@ -62,23 +92,50 @@ def test_cropland_in_season_short_burn_reads_as_agricultural(monkeypatch):
     news = {"articles": [{"relevance_score": 80, "event_type": "AGRICULTURAL_BURN", "source_reliability_score": 70, "published_at": (T0 + timedelta(hours=5)).isoformat(), "publication": "Daily Star", "domain": "thedailystar.net", "match_label": "Strong match", "headline": "Farmers burn paddy stubble", "url": "https://example.org"}], "searched": {}}
     subject = {"lat": 23.85, "lon": 90.38, "detections": [_det()], "radius_km": 0.5, "behaviour": {"state": "Onset"}}
     case = asyncio.run(build_fire_case(subject, place, EMPTY_REGIONAL, EMPTY_OFFICIAL, news, {"final_status": "No External Corroboration Yet"}, now=NOW))
-    assert case["answer"]["kind"]["category"] == "agricultural_burn"
-    assert case["decision_rules"]["passed"]
-    assert case["answer"]["now"]["label"] == "Ended"
+    assert case["answer"]["kind"]["category"] == "unknown"
+    assert not case["decision_rules"]["passed"]
+    assert case["answer"]["now"]["label"] == "Unknown"
     assert case["status"] == "closed"
-    assert sum(s["score"] for s in case["category_scores"]) == 100
+    assert case["category_scores"] == []
+    assert case["satellite_fire_probability"]["probability"] is None
+    assert all(not item['votes'] for item in case['evidence_block'])
     assert [i["time"] for i in case["evidence_block"] if i["kind"] != "background" and i["time"]] == sorted(i["time"] for i in case["evidence_block"] if i["kind"] != "background" and i["time"])
 
 
-def test_repeat_heat_on_the_same_spot_reads_as_industrial(monkeypatch):
+def test_repeat_heat_and_land_use_do_not_identify_a_source(monkeypatch):
     season = {"status": "ok", "years_checked": 5, "years_with_fire_within_5km": 5, "years_with_heat_within_1km": 5, "detections_by_year": {}}
     _stub(monkeypatch, [_pass("snpp", 0, hour=1.5), _pass("snpp", 24, hour=1.5)], season)
     dets = [_det(0, daynight="N"), _det(24, lat=23.8505, daynight="N")]
     place = {"land_context": {"land_use": ["industrial"], "forests": [], "protected_areas": [], "nearby_heat_sources": [{"type": "gas_flare", "name": "Flare", "distance_km": 0.4}]}}
     subject = {"lat": 23.85, "lon": 90.38, "detections": dets, "radius_km": 0.5, "behaviour": {"state": "Persistent"}}
     case = asyncio.run(build_fire_case(subject, place, EMPTY_REGIONAL, EMPTY_OFFICIAL, EMPTY_NEWS, {"final_status": "Likely Non-Fire Thermal Source"}, now=NOW))
-    assert case["answer"]["kind"]["category"] == "industrial_source"
-    assert case["answer"]["is_real"]["label"] == "Likely non-fire thermal anomaly"
+    assert case["answer"]["kind"]["category"] == "unknown"
+    assert case["answer"]["is_real"]["label"] == "No external confirmation yet"
+
+
+def test_missing_cloud_data_and_failed_news_never_become_negative_evidence(monkeypatch):
+    _stub(monkeypatch, [_pass('snpp', 0), _pass('noaa20', 10)], {'status': 'unavailable'})
+    subject = {'lat': 23.85, 'lon': 90.38, 'detections': [_det()], 'radius_km': .5}
+    news = {'articles': [], 'searched': {'gdelt_error': 'connection failed'}}
+    case = asyncio.run(build_fire_case(subject, {}, EMPTY_REGIONAL, EMPTY_OFFICIAL, news, {}, now=NOW))
+    assert case['answer']['now']['label'] == 'Unknown'
+    assert case['streams']['C']['status'] == 'partial'
+    assert case['streams']['A']['passes_observed'] == 1
+    assert all(p['outcome'] != 'clear_no_fire' for p in case['passes'])
+    assert all('detection_chance' not in p for p in case['passes'])
+    assert any('verification incomplete' in i['summary'] for i in case['evidence_block'])
+
+
+def test_fire_type_requires_a_linked_official_report_and_conflicts_stay_unknown(monkeypatch):
+    _stub(monkeypatch, [_pass('snpp', 0)], {'status': 'unavailable'})
+    subject = {'lat': 23.85, 'lon': 90.38, 'detections': [_det()]}
+    report = {'incident_type': 'WILDFIRE', 'url': 'https://agency.example/incident'}
+    def check(matches):
+        return asyncio.run(build_fire_case(subject, {}, EMPTY_REGIONAL,
+            {**EMPTY_OFFICIAL, 'matches': matches}, EMPTY_NEWS, {}, now=NOW))
+    assert check([report])['answer']['kind']['category'] == 'wildfire'
+    assert check([{**report, 'url': None}])['answer']['kind']['category'] == 'unknown'
+    assert check([report, {**report, 'incident_type': 'CONTROLLED_BURN'}])['answer']['kind']['category'] == 'unknown'
 
 
 def test_mixed_evidence_does_not_name_a_type_and_stays_provisional(monkeypatch):

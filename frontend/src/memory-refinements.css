@@ -7,10 +7,11 @@
 .memory-page.space-page .memory-intro h2 { color: #ecf6ff; -webkit-text-fill-color: currentColor; background: none; font-size: clamp(28px,3vw,42px); line-height: 1.15; margin: 4px 0 10px; }
 .memory-page .memory-intro .lead { font-size: 16px; margin: 0 0 8px; max-width: 780px; }
 .memory-method-intro, .memory-selection-help { color: var(--sp-text-dim, #9bb2c8); font-size: 13px; line-height: 1.55; margin: 0 0 12px; max-width: 850px; }
-.memory-coverage-info { margin: 0 0 16px; padding: 12px 16px; border: 1px solid #b88c3d; border-radius: 10px; background: rgba(130,85,18,.08); }
-.memory-coverage-info summary { cursor: pointer; font-size: 14px; font-weight: 650; }
-.memory-coverage-info summary span { font-weight: 400; margin-left: 12px; font-size: 12px; color: var(--sp-text-dim, #9bb2c8); }
 .memory-page .memory-setup { margin-top: 0; margin-bottom: 20px; }
+.memory-page.space-page .observed-record-list li { grid-template-columns: minmax(0, 1fr) auto; padding: 12px; line-height: 1.5; }
+.memory-page.space-page .observed-record-list li strong { white-space: nowrap; }
+html[data-theme="day"] .memory-page.space-page .obs-list li { background: #f0f7fb; border-color: #cbdde8; color: #48657b; }
+html[data-theme="day"] .memory-page.space-page .obs-list li strong { color: #17354a; }
 .memory-page .memory-setup-controls { gap: 12px; }
 .memory-page .memory-setup-controls select { appearance: auto; padding: 10px 12px; min-height: 44px; border: 1px solid #527c99; border-radius: 8px; background: #10263c; color: #f1f8ff; opacity: 1; cursor: pointer; width: 100%; }
 .memory-page .memory-setup-controls label { min-width: 0; }
@@ -27,14 +28,60 @@
 .memory-calendar-states .reported-clear, .memory-page .burning-month-cell.reported-clear { background: #b3ead4 !important; }
 .memory-calendar-states .processing { background: #16435a; border-style: dashed; }
 html[data-theme="day"] .memory-page.space-page .memory-intro h2 { color: #123e60; }
-html[data-theme="day"] .memory-page :is(.memory-method-intro, .memory-selection-help, .memory-coverage-info summary span) { color: #48657b; }
+html[data-theme="day"] .memory-page :is(.memory-method-intro, .memory-selection-help) { color: #48657b; }
 html[data-theme="day"] .memory-page .memory-setup-controls select { background: #fff; color: #153552; border-color: #6099bc; }
 html[data-theme="day"] .memory-month-preview i { color: #496881; border-color: #8ba9be; background: #f0f5f9; }
+/* These selectors must beat the legacy .space-page panel rules, which use
+   translucent navy surfaces even when the surrounding page is in light mode. */
+html[data-theme="day"] .memory-page.space-page .memory-grid > article.viz-panel {
+  background: #fff;
+  color: #17354a;
+  border-color: #d6e4ed;
+  box-shadow: 0 4px 18px #234c6810;
+}
+html[data-theme="day"] .memory-page .memory-calendar :is(h3,h4,.calendar-corner,.calendar-year) { color: #17354a; }
+html[data-theme="day"] .memory-page .memory-calendar :is(.meta-text,.calendar-month,.calendar-legend-note,.burning-calendar-legend,.memory-calendar-states) { color: #52677c; }
+html[data-theme="day"] .memory-page .memory-calendar > header .eyebrow { color: #087591; }
+html[data-theme="day"] .memory-page .memory-calendar .method-badge { background: #edf8fc; border-color: #c2e3ed; color: #176079; }
+html[data-theme="day"] .memory-page .memory-calendar-toolbar button {
+  background: #f8fafc;
+  color: #24445b;
+  border-color: #cbdde8;
+  min-height: 38px;
+}
+html[data-theme="day"] .memory-page .memory-calendar-toolbar button:is(:hover,.active) { background: #eaf8fc; color: #075d74; border-color: #2698b3; }
+html[data-theme="day"] .memory-page .memory-calendar-toolbar button:focus-visible { outline: 2px solid #087e9b; outline-offset: 3px; }
+html[data-theme="day"] .memory-page :is(.burning-month-cell.missing,.burning-month-cell.unverified-zero),
+html[data-theme="day"] .memory-page .memory-calendar-states .unknown,
+html[data-theme="day"] .memory-page .calendar-legend-note .missing-swatch {
+  background: repeating-linear-gradient(135deg,#d5e0e9 0 3px,#f1f5f9 3px 6px) !important;
+}
+html[data-theme="day"] .memory-page .burning-month-cell:is(.missing,.unverified-zero,.reported-clear) > span { color: #35536a; text-shadow: none; }
+html[data-theme="day"] .memory-page .burning-month-cell:focus-visible { outline: 2px solid #087e9b; outline-offset: 2px; }
+html[data-theme="day"] .memory-page .memory-calendar-states .processing { background: #eaf8fc; border-color: #79aec1; }
+html[data-theme="day"] .memory-page .calendar-legend-note b { color: #17354a; }
+html[data-theme="day"] .memory-page .memory-calendar-detail { background: #f8fbfd; border-color: #cbdde8; }
+html[data-theme="day"] .memory-page .memory-calendar-detail dl div { background: #fff; border-color: #dce7ef; }
+html[data-theme="day"] .memory-page .memory-calendar-detail dd { color: #17354a; }
+html[data-theme="day"] .memory-page .memory-calendar-detail :is(dt,small,header button) { color: #52677c; }
+html[data-theme="day"] .memory-page.space-page .memory-stats article {
+  background: #fff;
+  color: #17354a;
+  border-color: #d6e4ed;
+  box-shadow: 0 4px 18px #234c6810;
+}
+html[data-theme="day"] .memory-page.space-page .memory-stats article :is(span,small) { color: #48657b; }
+html[data-theme="day"] .memory-page.space-page .memory-stats article .category.normal { background: #edf3f8; color: #35536a; }
+html[data-theme="day"] .memory-page.space-page .memory-stats article .category.above-normal { background: #fff4d6; color: #854d0e; }
+html[data-theme="day"] .memory-page.space-page .memory-stats article .category.unusual { background: #fff0e5; color: #9a3412; }
+html[data-theme="day"] .memory-page.space-page .memory-stats article .category.highly-unusual { background: #feecec; color: #991b1b; }
+html[data-theme="day"] .memory-page.space-page .memory-grid .flag-list li { background: #f0f7fb; border-color: #cbdde8; }
+html[data-theme="day"] .memory-page.space-page .memory-grid .flag-list li strong { color: #075d74; }
+html[data-theme="day"] .memory-page.space-page .memory-grid .flag-list li span { color: #48657b; }
 @media(max-width:900px) { .memory-month-preview { grid-template-columns: repeat(6,minmax(0,1fr)); } }
 @media(max-width:640px) {
   .memory-page .analysis-navigation { gap: 8px; }
   .memory-page .analysis-navigation-links { width: 100%; border-radius: 10px; display: flex; flex-wrap: wrap; }
   .memory-page .analysis-navigation-links a { flex: 1 1 auto; text-align: center; min-height: 44px; font-size: 12px; padding: 10px 8px; }
-  .memory-coverage-info summary span { display: block; margin: 6px 0 0; }
   .memory-month-preview { grid-template-columns: repeat(3,minmax(0,1fr)); }
 }

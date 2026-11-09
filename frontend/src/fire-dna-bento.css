@@ -4,6 +4,14 @@
    ========================================================================== */
 
 /* Page Outer Canvas - Night Mode (Default) */
+.fire-dna-bento-shell *, .fire-dna-bento-shell *::before, .fire-dna-bento-shell *::after { box-sizing: border-box; }
+.fire-dna-bento-shell :is(button,input,select) { font: inherit; }
+.fire-dna-bento-shell :is(.bento-row > *, .bento-card-header-left) { min-width: 0; }
+.fire-dna-bento-shell .bento-card-header { flex-wrap: wrap; }
+.fire-dna-bento-shell .js-plotly-plot { max-width: 100%; }
+html[data-theme="day"] .fire-dna-bento-shell .bento-card-dark .bento-card-title { color: #f8fafc; }
+html[data-theme="day"] .fire-dna-bento-shell .bento-card-dark .text-slate-400 { color: #b6c9dd !important; }
+.fire-dna-bento-shell .bento-card-dark .bento-card-kicker { color: #7dd3fc; }
 .fire-dna-bento-shell {
   min-height: 100vh;
   padding-top: calc(var(--app-header-height, 76px) + 12px);
@@ -425,6 +433,22 @@ html[data-theme="day"] .stat-value-huge {
 
 html[data-theme="day"] .stat-unit {
   color: #1d4ed8;
+}
+
+/* The fingerprint surface stays dark in both themes. */
+.fire-dna-bento-shell .bento-card-dark .stat-value-huge,
+html[data-theme="day"] .fire-dna-bento-shell .bento-card-dark .stat-value-huge {
+  color: #f8fafc;
+  -webkit-text-fill-color: #f8fafc;
+}
+.fire-dna-bento-shell .bento-card-dark .stat-unit,
+html[data-theme="day"] .fire-dna-bento-shell .bento-card-dark .stat-unit {
+  color: #7dd3fc;
+}
+.fire-dna-bento-shell .bento-card-dark .bento-stat-hero { flex-wrap: wrap; gap: 8px 12px; }
+.fire-dna-bento-shell .bento-card-dark .bento-disclaimer {
+  border-top: 1px solid #294054;
+  line-height: 1.6;
 }
 
 /* Candy-Striped Progress Bar */

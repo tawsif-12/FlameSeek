@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getDataSources } from "../api/client";
+import { getDataSources, normalizeApiError } from "../api/client";
 import VerificationPanel from "../components/VerificationPanel";
 import type { DataSource } from "../types/api";
 
@@ -21,9 +21,18 @@ const METHODS = [
 export default function DataSourcesPage() {
   const [sources, setSources] = useState<DataSource[]>([]);
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    getDataSources().then(setSources).catch(() => setSources([]));
-  }, []);
+    let active = true;
+    setLoading(true);
+    setError(null);
+    getDataSources().then(value => { if (active) setSources(value); })
+      .catch(reason => { if (active) setError(normalizeApiError(reason)); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [attempt]);
 
   const groups = [...new Set(sources.map((s) => s.group))];
 
@@ -46,6 +55,9 @@ export default function DataSourcesPage() {
           </ul>
         </header>
       </div>
+      {loading && <p role="status">Loading data sources...</p>}
+      {error && <p role="alert">Data sources unavailable: {error} <button type="button" onClick={() => setAttempt(value => value + 1)}>Retry</button></p>}
+      {!loading && !error && !sources.length && <p>No data sources were returned.</p>}
       {groups.map((group) => (
         <section key={group} className="source-group">
           <h3>{group}</h3>

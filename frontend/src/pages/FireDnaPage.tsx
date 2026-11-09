@@ -18,13 +18,14 @@ import {
   TrendingUp,
   CheckCircle2,
 } from "lucide-react";
-import { normalizeApiError, runJob, searchPlaces, startFireMemory } from "../api/client";
+import { normalizeApiError, runJob, startFireMemory } from "../api/client";
 import AOISelector from "../components/AOISelector";
 import AnalysisNavigation from "../components/AnalysisNavigation";
 import FireDnaEmptyDashboard from "../components/FireDnaEmptyDashboard";
 import FireDnaFingerprint from "../components/FireDnaFingerprint";
 import { DEFAULT_SENSORS, SENSOR_LABELS, describeAoi, useAppContext } from "../context/AppContext";
 import type { FireMemoryResult, Job, SensorName } from "../types/api";
+import "../fire-dna-utilities.css";
 import "../fire-dna-bento.css";
 import { featureHref } from '../api/locationRoutes';
 
@@ -58,7 +59,7 @@ function quote(value: unknown) {
 }
 
 export default function FireDnaPage() {
-  const { aoi, setAoi, lockedArea, sensors, setSensors, memory, setMemory } = useAppContext();
+  const { aoi, lockedArea, sensors, setSensors, memory, setMemory } = useAppContext();
   const navigate = useNavigate();
   const [years, setYears] = useState(5);
   const [job, setJob] = useState<Job<FireMemoryResult> | null>(null);
@@ -94,19 +95,14 @@ export default function FireDnaPage() {
     }
   }
 
-  const defaultRegionStarted = useRef(false);
+  // Calendar and DNA share results; initialize controls when either page loads one.
   useEffect(() => {
-    if (aoi || memory || defaultRegionStarted.current) return;
-    defaultRegionStarted.current = true;
-    searchPlaces("Bangladesh")
-      .then(([place]) => {
-        if (!place) throw new Error("Bangladesh boundary was not found");
-        setAoi({ geometry: place.geometry, bbox: place.bbox, name: "Bangladesh", kind: "place" });
-      })
-      .catch(() =>
-        setAoi({ bbox: [88.007915, 20.3679092, 92.679956, 26.635823], name: "Bangladesh", kind: "place" })
-      );
-  }, [aoi, memory, setAoi]);
+    if (!memory?.fire_dna) return;
+    const comparable = memory.fire_dna.annual.filter(row => row.comparable);
+    setSelectedYear(comparable[comparable.length - 1]?.year ?? memory.calendar.years[memory.calendar.years.length - 1] ?? null);
+    const peak = memory.fire_dna.monthly_reference.find(row => row.name === memory.fire_dna.peak_month);
+    if (peak) setSelectedMonth(peak.month);
+  }, [memory]);
 
   const selectedYearRows = memory && selectedYear ? memory.monthly.filter((row) => row.year === selectedYear) : [];
   const selectedRow = selectedYearRows.find((row) => row.month === selectedMonth);
@@ -322,7 +318,7 @@ export default function FireDnaPage() {
                 >
                   {[3, 5, 10, 15, 20, 26].map((value) => (
                     <option value={value} key={value}>
-                      {value} years ({2026 - value} – 2026)
+                      {value} years ({new Date().getUTCFullYear() - value} to {new Date().getUTCFullYear()})
                     </option>
                   ))}
                 </select>
@@ -334,22 +330,25 @@ export default function FireDnaPage() {
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
+                    aria-pressed={DEFAULT_SENSORS.every(sensor => sensors.includes(sensor))}
                     onClick={() => setMode("harmonized")}
-                    className="py-2 px-3 text-xs font-bold rounded-xl border border-blue-600 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                    className="py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 aria-pressed:border-blue-600 aria-pressed:bg-blue-50 aria-pressed:text-blue-700 transition-colors"
                   >
                     Harmonized
                   </button>
                   <button
                     type="button"
+                    aria-pressed={sensors.length === 1 && sensors.includes('modis')}
                     onClick={() => setMode("modis")}
-                    className="py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 aria-pressed:border-blue-600 aria-pressed:bg-blue-50 aria-pressed:text-blue-700 transition-colors"
                   >
                     MODIS Only
                   </button>
                   <button
                     type="button"
+                    aria-pressed={sensors.length === 3 && !sensors.includes('modis')}
                     onClick={() => setMode("viirs")}
-                    className="py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 aria-pressed:border-blue-600 aria-pressed:bg-blue-50 aria-pressed:text-blue-700 transition-colors"
                   >
                     VIIRS Only
                   </button>
@@ -630,7 +629,7 @@ export default function FireDnaPage() {
                 {/* Part B: Decadal Recurrence Heatmap Matrix (Interactive Grid) */}
                 <div className="space-y-2 pt-3 border-t border-slate-100">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-slate-700">Decadal Recurrence Heatmap (2000–2026 × 12 Months)</span>
+                    <span className="font-bold text-slate-700">Recurrence Heatmap (recorded years by month)</span>
                     <div className="flex items-center gap-1.5 font-mono text-[10px] text-slate-500">
                       <span>Low</span>
                       <span className="w-2.5 h-2.5 bg-slate-200 rounded-xs"></span>

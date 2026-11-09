@@ -25,7 +25,7 @@ function readSavedPreferences(): { aoi: AOI | null; sensors: SensorName[]; memor
   const freshSearch = window.location.pathname === '/search';
   try {
     const saved = JSON.parse(localStorage.getItem(APP_PREFS_KEY) ?? "null");
-    const needsAnalysis = /^\/(fire-memory|fire-dna|area|location)/.test(window.location.pathname);
+    const needsAnalysis = /^\/(fire-memory|fire-calendar|fire-dna|area|location)/.test(window.location.pathname);
     const legacy = saved ? null : JSON.parse(localStorage.getItem(APP_STATE_KEY) ?? "null");
     const memory = !linked && !freshSearch && needsAnalysis
       ? JSON.parse(localStorage.getItem(APP_MEMORY_KEY) ?? "null") ?? legacy?.memory ?? null
@@ -68,7 +68,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } catch { /* Ignore corrupt optional saved analysis. */ }
       setHydrated(true);
     };
-    const needsAnalysis = /^\/(fire-memory|fire-dna|area)/.test(window.location.pathname);
+    const needsAnalysis = /^\/(fire-memory|fire-calendar|fire-dna|area|location)/.test(window.location.pathname);
     if (needsAnalysis) {
       hydrate();
       return;

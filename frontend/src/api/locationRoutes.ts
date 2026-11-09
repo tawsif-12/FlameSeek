@@ -1,6 +1,6 @@
 import type { AOI, PlaceResult } from '../types/api';
 
-export const LOCATION_SECTIONS = ['intelligence', 'now', 'memory', 'dna', 'calendar', 'events'] as const;
+export const LOCATION_SECTIONS = ['intelligence', 'now', 'calendar', 'dna'] as const;
 export type LocationSection = typeof LOCATION_SECTIONS[number];
 
 export function locationId(area: AOI): string {
@@ -32,7 +32,9 @@ export function areaFromUrl(search: string, hash = ''): AOI | null {
   } catch { return null; }
 }
 
-export function dashboardUrl(area: AOI, section: LocationSection = 'intelligence', extra: Record<string, string> = {}): string {
+export function dashboardUrl(area: AOI, section: LocationSection | 'memory' | 'events' = 'intelligence', extra: Record<string, string> = {}): string {
+  if (section === 'memory') section = 'calendar';
+  if (section === 'events') { section = 'intelligence'; extra = { ...extra, view: 'events' }; }
   const payload = JSON.stringify(area);
   const params = new URLSearchParams({ ...extra, location_id: locationId(area) });
   params.delete('area');
@@ -52,6 +54,6 @@ export function placeArea(place: PlaceResult): AOI | null {
 export function featureHref(path: string, area: AOI | null, inDashboard: boolean): string {
   if (!area || !inDashboard) return path;
   const [pathname, query] = path.split('?');
-  const section = ({ '/area': 'intelligence', '/fire-map': 'now', '/fire-memory': 'memory', '/fire-dna': 'dna', '/fire-calendar': 'calendar', '/fire-events': 'events' } as Record<string, LocationSection>)[pathname];
+  const section = ({ '/area': 'intelligence', '/fire-map': 'now', '/fire-memory': 'calendar', '/fire-dna': 'dna', '/fire-calendar': 'calendar', '/fire-events': 'events' } as Record<string, LocationSection | 'events'>)[pathname];
   return section ? dashboardUrl(area, section, Object.fromEntries(new URLSearchParams(query))) : path;
 }

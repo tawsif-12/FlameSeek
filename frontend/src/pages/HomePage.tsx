@@ -268,9 +268,9 @@ export default function HomePage() {
                 <ArrowRight size={17} />
               </Link>
 
-              <Link to="/fire-memory" className="oc-btn-secondary">
+              <Link to="/fire-calendar" className="oc-btn-secondary">
                 <Clock size={16} />
-                Build Fire Memory
+                Explore Burning Calendar
               </Link>
             </div>
 
@@ -558,9 +558,9 @@ export default function HomePage() {
               <ArrowRight size={17} />
             </Link>
 
-            <Link to="/fire-memory" className="oc-btn-secondary">
+            <Link to="/fire-calendar" className="oc-btn-secondary">
               <Clock size={16} />
-              Open Fire Memory
+              Open Burning Calendar
             </Link>
 
             <Link to="/fire-dna" className="oc-btn-secondary">

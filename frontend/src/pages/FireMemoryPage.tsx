@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Plot from "react-plotly.js";
 import "../memory-refinements.css";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { normalizeApiError, runJob, startFireMemory } from "../api/client";
 import AnalysisNavigation from "../components/AnalysisNavigation";
 import AOISelector from "../components/AOISelector";
 import WorldviewButton from "../components/WorldviewButton";
-import DataCoverageNotice from "../components/DataCoverageNotice";
 import { featureHref } from '../api/locationRoutes';
 import AccumulatedHistory from "../components/AccumulatedHistory";
 import { DEFAULT_SENSORS, SENSOR_LABELS, aoiBBox, describeAoi, useAppContext } from "../context/AppContext";
@@ -53,7 +52,6 @@ function csvValue(value: unknown) {
 
 export default function FireMemoryPage() {
   const { aoi, lockedArea, sensors, setSensors, memory, setMemory } = useAppContext();
-  const location = useLocation();
   const [years, setYears] = useState(5);
   const [windowDays, setWindowDays] = useState(30);
   const [job, setJob] = useState<Job<FireMemoryResult> | null>(null);
@@ -63,14 +61,6 @@ export default function FireMemoryPage() {
   useEffect(() => {
     if (lockedArea && aoi && !memory && !autoStarted.current) { autoStarted.current = true; void run(); }
   }, [lockedArea, aoi, memory]);
-
-  useEffect(() => {
-    if (location.pathname !== "/fire-calendar" && location.pathname !== '/location/calendar') return;
-    const frame = window.requestAnimationFrame(() => {
-      document.getElementById("fire-calendar")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [location.pathname, memory]);
 
   async function run() {
     if (!aoi) return;
@@ -94,16 +84,12 @@ export default function FireMemoryPage() {
       <div className="space-hero-strip">
         <div className="space-hero-orbit" aria-hidden="true"><span /><span /></div>
         <header className="memory-intro nasa-page-intro">
-          <p className="eyebrow"><span className="dot" /> Fire Memory</p>
-          <h2>Fire Memory</h2>
-          <p className="lead">Explore historical fire activity and long-term patterns for any selected location.</p>
+          <p className="eyebrow"><span className="dot" /> Historical fire activity and trends</p>
+          <h2>Burning Calendar</h2>
+          <p className="lead">Explore the burning calendar, fire memory, historical activity and long-term trends for the selected location.</p>
           <p className="memory-method-intro">Harmonized estimates account for sensor differences. Comparability depends on observation coverage and validation for the selected region and period.</p>
         </header>
       </div>
-      <details className="memory-coverage-info">
-        <summary>Understanding missing satellite data <span>Missing data does not mean zero fires</span></summary>
-        <DataCoverageNotice start={memory?.period.start} end={memory?.period.end} />
-      </details>
       <section className="memory-setup glass-card">
         {!lockedArea && <div className="memory-setup-map">
           <h3>1. Select location</h3>
@@ -473,14 +459,18 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
         <ChangePoints memory={memory} />
 
         <article className="viz-panel">
-          <h3>How often could satellites see the ground?</h3>
-          <p className="meta-text">On {memory.observation_quality.pct_days_unobservable}% of days, clouds or missing passes hid this place. On those days "no fire seen" does not mean "no fire". Average viewing score: {memory.observation_quality.mean_sufficiency_score} out of 100.</p>
-          <ul className="obs-list">
-            {Object.entries(memory.observation_quality.counts).map(([key, count]) => (
-              <li key={key}><span style={{ background: OBS_COLORS[key] }} />{OBS_PLAIN[key] ?? memory.observation_quality.labels[key]}<strong>{count.toLocaleString()} days</strong></li>
-            ))}
-          </ul>
-          <details className="tech"><summary>Technical details</summary><p className="meta-text">{memory.observation_quality.method}</p></details>
+          <h3>What did the retrieved records show?</h3>
+          {memory.observed_record ? <>
+            <p className="meta-text">Recorded days in the selected period (UTC). No detections does not establish that the ground was clear or that no fire occurred.</p>
+            <ul className="obs-list observed-record-list">
+              <li>MODIS and VIIRS detections on the same day<strong>{memory.observed_record.days.both_families_detected.toLocaleString()} days</strong></li>
+              <li>Detections from one sensor family<strong>{memory.observed_record.days.one_family_detected.toLocaleString()} days</strong></li>
+              <li>No detections in retrieved records<strong>{memory.observed_record.days.no_detections_in_retrieved_records.toLocaleString()} days</strong></li>
+            </ul>
+            <p className="meta-text">Download chunks that failed: {memory.observed_record.failed_download_chunks}. Cloud proxy values available: {memory.observed_record.cloud_proxy_days} of {memory.observed_record.total_days} days.</p>
+          </> : <p role="status">Re-run the analysis to load source-backed observation statistics. Older viewing scores are not shown.</p>}
+          <p className="meta-text">Actual clear-sky coverage and missed satellite passes: unavailable. Satellite observation masks are not connected.</p>
+          <details className="tech"><summary>Source and limitations</summary><p className="meta-text">{memory.observed_record?.source}</p><p className="meta-text">{memory.observed_record?.coverage_note ?? 'FIRMS detection records alone cannot establish observation coverage or fire absence.'}</p></details>
         </article>
 
         <FourWitness memory={memory} />
@@ -505,7 +495,7 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
 
         <article className="viz-panel wide provenance">
           <h3>Where the data comes from</h3>
-          <p className="meta-text">All fire sightings come from NASA's FIRMS service (MODIS and VIIRS satellite cameras). Cloud cover comes from the ERA5 weather record.</p>
+          <p className="meta-text">Fire detections come from NASA FIRMS. Where available, cloud values use ERA5 weather reanalysis at the area centre; they do not measure each satellite pixel's visibility. Harmonized activity and forecasts are model estimates.</p>
           <details className="tech">
             <summary>Technical details</summary>
           <dl className="kv">
@@ -554,25 +544,28 @@ function FourWitness({ memory }: { memory: FireMemoryResult }) {
   return (
     <>
       <article className="viz-panel">
-        <h3>The satellites, and how well each one sees</h3>
-        <p className="meta-text">Four satellites watch for fires. The newer VIIRS cameras are sharper and catch small fires that the older MODIS cameras miss, so their counts cannot simply be added together.</p>
+        <h3>Satellite detection records</h3>
+        <p className="meta-text">Counts and dates come from retrieved NASA FIRMS records after confidence filtering. Repeated sightings can describe the same fire. Platforms are identified from source metadata, never guessed from overpass time.</p>
         <div className="table-wrap">
           <table>
-            <thead><tr><th>Satellite</th><th>Fire sightings</th><th>Chance it spots a fire</th><th>Views per pass</th></tr></thead>
+            <thead><tr><th>Satellite</th><th>Detections</th><th>Days with detections (UTC)</th><th>First / last detection (UTC)</th></tr></thead>
             <tbody>
-              {Object.entries(w.summary.witnesses).filter(([, v]) => v.detections > 0).map(([k, v]) => (
-                <tr key={k}><td>{v.label}</td><td>{v.detections.toLocaleString()}</td><td>{Math.round(v.sensitivity_per_look * 100)}%</td><td>{v.looks_per_pass_at_aoi}</td></tr>
+              {(memory.observed_record?.platforms ?? []).map(v => (
+                <tr key={v.id}><td>{v.label}</td><td>{v.detections.toLocaleString()}</td><td>{v.detection_days.toLocaleString()}</td><td>{v.first_detection.slice(0, 10)} / {v.last_detection.slice(0, 10)}</td></tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="meta-text">Of the fires the sharper cameras saw here, the older cameras would have caught about <strong>{Math.round(w.summary.modis_fraction_of_viirs_fires * 100)}%</strong>. We use that to put every year on the same footing.</p>
+        {!memory.observed_record && <p role="status">Re-run the analysis to retrieve source-backed satellite statistics.</p>}
+        {memory.observed_record && !memory.observed_record.platforms.length && <p>No satellite detections were returned for this area and period.</p>}
+        <p className="meta-text">Measured detection probability and actual views per pass: unavailable. The assumptions used by the harmonization model are described below.</p>
         <details className="tech">
-          <summary>Technical details</summary>
+          <summary>Harmonization model estimates and assumptions</summary>
+        <p className="meta-text">These values describe the model, not measured local satellite accuracy. VIIRS sensitivity is fixed at 90%; MODIS sensitivity is derived from a fitted profile or a published prior. Expected looks use orbit geometry, and missing cloud data uses an assumed clear fraction.</p>
         <dl className="kv">
           <div><dt>Detection profile</dt><dd>{profile.source === "learned" ? `learned from ${profile.matchups.toLocaleString()} Aqua/S-NPP matchups` : "published prior"}</dd></div>
           <div><dt>MODIS 50% detection</dt><dd>{profile.frp50_nadir_mw ?? "–"} MW at nadir · {profile.frp50_scan_edge_mw ?? "–"} MW at scan edge</dd></div>
-          <div><dt>VIIRS fires MODIS would see</dt><dd>{Math.round(w.summary.modis_fraction_of_viirs_fires * 100)}%</dd></div>
+          <div><dt>Modeled MODIS-detectable fraction of VIIRS observations</dt><dd>{Math.round(w.summary.modis_fraction_of_viirs_fires * 100)}%</dd></div>
           <div><dt>MODIS / VIIRS FRP</dt><dd>{profile.modis_frp_per_viirs_frp} ({profile.frp_relation_source})</dd></div>
           <div><dt>MODIS duplicates removed</dt><dd>{(w.summary.cleaning.modis_duplicates_removed ?? 0).toLocaleString()}</dd></div>
           <div><dt>Daily fire curve</dt><dd>peak {curve.peak_hour.toFixed(1)} h local, width {curve.width_h} h ({w.summary.diurnal.source})</dd></div>

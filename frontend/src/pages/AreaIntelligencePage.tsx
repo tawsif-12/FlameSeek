@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import Plot from "react-plotly.js";
 import { GeoJSON, MapContainer, Rectangle, TileLayer, Tooltip, useMap } from "react-leaflet";
 import type { LatLngBoundsExpression } from "leaflet";
@@ -8,9 +8,13 @@ import { getHotspotsInBox, normalizeApiError, runJob, startFireMemory, startPlac
 import { aoiBBox, aoiContains, describeAoi, useAppContext } from "../context/AppContext";
 import type { FireMemoryResult, HotspotRecord, Job, PlacePipelineSummary, SensorName } from "../types/api";
 import { StatusPill } from "../components/HarmonizedProvenance";
-import DataCoverageNotice from "../components/DataCoverageNotice";
 import "../harmonized.css";
+import "../intelligence-dashboard.css";
+import { ActivityTimeline, SummaryMetric } from "../components/IntelligenceSummary";
+import PipelineFreshness from "../components/PipelineFreshness";
 import { featureHref } from '../api/locationRoutes';
+
+const FireEvents = lazy(() => import('./HarmonizedMapPage'));
 
 /* "<Place> Fire Intelligence": one page answering the eight area questions from the area's own
    records. The first answers come from Fire Memory (fast, Aqua 13:30-equivalent counts); once the
@@ -58,6 +62,13 @@ function Q({ n, q, children, source, status }: { n: number; q: string; children:
 }
 
 export default function AreaIntelligencePage() {
+  const route = useLocation();
+  const eventSection = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (new URLSearchParams(route.search).get('view') === 'events') {
+      eventSection.current?.scrollIntoView({ block: 'start' });
+    }
+  }, [route.search]);
   const { aoi, lockedArea, setMemory: shareMemory } = useAppContext();
   const [years, setYears] = useState(5);
   const [quick, setQuick] = useState<FireMemoryResult | null>(null);
@@ -72,6 +83,7 @@ export default function AreaIntelligencePage() {
   const [pipeJob, setPipeJob] = useState<Job<PlacePipelineSummary> | null>(null);
   const [pipeError, setPipeError] = useState<string | null>(null);
   const runRef = useRef(0);
+  const loadedArea = useRef('');
 
   const box = useMemo(() => (aoi ? aoiBBox(aoi) : null), [aoi]);
   const ring = useMemo((): [number, number, number, number] | null => {
@@ -91,8 +103,13 @@ export default function AreaIntelligencePage() {
     if (!aoi) return;
     const id = ++runRef.current;
     const mine = () => id === runRef.current;
-    setQuick(null); setFull(null); setQuickError(null); setFullError(null); setQuickJob(null); setFullJob(null);
-    setPipe(null); setPipeJob(null); setPipeError(null);
+    const areaKey = JSON.stringify(aoi);
+    if (loadedArea.current !== areaKey) {
+      setQuick(null); setFull(null); setPipe(null);
+      loadedArea.current = areaKey;
+    }
+    setQuickError(null); setFullError(null); setQuickJob(null); setFullJob(null);
+    setPipeJob(null); setPipeError(null);
     // Show exact-query saved results before waiting on fresh NASA downloads.
     savedFireMemory(aoi, years, HUB_SENSORS).then((saved) => {
       if (saved && mine()) setFull((current) => current && !current.provenance?.saved_preview ? current : saved);
@@ -125,8 +142,10 @@ export default function AreaIntelligencePage() {
   // Live FIRMS hotspots in and around the place (last 24 hours; cut from the shared worldwide download when fresh).
   useEffect(() => {
     if (!ring) return;
+    let cancelled = false;
     setLive(null); setLiveError(null);
-    getHotspotsInBox(ring, 1).then((r) => setLive(r.hotspots)).catch((e) => setLiveError(normalizeApiError(e)));
+    getHotspotsInBox(ring, 1).then((r) => { if (!cancelled) setLive(r.hotspots); }).catch((e) => { if (!cancelled) setLiveError(normalizeApiError(e)); });
+    return () => { cancelled = true; };
   }, [ring]);
 
   const neighbours = useMemo(() => {
@@ -208,32 +227,41 @@ export default function AreaIntelligencePage() {
     ? `${pct(fullJob)}% · paused: NASA allows 5,000 requests per 10 minutes, resumes automatically — keep reading meanwhile`
     : `${pct(fullJob)}% · ${fullJob?.message ?? "Preparing history"}. First-time downloads depend on NASA; completed runs are saved.`;
 
-  return (
-    <main className="content-page space-shell space-page">
-      <div className="space-hero-strip">
-        <div className="space-hero-orbit" aria-hidden="true"><span /><span /></div>
-        <header className="nasa-page-intro">
-          <p className="eyebrow"><span className="dot" /> Area fire intelligence</p>
-          <h2>{title} Fire Intelligence</h2>
-          {subtitle && <p className="lead" style={{ marginBottom: 6 }}>{subtitle}</p>}
-          <p className="lead">Fire history, current activity, seasons and risk for this place, from NASA satellite fire records. Answers appear as soon as their data is ready; each says where it comes from and how reliable it is.</p>
-          <div className="hz-hero-actions" style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
-            <Link to="/search" className="hz-link-btn">← Change place</Link>
-            <span className="hz-count">History:</span>
-            <div className="hz-seg" role="group" style={{ minWidth: 240 }} title="Longer history takes longer the first time (NASA serves 5 days per request); downloads are saved and reused">
-              {[5, 10, 20].map((y) => <button key={y} aria-pressed={years === y} onClick={() => setYears(y)}>{y} years</button>)}
-            </div>
-          </div>
-          <ul className="hero-chips hz-provenance">
-            <li><span className="dot" />Record: {memory ? `${memory.period.start} → ${memory.period.end}${isQuick ? " (quick look)" : ""}` : loadingMemory ? "loading…" : "awaiting data"}</li>
-            <li><span className="dot" />Live: NASA FIRMS, last 24 hours</li>
-            <li><span className="dot" />{pipe ? "Method: FlameSeek pipeline (fire events, energy-conserving grid)" : "Unit: Aqua 13:30-equivalent detections (harmonized)"}</li>
-          </ul>
-        </header>
-      </div>
+  const period = pipe?.period ?? memory?.period;
+  const processed = pipe?.provenance?.generated_at ?? memory?.provenance?.generated_at;
+  const processedAt = typeof processed === 'string' ? processed : null;
+  const observedDates = [...new Set(memory?.daily.filter(day => day.hotspot_count > 0).map(day => day.date) ?? [])].sort();
+  const observedDays = observedDates.length;
+  const eventCount = pipe?.quality.events ?? memory?.events?.count;
+  const activity = memory?.summary.total_harmonized_activity;
+  const formatTime = (value: string | null) => value && Number.isFinite(Date.parse(value)) ? `${new Date(value).toISOString().slice(0, 16).replace('T', ' ')} UTC` : 'Awaiting output';
 
-      <DataCoverageNotice start={pipe?.period.start ?? memory?.period.start} end={pipe?.period.end ?? memory?.period.end} />
-      {!!pipe?.provenance?.failed_chunks && <p className="hz-honesty" role="alert">Incomplete download: {pipe.provenance.failed_chunks} archive requests failed. Missing dates are unknown; totals may undercount fires.</p>}
+  return (
+    <main className="content-page space-shell fire-intelligence-dashboard">
+      <header className="intelligence-header">
+        <div><p className="intelligence-location">Location workspace / {name}</p><h2>Fire Intelligence</h2><p>Satellite-based fire activity overview for {title}{subtitle ? `, ${subtitle}` : ''}</p></div>
+        <div className="intelligence-updated"><span>Latest processed output</span><time dateTime={processedAt ?? undefined}>{formatTime(processedAt)}</time></div>
+      </header>
+      <section className="intelligence-toolbar" aria-label="Location and history controls">
+        <div><span className="intelligence-label">Selected location</span><strong>{name}</strong>{!lockedArea && <Link to="/search">Change location</Link>}</div>
+        <fieldset><legend>History period</legend><div className="intelligence-periods">{[5, 10, 20].map(y => <button key={y} type="button" aria-pressed={years === y} onClick={() => setYears(y)}>{y} years</button>)}</div></fieldset>
+        <div><span className="intelligence-label">Loaded result period</span><strong>{period ? `${period.start} to ${period.end}` : loadingMemory ? 'Loading records…' : 'Unavailable'}</strong><small>{full && full.period.years !== years ? `Showing the last result while ${years}-year output loads. ` : ''}Daily coverage is unverified</small></div>
+        <details className="intelligence-method"><summary>{pipe ? 'Metric: Reconstructed events' : memory ? 'Metric: Harmonized detections' : 'Method & units'}</summary><p>{pipe ? pipe.method : memory?.provenance?.harmonization ? String(memory.provenance.harmonization) : 'Historical detections use the existing Aqua 13:30-equivalent harmonization when output is available. Live MODIS/VIIRS counts remain raw observations.'}</p></details>
+      </section>
+      <section className="intelligence-metrics" aria-label="Location summary statistics">
+        <SummaryMetric label="Fire events" value={eventCount != null ? eventCount.toLocaleString() : pipeError || memError ? 'Unavailable' : 'Loading…'} note="Reconstructed in the available historical record" />
+        <SummaryMetric label="Recent detections" value={neighbours ? neighbours.inside.length.toLocaleString() : liveError ? 'Unavailable' : 'Loading…'} note="MODIS & VIIRS · last 24 hours · raw counts" />
+        <SummaryMetric label="Observed fire activity" value={activity != null ? activity.toLocaleString(undefined, {maximumFractionDigits: 1}) : pipe ? `${pipe.quality.clean_detections.toLocaleString()}` : memError ? 'Unavailable' : 'Loading…'} note={activity != null ? 'Harmonized detections · available history' : 'Quality-filtered detections · available history'} />
+        <SummaryMetric label="Satellite coverage" value="Unverified" note={observedDays ? `${observedDays.toLocaleString()} days have detections; this does not establish full coverage` : 'No validated daily instrument-coverage product available'} />
+      </section>
+      <div ref={eventSection} id="fire-events" className="intelligence-events-section">
+        <Suspense fallback={<p className="intelligence-empty" role="status">Loading the location map and fire events…</p>}>
+          <FireEvents embedded recentDetections={neighbours?.inside ?? []} summary={<section className="intelligence-map-summary" aria-label="Fire activity summary"><h3>Activity summary</h3><p>{neighbours ? neighbours.inside.length ? `${neighbours.inside.length.toLocaleString()} heat detections recorded in the last 24 hours.` : 'No detections returned for the last 24 hours. This does not establish absence of fire.' : liveError ? `Current observations unavailable: ${liveError}` : 'Loading current satellite observations…'}</p><dl><dt>Latest detection</dt><dd>{formatTime(neighbours?.latest ?? null)}</dd><dt>Requested historical window</dt><dd>{period ? `${period.start} to ${period.end}` : 'Awaiting processed records'}</dd>{observedDates.length > 0 && <><dt>Dates with recorded detections</dt><dd>{observedDates[0]} to {observedDates[observedDates.length - 1]} · {observedDays} days</dd></>}</dl><p className="intelligence-note">Hotspots are satellite observations, not independently confirmed fires. The event layer uses the dated processing snapshot shown below.</p></section>} />
+        </Suspense>
+      </div>
+      <ActivityTimeline memory={memory} pipeline={pipe} loading={loadingMemory} />
+      {!!pipe?.provenance?.failed_chunks && <p className="intelligence-alert" role="alert">Incomplete download: {pipe.provenance.failed_chunks} archive requests failed. Missing dates remain unknown.</p>}
+      <details className="intelligence-processing"><summary>Processing status & source freshness</summary><PipelineFreshness />
       {/* Loading steps: each answer appears as soon as its data is ready. */}
       <ol className="hz-steps" aria-label="Loading progress">
         <li className={live ? "done" : liveError ? "fail" : "active"}>
@@ -255,33 +283,10 @@ export default function AreaIntelligencePage() {
           <span><strong>FlameSeek pipeline: {years} years</strong><small>{pipeStatus}</small></span>
           {!pipe && !pipeError && (quick || quickError) && <i className="hz-bar"><span style={{ width: `${pipePct}%` }} /></i>}
         </li>
-      </ol>
+      </ol></details>
       {memError && <div className="hz-honesty" role="alert"><strong>Fire record unavailable</strong>{memError}</div>}
 
-      {/* Four tiles, as in the concept */}
-      <section className="hz-tiles hz-tiles-4">
-        <a href="#history" className="glass-card hz-tile hz-tile-link">
-          <div className="hz-tile-label">FIRE HISTORY</div>
-          <div className="hz-tile-value">{histReady ? `${fireYears} / ${fullYears.length}` : fullError ? "—" : `${pct(fullJob)}%`}</div>
-          <div className="hz-tile-label">{pipe ? "full years with fire events" : history ? "full years with fire detections" : "history loading"}</div>
-        </a>
-        <a href="#current" className="glass-card hz-tile hz-tile-link">
-          <div className="hz-tile-label">CURRENT ACTIVITY</div>
-          <div className="hz-tile-value">{neighbours ? neighbours.inside.length.toLocaleString() : liveError ? "—" : "…"}</div>
-          <div className="hz-tile-label">hotspots in the last 24 hours</div>
-        </a>
-        <a href="#seasons" className="glass-card hz-tile hz-tile-link">
-          <div className="hz-tile-label">SEASONAL PATTERNS</div>
-          <div className="hz-tile-value">{pSeason ? (pSeason.peak_months.length ? pSeason.peak_months.join(", ") : "none") : season?.peak_months?.length ? season.peak_months.join(", ") : memory ? "none" : "…"}</div>
-          <div className="hz-tile-label">high-activity months{!pipe && isQuick ? " (last 12 months)" : ""}</div>
-        </a>
-        <a href="#risk" className="glass-card hz-tile hz-tile-link">
-          <div className="hz-tile-label">FUTURE RISK</div>
-          <div className="hz-tile-value">{risk?.status === "computed" && risk.probability != null ? `${Math.round(risk.probability * 100)}%` : risk ? "withheld" : fullError ? "—" : `${pct(fullJob)}%`}</div>
-          <div className="hz-tile-label">{risk?.window ? `chance of fire, next ${risk.window.days} days` : history && years < 10 ? "needs 10 years of history" : "modelled probability"}</div>
-        </a>
-      </section>
-
+      <details className="intelligence-analysis"><summary>Detailed historical analysis, seasonal patterns & reliability</summary>
       <section className="hz-qgrid">
         <div id="history" />
         <Q n={1} q="Has this area experienced repeated fire activity?" status={histReady ? "computed" : loadingMemory ? "loading" : "awaiting data"} source={SRC}>
@@ -448,15 +453,15 @@ export default function AreaIntelligencePage() {
         </Q>
       </section>
 
+      </details>
+
       <section className="methods" style={{ marginTop: 36 }}>
         <h3>Explore in depth</h3>
         <div className="method-grid">
           {[
-            ["/fire-memory", "Fire Memory", "Day-by-day history, calendar and data sources."],
             ["/fire-dna", "Fire DNA", "Seasonal signature, trends and unusual activity."],
-            ["/fire-calendar", "Burning Calendar", "Month-by-month burning pattern."],
-            ["/fire-events", "Fire Events", "Recent fire events as true burned-ground outlines."],
-            ["/fire-map", "FireNow", "Live 3D globe of current fires."],
+            ["/fire-calendar", "Burning Calendar", "Fire memory, day-by-day history, seasonal patterns and trends."],
+            ["/fire-map", "Fire Now", "Latest MODIS and VIIRS satellite detections."],
           ].map(([to, h, p], i) => (
             <Link key={to} to={featureHref(to, aoi, Boolean(lockedArea))} className="method-card glass-card" style={{ textDecoration: "none" }}>
               <span className="method-index" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>

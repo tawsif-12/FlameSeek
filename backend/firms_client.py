@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import math
+import re
 import contextvars
 import csv
 import io
@@ -387,11 +388,18 @@ async def _fetch_recent_csv(client: httpx.AsyncClient, sensor: str, area: str, d
     if cached and time.time() - cached[0] < FIRMS_RECENT_CACHE_TTL_SECONDS:
         return cached[1], source
 
+    disk_key = f"{source}_{area.replace(',', '_')}_recent_{days}"
+    saved = disk_read("firms", disk_key, ".csv", max_age_seconds=FIRMS_RECENT_CACHE_TTL_SECONDS)
+    if saved is not None:
+        _CSV_CACHE[cache_key] = (time.time(), saved)
+        return saved, source
+
     _require_firms_key()
     url = f"{FIRMS_BASE_URL}/{FIRMS_MAP_KEY}/{source}/{area}/{days}"
     started = time.perf_counter()
     text = await _get_with_retries(client, url)
     print(f"firms_recent_request source={source} area={area} days={days} elapsed_ms={round((time.perf_counter() - started) * 1000, 1)}")
+    disk_write("firms", disk_key, text, ".csv")
     _CSV_CACHE[cache_key] = (time.time(), text)
     return text, source
 
@@ -471,10 +479,15 @@ _FIRMS_DOWN_UNTIL: float = 0.0
 _FIRMS_DOWN_TTL_SECONDS = 120.0
 _FIRMS_RECENT_LIVE_TIMEOUT_SECONDS = 90.0
 _LAST_RECENT_SOURCE = "live"
+_RECENT_MISSING_SENSORS: contextvars.ContextVar[list[str]] = contextvars.ContextVar("recent_missing_sensors", default=[])
 
 
 def recent_source_status() -> str:
     return _LAST_RECENT_SOURCE
+
+
+def recent_missing_sensors() -> list[str]:
+    return list(_RECENT_MISSING_SENSORS.get())
 
 
 def _sensor_for_source(source: str) -> str | None:
@@ -498,9 +511,18 @@ def _cached_actual_hotspots(
     root = CACHE_DIR / "firms"
     if not root.exists():
         return []
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(days=days)
     files = sorted(root.rglob("*.csv"), key=lambda p: p.stat().st_mtime, reverse=True)[:max_files]
     rows: list[dict[str, Any]] = []
     for path in files:
+        # Historical downloads can be very large. Their filename records the
+        # observation window; do not parse years of CSVs to recover today's data.
+        window = re.search(r"_(\d{4}-\d{2}-\d{2})_(\d+)\.csv$", path.name)
+        if window:
+            start = datetime.fromisoformat(window[1]).replace(tzinfo=timezone.utc)
+            if start > now or start + timedelta(days=int(window[2])) <= cutoff:
+                continue
         source = next((part for part in path.name.split("_") if part in {*FIRMS_NRT_SENSOR_SOURCES.values(), *FIRMS_SP_SENSOR_SOURCES.values()}), "")
         # Filenames start with sources such as MODIS_NRT_...; split matching above can miss because of underscores.
         if not source:
@@ -520,8 +542,6 @@ def _cached_actual_hotspots(
     if not rows:
         return []
 
-    now = datetime.now(timezone.utc)
-    cutoff = now - timedelta(days=days)
     recent = [row for row in rows if cutoff <= row["acq_datetime"] <= now]
     # De-duplicate rows that appear in overlapping cache chunks.
     deduped: dict[tuple[str, float, float, datetime], dict[str, Any]] = {}
@@ -559,6 +579,7 @@ async def fetch_recent_hotspots(
     include_demo: bool = False,
 ) -> list[dict[str, Any]]:
     global _FIRMS_DOWN_UNTIL, _LAST_RECENT_SOURCE
+    _RECENT_MISSING_SENSORS.set([])
     area = "world" if bbox is None else _bbox_string(bbox)
     semaphore = asyncio.Semaphore(4)
 
@@ -583,12 +604,20 @@ async def fetch_recent_hotspots(
     rows: list[dict[str, Any]] = []
     if not firms_down:
         try:
-            results = await asyncio.wait_for(
-                asyncio.gather(*(guarded(sensor) for sensor in sensors)),
-                timeout=_FIRMS_RECENT_LIVE_TIMEOUT_SECONDS,
-            )
-            rows = [row for batch in results for row in batch]
-            _LAST_RECENT_SOURCE = "live"
+            # A failing platform must not discard observations from working platforms.
+            # Bound each platform separately so completed downloads survive a slow peer.
+            results = await asyncio.gather(*(
+                asyncio.wait_for(guarded(sensor), timeout=min(30.0, _FIRMS_RECENT_LIVE_TIMEOUT_SECONDS))
+                for sensor in sensors
+            ), return_exceptions=True)
+            failures = [(sensor, batch) for sensor, batch in zip(sensors, results) if isinstance(batch, BaseException)]
+            if len(failures) == len(sensors) and failures:
+                raise failures[0][1]
+            rows = [row for batch in results if not isinstance(batch, BaseException) for row in batch]
+            for sensor, _ in failures:
+                rows.extend(_cached_actual_hotspots(bbox, [sensor], days))
+            _RECENT_MISSING_SENSORS.set([sensor for sensor, _ in failures])
+            _LAST_RECENT_SOURCE = "partial_live" if failures else "live"
         except (FirmsAPIError, httpx.HTTPError, asyncio.TimeoutError) as exc:
             _FIRMS_DOWN_UNTIL = now_ts + _FIRMS_DOWN_TTL_SECONDS
             print(f"firms_unavailable reason={type(exc).__name__} muted_for_seconds={_FIRMS_DOWN_TTL_SECONDS}")

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, NavLink, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Activity, CalendarDays, ChevronLeft, ChevronRight, Dna, Flame, History, MapPin, Menu, Radar, X } from 'lucide-react';
+import { Activity, CalendarDays, ChevronLeft, ChevronRight, Dna, Flame, Info, MapPin, Menu, X } from 'lucide-react';
 import { areaFromUrl, dashboardUrl, locationId, LOCATION_SECTIONS, type LocationSection } from '../api/locationRoutes';
 import { describeAoi, LocationAreaScope, useAppContext } from '../context/AppContext';
 import '../location-dashboard.css';
@@ -8,18 +8,14 @@ import '../location-dashboard.css';
 const FEATURES = {
   intelligence: lazy(() => import('./AreaIntelligencePage')),
   now: lazy(() => import('./FireGlobePage')),
-  memory: lazy(() => import('./FireMemoryPage')),
   dna: lazy(() => import('./FireDnaPage')),
   calendar: lazy(() => import('./FireMemoryPage')),
-  events: lazy(() => import('./HarmonizedMapPage')),
 };
 const ITEMS = [
   { section: 'intelligence', label: 'Fire Intelligence', Icon: Activity },
   { section: 'now', label: 'Fire Now', Icon: Flame },
-  { section: 'memory', label: 'Fire Memory', Icon: History },
-  { section: 'dna', label: 'Fire DNA', Icon: Dna },
   { section: 'calendar', label: 'Burning Calendar', Icon: CalendarDays },
-  { section: 'events', label: 'Fire Events', Icon: Radar },
+  { section: 'dna', label: 'Fire DNA', Icon: Dna },
 ] as const;
 
 export default function LocationDashboard() {
@@ -68,6 +64,9 @@ export default function LocationDashboard() {
 
   if (!area) return <main className="content-page"><h2>Choose a location</h2><p>This link does not contain a usable area boundary.</p><Link to="/search">Explore locations</Link></main>;
   if (route.pathname === '/location') return <Navigate replace to={dashboardUrl(area)} />;
+  if (section === 'memory' || section === 'events') {
+    return <Navigate replace to={dashboardUrl(area, section, Object.fromEntries(new URLSearchParams(route.search)))} />;
+  }
   if (!LOCATION_SECTIONS.includes(section as LocationSection)) return <Navigate replace to={dashboardUrl(area)} />;
   const selectedSection = section as LocationSection;
   const Feature = FEATURES[selectedSection];
@@ -79,10 +78,10 @@ export default function LocationDashboard() {
     {mobile && drawer && <button className="location-drawer-backdrop" type="button" aria-label="Close location navigation" onClick={closeDrawer} />}
     <aside ref={sidebar} id="location-sidebar" className={`location-sidebar${drawer ? ' drawer-open' : ''}`} hidden={mobile && !drawer} role={mobile && drawer ? 'dialog' : undefined} aria-modal={mobile && drawer ? true : undefined} aria-label="Location navigation">
       <div className="location-sidebar-top"><span className="location-sidebar-label">LOCATION WORKSPACE</span>{mobile ? <button type="button" aria-label="Close location navigation" onClick={closeDrawer}><X size={20} aria-hidden="true" /></button> : <button type="button" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => setCollapsed(value => !value)}>{collapsed ? <ChevronRight size={20} aria-hidden="true" /> : <ChevronLeft size={20} aria-hidden="true" />}</button>}</div>
-      <div className="location-identity" title={name}><MapPin size={22} aria-hidden="true" /><div className="location-sidebar-label"><h2>{name}</h2><span>One boundary. Every perspective.</span></div></div>
-      <button type="button" className="location-change" title="Change location" aria-label="Change location" onClick={() => { setMemory(null); setAoi(null); navigate('/search'); }}><MapPin size={18} aria-hidden="true" /><span className="location-sidebar-label">Change location</span></button>
-      <nav aria-label="Location sections">{ITEMS.map(({ section: destination, label, Icon }) => <NavLink key={destination} to={dashboardUrl(area, destination)} aria-label={label} title={label} onClick={() => mobile && closeDrawer()}><Icon size={21} aria-hidden="true" /><span className="location-sidebar-label">{label}</span></NavLink>)}</nav>
-      <p className="location-sidebar-foot location-sidebar-label">Satellite observations are evidence. Missing coverage is not a confirmed absence of fire.</p>
+      <div className="location-identity" title={name}><MapPin size={20} aria-hidden="true" /><div className="location-sidebar-label"><span>Selected location</span><h2>{name}</h2></div></div>
+      <button type="button" className="location-change" title="Change location" aria-label="Change location" onClick={() => { setMemory(null); setAoi(null); navigate('/search'); }}><MapPin size={16} aria-hidden="true" /><span className="location-sidebar-label">Change Location</span></button>
+      <nav aria-label="Location sections">{ITEMS.map(({ section: destination, label, Icon }) => <NavLink key={destination} to={dashboardUrl(area, destination)} aria-label={label} title={label} onClick={() => mobile && closeDrawer()}><Icon size={20} aria-hidden="true" /><span className="location-sidebar-label">{label}</span></NavLink>)}</nav>
+      <footer className="location-sidebar-foot"><Info size={16} aria-hidden="true" /><p>Satellite observations are evidence. Missing coverage is not a confirmed absence of fire.</p></footer>
     </aside>
     <div className="location-content" data-section={selectedSection}>
       {ready ? <LocationAreaScope key={JSON.stringify(area)} area={area}><Suspense fallback={<div className="location-loading" role="status">Loading {ITEMS.find(item => item.section === section)?.label} for {name}…</div>}><Feature key={`${id}:${selectedSection}`} /></Suspense></LocationAreaScope> : <div className="location-loading" role="status">Loading the boundary for {name}…</div>}

@@ -7,16 +7,24 @@ from fastapi import APIRouter, HTTPException, Query
 from geocode import reverse_geocode, search_places
 from http_utils import ExternalServiceError
 from jobs import get_job
+from place_query import location_query
+from place_suggestions import cached_places
 
 
 router = APIRouter()
 
 
 @router.get("/places/search")
-async def places_search(q: str = Query(min_length=2, max_length=120)) -> dict[str, Any]:
+async def places_search(q: str = Query(min_length=2, max_length=120), suggest: bool = False) -> dict[str, Any]:
     """Country, state, district, forest or protected-area search for AOI selection."""
     try:
-        return {"results": await search_places(q)}
+        location = location_query(q)
+        if len(location) < 2:
+            return {"results": []}
+        local = cached_places(location)
+        if local or suggest:
+            return {"results": local, "location_query": location}
+        return {"results": await search_places(location), "location_query": location}
     except ExternalServiceError as exc:
         raise HTTPException(status_code=502, detail={"error": "geocoder_unavailable", "message": "Location search is temporarily unavailable. Retry search or select an area on the map."}) from exc
 

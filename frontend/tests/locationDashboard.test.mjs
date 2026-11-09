@@ -40,7 +40,7 @@ const current = () => JSON.parse(screen.getByTestId('feature-area').textContent)
 async function select(query) { await userEvent.type(screen.getByRole('combobox'),`${query}{Enter}`); await screen.findAllByRole('option'); await userEvent.keyboard('{ArrowDown}{Enter}'); await screen.findByTestId('feature-area'); }
 afterEach(()=>{cleanup();globalThis.locationSearch=undefined;});
 
-test('Explore is empty even with saved Bangladesh, has map selection and no feature cards or typing requests',async()=>{
+test('Explore starts empty and debounces typing requests',async()=>{
   let calls=0;globalThis.locationSearch=async()=>{calls++;return[];};mount('/search',{saved:bangladesh});
   assert.equal(screen.getByRole('combobox').value,'');assert.equal(screen.queryByText('Selected area'),null);
   assert.equal(screen.queryByRole('link',{name:'Fire Events'}),null);
@@ -48,10 +48,22 @@ test('Explore is empty even with saved Bangladesh, has map selection and no feat
   await userEvent.type(screen.getByRole('combobox'),'Noakhali');assert.equal(calls,0);
 });
 
-test('select Noakhali then all six sections retain the exact boundary; refresh, Back and Forward restore section',async()=>{
+test('typing shows suggestions without submitting and Enter selects the highlighted location',async()=>{
+  const calls=[];globalThis.locationSearch=async q=>{calls.push(q);return[result('Noakhali')];};mount();
+  await userEvent.type(screen.getByRole('combobox'),'fires in Noakhali');
+  assert.equal(calls.length,0);
+  await screen.findAllByRole('option');
+  assert.deepEqual(calls,['fires in Noakhali']);
+  assert.equal(screen.getByRole('combobox').getAttribute('aria-expanded'),'true');
+  await userEvent.keyboard('{ArrowDown}{Enter}');
+  await screen.findByTestId('feature-area');
+});
+
+test('select Noakhali then all four sections retain the exact boundary; refresh, Back and Forward restore section',async()=>{
   globalThis.locationSearch=async()=>[result('Noakhali')];mount();await select('Noakhali');
   assert.equal(current().section,'/location/intelligence');
-  for(const [label,section] of [['Fire Intelligence','intelligence'],['Fire Now','now'],['Fire Memory','memory'],['Fire DNA','dna'],['Burning Calendar','calendar'],['Fire Events','events']]) {
+  assert.deepEqual([...screen.getByRole('navigation',{name:'Location sections'}).querySelectorAll('a')].map(a=>a.getAttribute('aria-label')), ['Fire Intelligence','Fire Now','Burning Calendar','Fire DNA']);
+  for(const [label,section] of [['Fire Intelligence','intelligence'],['Fire Now','now'],['Burning Calendar','calendar'],['Fire DNA','dna']]) {
     await userEvent.click(screen.getByRole('link',{name:label,exact:true}));
     await waitFor(()=>assert.equal(current().section,`/location/${section}`));
     assert.deepEqual(current().area,noakhali);assert.equal(current().locked,true);
@@ -59,7 +71,7 @@ test('select Noakhali then all six sections retain the exact boundary; refresh, 
     assert.equal(new URLSearchParams(window.location.search).get('location_id'),locationId(noakhali));
   }
   await act(async()=>window.history.back());await waitFor(()=>assert.equal(current().section,'/location/calendar'));
-  await act(async()=>window.history.forward());await waitFor(()=>assert.equal(current().section,'/location/events'));
+  await act(async()=>window.history.forward());await waitFor(()=>assert.equal(current().section,'/location/dna'));
   const refreshUrl=window.location.pathname+window.location.search;cleanup();mount(refreshUrl,{saved:bangladesh});
   await screen.findByTestId('feature-area');assert.deepEqual(current().area,noakhali);assert.equal(current().memory,null);
 });
@@ -71,7 +83,7 @@ test('switch to Bangladesh clears old data and rejects a late write from the pre
   assert.equal(screen.getByRole('combobox').value,'');await select('Bangladesh');
   await act(async()=>old.save({old:true,aoi:noakhali}));
   assert.deepEqual(current().area,bangladesh);assert.equal(current().memory,null);
-  for(const label of ['Fire Now','Fire Memory','Fire DNA','Burning Calendar','Fire Events']){
+  for(const label of ['Fire Now','Burning Calendar','Fire DNA']){
     await userEvent.click(screen.getByRole('link',{name:label,exact:true}));await waitFor(()=>assert.deepEqual(current().area,bangladesh));
   }
 });
@@ -91,12 +103,12 @@ test('point results require map confirmation; custom polygon and radius URLs rou
 test('desktop collapse keeps accessible labels; mobile drawer supports section navigation, focus and Escape',async()=>{
   mount(dashboardUrl(noakhali));await screen.findByTestId('feature-area');
   await userEvent.click(screen.getByRole('button',{name:'Collapse sidebar'}));
-  assert.ok(document.querySelector('.sidebar-collapsed'));assert.equal(screen.getByRole('link',{name:'Fire Events'}).title,'Fire Events');
+  assert.ok(document.querySelector('.sidebar-collapsed'));assert.equal(screen.getByRole('link',{name:'Fire Intelligence'}).title,'Fire Intelligence');
   cleanup();mount(dashboardUrl(noakhali),{small:true});await screen.findByTestId('feature-area');
   assert.equal(screen.queryByRole('navigation',{name:'Location sections'}),null);
   const toggle=screen.getByRole('button',{name:'Open location navigation'});await userEvent.click(toggle);
   assert.ok(screen.getByRole('dialog',{name:'Location navigation'}));
-  await userEvent.click(screen.getByRole('link',{name:'Fire Events'}));await waitFor(()=>assert.equal(current().section,'/location/events'));
+  await userEvent.click(screen.getByRole('link',{name:'Fire Now'}));await waitFor(()=>assert.equal(current().section,'/location/now'));
   assert.equal(screen.queryByRole('dialog'),null);await userEvent.click(toggle);await userEvent.keyboard('{Escape}');
   assert.equal(screen.queryByRole('dialog'),null);assert.equal(document.activeElement,toggle);
 });
@@ -125,4 +137,20 @@ test('large boundaries use a refreshable fragment and do not exceed request-line
   assert.ok(parsed.hash.startsWith('#area='));assert.ok(parsed.search.length<500);
   assert.deepEqual(areaFromUrl(parsed.search,parsed.hash),large);
   mount(url,{saved:bangladesh});await screen.findByTestId('feature-area');assert.deepEqual(current().area,large);
+});
+
+test('merged links preserve the location and event query while legacy sections redirect',async()=>{
+  for (const [oldSection, destination] of [['memory','calendar'],['events','intelligence']]) {
+    const canonical = new URL(dashboardUrl(noakhali, oldSection, { event: 'existing-event' }), 'http://localhost');
+    assert.equal(canonical.pathname, `/location/${destination}`);
+    assert.equal(canonical.searchParams.get('event'), 'existing-event');
+    assert.deepEqual(areaFromUrl(canonical.search), noakhali);
+    if (oldSection === 'events') assert.equal(canonical.searchParams.get('view'), 'events');
+    mount(`/location/${oldSection}?${new URLSearchParams({ area: JSON.stringify(noakhali), event: 'existing-event' })}`);
+    await screen.findByTestId('feature-area');
+    assert.equal(current().section, `/location/${destination}`);
+    assert.deepEqual(current().area, noakhali);
+    assert.equal(new URLSearchParams(window.location.search).get('event'), 'existing-event');
+    cleanup();
+  }
 });

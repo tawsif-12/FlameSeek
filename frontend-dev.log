@@ -1,0 +1,28 @@
+
+  VITE v5.4.21  ready in 363 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+3:42:30 AM [vite] hmr update /src/fire-dna-bento.css
+3:44:06 AM [vite] hmr update /src/pages/SearchPage.tsx
+3:44:07 AM [vite] hmr update /src/pages/SearchPage.tsx
+3:44:42 AM [vite] hmr update /src/pages/SearchPage.tsx
+3:45:33 AM [vite] hmr update /src/main.tsx
+3:45:33 AM [vite] hmr invalidate /src/main.tsx Could not Fast Refresh ("true" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+3:45:33 AM [vite] page reload src/main.tsx
+3:47:58 AM [vite] hmr update /src/pages/HomePage.tsx, /src/pages/SearchPage.tsx, /src/components/AOISelector.tsx, /src/pages/FireDnaPage.tsx, /src/fire-dna-utilities.css, /src/pages/FireMemoryPage.tsx, /src/components/CesiumFireGlobe.tsx, /src/pages/AreaIntelligencePage.tsx
+3:47:58 AM [vite] hmr update /src/pages/SearchPage.tsx
+3:48:00 AM [vite] hmr update /src/pages/SearchPage.tsx
+3:50:14 AM [vite] hmr update /src/components/EventPanel.tsx
+3:51:31 AM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+3:53:23 AM [vite] hmr update /src/components/fireNow.css
+3:53:34 AM [vite] hmr update /src/components/fireNow.css
+3:54:56 AM [vite] hmr update /src/components/EventPanel.tsx
+3:56:51 AM [vite] hmr update /src/pages/HomePage.tsx, /src/pages/SearchPage.tsx, /src/components/AOISelector.tsx, /src/pages/FireDnaPage.tsx, /src/fire-dna-utilities.css, /src/pages/FireMemoryPage.tsx, /src/components/CesiumFireGlobe.tsx, /src/pages/AreaIntelligencePage.tsx, /src/components/EventPanel.tsx
+3:56:51 AM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+3:56:52 AM [vite] hmr update /src/pages/HomePage.tsx, /src/pages/SearchPage.tsx, /src/components/AOISelector.tsx, /src/pages/FireDnaPage.tsx, /src/fire-dna-utilities.css, /src/pages/FireMemoryPage.tsx, /src/components/CesiumFireGlobe.tsx, /src/pages/AreaIntelligencePage.tsx, /src/components/EventPanel.tsx
+3:56:52 AM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+3:59:37 AM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+4:00:36 AM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+4:00:38 AM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+4:01:31 AM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+4:01:57 AM [vite] hmr update /src/components/CesiumFireGlobe.tsx

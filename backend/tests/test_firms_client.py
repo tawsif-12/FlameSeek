@@ -16,6 +16,57 @@ def test_viirs_confidence_mapping():
     assert _normalize_confidence("h", "viirs_noaa21") == 90.0
 
 
+def test_recent_download_survives_restart_and_is_available_to_outage_fallback(monkeypatch, tmp_path):
+    import httpx
+    from datetime import datetime, timezone
+    monkeypatch.setattr(http_utils, "CACHE_DIR", tmp_path)
+    monkeypatch.setattr(firms_client, "CACHE_DIR", tmp_path)
+    monkeypatch.setattr(firms_client, "FIRMS_MAP_KEY", "test-key")
+    firms_client._CSV_CACHE.clear()
+
+
+    today = datetime.now(timezone.utc).date().isoformat()
+    csv = f"latitude,longitude,acq_date,acq_time,confidence,frp,satellite,daynight\n23,90,{today},0000,n,12,N,D\n"
+    calls = []
+
+    async def download(*args):
+        calls.append(1)
+        return csv
+
+    monkeypatch.setattr(firms_client, "_get_with_retries", download)
+    async def fetch():
+        async with httpx.AsyncClient() as client:
+            return await firms_client._fetch_recent_csv(client, "viirs_snpp", "world", 1)
+    assert asyncio.run(fetch())[0] == csv
+    firms_client._CSV_CACHE.clear()  # Equivalent to restarting the backend.
+    monkeypatch.setattr(firms_client, "FIRMS_MAP_KEY", "")
+    assert asyncio.run(fetch())[0] == csv
+    assert len(calls) == 1
+    rows = firms_client._cached_actual_hotspots(None, ["viirs_snpp"], 1)
+    assert len(rows) == 1 and rows[0]["lat"] == 23
+    firms_client._CSV_CACHE.clear()
+
+
+def test_failed_platform_does_not_discard_working_platform_observations(monkeypatch):
+    monkeypatch.setattr(firms_client, "_FIRMS_DOWN_UNTIL", 0)
+    monkeypatch.setattr(firms_client, "_cached_actual_hotspots", lambda *args: [])
+    firms_client._CSV_CACHE.clear()
+    csv = "latitude,longitude,acq_date,acq_time,confidence,frp,satellite,daynight\n23,90,2026-11-09,0000,n,12,N,D\n"
+
+    async def fetch(client, sensor, area, days):
+        if sensor == "viirs_noaa20":
+            raise FirmsAPIError(503, "Platform unavailable", "redacted")
+        return csv, "VIIRS_SNPP_NRT"
+
+    monkeypatch.setattr(firms_client, "_fetch_recent_csv", fetch)
+    async def check():
+        rows = await firms_client.fetch_recent_hotspots(None, ["viirs_snpp", "viirs_noaa20"], 1)
+        assert len(rows) == 1
+        assert firms_client.recent_source_status() == "partial_live"
+        assert firms_client.recent_missing_sensors() == ["viirs_noaa20"]
+    asyncio.run(check())
+
+
 def test_modis_confidence_is_numeric():
     assert _normalize_confidence("72", "modis") == 72.0
 

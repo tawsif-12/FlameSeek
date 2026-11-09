@@ -37,11 +37,11 @@ export const PIPELINE_STAGES_DATA: PipelineStage[] = [
   {
     id: "memory",
     n: "01",
-    title: "Fire Memory",
+    title: "Burning Calendar",
     badge: "Consistent Baseline",
     q: "What normally happened in this area across 25 years?",
     how: "Constructs 26-year sensor-harmonized seasonal baselines using MAD (Median Absolute Deviation) and PELT change-point detection to separate genuine fire anomalies from annual agricultural burns.",
-    route: "/fire-memory",
+    route: "/fire-calendar",
     method: "MAD + PELT Change-Point",
     cycle: "2000 – Present (26 Yrs)",
     standard: "Drift-Corrected Baseline",

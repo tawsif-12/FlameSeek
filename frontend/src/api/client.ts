@@ -33,9 +33,15 @@ export function normalizeApiError(error: unknown): string {
 
 const repeatParams = { paramsSerializer: { indexes: null } };
 
-export async function getHarmonizedHotspots(days = 1): Promise<CurrentHotspotsResponse> {
-  const { data } = await api.get<CurrentHotspotsResponse>('/api/harmonized_hotspots', { params: { days, limit: 4000 }, timeout: 360000 });
-  return data;
+const globeRequests = new Map<number, Promise<CurrentHotspotsResponse>>();
+export function getHarmonizedHotspots(days = 1): Promise<CurrentHotspotsResponse> {
+  const pending = globeRequests.get(days);
+  if (pending) return pending;
+  const request = api.get<CurrentHotspotsResponse>('/api/harmonized_hotspots', {
+    params: { days }, timeout: 120000,
+  }).then(({ data }) => data).finally(() => globeRequests.delete(days));
+  globeRequests.set(days, request);
+  return request;
 }
 
 export async function getCurrentHotspots(sensors: SensorName[], days = 1, limit = 10000, date?: string, includeDemo = false): Promise<CurrentHotspotsResponse> {
@@ -75,8 +81,8 @@ export async function getEvent(eventId: string): Promise<FireEvent> {
   return data;
 }
 
-export async function searchPlaces(q: string, signal?: AbortSignal): Promise<PlaceResult[]> {
-  const { data } = await api.get<{ results: PlaceResult[] }>("/api/places/search", { params: { q }, signal });
+export async function searchPlaces(q: string, signal?: AbortSignal, suggest = false): Promise<PlaceResult[]> {
+  const { data } = await api.get<{ results: PlaceResult[] }>("/api/places/search", { params: { q, suggest }, signal });
   return data.results;
 }
 

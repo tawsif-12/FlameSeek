@@ -30,6 +30,8 @@ from source_directory import source_reliability, sources_for_country
 
 
 CACHE_TTL_SECONDS = 60 * 30
+SOURCE_STREAM_TIMEOUT_SECONDS = 45
+PLACE_LOOKUP_TIMEOUT_SECONDS = 20
 _EVIDENCE_CACHE: dict[str, tuple[float, dict[str, Any]]] = {}
 FIRE_TYPES = {"WILDFIRE", "FOREST_FIRE", "UNKNOWN_THERMAL_EVENT", "DEFORESTATION_RELATED_BURNING", "LAND_CLEARING", "AGRICULTURAL_BURN", "CONTROLLED_BURN"}
 NON_WILDFIRE_TYPES = {"FACTORY_FIRE", "BUILDING_FIRE", "INDUSTRIAL_HEAT_SOURCE", "GAS_FLARE", "VOLCANIC_ACTIVITY"}
@@ -522,7 +524,15 @@ async def _gather_streams(
         streams = {"regional": _after(2.5, scripted["regional"]), "official": _after(4.5, scripted["official"]), "news": _after(7.0, scripted["news"])}
     else:
         streams = {"regional": regional_satellite_evidence(subject, place), "official": official_evidence(subject, place), "news": news_evidence(subject, place)}
-    tasks = {name: asyncio.create_task(coro) for name, coro in streams.items()}
+    async def bounded(name, coro):
+        try:
+            return await asyncio.wait_for(coro, SOURCE_STREAM_TIMEOUT_SECONDS)
+        except asyncio.TimeoutError:
+            if name == 'news':
+                return {**EMPTY_NEWS, 'searched': {'gdelt_error': 'Source lookup timed out'}}
+            empty = EMPTY_REGIONAL if name == 'regional' else EMPTY_OFFICIAL
+            return {**empty, 'checks': [{'name': name, 'kind': 'automated', 'status': 'unavailable', 'detail': 'Source lookup timed out; no absence conclusion is possible.'}]}
+    tasks = {name: asyncio.create_task(bounded(name, coro)) for name, coro in streams.items()}
     done: dict[str, dict[str, Any]] = {}
 
     async def publish() -> None:
@@ -548,16 +558,25 @@ async def _gather_streams(
 
 
 async def build_evidence(subject: dict[str, Any], refresh: bool = False, on_partial: PartialCallback | None = None) -> dict[str, Any]:
-    key = f"{subject['kind']}:{subject.get('event_id') or ''}:{subject['lat']:.4f}:{subject['lon']:.4f}:{subject['t_start'].isoformat()}:{subject['t_end'].isoformat()}:{len(subject['detections'])}"
+    key = f"source-backed-v2:{subject['kind']}:{subject.get('event_id') or ''}:{subject['lat']:.4f}:{subject['lon']:.4f}:{subject['t_start'].isoformat()}:{subject['t_end'].isoformat()}:{len(subject['detections'])}"
     cached = _EVIDENCE_CACHE.get(key)
     if cached and not refresh and (time.time() - cached[0]) < CACHE_TTL_SECONDS:
         return {**cached[1], "cache": {"hit": True, "ttl_seconds": CACHE_TTL_SECONDS}}
 
-    overrides = None
-    place = await reverse_geocode(subject["lat"], subject["lon"])
-    regional, official, news = await _gather_streams(subject, place, on_partial)
+    overrides = {}
+    try:
+        place = await asyncio.wait_for(reverse_geocode(subject["lat"], subject["lon"]), PLACE_LOOKUP_TIMEOUT_SECONDS)
+    except asyncio.TimeoutError:
+        place = {'lat': subject['lat'], 'lon': subject['lon'], 'precision': 'coordinates_only',
+                 'land_context': {}, 'lookup_status': 'unavailable'}
+    regional, official, news = await _gather_streams(subject, place, on_partial, overrides=overrides)
     fusion = fuse(subject, place, regional, official, news)
     case = await build_fire_case(subject, place, regional, official, news, fusion, overrides=overrides)
+    fusion.update(final_status=case['answer']['is_real']['label'],
+                  explanation=case['explanation'], system_evidence_score=None,
+                  components=[], fire_type_note=None, why=[],
+                  score_note=case['score_note'], ai_analysis=case['explanation'],
+                  uncertainty=[i['summary'] for i in case['evidence_block'] if i['kind'] == 'note'])
     fusion["satellite_fire_probability"] = case["satellite_fire_probability"]["probability"]
     stages = [
         {"name": "Satellite observation", "status": "completed", "detail": f"{len(subject['detections'])} detection(s)"},
@@ -566,7 +585,7 @@ async def build_evidence(subject: dict[str, Any], refresh: bool = False, on_part
         {"name": "Government source verification", "status": "completed", "detail": f"{len(official['matches'])} matching official report(s)"},
         {"name": "News collection + NLP", "status": "completed", "detail": f"{len(news['articles'])} fire-related report(s)"},
         {"name": "Geographic and temporal matching", "status": "completed"},
-        {"name": "Evidence fusion", "status": "completed", "detail": f"{fusion['system_evidence_score']}/100"},
+        {"name": "Source-backed assessment", "status": "completed", "detail": "Unvalidated scores withheld"},
         {"name": "Fire Case answer", "status": "completed", "detail": f"{case['answer']['is_real']['label']} · {case['answer']['kind']['label']} · {case['answer']['now']['label']}" + (" (provisional)" if case["provisional"] else "")},
     ]
     result = {

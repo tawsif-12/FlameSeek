@@ -41,7 +41,11 @@
 .hz-link-card p { color: var(--oc-text-secondary, #94a3b8); font-size: 13px; margin: 0; }
 .hz-open { color: var(--oc-cyan, #00f2fe); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; }
 
-/* Fire Events page */
+/* Fire events, embedded in the selected location's intelligence overview. */
+.intelligence-events-section { margin-top: 32px; scroll-margin-top: 100px; min-width: 0; }
+.intelligence-events { min-width: 0; }
+.intelligence-events > .space-hero-strip { margin-bottom: 20px; }
+.intelligence-events .hz-map-layout { min-width: 0; }
 .hz-map-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; }
 .hz-map-frame { position: relative; height: min(72vh, 760px); min-height: 460px; border-radius: 22px; overflow: hidden; border: 1px solid var(--sp-border, rgba(148, 197, 255, 0.16)); }
 .hz-map-frame .leaflet-container { height: 100%; width: 100%; background: #05080f; font-family: inherit; }

@@ -1,0 +1,95 @@
+/* Scientific workspace only: no landing-page hero spacing or decorative orbits. */
+#root:has(.fire-intelligence-dashboard) > .pipeline-freshness { display: none; }
+.fire-intelligence-dashboard {
+  --intel-panel: #0c1a2b; --intel-border: #25384b; --intel-muted: #a3b7ca; --intel-text: #e5eff8;
+  --intel-accent: #67d8ef;
+  width: min(1600px, calc(100% - 40px)); max-width: 1600px; margin: 0 auto;
+  padding: calc(var(--app-header-height) + 20px) 0 32px; color: var(--intel-text);
+  min-height: 0; background: none; font-family: Inter, system-ui, sans-serif;
+}
+.location-content > .fire-intelligence-dashboard { width: 100%; max-width: 1600px; padding: 20px 24px 32px; margin-inline: auto; }
+.intelligence-header { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 18px; }
+.intelligence-header h2 { color: var(--intel-text); font: 650 32px/1.2 Inter,system-ui,sans-serif; letter-spacing: -.03em; margin: 5px 0 8px; }
+.intelligence-header p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--intel-muted); }
+.intelligence-header .intelligence-location { color: var(--intel-accent); font-size: 11px; letter-spacing: .04em; }
+.intelligence-updated { display: grid; gap: 5px; flex: 0 0 auto; font-size: 11px; color: var(--intel-muted); text-align: right; }
+.intelligence-updated time { color: var(--intel-text); font-size: 12px; }
+.intelligence-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 16px 24px; padding: 14px 16px; margin-bottom: 16px; border: 1px solid var(--intel-border); border-radius: 12px; background: var(--intel-panel); }
+.intelligence-toolbar > div { display: grid; gap: 4px; min-width: 0; }
+.intelligence-label, .intelligence-toolbar legend { color: var(--intel-muted); font-size: 10px; font-weight: 500; letter-spacing: .05em; }
+.intelligence-toolbar strong { font-size: 12px; font-weight: 550; overflow-wrap: anywhere; }
+.intelligence-toolbar small { font-size: 10px; color: var(--intel-muted); }
+.intelligence-toolbar a { color: var(--intel-accent); font-size: 11px; }
+.intelligence-toolbar fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.intelligence-toolbar legend { margin-bottom: 6px; }
+.intelligence-periods { display: flex; gap: 4px; }
+.intelligence-periods button { min-height: 34px; padding: 6px 12px; color: var(--intel-muted); border: 1px solid var(--intel-border); border-radius: 7px; background: transparent; font: 550 11px Inter,system-ui,sans-serif; cursor: pointer; }
+.intelligence-periods button[aria-pressed=true] { color: var(--intel-accent); border-color: #3b8297; background: #123346; }
+.intelligence-method { margin-left: auto; max-width: 280px; font-size: 11px; color: var(--intel-muted); }
+.intelligence-method summary { color: var(--intel-accent); cursor: pointer; }
+.intelligence-method p { line-height: 1.5; }
+.intelligence-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; margin-bottom: 18px; }
+.intelligence-metric { padding: 16px; border: 1px solid var(--intel-border); border-radius: 12px; background: var(--intel-panel); min-width: 0; }
+.intelligence-metric h3 { margin: 0 0 10px; font-size: 11px; color: var(--intel-muted); font-weight: 550; }
+.intelligence-metric strong { display: block; color: var(--intel-text); font-size: clamp(18px,1.7vw,26px); font-weight: 650; line-height: 1.2; overflow-wrap: anywhere; }
+.intelligence-metric p { font-size: 10px; line-height: 1.5; color: var(--intel-muted); margin: 8px 0 0; }
+.fire-intelligence-dashboard .intelligence-events-section { margin-top: 0; }
+.fire-intelligence-dashboard .space-hero-orbit { display: none; }
+.fire-intelligence-dashboard .intelligence-events > .space-hero-strip { padding: 0; border: 0; margin-bottom: 12px; }
+.fire-intelligence-dashboard .intelligence-events .nasa-page-intro { padding: 0; }
+.fire-intelligence-dashboard .intelligence-events .nasa-page-intro > .eyebrow { display: none; }
+.fire-intelligence-dashboard .intelligence-events .nasa-page-intro > h3 { font: 600 16px/1.3 Inter,system-ui,sans-serif; letter-spacing: 0; color: var(--intel-text); margin: 0 0 4px; }
+.fire-intelligence-dashboard .intelligence-events .lead { font-size: 11px; margin: 0 0 6px; line-height: 1.5; color: var(--intel-muted); }
+.intelligence-snapshot { font-size: 10px; color: var(--intel-muted); }
+.intelligence-snapshot summary { cursor: pointer; }
+.fire-intelligence-dashboard .hz-map-layout { grid-template-columns: minmax(0,1.85fr) minmax(280px,1fr); gap: 18px; align-items: stretch; }
+.fire-intelligence-dashboard .hz-map-frame { height: 440px; min-height: 0; border-radius: 12px; border: 1px solid var(--intel-border); }
+.fire-intelligence-dashboard .hz-side { max-height: 440px; padding: 16px; border-radius: 12px; background: var(--intel-panel); border: 1px solid var(--intel-border); box-shadow: none; overflow-y: auto; font-size: 11px; }
+.intelligence-map-summary { border-bottom: 1px solid var(--intel-border); padding-bottom: 12px; margin-bottom: 4px; }
+.intelligence-map-summary h3 { margin: 0 0 8px; font-size: 14px; color: var(--intel-text); }
+.intelligence-map-summary p { font-size: 12px; line-height: 1.55; margin: 6px 0; }
+.intelligence-map-summary dl { display: grid; grid-template-columns: 1fr; gap: 4px; margin: 10px 0; font-size: 11px; }
+.intelligence-map-summary dt { color: var(--intel-muted); }.intelligence-map-summary dd { margin: 0 0 6px; }
+.fire-intelligence-dashboard .hz-honesty-float { max-width: min(300px, calc(100% - 24px)); font-size: 10px; padding: 7px 10px; bottom: 22px; }
+.fire-intelligence-dashboard .hz-honesty-float summary { font-size: 10px; }
+.fire-intelligence-dashboard .hz-honesty-float strong { margin: 0; font-size: 9px; }
+.intelligence-timeline { margin: 18px 0; padding: 16px; background: var(--intel-panel); border: 1px solid var(--intel-border); border-radius: 12px; }
+.intelligence-timeline header { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.intelligence-timeline h3 { font-size: 15px; margin: 0 0 5px; }.intelligence-timeline header p,.intelligence-timeline header > span { font-size: 11px; color: var(--intel-muted); margin: 0; }
+.intelligence-bars { display: flex; align-items: end; gap: 10px; height: 180px; margin: 16px 0 10px; overflow-x: auto; padding-top: 20px; }
+.intelligence-bars > div { position: relative; flex: 1 0 42px; height: 130px; display: flex; flex-direction: column; justify-content: end; align-items: center; padding-bottom: 20px; }
+.intelligence-bars i { display: block; width: min(32px,70%); flex-shrink: 0; border-radius: 4px 4px 0 0; background: #ef985b; }
+.intelligence-bars span { font-size: 9px; color: var(--intel-muted); margin-bottom: 5px; }.intelligence-bars time { position: absolute; bottom: 0; font-size: 9px; color: var(--intel-muted); }
+.intelligence-note { font-size: 10px !important; color: var(--intel-muted); line-height: 1.6; }
+.intelligence-empty { padding: 28px 16px; border: 1px dashed var(--intel-border); border-radius: 10px; color: var(--intel-muted); font-size: 12px; line-height: 1.6; }
+.intelligence-processing,.intelligence-analysis { margin: 12px 0; padding: 12px 16px; background: var(--intel-panel); border: 1px solid var(--intel-border); border-radius: 10px; font-size: 12px; }
+.fire-intelligence-dashboard summary { cursor: pointer; line-height: 1.5; }
+.intelligence-processing .hz-steps { margin: 12px 0 0; grid-template-columns: repeat(2,minmax(0,1fr)); }
+.intelligence-processing small { overflow-wrap: anywhere; }
+.intelligence-analysis .hz-qgrid { margin-top: 16px; }.intelligence-analysis .glass-card { background: var(--intel-panel); box-shadow: none; }
+.intelligence-alert { border-left: 2px solid #d89b61; padding: 10px 14px; font-size: 12px; }
+.fire-intelligence-dashboard .methods { margin-top: 24px !important; }.fire-intelligence-dashboard .methods h3 { font-size: 14px; }
+.fire-intelligence-dashboard :is(button,a,summary):focus-visible { outline: 2px solid var(--intel-accent); outline-offset: 3px; }
+html[data-theme=day] .fire-intelligence-dashboard { --intel-panel: #fff; --intel-border: #cddce8; --intel-muted: #4f6478; --intel-text: #172d40; --intel-accent: #076c86; }
+html[data-theme=day] .intelligence-periods button[aria-pressed=true] { background: #e2f2f7; }
+html[data-theme=day] .fire-intelligence-dashboard .hz-side :is(b,strong,dd),html[data-theme=day] .fire-intelligence-dashboard .hz-count b { color: var(--intel-text); }
+@media(max-width:1200px) {
+  .intelligence-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .fire-intelligence-dashboard .hz-map-layout { grid-template-columns: minmax(0,1.5fr) minmax(240px,1fr); }
+  .intelligence-header h2 { font-size: 28px; }
+}
+@media(max-width:760px) {
+  .location-content > .fire-intelligence-dashboard { padding: 16px; }
+  .fire-intelligence-dashboard { width: calc(100% - 28px); }
+  .intelligence-header { align-items: start; flex-direction: column; gap: 10px; }.intelligence-header h2 { font-size: 24px; }
+  .intelligence-updated { text-align: left; display: flex; flex-wrap: wrap; gap: 5px 12px; }
+  .intelligence-toolbar { gap: 14px 18px; }.intelligence-method { margin-left: 0; max-width: 100%; }
+  .intelligence-metrics { gap: 10px; }.intelligence-metric { padding: 12px; }
+  .fire-intelligence-dashboard .hz-map-layout { grid-template-columns: minmax(0,1fr); }
+  .fire-intelligence-dashboard .hz-map-frame { height: 320px; }.fire-intelligence-dashboard .hz-side { max-height: 500px; }
+  .intelligence-timeline header { align-items: start; flex-direction: column; }
+  .intelligence-processing .hz-steps { grid-template-columns: minmax(0,1fr); }
+}
+@media(max-width:340px) { .intelligence-metrics { grid-template-columns: minmax(0,1fr); } }
+.fire-intelligence-dashboard .hz-side > label { display: flex; align-items: center; gap: 8px; font: 500 11px/1.5 Inter,system-ui,sans-serif; letter-spacing: 0; text-transform: none; color: var(--intel-text); }
+.fire-intelligence-dashboard .hz-side > label input { flex-shrink: 0; accent-color: #3aa9c8; }

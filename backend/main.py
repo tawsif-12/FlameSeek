@@ -30,10 +30,9 @@ async def _warm_event_set() -> None:
 
 async def _warm_current_hotspots() -> None:
     """Prime the FIRMS CSV cache for the default globe request so the first UI load is instant."""
-    from firms_client import fetch_recent_hotspots
-    from config import DEFAULT_SENSORS
+    from routers.live_harmonized import warm_harmonized
     try:
-        await fetch_recent_hotspots(bbox=None, sensors=DEFAULT_SENSORS, days=1)
+        await warm_harmonized(1)
         print("current hotspots warmed")
     except Exception as exc:  # noqa: BLE001 - warm-up is best effort
         print(f"current hotspots warm-up skipped: {exc}")

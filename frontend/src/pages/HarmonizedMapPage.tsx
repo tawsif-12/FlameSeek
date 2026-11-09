@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import type { HotspotRecord } from '../types/api';
 import { Link } from "react-router-dom";
 import { CircleMarker, GeoJSON, MapContainer, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet";
 import L, { type LatLngBoundsExpression } from "leaflet";
@@ -63,7 +64,8 @@ function Frame({ box, focus }: { box: [number, number, number, number] | null; f
   return null;
 }
 
-export default function HarmonizedMapPage() {
+export default function HarmonizedMapPage({ embedded = false, recentDetections = [], summary }: { embedded?: boolean; recentDetections?: HotspotRecord[]; summary?: ReactNode }) {
+  const Container = embedded ? 'section' : 'main';
   const { t, lang, fmt } = useLanguage();
   const { aoi } = useAppContext();
   const { data: site } = useSiteData();
@@ -78,6 +80,7 @@ export default function HarmonizedMapPage() {
   const [zoom, setZoom] = useState(6);
   const [viewBox, setViewBox] = useState<Box | null>(null);
   const [searchView, setSearchView] = useState(false);
+  const [showRecent, setShowRecent] = useState(true);
   const req = useRef(0);
   const detailRequest = useRef<AbortController | null>(null);
   const small = zoom < TRUE_SHAPE_ZOOM;
@@ -156,11 +159,11 @@ export default function HarmonizedMapPage() {
     return local.map((w, i) => ({ w, range: ranges[i] ?? "", c: INTENSITY_HEX[i] }));
   }, [site, lang, thresholds]);
 
-  const tr = selected?.translation?.[lang] as Record<string, string | string[]> | undefined;
+  const tr = (selected?.translation?.[lang] ?? selected?.translation?.en ?? {}) as Record<string, string | string[]>;
 
   if (!aoi || !box) {
     return (
-      <main className="content-page space-shell space-page">
+      <Container className={embedded ? 'intelligence-events' : 'content-page space-shell space-page'}>
         <div className="space-hero-strip">
           <div className="space-hero-orbit" aria-hidden="true"><span /><span /></div>
           <header className="nasa-page-intro">
@@ -170,22 +173,22 @@ export default function HarmonizedMapPage() {
             <Link to="/search" className="oc-btn-primary hz-cta">{t("go_search")} →</Link>
           </header>
         </div>
-      </main>
+      </Container>
     );
   }
 
   return (
-    <main className="content-page space-shell space-page">
+    <Container className={embedded ? 'intelligence-events' : 'content-page space-shell space-page'} aria-label="Fire events">
       <div className="space-hero-strip">
-        <div className="space-hero-orbit" aria-hidden="true"><span /><span /></div>
+        {!embedded && <div className="space-hero-orbit" aria-hidden="true"><span /><span /></div>}
         <header className="nasa-page-intro">
           <p className="eyebrow"><span className="dot" /> {t("fire_events_in")}</p>
-          <h2>{describeAoi(aoi)}</h2>
+          {embedded ? <h3>Fire events in {describeAoi(aoi)}</h3> : <h2>{describeAoi(aoi)}</h2>}
           <p className="lead">{t("map_lead")}</p>
-          <div className="hz-hero-actions">
+          {!embedded && <div className="hz-hero-actions">
             <Link to="/search" className="hz-link-btn">{t("change_place")}</Link>
-          </div>
-          <HarmonizedProvenance window={win} />
+          </div>}
+          <HarmonizedProvenance window={win} compact={embedded} />
         </header>
       </div>
 
@@ -198,6 +201,7 @@ export default function HarmonizedMapPage() {
               url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}" />
             <Frame box={box} focus={selected?.footprint ?? null} />
             <ZoomWatcher onZoom={setZoom} onView={onView} />
+            {showRecent && recentDetections.slice(0, 4000).map((point, index) => <CircleMarker key={`${point.sensor}-${point.acq_datetime}-${index}`} center={[point.lat, point.lon]} radius={4} pathOptions={{ color: '#ffb169', fillColor: '#f97316', fillOpacity: .8, weight: 1 }}><Tooltip>{point.satellite} · {point.acq_datetime} · {point.frp != null ? `${point.frp} MW` : 'FRP unavailable'} · raw detection</Tooltip></CircleMarker>)}
             {placeOutline && (
               <GeoJSON key={`aoi-${describeAoi(aoi)}`} data={placeOutline} interactive={false}
                 style={{ color: "#6ad7ff", weight: 2, dashArray: "6 5", fill: false }} />
@@ -222,13 +226,15 @@ export default function HarmonizedMapPage() {
               }}
             />}
           </MapContainer>
-          <div className="hz-honesty hz-honesty-float" role="note">
-            <strong>{t("honesty_title")}</strong>
+          <details className="hz-honesty hz-honesty-float">
+            <summary>{embedded ? 'Dated snapshot · gaps are unknown' : t("honesty_title")}</summary>
             <ul><li>{t("honesty_1")}</li><li>{t("honesty_2")}</li></ul>
-          </div>
+          </details>
         </div>
 
         <aside className="glass-card hz-side">
+          {summary}
+          {embedded && <label><input type="checkbox" checked={showRecent} onChange={event => setShowRecent(event.target.checked)} /> Latest MODIS / VIIRS detections{recentDetections.length > 4000 ? ' (first 4,000 displayed)' : ''}</label>}
           <label><input type="checkbox" checked={searchView} onChange={(e) => setSearchView(e.target.checked)} /> Search current map view</label>
           {searchView && <p className="hz-src">Results and totals apply to the visible part of the selected place.</p>}
           {zoom < 8 && <p className="hz-src">Nearby events are grouped. Zoom in to see individual footprints.</p>}
@@ -300,6 +306,6 @@ export default function HarmonizedMapPage() {
           </div>
         </aside>
       </div>
-    </main>
+    </Container>
   );
 }

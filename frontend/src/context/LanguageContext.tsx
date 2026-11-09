@@ -25,7 +25,7 @@ const STRINGS = {
     open: "Open",
     map_title: "Harmonized Fire Events",
     map_lead: "Every fire event the satellites recorded in this place during the window, drawn as its true burned-ground outline. Pick one from the list to zoom to it.",
-    pick_place: "Fire events are shown for a place. Search for a country, district or forest first, then choose “Fire Events”.",
+    pick_place: "Search for a country, district or forest, then browse its event list inside Fire Intelligence.",
     go_search: "Search a place", fire_events_in: "Fire events in", change_place: "← Change place",
     events_found: "fire events in this place", window_basis: "all events recorded in the window", first: "showing first",
     back_to_list: "← Back to list", event_list: "Events (strongest first)", no_events: "No fire events were recorded in this place during the window. That does not mean there was no fire (clouds and gaps hide fires).",

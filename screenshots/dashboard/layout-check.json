@@ -1,0 +1,221 @@
+{
+  "results": [
+    {
+      "name": "desktop",
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 60
+      },
+      "title": {
+        "x": 305,
+        "y": 81,
+        "width": 1095,
+        "height": 87.390625
+      },
+      "sidebar": {
+        "x": 0,
+        "y": 60,
+        "width": 280,
+        "height": 940
+      },
+      "map": {
+        "x": 305,
+        "y": 505.0625,
+        "width": 699.09375,
+        "height": 440
+      },
+      "titleFont": "32px",
+      "nav": [
+        "Fire Intelligence",
+        "Fire Now",
+        "Burning Calendar",
+        "Fire DNA"
+      ],
+      "decorations": 0,
+      "metrics": "Fire events\n21,638\n\nReconstructed in the available historical record\n\nRecent detections\n5\n\nMODIS & VIIRS · last 24 hours · raw counts\n\nObserved fire activity\n11,205.5\n\nHarmonized detections · available history\n\nSatellite coverage\nUnverified\n\n1,292 days have detections; this does not establish full coverage",
+      "bodyError": false
+    },
+    {
+      "name": "tablet",
+      "viewport": 1024,
+      "documentWidth": 1024,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 60
+      },
+      "title": {
+        "x": 305,
+        "y": 81,
+        "width": 679,
+        "height": 82.59375
+      },
+      "sidebar": {
+        "x": 0,
+        "y": 60,
+        "width": 280,
+        "height": 840
+      },
+      "map": {
+        "x": 305,
+        "y": 646.078125,
+        "width": 396.59375,
+        "height": 440
+      },
+      "titleFont": "28px",
+      "nav": [
+        "Fire Intelligence",
+        "Fire Now",
+        "Burning Calendar",
+        "Fire DNA"
+      ],
+      "decorations": 0,
+      "metrics": "Fire events\n21,638\n\nReconstructed in the available historical record\n\nRecent detections\n5\n\nMODIS & VIIRS · last 24 hours · raw counts\n\nObserved fire activity\n11,205.5\n\nHarmonized detections · available history\n\nSatellite coverage\nUnverified\n\n1,292 days have detections; this does not establish full coverage",
+      "bodyError": false
+    },
+    {
+      "name": "mobile",
+      "viewport": 390,
+      "documentWidth": 390,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 72
+      },
+      "title": {
+        "x": 17,
+        "y": 154,
+        "width": 341,
+        "height": 103.796875
+      },
+      "sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "map": {
+        "x": 17,
+        "y": 827.28125,
+        "width": 341,
+        "height": 320
+      },
+      "titleFont": "24px",
+      "nav": [
+        "Fire Intelligence",
+        "Fire Now",
+        "Burning Calendar",
+        "Fire DNA"
+      ],
+      "decorations": 0,
+      "metrics": "Fire events\n21,638\n\nReconstructed in the available historical record\n\nRecent detections\n5\n\nMODIS & VIIRS · last 24 hours · raw counts\n\nObserved fire activity\n11,205.5\n\nHarmonized detections · available history\n\nSatellite coverage\nUnverified\n\n1,292 days have detections; this does not establish full coverage",
+      "bodyError": false
+    },
+    {
+      "name": "light",
+      "viewport": 1440,
+      "documentWidth": 1440,
+      "header": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 60
+      },
+      "title": {
+        "x": 305,
+        "y": 81,
+        "width": 1095,
+        "height": 87.390625
+      },
+      "sidebar": {
+        "x": 0,
+        "y": 60,
+        "width": 280,
+        "height": 940
+      },
+      "map": {
+        "x": 305,
+        "y": 505.0625,
+        "width": 699.09375,
+        "height": 440
+      },
+      "titleFont": "32px",
+      "nav": [
+        "Fire Intelligence",
+        "Fire Now",
+        "Burning Calendar",
+        "Fire DNA"
+      ],
+      "decorations": 0,
+      "metrics": "Fire events\n21,638\n\nReconstructed in the available historical record\n\nRecent detections\n5\n\nMODIS & VIIRS · last 24 hours · raw counts\n\nObserved fire activity\n11,205.5\n\nHarmonized detections · available history\n\nSatellite coverage\nUnverified\n\n1,292 days have detections; this does not establish full coverage",
+      "bodyError": false
+    },
+    {
+      "expandedSidebar": {
+        "width": 280,
+        "background": "rgb(255, 255, 255)",
+        "rowHeight": 46,
+        "gap": "6px",
+        "padding": "16px",
+        "activeBackground": "rgb(234, 248, 252)",
+        "activeColor": "rgb(14, 107, 131)",
+        "iconSizes": [
+          "20",
+          "20",
+          "20",
+          "20"
+        ],
+        "tooltips": [
+          "Fire Intelligence",
+          "Fire Now",
+          "Burning Calendar",
+          "Fire DNA"
+        ],
+        "mainX": 280,
+        "visibleLabels": 4,
+        "identityVisible": true,
+        "footerVisible": true
+      }
+    },
+    {
+      "collapsedSidebar": {
+        "width": 68,
+        "background": "rgb(255, 255, 255)",
+        "rowHeight": 46,
+        "gap": "6px",
+        "padding": "10px",
+        "activeBackground": "rgb(234, 248, 252)",
+        "activeColor": "rgb(14, 107, 131)",
+        "iconSizes": [
+          "20",
+          "20",
+          "20",
+          "20"
+        ],
+        "tooltips": [
+          "Fire Intelligence",
+          "Fire Now",
+          "Burning Calendar",
+          "Fire DNA"
+        ],
+        "mainX": 68,
+        "visibleLabels": 0,
+        "identityVisible": false,
+        "footerVisible": false
+      }
+    },
+    {
+      "mobileDrawer": true
+    },
+    {
+      "drawerClosed": true
+    }
+  ],
+  "errors": []
+}

@@ -2,8 +2,8 @@
 
 Uses CelesTrak two-line elements and skyfield to find each satellite's closest
 approach to a point, then checks whether the point fell inside the instrument
-swath. If CelesTrak is unreachable it falls back to nominal sun-synchronous
-overpass times, which say when a pass is likely but not whether it covers the point.
+swath. If orbital elements cannot be retrieved, predictions are withheld;
+nominal sun-synchronous schedules are never substituted for observations.
 """
 
 from __future__ import annotations
@@ -128,7 +128,6 @@ async def predict_passes(lat: float, lon: float, t0: datetime, t1: datetime, on:
             errors.append(f"orbit propagation failed: {exc.__class__.__name__}")
             missing = witnesses
     if missing:
-        passes += _nominal_passes(missing, lat, lon, t0, t1)
-        errors.append("No current orbital elements for: " + ", ".join(WITNESS_LABEL[w] for w in missing) + " (nominal overpass times used).")
+        errors.append("No current orbital elements for: " + ", ".join(WITNESS_LABEL[w] for w in missing) + " (predictions withheld; no nominal schedule substituted).")
     passes.sort(key=lambda p: p["time"])
-    return {"passes": passes, "witnesses": witnesses, "method": "skyfield + current TLEs (CelesTrak)" if tles and not missing else "partial: nominal times for some satellites" if tles else "nominal orbit", "errors": errors}
+    return {"passes": passes, "witnesses": witnesses, "method": "orbital predictions (not observations)" if tles and not missing else "partial orbital predictions" if tles else "orbital predictions unavailable", "errors": errors}

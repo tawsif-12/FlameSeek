@@ -176,7 +176,7 @@ export type CaseKind = "agricultural_burn" | "wildfire" | "controlled_burn" | "i
 export interface CaseMarker {
   kind: CaseKind;
   reality: string;
-  state: "Active" | "Growing" | "Weakening" | "Ended";
+  state: "Active" | "Growing" | "Weakening" | "Ended" | "Unknown";
   provisional: boolean;
   evidence_checked: boolean;
   updated_at?: string;
@@ -274,7 +274,7 @@ export interface EvidenceResult {
     final_status: string;
     status_note?: string | null;
     observation_sufficiency?: number | null;
-    system_evidence_score: number;
+    system_evidence_score: number | null;
     score_note: string;
     components: Array<{ signal: string; points: number; max: number; notes: string[] }>;
     fire_type_note: string | null;
@@ -316,6 +316,8 @@ export interface CaseEvidenceItem {
 }
 
 export interface FireCase {
+  data_policy?: string;
+  checked_at?: string;
   case_id: string;
   opened_at: string;
   closes_at: string;
@@ -329,7 +331,7 @@ export interface FireCase {
   };
   category_scores: Array<{ category: CaseKind; label: string; score: number; raw_score: number }>;
   decision_rules: { min_top_score: number; min_lead: number; top: CaseKind; top_score: number; lead: number; passed: boolean };
-  satellite_fire_probability: { probability: number; prior: number; passes_used: number; method: string };
+  satellite_fire_probability: { probability: number | null; prior: number | null; passes_used: number; method: string };
   passes: CasePass[];
   next_passes: Array<{ label: string; time: string; swath_position: string }>;
   overpass_method: string;
@@ -564,6 +566,17 @@ export interface FireMemoryResult {
   critical_periods: Array<{ start_date: string; end_date: string; duration_days: number; max_anomaly: number; avg_hotspot_count: number; total_hotspots: number }>;
   calibration: { status: string; viirs_to_modis_factor: number | null; factor_iqr: [number, number] | null; pairs: number; note: string };
   witness: WitnessResult;
+  observed_record?: {
+    version: number;
+    source: string;
+    platforms: Array<{ id: string; label: string; detections: number; detection_days: number; first_detection: string; last_detection: string }>;
+    days: { both_families_detected: number; one_family_detected: number; no_detections_in_retrieved_records: number };
+    cloud_proxy_days: number;
+    total_days: number;
+    failed_download_chunks: number;
+    coverage_status: string;
+    coverage_note: string;
+  };
   observation_quality: { counts: Record<string, number>; labels: Record<string, string>; mean_sufficiency_score: number; pct_days_unobservable: number; method: string };
   fire_dna: FireDnaProfile;
   events: { count: number; multi_detection: number };

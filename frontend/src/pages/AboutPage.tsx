@@ -1,8 +1,7 @@
+import { Link } from "react-router-dom";
 import HarmonizedProvenance from "../components/HarmonizedProvenance";
 import "../harmonized.css";
 
-/* Placeholder content — to be edited by the team. */
-const TEAM = ["[Name 1]", "[Name 2]", "[Name 3]"];
 
 export default function AboutPage() {
   return (
@@ -12,30 +11,18 @@ export default function AboutPage() {
         <header className="nasa-page-intro">
           <p className="eyebrow"><span className="dot" /> About</p>
           <h2>About FlameSeek</h2>
-          <p className="lead">[Placeholder — replace with your mission statement.] FlameSeek harmonizes satellite fire detections from several sensors so fire activity can be compared across places and years.</p>
+          <p className="lead">FlameSeek harmonizes satellite fire detections from several sensors so fire activity can be compared across places and years.</p>
           <HarmonizedProvenance />
         </header>
       </div>
-      <section className="methods">
-        <h3>Team</h3>
-        <div className="method-grid">
-          {TEAM.map((name, i) => (
-            <article key={name} className="method-card glass-card">
-              <span className="method-index" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
-              <h4>{name}</h4>
-              <p>[Role] · [Affiliation]</p>
-              <p>[One or two sentences about this person's part of the project.]</p>
-            </article>
-          ))}
-        </div>
-      </section>
       <section className="hz-block">
-        <h3>Contact</h3>
-        <p className="hz-lead">[Email or contact form link.]</p>
+        <h3>Understanding the evidence</h3>
+        <p className="hz-lead">A satellite hotspot is an observation, not automatically a confirmed wildfire. Missing observations do not prove that no fire exists. Estimates and forecasts depend on available coverage and supporting evidence.</p>
+        <p className="hz-lead"><Link to="/search">Choose a location</Link> to explore Fire Intelligence, Fire Now, the Burning Calendar and Fire DNA. Read the <Link to="/methodology">methodology</Link> for processing steps and limitations.</p>
       </section>
       <section className="hz-block">
         <h3>Acknowledgements</h3>
-        <p className="hz-lead">[Funders, mentors and data providers — see the data sources on the Methodology page.]</p>
+        <p className="hz-lead">FlameSeek uses NASA FIRMS MODIS and VIIRS observations alongside regional satellite, agency and other evidence sources where available. See <Link to="/data-sources">Sources &amp; Methods</Link> for original provider links.</p>
       </section>
     </main>
   );

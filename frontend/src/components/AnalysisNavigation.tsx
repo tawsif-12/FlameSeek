@@ -2,9 +2,10 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAppContext } from '../context/AppContext';
 
 const ANALYSIS_PAGES = [
-  { to: "/fire-memory", label: "Fire Memory" },
-  { to: "/fire-dna", label: "Fire DNA" },
+  { to: "/area", label: "Fire Intelligence" },
+  { to: "/fire-map", label: "Fire Now" },
   { to: "/fire-calendar", label: "Burning Calendar" },
+  { to: "/fire-dna", label: "Fire DNA" },
 ] as const;
 
 export default function AnalysisNavigation() {

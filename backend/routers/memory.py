@@ -24,6 +24,7 @@ from harmonize import build_harmonized_series, filter_low_confidence, summarize_
 from http_utils import ExternalServiceError, disk_read, disk_write
 from jobs import Job, start_job
 from quality import summarize_observations
+from observed_record import summarize_records
 from schemas import FireMemoryRequest
 from seasonal import calendar_grid, compare_current, monthly_series, seasonal_profile
 from witness import continuity_test
@@ -32,7 +33,7 @@ from area_intel import area_climatology, hotspot_recurrence
 
 router = APIRouter()
 # Bump when the analysis changes so saved results are recomputed.
-RESULT_CACHE_VERSION = 3  # 3: adds hotspot_map and area_risk (area fire intelligence)
+RESULT_CACHE_VERSION = 4  # Adds source-backed observation summaries.
 RESULT_CACHE_TTL_SECONDS = 7 * 86400
 
 
@@ -202,6 +203,7 @@ async def run_fire_memory(job: Job, payload: FireMemoryRequest) -> dict[str, Any
         "calibration": calibration,
         "witness": witness,
         "observation_quality": observation_quality,
+        "observed_record": summarize_records(filter_low_confidence(rows), daily, report["failed_chunks"]),
         "fire_dna": build_fire_dna_profile(monthly, profile, period, observation_quality),
         "events": {"count": len(events), "multi_detection": sum(1 for e in events if e["observation_count"] > 1)},
         "hotspot_map": hotspot_recurrence(rows, aoi.bbox),

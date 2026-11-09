@@ -62,8 +62,21 @@ interface Props {
   onCaseUpdate: (eventId: string, marker: CaseMarker) => void;
 }
 
-export default function EventPanel({ event, detection, onClose, onForecast, onExposure, onCaseUpdate }: Props) {
-  const [tab, setTab] = useState<Tab>("Case");
+export default function EventPanel(props: Omit<Props, "event"> & { event: FireEvent | null; selectionStatus?: string | null }) {
+  const [tab, setTab] = useState<Tab>(props.detection ? "Satellite" : "Case");
+  const selectionKey = props.detection ?? props.event?.event_id;
+  useEffect(() => { setTab(props.detection ? "Satellite" : "Case"); }, [selectionKey]);
+  if (props.event) return <EventAnalysisPanel key={props.event.event_id} {...props} event={props.event} tab={tab} setTab={setTab} />;
+  return <aside className="event-panel unified-fire-panel" aria-label="Fire event details">
+    <header className="event-panel-head"><div><p className="eyebrow">Fire seen by satellite</p><h3>Satellite sighting</h3></div><button type="button" aria-label="Close event details" onClick={props.onClose}>×</button></header>
+    <nav className="event-tabs" role="tablist" aria-label="Fire intelligence sections"><button type="button" role="tab" aria-selected="true" aria-controls="observation-sighting" id="observation-sighting-tab" className="active">Sighting</button></nav>
+    <div id="observation-sighting" className="event-panel-body" role="tabpanel" aria-labelledby="observation-sighting-tab">
+      {props.detection ? <SatelliteTab det={props.detection} event={null} /> : <p role="status">{props.selectionStatus || "No satellite observation is available."}</p>}
+    </div>
+  </aside>;
+}
+
+function EventAnalysisPanel({ event, detection, onClose, onForecast, onExposure, onCaseUpdate, tab, setTab }: Props & { tab: Tab; setTab: (tab: Tab) => void }) {
   const [evidence, setEvidence] = useState<EvidenceResult | null>(null);
   const [evidenceJob, setEvidenceJob] = useState<Job<EvidenceResult> | null>(null);
   const [evidenceError, setEvidenceError] = useState<string | null>(null);
@@ -77,6 +90,7 @@ export default function EventPanel({ event, detection, onClose, onForecast, onEx
     setEvidenceError(null);
     try {
       const onProgress = (job: Job<EvidenceResult>) => {
+        if (signal?.cancelled) return;
         setEvidenceJob(job);
         // Each finished evidence stream re-answers the case: show it and update the map marker right away.
         const partial = job.partial?.fire_case;
@@ -129,7 +143,7 @@ export default function EventPanel({ event, detection, onClose, onForecast, onEx
   }, [event.event_id]);
 
   // An open case is provisional: re-gather evidence periodically so the answer and map marker follow new passes.
-  const caseOpen = evidence?.fire_case.status === "open";
+  const caseOpen = Boolean(evidence?.fire_case.provisional);
   useEffect(() => {
     if (!caseOpen) return;
     const signal = { cancelled: false };
@@ -153,10 +167,10 @@ export default function EventPanel({ event, detection, onClose, onForecast, onEx
   const det = detection ?? event.detections[event.detections.length - 1];
 
   return (
-    <aside className="event-panel" aria-label="Fire event details">
+    <aside className="event-panel unified-fire-panel" aria-label="Fire event details">
       <header className="event-panel-head">
         <div>
-          <p className="eyebrow">Fire seen by satellites</p>
+          <p className="eyebrow">Fire seen by satellite</p>
           {event.detections.find((d) => d.place_hint)?.place_hint && <p className="event-place">{event.detections.find((d) => d.place_hint)?.place_hint}</p>}
           <h3>
             <span className="state-dot" style={{ background: BEHAVIOUR_COLORS[event.behaviour.state] }} />
@@ -171,18 +185,18 @@ export default function EventPanel({ event, detection, onClose, onForecast, onEx
           ) : (
             <p className="validation-chip">{evidenceJob ? "Checking if this is a real fire…" : "Not checked yet"}</p>
           )}
-          {status && <p className={`validation-chip ${STATUS_TONE[status] ?? ""}`}>Evidence strength {evidence?.inference.system_evidence_score} out of 100</p>}
+          <p className="validation-chip">{fireCase ? "Source-backed observations and linked reports" : "Source verification pending"}</p>
         </div>
         <button type="button" aria-label="Close event details" onClick={onClose}>X</button>
       </header>
-      <nav className="event-tabs" role="tablist">
+      <nav className="event-tabs" role="tablist" aria-label="Fire intelligence sections">
         {TABS.map((t) => (
           <button key={t} role="tab" aria-selected={tab === t} className={tab === t ? "active" : ""} type="button" onClick={() => setTab(t)}>{TAB_LABEL[t]}</button>
         ))}
       </nav>
-      <div className="event-panel-body">
+      <div className="event-panel-body" role="tabpanel" aria-label={TAB_LABEL[tab]}>
         {tab === "Case" && <CaseTab fireCase={fireCase ?? null} updating={Boolean(partialCase)} job={evidenceJob} error={evidenceError} onRefresh={() => loadEvidence(true)} />}
-        {tab === "Satellite" && <SatelliteTab det={det} event={event} />}
+        {tab === "Satellite" && (det ? <SatelliteTab det={det} event={event} /> : <p>No satellite observation metadata is available for this event.</p>)}
         {tab === "Event" && <EventTab event={event} />}
         {tab === "Quality" && <QualityTab event={event} evidence={evidence} />}
         {tab === "Evidence" && <EvidenceTab evidence={evidence} job={evidenceJob} error={evidenceError} onRefresh={() => loadEvidence(true)} />}
@@ -283,19 +297,19 @@ const STREAM_STATE: Record<string, string> = { pending: "checking…", done: "do
 function StreamStrip({ fireCase }: { fireCase: FireCase }) {
   const st = fireCase.streams;
   const items = [
-    { key: "A", title: "Later satellite passes", state: st.A.status, detail: `${st.A.passes_observed} checks so far · ${st.A.passes_expected} more expected` },
+    { key: "A", title: "Satellite observations", state: st.A.status, detail: `${st.A.passes_observed} recorded detection passes · ${st.A.passes_expected} predicted passes` },
     { key: "B", title: "All-day weather satellite", state: st.B.status, detail: STREAM_STATE[st.B.status] ?? st.B.status },
-    { key: "C", title: "News and officials", state: st.C.status, detail: st.C.status === "pending" ? "searching…" : st.C.reports ? `${st.C.reports} matching report${st.C.reports > 1 ? "s" : ""}` : "no report found" },
+    { key: "C", title: "News and officials", state: st.C.status, detail: st.C.status === "pending" ? "searching…" : st.C.reports ? `${st.C.reports} linked report${st.C.reports > 1 ? "s" : ""}${st.C.status === "partial" ? " · search incomplete" : ""}` : st.C.status === "done" ? "no match in connected sources" : "verification incomplete" },
   ];
   const opened = new Date(fireCase.opened_at).getTime();
   const closes = new Date(fireCase.closes_at).getTime();
   const elapsed = Math.min(1, Math.max(0, (Date.now() - opened) / (closes - opened)));
   return (
     <div className="stream-strip">
-      <div className="case-clock" title="We keep checking until every satellite has passed, or for 24 hours">
+      <div className="case-clock" title="A review window is not a deadline for scientific confirmation">
         <span>First seen {fmtWhen(fireCase.opened_at)}</span>
         <div><i style={{ width: `${(fireCase.status === "closed" ? 1 : elapsed) * 100}%` }} /></div>
-        <span>{fireCase.status === "closed" ? "Checking finished" : `Final answer by ${fmtWhen(fireCase.closes_at)}`}</span>
+        <span>{fireCase.status === "closed" ? "Initial review window elapsed; status may remain unknown" : `Initial review through ${fmtWhen(fireCase.closes_at)}`}</span>
       </div>
       <ul>
         {items.map((i, n) => (
@@ -323,7 +337,7 @@ function CaseTab({ fireCase, updating, job, error, onRefresh }: { fireCase: Fire
   }
   const a = fireCase.answer;
   const rules = fireCase.decision_rules;
-  const looked = fireCase.passes.filter((p) => p.outcome !== "expected" && p.outcome !== "not_covered");
+  const looked = fireCase.passes.filter((p) => Boolean(p.detections));
   const tooFar = fireCase.passes.filter((p) => p.outcome === "not_covered").length;
   const reasons = fireCase.evidence_block
     .map((i) => ({ item: i, weight: a.kind.decided ? i.votes[rules.top] ?? 0 : Math.max(0, ...Object.values(i.votes)) }))
@@ -340,8 +354,8 @@ function CaseTab({ fireCase, updating, job, error, onRefresh }: { fireCase: Fire
           </div>
           <button type="button" onClick={onRefresh} disabled={Boolean(job)}>{job ? "..." : "Check again"}</button>
         </div>
-        <p className="plain-lead">{caseHeadline(fireCase)}</p>
-        {fireCase.provisional && <p className="note">This answer may still change as more satellites fly over{fireCase.pending_witnesses.length ? ` (still waiting for ${fireCase.pending_witnesses.join(", ")})` : ""}.</p>}
+        <p className="plain-lead">{fireCase.answer.is_real.basis}</p>
+        <p className="note">Checked {fmtWhen(fireCase.checked_at)}. New source observations may change this assessment. Missing data does not establish absence of fire.</p>
         {updating && job && <p className="case-updating"><span className="pulse-dot" />Updating as new information arrives. {job.message}…</p>}
         <StreamStrip fireCase={fireCase} />
         <ol className="case-answer">
@@ -359,7 +373,7 @@ function CaseTab({ fireCase, updating, job, error, onRefresh }: { fireCase: Fire
             <ul className="reason-list">{reasons.map((r, i) => <li key={i}>{plain(r.item.summary)}</li>)}</ul>
           </>
         )}
-        <h4>How the evidence splits between possible explanations</h4>
+        {fireCase.category_scores.length > 0 && <><h4>Legacy heuristic category scores (not verified probabilities)</h4>
         <ul className="category-bars">
           {fireCase.category_scores.map((c) => (
             <li key={c.category} className={c.category === rules.top && rules.passed ? "top" : ""}>
@@ -371,11 +385,12 @@ function CaseTab({ fireCase, updating, job, error, onRefresh }: { fireCase: Fire
         </ul>
         <p className="note">
           We only name a type when one explanation has more than half of the evidence and is clearly ahead of the next one. {rules.passed ? "Here it does." : "Here none does, so we say the type is uncertain."} These are evidence scores, not exact probabilities.
-        </p>
+        </p></>}
+        <p className="note">{fireCase.score_note}</p>
       </section>
       <section className="tag-obs">
         <h4>Did other satellites see it afterwards?</h4>
-        <p className="note">Five fire-watching satellites fly over a few times a day. Each time one passes, we check this exact spot.</p>
+        <p className="note">These are recorded detections linked to this event. Missing hotspots do not establish that a satellite had a clear view or that a fire ended.</p>
         <ul className="pass-list">
           {looked.map((p, i) => (
             <li key={`${p.witness}-${p.time}-${i}`} className={`pass ${OUTCOME_TONE[p.outcome] ?? ""}`}>
@@ -393,15 +408,15 @@ function CaseTab({ fireCase, updating, job, error, onRefresh }: { fireCase: Fire
             </li>
           ))}
         </ul>
-        {tooFar > 0 && <p className="note">{tooFar} other pass{tooFar > 1 ? "es" : ""} flew too far to the side to see this spot.</p>}
-        {fireCase.next_passes.length > 0 && <p className="note">Next satellites due: {fireCase.next_passes.map((p) => `${p.label.replace(" MODIS", "").replace(" VIIRS", "")} around ${fmtWhen(p.time)}`).join(" · ")}</p>}
+        {tooFar > 0 && <p className="note">Orbital calculations predict {tooFar} passes outside the instrument swath; these are not recorded coverage checks.</p>}
+        {fireCase.next_passes.length > 0 && <p className="note">Predicted passes (estimated, not observations): {fireCase.next_passes.map((p) => `${p.label.replace(" MODIS", "").replace(" VIIRS", "")} around ${fmtWhen(p.time)}`).join(" · ")}</p>}
       </section>
       <section className="tag-ext">
         <h4>All-day weather satellite</h4>
-        <p className="note">Weather satellites stay over one side of the Earth and take a picture every 10 minutes. They are blurrier, but they show when a fire started and how long it burned.</p>
+        <p className="note">Regional satellite products may provide additional heat detections. First and last recorded detections are observation bounds, not verified ignition or extinction times.</p>
         <p>
           {fireCase.geostationary.status === "seen"
-            ? `${fireCase.geostationary.satellite} saw heat here from ${fmtWhen(fireCase.geostationary.started)} to ${fmtWhen(fireCase.geostationary.last_seen)}: about ${hoursText(fireCase.geostationary.duration_hours ?? 0)}.`
+            ? `${fireCase.geostationary.satellite}: first matching recorded heat ${fmtWhen(fireCase.geostationary.started)}, last matching recorded heat ${fmtWhen(fireCase.geostationary.last_seen)}.`
             : fireCase.geostationary.detail}
         </p>
         {fireCase.geostationary.review_links.map((l) => l.review_url && <a key={l.name} href={l.review_url} target="_blank" rel="noreferrer">{l.name}</a>)}
@@ -427,11 +442,10 @@ function CaseTab({ fireCase, updating, job, error, onRefresh }: { fireCase: Fire
         <Tech>
           <p className="explanation">{fireCase.explanation}</p>
           <p className="note">
-            Decision rule: the top category must score above {rules.min_top_score}% and lead the next by {rules.min_lead} points. Top is {rules.top_score}% with a {rules.lead}-point lead. {fireCase.score_note}
+            {fireCase.score_note}
           </p>
           <p className="note">
-            Fused satellite fire probability: {Math.round(fireCase.satellite_fire_probability.probability * 100)}% from {fireCase.satellite_fire_probability.passes_used} pass(es), prior{" "}
-            {Math.round(fireCase.satellite_fire_probability.prior * 100)}%. {fireCase.satellite_fire_probability.method}
+            {fireCase.satellite_fire_probability.method}
           </p>
           <p className="note">Overpasses: {fireCase.overpass_method}. {fireCase.overpass_errors.join(" ")}</p>
           {fireCase.burning_season.status === "ok" && <p className="note">Burning calendar: {fireCase.burning_season.window}. {fireCase.burning_season.note}</p>}
@@ -442,25 +456,30 @@ function CaseTab({ fireCase, updating, job, error, onRefresh }: { fireCase: Fire
   );
 }
 
-function SatelliteTab({ det, event }: { det: HotspotRecord; event: FireEvent }) {
+function SatelliteTab({ det, event, compact = false }: { det: HotspotRecord; event: FireEvent | null; compact?: boolean }) {
   return (
     <section className="tag-obs">
-      <h4>What one satellite saw</h4>
+      <h4>Satellite observation</h4>
       <p className="plain-lead">
-        The {satelliteName(det)} satellite saw heat here on {fmtWhen(det.acq_datetime)}, during the {det.daynight === "N" ? "night" : "day"}.
+        The {satelliteName(det)} satellite saw heat here on {fmtWhen(det.acq_datetime)}{det.daynight === "N" ? ", during the night" : det.daynight === "D" ? ", during the day" : ""}.
       </p>
       <table className="cesium-info-table">
         <tbody>
           <Row k="Satellite" v={satelliteName(det)} />
+          <Row k="Acquired (UTC)" v={`${det.acq_datetime.replace("T", " ").replace(/(?:Z|\+00:00)$/, "")} UTC`} />
+          <Row k="Coordinates" v={`${det.lat.toFixed(5)}°, ${det.lon.toFixed(5)}°`} />
+          <Row k="Day / night" v={det.daynight === "D" ? "Day" : det.daynight === "N" ? "Night" : "Unknown"} />
+          {det.harmonized && <><Row k="Satellites merged" v={det.harmonized.platforms} /><Row k="Observations combined" v={det.harmonized.observations} /><Row k="Harmonized event" v={det.harmonized.event_id} /><Row k="Footprint union" v={`${det.harmonized.footprint_area_km2.toFixed(2)} km²`} /><Row k="Fused confidence" v={`${(det.harmonized.confidence * 100).toFixed(1)}% (not calibrated fire probability)`} /></>}
           <Row k="When" v={`${fmtWhen(det.acq_datetime)} (your local time)`} />
           <Row k="Where" v={`${det.lat.toFixed(4)}, ${det.lon.toFixed(4)}`} />
           <Row k="How exact is the location" v={det.location_uncertainty_km ? `within about ${det.location_uncertainty_km} km` : "–"} />
-          <Row k="Fire power (heat given off)" v={det.frp !== null ? `${det.frp} MW` : "not provided"} />
-          <Row k="Satellite's own confidence" v={`${det.confidence_pct.toFixed(0)}%`} />
+          <Row k={det.harmonized ? "Peak overpass fire power" : "Fire power (heat given off)"} v={det.frp != null ? `${det.frp} MW` : "not provided"} />
+          <Row k="Satellite's own confidence" v={Number.isFinite(det.confidence_pct) ? `${det.confidence_pct.toFixed(0)}%` : "Not available"} />
         </tbody>
       </table>
       <p className="note">A satellite sees the ground as small squares. It tells us there is fire somewhere in the square, not that the whole square is burning.</p>
-      <p className="note">In total, satellites saw this fire {event.detections.length} time{event.detections.length > 1 ? "s" : ""}. The strongest reading was {event.max_frp ?? "–"} MW.</p>
+      {det.harmonized && <p className="note">Fire power is the maximum per-overpass sum, never a sum across time. Latent activity awaiting data.</p>}
+      {event && <p className="note">In total, satellites saw this fire {event.detections.length} time{event.detections.length > 1 ? "s" : ""}. The strongest reading was {event.max_frp ?? "–"} MW.</p>}
       <Tech>
         <table className="cesium-info-table">
           <tbody>
@@ -469,10 +488,11 @@ function SatelliteTab({ det, event }: { det: HotspotRecord; event: FireEvent }) 
             <Row k="Pixel footprint" v={det.scan_km && det.track_km && det.scan_km <= 6 ? `${det.scan_km.toFixed(2)} × ${det.track_km.toFixed(2)} km` : "nominal"} />
             <Row k="Brightness temperature" v={det.brightness_k ? `${det.brightness_k} K${det.brightness_2_k ? ` / ${det.brightness_2_k} K` : ""}` : "–"} />
             <Row k="Source" v={det.source || "FIRMS"} />
-            <Row k="Sensors in this event" v={event.sensors.join(", ")} />
+            {event && <Row k="Sensors in this event" v={event.sensors.join(", ")} />}
           </tbody>
         </table>
       </Tech>
+      {!compact && event && event.detections.length > 1 && <div className="satellite-observation-list"><h4>All event observations ({event.detections.length})</h4>{event.detections.map((item, index) => <details key={`${item.sensor}-${item.acq_datetime}-${index}`}><summary>{satelliteName(item)} · {fmtTime(item.acq_datetime)}</summary><SatelliteTab det={item} event={null} compact /></details>)}</div>}
     </section>
   );
 }
@@ -537,13 +557,13 @@ function QualityTab({ event, evidence }: { event: FireEvent; evidence: EvidenceR
       <table className="cesium-info-table">
         <tbody>
           <Row k="Do the satellites agree?" v={q.sensor_agreement} />
-          <Row k="How well could satellites see this place?" v={`${q.observation_sufficiency_score} out of 100`} />
-          <Row k="Cloud cover in the last day" v={q.recent_cloud_cover_pct !== null ? `${q.recent_cloud_cover_pct}%` : "unknown"} />
+          <Row k="Verified clear observation coverage" v="Not established by the hotspot feed" />
+          <Row k="Weather-model cloud cover (not a satellite cloud mask)" v={q.recent_cloud_cover_pct !== null ? `${q.recent_cloud_cover_pct}%` : "unknown"} />
           <Row k="How exact is the location" v={q.location_uncertainty_km ? `within about ${q.location_uncertainty_km} km` : "–"} />
-          <Row k="If satellites see nothing next time" v={q.status_if_absent === "UNKNOWN" ? "We could not say the fire is out: clouds may be hiding it" : "It would mean the fire is no longer burning"} />
+          <Row k="If satellites see nothing next time" v="A missing detection cannot establish extinction without verified coverage and observation quality" />
         </tbody>
       </table>
-      <p className="note">Clouds and smoke block the satellites' view, so "nothing seen" only counts when the sky was clear.</p>
+      <p className="note">Weather estimates are context, not proof that an instrument obtained a usable view.</p>
       <Tech>
         <p className="note">Platforms available: {q.platforms_available.join(", ")}. Overall uncertainty: {q.uncertainty}. {q.uncertainty_note}</p>
         <p className="note">Data source: {String(evidence?.observation.provenance.data_source ?? "NASA FIRMS")}</p>
@@ -596,7 +616,7 @@ function EvidenceTab({ evidence, job, error, onRefresh }: { evidence: EvidenceRe
           </div>
           <button type="button" onClick={onRefresh} disabled={Boolean(job)}>{job ? "..." : "Check again"}</button>
         </div>
-        <div className="evidence-score"><span>How strong is the evidence?</span><strong>{inf.system_evidence_score} out of 100</strong></div>
+        <p className="note">{inf.score_note}</p>
         <p className="explanation">{inf.explanation}</p>
         {inf.fire_type_note && <p className="note">{inf.fire_type_note}</p>}
         {inf.uncertainty.length > 0 && (
@@ -605,7 +625,7 @@ function EvidenceTab({ evidence, job, error, onRefresh }: { evidence: EvidenceRe
             <ul>{inf.uncertainty.map((u) => <li key={u} className="uncertain">{u}</li>)}</ul>
           </>
         )}
-        <Tech title="How the evidence score is built">
+        {inf.system_evidence_score != null && <Tech title="Legacy heuristic score (not a verified probability)">
           <table className="score-table">
             <tbody>
               {inf.components.map((c) => (
@@ -615,7 +635,7 @@ function EvidenceTab({ evidence, job, error, onRefresh }: { evidence: EvidenceRe
           </table>
           <p className="note">{inf.score_note}</p>
           <p className="note">{inf.confirmed_label_policy}</p>
-        </Tech>
+        </Tech>}
       </section>
       <section>
         <h4>Where is it?</h4>
@@ -631,7 +651,7 @@ function EvidenceTab({ evidence, job, error, onRefresh }: { evidence: EvidenceRe
       </section>
       <section className="tag-ext">
         <h4>Government and official reports</h4>
-        {ext.official.matches.length === 0 && <p className="note">No official report found for this place and time.</p>}
+        {ext.official.matches.length === 0 && <p className="note">No matching official report was returned by the connected feeds. Unavailable or unconnected agencies remain unchecked.</p>}
         {ext.official.matches.map((m, i) => (
           <article key={i} className="news-evidence-card">
             <strong>{String(m.title ?? "Official incident")}</strong>
@@ -647,7 +667,7 @@ function EvidenceTab({ evidence, job, error, onRefresh }: { evidence: EvidenceRe
       <section className="tag-ext">
         <h4>Local news</h4>
         {ext.news.articles.length === 0 ? (
-          <p className="note">No news report about a fire here was found. Small rural fires are often not reported, so this does not mean there is no fire.</p>
+          <p className="note">{ext.news.searched.gdelt_error ? "News search unavailable. No conclusion about report absence can be drawn." : "No matching article was returned by the connected search. This does not establish that no report or fire exists."}</p>
         ) : (
           ext.news.articles.slice(0, 6).map((a) => (
             <article key={a.url ?? a.headline} className="news-evidence-card">

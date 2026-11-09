@@ -190,6 +190,11 @@ async def search_places(query: str, limit: int = 8) -> list[dict[str, Any]]:
         ttl_seconds=30 * 86400,
         disk_namespace="nominatim",
     )
+    return place_results(data, query)
+
+
+def place_results(data: list[dict[str, Any]], query: str) -> list[dict[str, Any]]:
+    """Normalize saved and live search records using the same boundaries."""
     results = []
     for item in data or []:
         bbox = item.get("boundingbox")

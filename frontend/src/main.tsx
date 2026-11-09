@@ -5,7 +5,6 @@ import "./styles.css";
 import { AppProvider } from "./context/AppContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import ThemeToggle from "./components/ThemeToggle";
-import PipelineFreshness from "./components/PipelineFreshness";
 import RouteLoadingFallback from "./components/RouteLoadingFallback";
 import "./theme.css";
 import "./responsive.css";
@@ -45,10 +44,16 @@ const FireGlobePage = React.lazy(routeLoaders["/fire-map"]);
 const FireMemoryPage = React.lazy(routeLoaders["/fire-memory"]);
 const FireDnaPage = React.lazy(routeLoaders["/fire-dna"]);
 const SearchPage = React.lazy(routeLoaders["/search"]);
-const HarmonizedMapPage = React.lazy(routeLoaders["/fire-events"]);
 const MethodologyPage = React.lazy(routeLoaders["/methodology"]);
 const AboutPage = React.lazy(routeLoaders["/about"]);
 const AreaIntelligencePage = React.lazy(routeLoaders["/area"]);
+
+function MergedFeatureRedirect({ to, view }: { to: string; view?: string }) {
+  const route = useLocation();
+  const params = new URLSearchParams(route.search);
+  if (view) params.set('view', view);
+  return <Navigate replace to={`${to}${params.size ? `?${params}` : ''}${route.hash}`} />;
+}
 
 function Header() {
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -115,7 +120,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <LanguageProvider>
       <Router>
         <Header />
-        <PipelineFreshness />
         <React.Suspense fallback={<RouteLoadingFallback />}>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -123,12 +127,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="/search" element={<SearchPage />} />
           <Route path="/location" element={<LocationDashboard />} />
           <Route path="/location/:section" element={<LocationDashboard />} />
-          <Route path="/fire-memory" element={<FireMemoryPage />} />
+          <Route path="/fire-memory" element={<MergedFeatureRedirect to="/fire-calendar" />} />
           <Route path="/fire-dna" element={<FireDnaPage />} />
           <Route path="/fire-calendar" element={<FireMemoryPage />} />
-          <Route path="/critical-periods" element={<Navigate to="/fire-memory" replace />} />
+          <Route path="/critical-periods" element={<MergedFeatureRedirect to="/fire-calendar" />} />
           <Route path="/data-sources" element={<DataSourcesPage />} />
-          <Route path="/fire-events" element={<HarmonizedMapPage />} />
+          <Route path="/fire-events" element={<MergedFeatureRedirect to="/area" view="events" />} />
           <Route path="/methodology" element={<MethodologyPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/area" element={<AreaIntelligencePage />} />

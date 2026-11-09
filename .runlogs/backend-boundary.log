@@ -1,0 +1,70 @@
+firms_recent_request source=VIIRS_SNPP_NRT area=world days=1 elapsed_ms=3822.4
+firms_recent_request source=MODIS_NRT area=world days=1 elapsed_ms=4332.9
+INFO:     127.0.0.1:63700 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62250 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63701 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65075 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65076 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53428 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57207 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63978 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64771 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+firms_recent_request source=VIIRS_NOAA20_NRT area=world days=1 elapsed_ms=8488.3
+firms_recent_request source=VIIRS_NOAA21_NRT area=world days=2 elapsed_ms=12997.3
+current hotspots warmed
+INFO:     127.0.0.1:64775 - "GET /api/places/search?q=Senbag%2C+Noakhali%2C+Bangladesh HTTP/1.1" 200 OK
+firms_recent_request source=VIIRS_NOAA20_NRT area=world days=2 elapsed_ms=24466.1
+event set warmed
+INFO:     127.0.0.1:64779 - "GET /api/places/search?q=Bangladesh HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64781 - "GET /api/places/search?q=Lombardia%2C+Italy HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51912 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56874 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59754 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54304 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51339 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51044 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55421 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62093 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51760 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51761 - "GET /api/harmonized_hotspots?days=1&limit=4000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57954 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57955 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62773 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63785 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63784 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53729 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53210 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50620 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59133 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61775 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63141 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52452 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63142 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51875 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51876 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63256 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52786 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65096 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63043 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54534 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65425 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58796 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61452 - "GET /meta HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59770 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59769 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55786 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62043 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55589 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57781 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63596 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58160 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52709 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62521 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62520 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57644 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57246 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58775 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51278 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64114 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56934 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64601 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK

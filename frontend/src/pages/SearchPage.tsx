@@ -24,7 +24,8 @@ export default function SearchPage() {
   const input = useRef<HTMLInputElement>(null);
   const controller = useRef<AbortController | null>(null);
   const generation = useRef(0);
-  function invalidate() { generation.current++; controller.current?.abort(); setSearching(false); }
+  const suggestionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  function invalidate() { generation.current++; controller.current?.abort(); if (suggestionTimer.current) clearTimeout(suggestionTimer.current); setSearching(false); }
   function openArea(area: AOI) {
     if (!areaFromUrl(`?area=${encodeURIComponent(JSON.stringify(area))}`)) { setError('Draw a valid rectangle, polygon, or circle before opening its dashboard.'); return; }
     invalidate(); setMemory(null); setAoi(area); navigate(dashboardUrl(area));
@@ -35,7 +36,7 @@ export default function SearchPage() {
     invalidate(); setAoi(null); setPoint(place); setResults([]); setOpen(false);
     setQuery(place.place_name || place.name.split(',')[0]);
   }
-  async function search(value = query, fromLink = false) {
+  async function search(value = query, fromLink = false, suggest = false) {
     invalidate();
     const name = value.trim();
     if (name.length < 2) { setError('Enter at least two characters.'); return; }
@@ -43,7 +44,7 @@ export default function SearchPage() {
     const request = new AbortController(); controller.current = request;
     setQuery(name); setSearching(true); setError(null); setResults([]); setOpen(true); setActive(-1); setSearched(true); setPoint(null);
     try {
-      const found = await searchPlaces(name, request.signal);
+      const found = await searchPlaces(name, request.signal, suggest);
       if (id !== generation.current || request.signal.aborted) return;
       if (fromLink && found[0]) { choose(found[0]); return; }
       setResults(found);
@@ -60,17 +61,17 @@ export default function SearchPage() {
     if (name) void search(name, true);
     return () => { generation.current++; controller.current?.abort(); };
   }, [route.search, route.hash]);
-  useEffect(() => () => { generation.current++; controller.current?.abort(); }, []);
+  useEffect(() => () => { generation.current++; controller.current?.abort(); if (suggestionTimer.current) clearTimeout(suggestionTimer.current); }, []);
   useEffect(() => { if (active >= 0) document.getElementById(`explore-place-${active}`)?.scrollIntoView({ block: 'nearest' }); }, [active]);
 
   return <main className="minimal-search-page">
     <section className="minimal-search-stage" aria-labelledby="search-page-title">
-      <div className="minimal-search-heading"><p>FlameSeek Explore</p><h2 id="search-page-title">Find a place.<br />Explore its fire story.</h2><span>Search a location or draw an area to open its dashboard.</span></div>
+      <div className="minimal-search-heading"><p>FlameSeek Explore</p><h2 id="search-page-title">Find a place.<br />Explore its fire story.</h2><span>Describe a place or ask about fires there to find its dashboard.</span></div>
       <div className="minimal-search-workspace">
         <form className="minimal-search-box explore-search-box" onSubmit={event => { event.preventDefault(); if (!searching) void search(); }}>
           <span aria-hidden="true">⌕</span>
-          <input ref={input} autoFocus value={query} placeholder="Search for a country, city, district, or forest." aria-label="Search for a location" role="combobox" aria-autocomplete="list" aria-expanded={open && results.length > 0} aria-controls="explore-places" aria-activedescendant={open && active >= 0 ? `explore-place-${active}` : undefined} aria-describedby="search-guidance"
-            onChange={event => { invalidate(); setAoi(null); setQuery(event.target.value); setResults([]); setOpen(false); setError(null); setSearched(false); setPoint(null); }}
+          <input ref={input} autoFocus value={query} placeholder={'Try fires in Bangladesh or Sundarbans forest'} aria-label="Search for a location" role="combobox" aria-autocomplete="list" aria-expanded={open && results.length > 0} aria-controls="explore-places" aria-activedescendant={open && active >= 0 ? `explore-place-${active}` : undefined} aria-describedby="search-guidance"
+            onChange={event => { const value = event.target.value; invalidate(); setAoi(null); setQuery(value); setResults([]); setOpen(false); setActive(-1); setError(null); setSearched(false); setPoint(null); if (value.trim().length >= 2) suggestionTimer.current = setTimeout(() => void search(value, false, true), 500); }}
             onKeyDown={event => {
               if (event.key === 'Escape') { event.preventDefault(); invalidate(); setOpen(false); setActive(-1); }
               if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && results.length) { event.preventDefault(); setOpen(true); setActive(index => event.key === 'ArrowDown' ? (index + 1) % results.length : (index < 0 ? results.length - 1 : (index - 1 + results.length) % results.length)); }
@@ -79,7 +80,7 @@ export default function SearchPage() {
           {!!query && <button type="button" className="explore-clear" aria-label="Clear location search" onClick={() => { invalidate(); setAoi(null); setMapOpen(false); setQuery(''); setResults([]); setPoint(null); setError(null); setSearched(false); setOpen(false); input.current?.focus(); }}>×</button>}
           <button type="submit" disabled={searching}>{searching ? 'Searching…' : 'Search'}</button>
         </form>
-        <p id="search-guidance" className="search-guidance">Press Search, then use ↑ ↓ and Enter to choose a result.</p>
+        <p id="search-guidance" className="search-guidance">Suggestions appear as you type. Use the arrow keys and Enter to choose a location.</p>
         <button className="explore-map-button" type="button" onClick={() => { setMapOpen(true); if (!mapOpen) setAoi(null); }}>Select an area on the map</button>
         {searching && <p className="search-status" role="status">Finding matching locations…</p>}
         {error && <div className="minimal-search-error" role="alert">{error} <button type="button" onClick={() => void search()}>Retry search</button></div>}

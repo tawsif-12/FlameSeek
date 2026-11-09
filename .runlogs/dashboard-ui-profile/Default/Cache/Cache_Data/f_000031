@@ -1,0 +1,366 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/pages/LocationDashboard.tsx");import __vite__cjsImport0_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=f4b09be0"; const jsxDEV = __vite__cjsImport0_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport1_react from "/node_modules/.vite/deps/react.js?v=f4b09be0"; const lazy = __vite__cjsImport1_react["lazy"]; const Suspense = __vite__cjsImport1_react["Suspense"]; const useEffect = __vite__cjsImport1_react["useEffect"]; const useMemo = __vite__cjsImport1_react["useMemo"]; const useRef = __vite__cjsImport1_react["useRef"]; const useState = __vite__cjsImport1_react["useState"];
+import { Link, NavLink, Navigate, useLocation, useNavigate, useParams } from "/node_modules/.vite/deps/react-router-dom.js?v=f4b09be0";
+import { Activity, CalendarDays, ChevronLeft, ChevronRight, Dna, Flame, Info, MapPin, Menu, X } from "/node_modules/.vite/deps/lucide-react.js?v=f4b09be0";
+import { areaFromUrl, dashboardUrl, locationId, LOCATION_SECTIONS } from "/src/api/locationRoutes.ts?t=1794253511438";
+import { describeAoi, LocationAreaScope, useAppContext } from "/src/context/AppContext.tsx?t=1794253511438";
+import "/src/location-dashboard.css?t=1794256983120";
+const FEATURES = {
+  intelligence: lazy(() => import("/src/pages/AreaIntelligencePage.tsx?t=1794255786100")),
+  now: lazy(() => import("/src/pages/FireGlobePage.tsx?t=1794253574886")),
+  dna: lazy(() => import("/src/pages/FireDnaPage.tsx?t=1794253514604")),
+  calendar: lazy(() => import("/src/pages/FireMemoryPage.tsx?t=1794254404635"))
+};
+const ITEMS = [
+  { section: "intelligence", label: "Fire Intelligence", Icon: Activity },
+  { section: "now", label: "Fire Now", Icon: Flame },
+  { section: "calendar", label: "Burning Calendar", Icon: CalendarDays },
+  { section: "dna", label: "Fire DNA", Icon: Dna }
+];
+export default function LocationDashboard() {
+  _s();
+  const { section = "intelligence" } = useParams();
+  const route = useLocation();
+  const navigate = useNavigate();
+  const { aoi, setAoi, setMemory } = useAppContext();
+  const areaToken = new URLSearchParams(route.search).get("area") || new URLSearchParams(route.hash.replace(/^#/, "")).get("area");
+  const area = useMemo(() => areaFromUrl(`?area=${encodeURIComponent(areaToken || "")}`), [areaToken]);
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem("flameseek.sidebar.collapsed") === "1";
+    } catch {
+      return false;
+    }
+  });
+  const [mobile, setMobile] = useState(() => window.matchMedia("(max-width: 900px)").matches);
+  const [drawer, setDrawer] = useState(false);
+  const sidebar = useRef(null);
+  const toggle = useRef(null);
+  const closeDrawer = () => {
+    setDrawer(false);
+    toggle.current?.focus();
+  };
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 900px)");
+    const update = () => {
+      setMobile(media.matches);
+      setDrawer(false);
+    };
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem("flameseek.sidebar.collapsed", collapsed ? "1" : "0");
+    } catch {
+    }
+  }, [collapsed]);
+  useEffect(() => {
+    window.dispatchEvent(new Event("resize"));
+  }, [collapsed]);
+  useEffect(() => {
+    setDrawer(false);
+  }, [route.pathname, areaToken]);
+  useEffect(() => {
+    if (area && JSON.stringify(aoi) !== JSON.stringify(area)) {
+      setMemory(null);
+      setAoi(area);
+    }
+  }, [area, aoi, setAoi, setMemory]);
+  useEffect(() => {
+    if (!drawer || !mobile) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    sidebar.current?.querySelector('[aria-current="page"]')?.focus();
+    const onKey = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeDrawer();
+      }
+      if (event.key === "Tab") {
+        const controls = sidebar.current?.querySelectorAll("button:not([hidden]),a[href]");
+        if (!controls?.length) return;
+        const first = controls[0], last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [drawer, mobile]);
+  if (!area) return /* @__PURE__ */ jsxDEV("main", { className: "content-page", children: [
+    /* @__PURE__ */ jsxDEV("h2", { children: "Choose a location" }, void 0, false, {
+      fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+      lineNumber: 65,
+      columnNumber: 52
+    }, this),
+    /* @__PURE__ */ jsxDEV("p", { children: "This link does not contain a usable area boundary." }, void 0, false, {
+      fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+      lineNumber: 65,
+      columnNumber: 78
+    }, this),
+    /* @__PURE__ */ jsxDEV(Link, { to: "/search", children: "Explore locations" }, void 0, false, {
+      fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+      lineNumber: 65,
+      columnNumber: 135
+    }, this)
+  ] }, void 0, true, {
+    fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+    lineNumber: 65,
+    columnNumber: 21
+  }, this);
+  if (route.pathname === "/location") return /* @__PURE__ */ jsxDEV(Navigate, { replace: true, to: dashboardUrl(area) }, void 0, false, {
+    fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+    lineNumber: 66,
+    columnNumber: 46
+  }, this);
+  if (section === "memory" || section === "events") {
+    return /* @__PURE__ */ jsxDEV(Navigate, { replace: true, to: dashboardUrl(area, section, Object.fromEntries(new URLSearchParams(route.search))) }, void 0, false, {
+      fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+      lineNumber: 68,
+      columnNumber: 12
+    }, this);
+  }
+  if (!LOCATION_SECTIONS.includes(section)) return /* @__PURE__ */ jsxDEV(Navigate, { replace: true, to: dashboardUrl(area) }, void 0, false, {
+    fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+    lineNumber: 70,
+    columnNumber: 71
+  }, this);
+  const selectedSection = section;
+  const Feature = FEATURES[selectedSection];
+  const name = describeAoi(area);
+  const ready = JSON.stringify(aoi) === JSON.stringify(area);
+  const id = locationId(area);
+  return /* @__PURE__ */ jsxDEV("div", { className: `location-dashboard${collapsed ? " sidebar-collapsed" : ""}`, "data-location-id": id, children: [
+    /* @__PURE__ */ jsxDEV("div", { className: "location-mobile-bar", children: [
+      /* @__PURE__ */ jsxDEV("button", { ref: toggle, type: "button", "aria-label": "Open location navigation", "aria-controls": "location-sidebar", "aria-expanded": drawer, onClick: () => setDrawer(true), children: /* @__PURE__ */ jsxDEV(Menu, { "aria-hidden": "true", size: 20 }, void 0, false, {
+        fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+        lineNumber: 77,
+        columnNumber: 203
+      }, this) }, void 0, false, {
+        fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+        lineNumber: 77,
+        columnNumber: 42
+      }, this),
+      /* @__PURE__ */ jsxDEV("span", { children: name }, void 0, false, {
+        fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+        lineNumber: 77,
+        columnNumber: 249
+      }, this),
+      /* @__PURE__ */ jsxDEV("strong", { children: ITEMS.find((item) => item.section === section)?.label }, void 0, false, {
+        fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+        lineNumber: 77,
+        columnNumber: 268
+      }, this)
+    ] }, void 0, true, {
+      fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+      lineNumber: 77,
+      columnNumber: 5
+    }, this),
+    mobile && drawer && /* @__PURE__ */ jsxDEV("button", { className: "location-drawer-backdrop", type: "button", "aria-label": "Close location navigation", onClick: closeDrawer }, void 0, false, {
+      fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+      lineNumber: 78,
+      columnNumber: 26
+    }, this),
+    /* @__PURE__ */ jsxDEV("aside", { ref: sidebar, id: "location-sidebar", className: `location-sidebar${drawer ? " drawer-open" : ""}`, hidden: mobile && !drawer, role: mobile && drawer ? "dialog" : void 0, "aria-modal": mobile && drawer ? true : void 0, "aria-label": "Location navigation", children: [
+      /* @__PURE__ */ jsxDEV("div", { className: "location-sidebar-top", children: [
+        /* @__PURE__ */ jsxDEV("span", { className: "location-sidebar-label", children: "LOCATION WORKSPACE" }, void 0, false, {
+          fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+          lineNumber: 80,
+          columnNumber: 45
+        }, this),
+        mobile ? /* @__PURE__ */ jsxDEV("button", { type: "button", "aria-label": "Close location navigation", onClick: closeDrawer, children: /* @__PURE__ */ jsxDEV(X, { size: 20, "aria-hidden": "true" }, void 0, false, {
+          fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+          lineNumber: 80,
+          columnNumber: 204
+        }, this) }, void 0, false, {
+          fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+          lineNumber: 80,
+          columnNumber: 121
+        }, this) : /* @__PURE__ */ jsxDEV("button", { type: "button", "aria-label": collapsed ? "Expand sidebar" : "Collapse sidebar", title: collapsed ? "Expand sidebar" : "Collapse sidebar", onClick: () => setCollapsed((value) => !value), children: collapsed ? /* @__PURE__ */ jsxDEV(ChevronRight, { size: 20, "aria-hidden": "true" }, void 0, false, {
+          fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+          lineNumber: 80,
+          columnNumber: 454
+        }, this) : /* @__PURE__ */ jsxDEV(ChevronLeft, { size: 20, "aria-hidden": "true" }, void 0, false, {
+          fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+          lineNumber: 80,
+          columnNumber: 502
+        }, this) }, void 0, false, {
+          fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+          lineNumber: 80,
+          columnNumber: 250
+        }, this)
+      ] }, void 0, true, {
+        fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+        lineNumber: 80,
+        columnNumber: 7
+      }, this),
+      /* @__PURE__ */ jsxDEV("div", { className: "location-identity", title: name, children: [
+        /* @__PURE__ */ jsxDEV(MapPin, { size: 20, "aria-hidden": "true" }, void 0, false, {
+          fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+          lineNumber: 81,
+          columnNumber: 55
+        }, this),
+        /* @__PURE__ */ jsxDEV("div", { className: "location-sidebar-label", children: [
+          /* @__PURE__ */ jsxDEV("span", { children: "Selected location" }, void 0, false, {
+            fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+            lineNumber: 81,
+            columnNumber: 134
+          }, this),
+          /* @__PURE__ */ jsxDEV("h2", { children: name }, void 0, false, {
+            fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+            lineNumber: 81,
+            columnNumber: 164
+          }, this)
+        ] }, void 0, true, {
+          fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+          lineNumber: 81,
+          columnNumber: 94
+        }, this)
+      ] }, void 0, true, {
+        fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+        lineNumber: 81,
+        columnNumber: 7
+      }, this),
+      /* @__PURE__ */ jsxDEV("button", { type: "button", className: "location-change", title: "Change location", "aria-label": "Change location", onClick: () => {
+        setMemory(null);
+        setAoi(null);
+        navigate("/search");
+      }, children: [
+        /* @__PURE__ */ jsxDEV(MapPin, { size: 16, "aria-hidden": "true" }, void 0, false, {
+          fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+          lineNumber: 82,
+          columnNumber: 178
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { className: "location-sidebar-label", children: "Change Location" }, void 0, false, {
+          fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+          lineNumber: 82,
+          columnNumber: 217
+        }, this)
+      ] }, void 0, true, {
+        fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+        lineNumber: 82,
+        columnNumber: 7
+      }, this),
+      /* @__PURE__ */ jsxDEV("nav", { "aria-label": "Location sections", children: ITEMS.map(({ section: destination, label, Icon }) => /* @__PURE__ */ jsxDEV(NavLink, { to: dashboardUrl(area, destination), "aria-label": label, title: label, onClick: () => mobile && closeDrawer(), children: [
+        /* @__PURE__ */ jsxDEV(Icon, { size: 20, "aria-hidden": "true" }, void 0, false, {
+          fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+          lineNumber: 83,
+          columnNumber: 234
+        }, this),
+        /* @__PURE__ */ jsxDEV("span", { className: "location-sidebar-label", children: label }, void 0, false, {
+          fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+          lineNumber: 83,
+          columnNumber: 271
+        }, this)
+      ] }, destination, true, {
+        fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+        lineNumber: 83,
+        columnNumber: 97
+      }, this)) }, void 0, false, {
+        fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+        lineNumber: 83,
+        columnNumber: 7
+      }, this),
+      /* @__PURE__ */ jsxDEV("footer", { className: "location-sidebar-foot", children: [
+        /* @__PURE__ */ jsxDEV(Info, { size: 16, "aria-hidden": "true" }, void 0, false, {
+          fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+          lineNumber: 84,
+          columnNumber: 49
+        }, this),
+        /* @__PURE__ */ jsxDEV("p", { children: "Satellite observations are evidence. Missing coverage is not a confirmed absence of fire." }, void 0, false, {
+          fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+          lineNumber: 84,
+          columnNumber: 86
+        }, this)
+      ] }, void 0, true, {
+        fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+        lineNumber: 84,
+        columnNumber: 7
+      }, this)
+    ] }, void 0, true, {
+      fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+      lineNumber: 79,
+      columnNumber: 5
+    }, this),
+    /* @__PURE__ */ jsxDEV("div", { className: "location-content", "data-section": selectedSection, children: ready ? /* @__PURE__ */ jsxDEV(LocationAreaScope, { area, children: /* @__PURE__ */ jsxDEV(Suspense, { fallback: /* @__PURE__ */ jsxDEV("div", { className: "location-loading", role: "status", children: [
+      "Loading ",
+      ITEMS.find((item) => item.section === section)?.label,
+      " for ",
+      name,
+      "…"
+    ] }, void 0, true, {
+      fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+      lineNumber: 87,
+      columnNumber: 94
+    }, this), children: /* @__PURE__ */ jsxDEV(Feature, {}, `${id}:${selectedSection}`, false, {
+      fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+      lineNumber: 87,
+      columnNumber: 225
+    }, this) }, void 0, false, {
+      fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+      lineNumber: 87,
+      columnNumber: 74
+    }, this) }, JSON.stringify(area), false, {
+      fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+      lineNumber: 87,
+      columnNumber: 16
+    }, this) : /* @__PURE__ */ jsxDEV("div", { className: "location-loading", role: "status", children: [
+      "Loading the boundary for ",
+      name,
+      "…"
+    ] }, void 0, true, {
+      fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+      lineNumber: 87,
+      columnNumber: 303
+    }, this) }, void 0, false, {
+      fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+      lineNumber: 86,
+      columnNumber: 5
+    }, this)
+  ] }, void 0, true, {
+    fileName: "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx",
+    lineNumber: 76,
+    columnNumber: 10
+  }, this);
+}
+_s(LocationDashboard, "YsAT8TDV0xQZclL763lG9dpVQSw=", false, function() {
+  return [useParams, useLocation, useNavigate, useAppContext];
+});
+_c = LocationDashboard;
+var _c;
+$RefreshReg$(_c, "LocationDashboard");
+import * as RefreshRuntime from "/@react-refresh";
+const inWebWorker = typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
+if (import.meta.hot && !inWebWorker) {
+  if (!window.$RefreshReg$) {
+    throw new Error(
+      "@vitejs/plugin-react can't detect preamble. Something is wrong."
+    );
+  }
+  RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+    RefreshRuntime.registerExportsForReactRefresh("D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx", currentExports);
+    import.meta.hot.accept((nextExports) => {
+      if (!nextExports) return;
+      const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx", currentExports, nextExports);
+      if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+    });
+  });
+}
+function $RefreshReg$(type, id) {
+  return RefreshRuntime.register(type, "D:/nasa space/Burning_Activity/frontend/src/pages/LocationDashboard.tsx " + id);
+}
+function $RefreshSig$() {
+  return RefreshRuntime.createSignatureFunctionForTransform();
+}
+
+//# sourceMappingURL=data:application/json;base64,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RSx5R0FBSDtBQUFBO0FBQUE7QUFBQTtBQUFBLGVBQTRGO0FBQUEsV0FBM0s7QUFBQTtBQUFBO0FBQUE7QUFBQSxhQUErSztBQUFBLFNBTGpMO0FBQUE7QUFBQTtBQUFBO0FBQUEsV0FNQTtBQUFBLElBQ0EsdUJBQUMsU0FBSSxXQUFVLG9CQUFtQixnQkFBY1YsaUJBQzdDRyxrQkFBUSx1QkFBQyxxQkFBNkMsTUFBWSxpQ0FBQyxZQUFTLFVBQVUsdUJBQUMsU0FBSSxXQUFVLG9CQUFtQixNQUFLLFVBQVM7QUFBQTtBQUFBLE1BQVNwRSxNQUFNc0UsS0FBSyxDQUFBQyxTQUFRQSxLQUFLdEUsWUFBWUEsT0FBTyxHQUFHQztBQUFBQSxNQUFNO0FBQUEsTUFBTWlFO0FBQUFBLE1BQUs7QUFBQSxTQUF4SDtBQUFBO0FBQUE7QUFBQTtBQUFBLFdBQXlILEdBQVEsaUNBQUMsYUFBYSxHQUFHRSxFQUFFLElBQUlKLGVBQWUsSUFBdEM7QUFBQTtBQUFBO0FBQUE7QUFBQSxXQUF5QyxLQUE5TDtBQUFBO0FBQUE7QUFBQTtBQUFBLFdBQWlNLEtBQW5PdEIsS0FBS0MsVUFBVTNCLElBQUksR0FBM0M7QUFBQTtBQUFBO0FBQUE7QUFBQSxXQUFzUSxJQUF1Qix1QkFBQyxTQUFJLFdBQVUsb0JBQW1CLE1BQUssVUFBUztBQUFBO0FBQUEsTUFBMEJrRDtBQUFBQSxNQUFLO0FBQUEsU0FBL0U7QUFBQTtBQUFBO0FBQUE7QUFBQSxXQUFnRixLQUR4WDtBQUFBO0FBQUE7QUFBQTtBQUFBLFdBRUE7QUFBQSxPQVpLO0FBQUE7QUFBQTtBQUFBO0FBQUEsU0FhUDtBQUNGO0FBQUM5RCxHQXJFdUJELG1CQUFpQjtBQUFBLFVBQ0YzQixXQUN2QkYsYUFDR0MsYUFDa0JrQixhQUFhO0FBQUE7QUFBQSxLQUoxQlU7QUFBaUIsSUFBQXdFO0FBQUEsYUFBQUEsSUFBQSIsIm5hbWVzIjpbImxhenkiLCJTdXNwZW5zZSIsInVzZUVmZmVjdCIsInVzZU1lbW8iLCJ1c2VSZWYiLCJ1c2VTdGF0ZSIsIkxpbmsiLCJOYXZMaW5rIiwiTmF2aWdhdGUiLCJ1c2VMb2NhdGlvbiIsInVzZU5hdmlnYXRlIiwidXNlUGFyYW1zIiwiQWN0aXZpdHkiLCJDYWxlbmRhckRheXMiLCJDaGV2cm9uTGVmdCIsIkNoZXZyb25SaWdodCIsIkRuYSIsIkZsYW1lIiwiSW5mbyIsIk1hcFBpbiIsIk1lbnUiLCJYIiwiYXJlYUZyb21VcmwiLCJkYXNoYm9hcmRVcmwiLCJsb2NhdGlvbklkIiwiTE9DQVRJT05fU0VDVElPTlMiLCJkZXNjcmliZUFvaSIsIkxvY2F0aW9uQXJlYVNjb3BlIiwidXNlQXBwQ29udGV4dCIsIkZFQVRVUkVTIiwiaW50ZWxsaWdlbmNlIiwibm93IiwiZG5hIiwiY2FsZW5kYXIiLCJJVEVNUyIsInNlY3Rpb24iLCJsYWJlbCIsIkljb24iLCJMb2NhdGlvbkRhc2hib2FyZCIsIl9zIiwicm91dGUiLCJuYXZpZ2F0ZSIsImFvaSIsInNldEFvaSIsInNldE1lbW9yeSIsImFyZWFUb2tlbiIsIlVSTFNlYXJjaFBhcmFtcyIsInNlYXJjaCIsImdldCIsImhhc2giLCJyZXBsYWNlIiwiYXJlYSIsImVuY29kZVVSSUNvbXBvbmVudCIsImNvbGxhcHNlZCIsInNldENvbGxhcHNlZCIsImxvY2FsU3RvcmFnZSIsImdldEl0ZW0iLCJtb2JpbGUiLCJzZXRNb2JpbGUiLCJ3aW5kb3ciLCJtYXRjaE1lZGlhIiwibWF0Y2hlcyIsImRyYXdlciIsInNldERyYXdlciIsInNpZGViYXIiLCJ0b2dnbGUiLCJjbG9zZURyYXdlciIsImN1cnJlbnQiLCJmb2N1cyIsIm1lZGlhIiwidXBkYXRlIiwiYWRkRXZlbnRMaXN0ZW5lciIsInJlbW92ZUV2ZW50TGlzdGVuZXIiLCJzZXRJdGVtIiwiZGlzcGF0Y2hFdmVudCIsIkV2ZW50IiwicGF0aG5hbWUiLCJKU09OIiwic3RyaW5naWZ5IiwicHJldmlvdXNPdmVyZmxvdyIsImRvY3VtZW50IiwiYm9keSIsInN0eWxlIiwib3ZlcmZsb3ciLCJxdWVyeVNlbGVjdG9yIiwib25LZXkiLCJldmVudCIsImtleSIsInByZXZlbnREZWZhdWx0IiwiY29udHJvbHMiLCJxdWVyeVNlbGVjdG9yQWxsIiwibGVuZ3RoIiwiZmlyc3QiLCJsYXN0Iiwic2hpZnRLZXkiLCJhY3RpdmVFbGVtZW50IiwiT2JqZWN0IiwiZnJvbUVudHJpZXMiLCJpbmNsdWRlcyIsInNlbGVjdGVkU2VjdGlvbiIsIkZlYXR1cmUiLCJuYW1lIiwicmVhZHkiLCJpZCIsImZpbmQiLCJpdGVtIiwidW5kZWZpbmVkIiwidmFsdWUiLCJtYXAiLCJkZXN0aW5hdGlvbiIsIl9jIl0sImlnbm9yZUxpc3QiOltdLCJzb3VyY2VzIjpbIkxvY2F0aW9uRGFzaGJvYXJkLnRzeCJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBsYXp5LCBTdXNwZW5zZSwgdXNlRWZmZWN0LCB1c2VNZW1vLCB1c2VSZWYsIHVzZVN0YXRlIH0gZnJvbSAncmVhY3QnO1xuaW1wb3J0IHsgTGluaywgTmF2TGluaywgTmF2aWdhdGUsIHVzZUxvY2F0aW9uLCB1c2VOYXZpZ2F0ZSwgdXNlUGFyYW1zIH0gZnJvbSAncmVhY3Qtcm91dGVyLWRvbSc7XG5pbXBvcnQgeyBBY3Rpdml0eSwgQ2FsZW5kYXJEYXlzLCBDaGV2cm9uTGVmdCwgQ2hldnJvblJpZ2h0LCBEbmEsIEZsYW1lLCBJbmZvLCBNYXBQaW4sIE1lbnUsIFggfSBmcm9tICdsdWNpZGUtcmVhY3QnO1xuaW1wb3J0IHsgYXJlYUZyb21VcmwsIGRhc2hib2FyZFVybCwgbG9jYXRpb25JZCwgTE9DQVRJT05fU0VDVElPTlMsIHR5cGUgTG9jYXRpb25TZWN0aW9uIH0gZnJvbSAnLi4vYXBpL2xvY2F0aW9uUm91dGVzJztcbmltcG9ydCB7IGRlc2NyaWJlQW9pLCBMb2NhdGlvbkFyZWFTY29wZSwgdXNlQXBwQ29udGV4dCB9IGZyb20gJy4uL2NvbnRleHQvQXBwQ29udGV4dCc7XG5pbXBvcnQgJy4uL2xvY2F0aW9uLWRhc2hib2FyZC5jc3MnO1xuXG5jb25zdCBGRUFUVVJFUyA9IHtcbiAgaW50ZWxsaWdlbmNlOiBsYXp5KCgpID0+IGltcG9ydCgnLi9BcmVhSW50ZWxsaWdlbmNlUGFnZScpKSxcbiAgbm93OiBsYXp5KCgpID0+IGltcG9ydCgnLi9GaXJlR2xvYmVQYWdlJykpLFxuICBkbmE6IGxhenkoKCkgPT4gaW1wb3J0KCcuL0ZpcmVEbmFQYWdlJykpLFxuICBjYWxlbmRhcjogbGF6eSgoKSA9PiBpbXBvcnQoJy4vRmlyZU1lbW9yeVBhZ2UnKSksXG59O1xuY29uc3QgSVRFTVMgPSBbXG4gIHsgc2VjdGlvbjogJ2ludGVsbGlnZW5jZScsIGxhYmVsOiAnRmlyZSBJbnRlbGxpZ2VuY2UnLCBJY29uOiBBY3Rpdml0eSB9LFxuICB7IHNlY3Rpb246ICdub3cnLCBsYWJlbDogJ0ZpcmUgTm93JywgSWNvbjogRmxhbWUgfSxcbiAgeyBzZWN0aW9uOiAnY2FsZW5kYXInLCBsYWJlbDogJ0J1cm5pbmcgQ2FsZW5kYXInLCBJY29uOiBDYWxlbmRhckRheXMgfSxcbiAgeyBzZWN0aW9uOiAnZG5hJywgbGFiZWw6ICdGaXJlIEROQScsIEljb246IERuYSB9LFxuXSBhcyBjb25zdDtcblxuZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gTG9jYXRpb25EYXNoYm9hcmQoKSB7XG4gIGNvbnN0IHsgc2VjdGlvbiA9ICdpbnRlbGxpZ2VuY2UnIH0gPSB1c2VQYXJhbXMoKTtcbiAgY29uc3Qgcm91dGUgPSB1c2VMb2NhdGlvbigpO1xuICBjb25zdCBuYXZpZ2F0ZSA9IHVzZU5hdmlnYXRlKCk7XG4gIGNvbnN0IHsgYW9pLCBzZXRBb2ksIHNldE1lbW9yeSB9ID0gdXNlQXBwQ29udGV4dCgpO1xuICBjb25zdCBhcmVhVG9rZW4gPSBuZXcgVVJMU2VhcmNoUGFyYW1zKHJvdXRlLnNlYXJjaCkuZ2V0KCdhcmVhJykgfHwgbmV3IFVSTFNlYXJjaFBhcmFtcyhyb3V0ZS5oYXNoLnJlcGxhY2UoL14jLywgJycpKS5nZXQoJ2FyZWEnKTtcbiAgY29uc3QgYXJlYSA9IHVzZU1lbW8oKCkgPT4gYXJlYUZyb21VcmwoYD9hcmVhPSR7ZW5jb2RlVVJJQ29tcG9uZW50KGFyZWFUb2tlbiB8fCAnJyl9YCksIFthcmVhVG9rZW5dKTtcbiAgY29uc3QgW2NvbGxhcHNlZCwgc2V0Q29sbGFwc2VkXSA9IHVzZVN0YXRlKCgpID0+IHsgdHJ5IHsgcmV0dXJuIGxvY2FsU3RvcmFnZS5nZXRJdGVtKCdmbGFtZXNlZWsuc2lkZWJhci5jb2xsYXBzZWQnKSA9PT0gJzEnOyB9IGNhdGNoIHsgcmV0dXJuIGZhbHNlOyB9IH0pO1xuICBjb25zdCBbbW9iaWxlLCBzZXRNb2JpbGVdID0gdXNlU3RhdGUoKCkgPT4gd2luZG93Lm1hdGNoTWVkaWEoJyhtYXgtd2lkdGg6IDkwMHB4KScpLm1hdGNoZXMpO1xuICBjb25zdCBbZHJhd2VyLCBzZXREcmF3ZXJdID0gdXNlU3RhdGUoZmFsc2UpO1xuICBjb25zdCBzaWRlYmFyID0gdXNlUmVmPEhUTUxFbGVtZW50PihudWxsKTtcbiAgY29uc3QgdG9nZ2xlID0gdXNlUmVmPEhUTUxCdXR0b25FbGVtZW50PihudWxsKTtcbiAgY29uc3QgY2xvc2VEcmF3ZXIgPSAoKSA9PiB7IHNldERyYXdlcihmYWxzZSk7IHRvZ2dsZS5jdXJyZW50Py5mb2N1cygpOyB9O1xuICB1c2VFZmZlY3QoKCkgPT4ge1xuICAgIGNvbnN0IG1lZGlhID0gd2luZG93Lm1hdGNoTWVkaWEoJyhtYXgtd2lkdGg6IDkwMHB4KScpO1xuICAgIGNvbnN0IHVwZGF0ZSA9ICgpID0+IHsgc2V0TW9iaWxlKG1lZGlhLm1hdGNoZXMpOyBzZXREcmF3ZXIoZmFsc2UpOyB9O1xuICAgIG1lZGlhLmFkZEV2ZW50TGlzdGVuZXIoJ2NoYW5nZScsIHVwZGF0ZSk7XG4gICAgcmV0dXJuICgpID0+IG1lZGlhLnJlbW92ZUV2ZW50TGlzdGVuZXIoJ2NoYW5nZScsIHVwZGF0ZSk7XG4gIH0sIFtdKTtcbiAgdXNlRWZmZWN0KCgpID0+IHsgdHJ5IHsgbG9jYWxTdG9yYWdlLnNldEl0ZW0oJ2ZsYW1lc2Vlay5zaWRlYmFyLmNvbGxhcHNlZCcsIGNvbGxhcHNlZCA/ICcxJyA6ICcwJyk7IH0gY2F0Y2ggeyAvKiBPcHRpb25hbCBwcmVmZXJlbmNlLiAqLyB9IH0sIFtjb2xsYXBzZWRdKTtcbiAgdXNlRWZmZWN0KCgpID0+IHsgd2luZG93LmRpc3BhdGNoRXZlbnQobmV3IEV2ZW50KCdyZXNpemUnKSk7IH0sIFtjb2xsYXBzZWRdKTtcbiAgdXNlRWZmZWN0KCgpID0+IHsgc2V0RHJhd2VyKGZhbHNlKTsgfSwgW3JvdXRlLnBhdGhuYW1lLCBhcmVhVG9rZW5dKTtcbiAgdXNlRWZmZWN0KCgpID0+IHtcbiAgICBpZiAoYXJlYSAmJiBKU09OLnN0cmluZ2lmeShhb2kpICE9PSBKU09OLnN0cmluZ2lmeShhcmVhKSkgeyBzZXRNZW1vcnkobnVsbCk7IHNldEFvaShhcmVhKTsgfVxuICB9LCBbYXJlYSwgYW9pLCBzZXRBb2ksIHNldE1lbW9yeV0pO1xuICB1c2VFZmZlY3QoKCkgPT4ge1xuICAgIGlmICghZHJhd2VyIHx8ICFtb2JpbGUpIHJldHVybjtcbiAgICBjb25zdCBwcmV2aW91c092ZXJmbG93ID0gZG9jdW1lbnQuYm9keS5zdHlsZS5vdmVyZmxvdztcbiAgICBkb2N1bWVudC5ib2R5LnN0eWxlLm92ZXJmbG93ID0gJ2hpZGRlbic7XG4gICAgc2lkZWJhci5jdXJyZW50Py5xdWVyeVNlbGVjdG9yPEhUTUxFbGVtZW50PignW2FyaWEtY3VycmVudD1cInBhZ2VcIl0nKT8uZm9jdXMoKTtcbiAgICBjb25zdCBvbktleSA9IChldmVudDogS2V5Ym9hcmRFdmVudCkgPT4ge1xuICAgICAgaWYgKGV2ZW50LmtleSA9PT0gJ0VzY2FwZScpIHsgZXZlbnQucHJldmVudERlZmF1bHQoKTsgY2xvc2VEcmF3ZXIoKTsgfVxuICAgICAgaWYgKGV2ZW50LmtleSA9PT0gJ1RhYicpIHtcbiAgICAgICAgY29uc3QgY29udHJvbHMgPSBzaWRlYmFyLmN1cnJlbnQ/LnF1ZXJ5U2VsZWN0b3JBbGw8SFRNTEVsZW1lbnQ+KCdidXR0b246bm90KFtoaWRkZW5dKSxhW2hyZWZdJyk7XG4gICAgICAgIGlmICghY29udHJvbHM/Lmxlbmd0aCkgcmV0dXJuO1xuICAgICAgICBjb25zdCBmaXJzdCA9IGNvbnRyb2xzWzBdLCBsYXN0ID0gY29udHJvbHNbY29udHJvbHMubGVuZ3RoIC0gMV07XG4gICAgICAgIGlmIChldmVudC5zaGlmdEtleSAmJiBkb2N1bWVudC5hY3RpdmVFbGVtZW50ID09PSBmaXJzdCkgeyBldmVudC5wcmV2ZW50RGVmYXVsdCgpOyBsYXN0LmZvY3VzKCk7IH1cbiAgICAgICAgZWxzZSBpZiAoIWV2ZW50LnNoaWZ0S2V5ICYmIGRvY3VtZW50LmFjdGl2ZUVsZW1lbnQgPT09IGxhc3QpIHsgZXZlbnQucHJldmVudERlZmF1bHQoKTsgZmlyc3QuZm9jdXMoKTsgfVxuICAgICAgfVxuICAgIH07XG4gICAgZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcigna2V5ZG93bicsIG9uS2V5KTtcbiAgICByZXR1cm4gKCkgPT4geyBkb2N1bWVudC5ib2R5LnN0eWxlLm92ZXJmbG93ID0gcHJldmlvdXNPdmVyZmxvdzsgZG9jdW1lbnQucmVtb3ZlRXZlbnRMaXN0ZW5lcigna2V5ZG93bicsIG9uS2V5KTsgfTtcbiAgfSwgW2RyYXdlciwgbW9iaWxlXSk7XG5cbiAgaWYgKCFhcmVhKSByZXR1cm4gPG1haW4gY2xhc3NOYW1lPVwiY29udGVudC1wYWdlXCI+PGgyPkNob29zZSBhIGxvY2F0aW9uPC9oMj48cD5UaGlzIGxpbmsgZG9lcyBub3QgY29udGFpbiBhIHVzYWJsZSBhcmVhIGJvdW5kYXJ5LjwvcD48TGluayB0bz1cIi9zZWFyY2hcIj5FeHBsb3JlIGxvY2F0aW9uczwvTGluaz48L21haW4+O1xuICBpZiAocm91dGUucGF0aG5hbWUgPT09ICcvbG9jYXRpb24nKSByZXR1cm4gPE5hdmlnYXRlIHJlcGxhY2UgdG89e2Rhc2hib2FyZFVybChhcmVhKX0gLz47XG4gIGlmIChzZWN0aW9uID09PSAnbWVtb3J5JyB8fCBzZWN0aW9uID09PSAnZXZlbnRzJykge1xuICAgIHJldHVybiA8TmF2aWdhdGUgcmVwbGFjZSB0bz17ZGFzaGJvYXJkVXJsKGFyZWEsIHNlY3Rpb24sIE9iamVjdC5mcm9tRW50cmllcyhuZXcgVVJMU2VhcmNoUGFyYW1zKHJvdXRlLnNlYXJjaCkpKX0gLz47XG4gIH1cbiAgaWYgKCFMT0NBVElPTl9TRUNUSU9OUy5pbmNsdWRlcyhzZWN0aW9uIGFzIExvY2F0aW9uU2VjdGlvbikpIHJldHVybiA8TmF2aWdhdGUgcmVwbGFjZSB0bz17ZGFzaGJvYXJkVXJsKGFyZWEpfSAvPjtcbiAgY29uc3Qgc2VsZWN0ZWRTZWN0aW9uID0gc2VjdGlvbiBhcyBMb2NhdGlvblNlY3Rpb247XG4gIGNvbnN0IEZlYXR1cmUgPSBGRUFUVVJFU1tzZWxlY3RlZFNlY3Rpb25dO1xuICBjb25zdCBuYW1lID0gZGVzY3JpYmVBb2koYXJlYSk7XG4gIGNvbnN0IHJlYWR5ID0gSlNPTi5zdHJpbmdpZnkoYW9pKSA9PT0gSlNPTi5zdHJpbmdpZnkoYXJlYSk7XG4gIGNvbnN0IGlkID0gbG9jYXRpb25JZChhcmVhKTtcbiAgcmV0dXJuIDxkaXYgY2xhc3NOYW1lPXtgbG9jYXRpb24tZGFzaGJvYXJkJHtjb2xsYXBzZWQgPyAnIHNpZGViYXItY29sbGFwc2VkJyA6ICcnfWB9IGRhdGEtbG9jYXRpb24taWQ9e2lkfT5cbiAgICA8ZGl2IGNsYXNzTmFtZT1cImxvY2F0aW9uLW1vYmlsZS1iYXJcIj48YnV0dG9uIHJlZj17dG9nZ2xlfSB0eXBlPVwiYnV0dG9uXCIgYXJpYS1sYWJlbD1cIk9wZW4gbG9jYXRpb24gbmF2aWdhdGlvblwiIGFyaWEtY29udHJvbHM9XCJsb2NhdGlvbi1zaWRlYmFyXCIgYXJpYS1leHBhbmRlZD17ZHJhd2VyfSBvbkNsaWNrPXsoKSA9PiBzZXREcmF3ZXIodHJ1ZSl9PjxNZW51IGFyaWEtaGlkZGVuPVwidHJ1ZVwiIHNpemU9ezIwfSAvPjwvYnV0dG9uPjxzcGFuPntuYW1lfTwvc3Bhbj48c3Ryb25nPntJVEVNUy5maW5kKGl0ZW0gPT4gaXRlbS5zZWN0aW9uID09PSBzZWN0aW9uKT8ubGFiZWx9PC9zdHJvbmc+PC9kaXY+XG4gICAge21vYmlsZSAmJiBkcmF3ZXIgJiYgPGJ1dHRvbiBjbGFzc05hbWU9XCJsb2NhdGlvbi1kcmF3ZXItYmFja2Ryb3BcIiB0eXBlPVwiYnV0dG9uXCIgYXJpYS1sYWJlbD1cIkNsb3NlIGxvY2F0aW9uIG5hdmlnYXRpb25cIiBvbkNsaWNrPXtjbG9zZURyYXdlcn0gLz59XG4gICAgPGFzaWRlIHJlZj17c2lkZWJhcn0gaWQ9XCJsb2NhdGlvbi1zaWRlYmFyXCIgY2xhc3NOYW1lPXtgbG9jYXRpb24tc2lkZWJhciR7ZHJhd2VyID8gJyBkcmF3ZXItb3BlbicgOiAnJ31gfSBoaWRkZW49e21vYmlsZSAmJiAhZHJhd2VyfSByb2xlPXttb2JpbGUgJiYgZHJhd2VyID8gJ2RpYWxvZycgOiB1bmRlZmluZWR9IGFyaWEtbW9kYWw9e21vYmlsZSAmJiBkcmF3ZXIgPyB0cnVlIDogdW5kZWZpbmVkfSBhcmlhLWxhYmVsPVwiTG9jYXRpb24gbmF2aWdhdGlvblwiPlxuICAgICAgPGRpdiBjbGFzc05hbWU9XCJsb2NhdGlvbi1zaWRlYmFyLXRvcFwiPjxzcGFuIGNsYXNzTmFtZT1cImxvY2F0aW9uLXNpZGViYXItbGFiZWxcIj5MT0NBVElPTiBXT1JLU1BBQ0U8L3NwYW4+e21vYmlsZSA/IDxidXR0b24gdHlwZT1cImJ1dHRvblwiIGFyaWEtbGFiZWw9XCJDbG9zZSBsb2NhdGlvbiBuYXZpZ2F0aW9uXCIgb25DbGljaz17Y2xvc2VEcmF3ZXJ9PjxYIHNpemU9ezIwfSBhcmlhLWhpZGRlbj1cInRydWVcIiAvPjwvYnV0dG9uPiA6IDxidXR0b24gdHlwZT1cImJ1dHRvblwiIGFyaWEtbGFiZWw9e2NvbGxhcHNlZCA/ICdFeHBhbmQgc2lkZWJhcicgOiAnQ29sbGFwc2Ugc2lkZWJhcid9IHRpdGxlPXtjb2xsYXBzZWQgPyAnRXhwYW5kIHNpZGViYXInIDogJ0NvbGxhcHNlIHNpZGViYXInfSBvbkNsaWNrPXsoKSA9PiBzZXRDb2xsYXBzZWQodmFsdWUgPT4gIXZhbHVlKX0+e2NvbGxhcHNlZCA/IDxDaGV2cm9uUmlnaHQgc2l6ZT17MjB9IGFyaWEtaGlkZGVuPVwidHJ1ZVwiIC8+IDogPENoZXZyb25MZWZ0IHNpemU9ezIwfSBhcmlhLWhpZGRlbj1cInRydWVcIiAvPn08L2J1dHRvbj59PC9kaXY+XG4gICAgICA8ZGl2IGNsYXNzTmFtZT1cImxvY2F0aW9uLWlkZW50aXR5XCIgdGl0bGU9e25hbWV9PjxNYXBQaW4gc2l6ZT17MjB9IGFyaWEtaGlkZGVuPVwidHJ1ZVwiIC8+PGRpdiBjbGFzc05hbWU9XCJsb2NhdGlvbi1zaWRlYmFyLWxhYmVsXCI+PHNwYW4+U2VsZWN0ZWQgbG9jYXRpb248L3NwYW4+PGgyPntuYW1lfTwvaDI+PC9kaXY+PC9kaXY+XG4gICAgICA8YnV0dG9uIHR5cGU9XCJidXR0b25cIiBjbGFzc05hbWU9XCJsb2NhdGlvbi1jaGFuZ2VcIiB0aXRsZT1cIkNoYW5nZSBsb2NhdGlvblwiIGFyaWEtbGFiZWw9XCJDaGFuZ2UgbG9jYXRpb25cIiBvbkNsaWNrPXsoKSA9PiB7IHNldE1lbW9yeShudWxsKTsgc2V0QW9pKG51bGwpOyBuYXZpZ2F0ZSgnL3NlYXJjaCcpOyB9fT48TWFwUGluIHNpemU9ezE2fSBhcmlhLWhpZGRlbj1cInRydWVcIiAvPjxzcGFuIGNsYXNzTmFtZT1cImxvY2F0aW9uLXNpZGViYXItbGFiZWxcIj5DaGFuZ2UgTG9jYXRpb248L3NwYW4+PC9idXR0b24+XG4gICAgICA8bmF2IGFyaWEtbGFiZWw9XCJMb2NhdGlvbiBzZWN0aW9uc1wiPntJVEVNUy5tYXAoKHsgc2VjdGlvbjogZGVzdGluYXRpb24sIGxhYmVsLCBJY29uIH0pID0+IDxOYXZMaW5rIGtleT17ZGVzdGluYXRpb259IHRvPXtkYXNoYm9hcmRVcmwoYXJlYSwgZGVzdGluYXRpb24pfSBhcmlhLWxhYmVsPXtsYWJlbH0gdGl0bGU9e2xhYmVsfSBvbkNsaWNrPXsoKSA9PiBtb2JpbGUgJiYgY2xvc2VEcmF3ZXIoKX0+PEljb24gc2l6ZT17MjB9IGFyaWEtaGlkZGVuPVwidHJ1ZVwiIC8+PHNwYW4gY2xhc3NOYW1lPVwibG9jYXRpb24tc2lkZWJhci1sYWJlbFwiPntsYWJlbH08L3NwYW4+PC9OYXZMaW5rPil9PC9uYXY+XG4gICAgICA8Zm9vdGVyIGNsYXNzTmFtZT1cImxvY2F0aW9uLXNpZGViYXItZm9vdFwiPjxJbmZvIHNpemU9ezE2fSBhcmlhLWhpZGRlbj1cInRydWVcIiAvPjxwPlNhdGVsbGl0ZSBvYnNlcnZhdGlvbnMgYXJlIGV2aWRlbmNlLiBNaXNzaW5nIGNvdmVyYWdlIGlzIG5vdCBhIGNvbmZpcm1lZCBhYnNlbmNlIG9mIGZpcmUuPC9wPjwvZm9vdGVyPlxuICAgIDwvYXNpZGU+XG4gICAgPGRpdiBjbGFzc05hbWU9XCJsb2NhdGlvbi1jb250ZW50XCIgZGF0YS1zZWN0aW9uPXtzZWxlY3RlZFNlY3Rpb259PlxuICAgICAge3JlYWR5ID8gPExvY2F0aW9uQXJlYVNjb3BlIGtleT17SlNPTi5zdHJpbmdpZnkoYXJlYSl9IGFyZWE9e2FyZWF9PjxTdXNwZW5zZSBmYWxsYmFjaz17PGRpdiBjbGFzc05hbWU9XCJsb2NhdGlvbi1sb2FkaW5nXCIgcm9sZT1cInN0YXR1c1wiPkxvYWRpbmcge0lURU1TLmZpbmQoaXRlbSA9PiBpdGVtLnNlY3Rpb24gPT09IHNlY3Rpb24pPy5sYWJlbH0gZm9yIHtuYW1lfeKApjwvZGl2Pn0+PEZlYXR1cmUga2V5PXtgJHtpZH06JHtzZWxlY3RlZFNlY3Rpb259YH0gLz48L1N1c3BlbnNlPjwvTG9jYXRpb25BcmVhU2NvcGU+IDogPGRpdiBjbGFzc05hbWU9XCJsb2NhdGlvbi1sb2FkaW5nXCIgcm9sZT1cInN0YXR1c1wiPkxvYWRpbmcgdGhlIGJvdW5kYXJ5IGZvciB7bmFtZX3igKY8L2Rpdj59XG4gICAgPC9kaXY+XG4gIDwvZGl2Pjtcbn1cbiJdLCJmaWxlIjoiRDovbmFzYSBzcGFjZS9CdXJuaW5nX0FjdGl2aXR5L2Zyb250ZW5kL3NyYy9wYWdlcy9Mb2NhdGlvbkRhc2hib2FyZC50c3gifQ==

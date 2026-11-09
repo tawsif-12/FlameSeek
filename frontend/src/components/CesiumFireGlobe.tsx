@@ -2,9 +2,9 @@ import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import { RefreshCw, RotateCcw } from "lucide-react";
+import { RefreshCw, RotateCcw, Search, X } from "lucide-react";
 import "./fireNow.css";
-import { globePointKey, uniqueGlobePoints } from "../utils/globePoints";
+import { globePointKey, uniqueGlobePoints, uploadPointBatches, toggleObservationLayer } from "../utils/globePoints";
 import { getHarmonizedHotspots, getCurrentHotspots, getEvent, getEvents, lookupEvent, normalizeApiError, runJob, searchPlaces, startEvidence } from "../api/client";
 import { DEFAULT_SENSORS, aoiBBox, aoiContains, describeAoi, useAppContext } from "../context/AppContext";
 import type { AOI, CaseMarker, FireEvent, FireEventSummary, ForecastHorizon, HotspotRecord, PlaceResult } from "../types/api";
@@ -220,6 +220,7 @@ export default function CesiumFireGlobe() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const [mobilePanel, setMobilePanel] = useState<"filters" | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [layers, setLayers] = useState<Record<LayerKey, boolean>>(layerDefaults);
   const layersRef = useRef(layers);
   layersRef.current = layers;
@@ -256,10 +257,12 @@ export default function CesiumFireGlobe() {
   }, []);
   const [eventMeta, setEventMeta] = useState<Record<string, unknown>>({});
   const [dataStatus, setDataStatus] = useState("Loading live FIRMS MODIS/VIIRS data...");
-  const [feedState, setFeedState] = useState<"loading" | "live" | "cached" | "ready" | "failed">("loading");
+  const [feedState, setFeedState] = useState<"loading" | "live" | "partial" | "cached" | "ready" | "failed">("loading");
   const [lastRefresh, setLastRefresh] = useState<string | null>(null);
   const [mergedCount, setMergedCount] = useState<number | null>(null);
-  const [observation, setObservation] = useState<HotspotRecord | null>(null);
+  const [rawPreview, setRawPreview] = useState(false);
+  const [backgroundRefresh, setBackgroundRefresh] = useState(false);
+  const [processingPending, setProcessingPending] = useState(false);
   const loadSequence = useRef(0);
   const [eventStatus, setEventStatus] = useState<string | null>(null);
   const [filterToAoi, setFilterToAoi] = useState(Boolean(lockedArea) || searchParams.get("aoi") === "1");
@@ -267,16 +270,21 @@ export default function CesiumFireGlobe() {
   const [drawPoints, setDrawPoints] = useState<number[][]>([]);
   const [placeQuery, setPlaceQuery] = useState("");
   const [placeResults, setPlaceResults] = useState<PlaceResult[]>([]);
+  const [placeSearchStatus, setPlaceSearchStatus] = useState<string | null>(null);
+  const placeRequest = useRef<AbortController | null>(null);
+  useEffect(() => () => placeRequest.current?.abort(), []);
   const [radiusKm, setRadiusKm] = useState(50);
-  const [selectedEvent, setSelectedEvent] = useState<FireEvent | null>(null);
-  const [selectedDetection, setSelectedDetection] = useState<HotspotRecord | null>(null);
+  const [selectedFire, setSelectedFire] = useState<{ event: FireEvent | null; detection: HotspotRecord | null } | null>(null);
+  const selectedEvent = selectedFire?.event ?? null;
+  const selectedDetection = selectedFire?.detection ?? null;
+  const selectionSequence = useRef(0);
   const [selectionStatus, setSelectionStatus] = useState<string | null>(null);
   const [forecast, setForecast] = useState<{ horizon: ForecastHorizon | null; size: number }>({ horizon: null, size: 0 });
   const [exposure, setExposure] = useState<ExposureMarker[]>([]);
   const [viewerReady, setViewerReady] = useState(false);
   const [viewerError, setViewerError] = useState<string | null>(null);
   const [activeInsight, setActiveInsight] = useState<null | "snapshot" | "intensity" | "timeline" | "events">(null);
-  const observationSourceRef = useRef<Cesium.CustomDataSource | null>(null);
+  const observationPointsRef = useRef<Cesium.PointPrimitiveCollection | null>(null);
   const buildingsRef = useRef<Cesium.Cesium3DTileset | null>(null);
   const boundariesRef = useRef<Cesium.ImageryLayer | null>(null);
   const photorealisticTilesRef = useRef<Cesium.Cesium3DTileset | null>(null);
@@ -289,15 +297,23 @@ export default function CesiumFireGlobe() {
 
   const visibleHotspots = useMemo(
     () => [
-      ...(layers.Harmonized ? hotspots.filter((h) => Boolean(h.harmonized)) : []),
+      ...(layers.Harmonized ? hotspots.filter((h) => rawPreview || Boolean(h.harmonized)) : []),
       ...rawHotspots.filter((h) => { const platform = satelliteLayer(h); return platform !== null && layers[platform]; }),
     ].filter((h) => !filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon)),
-    [hotspots, rawHotspots, layers, filterToAoi, aoi],
+    [hotspots, rawHotspots, layers.Harmonized, layers.Terra, layers.Aqua, layers["S-NPP"], layers["NOAA-20"], layers["NOAA-21"], filterToAoi, aoi, rawPreview],
   );
   const visibleEvents = useMemo(
     () => events.filter((e) => e.observation_count >= 3 && (!filterToAoi || !aoi || aoiContains(aoi, e.centroid.lat, e.centroid.lon))),
     [events, filterToAoi, aoi],
   );
+  const satelliteCounts = useMemo(() => {
+    const counts = Object.fromEntries(satelliteLayers.map(layer => [layer, 0])) as Record<SatelliteLayer, number>;
+    for (const h of rawHotspots) {
+      const platform = satelliteLayer(h);
+      if (platform && (!filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon))) counts[platform]++;
+    }
+    return counts;
+  }, [rawHotspots, filterToAoi, aoi]);
   const confirmed = useMemo(() => crossSensorSet(hotspots), [hotspots]);
   const highlightRegion = useMemo(() => aoiIsBangladesh(aoi), [aoi]);
   // Find events whose centroid sits on top of one of our highlighted point clusters.
@@ -338,7 +354,7 @@ export default function CesiumFireGlobe() {
     const crossConfirmed = visibleHotspots.filter((h) => confirmed.has(hotspotKey(h))).length;
     const frps = visibleHotspots.map((h) => h.frp ?? 0);
     const totalFrp = frps.reduce((s, v) => s + v, 0);
-    const maxFrp = frps.length ? Math.max(...frps) : 0;
+    const maxFrp = frps.length ? frps.reduce((max, value) => Math.max(max, value), 0) : 0;
     const intense = frps.filter((v) => v >= 100).length;
     const strong = frps.filter((v) => v >= 30 && v < 100).length;
     const mild = frps.filter((v) => v >= 10 && v < 30).length;
@@ -366,16 +382,18 @@ export default function CesiumFireGlobe() {
     drawingRef.current = drawing;
   }, [drawing]);
 
-  async function loadData() {
+  async function loadData(quiet = false) {
     const sequence = ++loadSequence.current;
-    setFeedState("loading");
-    setMergedCount(null);
-    setObservation(null);
+    if (!quiet) {
+      setFeedState("loading");
+      setMergedCount(null);
+      selectionSequence.current += 1;
+      setSelectedFire(null);
+    }
     const historical = period === "historical";
     const days = historical ? 1 : Number(period);
     if (!historical) {
-      setHotspots([]);
-      setRawHotspots([]);
+      if (!quiet) { setHotspots([]); setRawHotspots([]); }
       setDataStatus("Harmonizing FIRMS detections: quality checks, pixel footprints and event merging...");
     } else {
       setDataStatus(`Loading what satellites saw on ${historicalDate}...`);
@@ -385,16 +403,24 @@ export default function CesiumFireGlobe() {
         ? await getCurrentHotspots(DEFAULT_SENSORS, days, 4000, historicalDate, false)
         : await getHarmonizedHotspots(days);
       if (sequence !== loadSequence.current || unmountedRef.current) return;
-      setFeedState(response.metadata.data_source === "live" ? "live" : response.metadata.data_source === "cached_actual" ? "cached" : "ready");
-      setLastRefresh(new Date().toISOString());
+      setRawPreview(Boolean(response.metadata.processing_pending || response.metadata.harmonization_unavailable));
+      setProcessingPending(Boolean(response.metadata.processing_pending));
+      setBackgroundRefresh(Boolean(response.metadata.refresh_in_progress));
+      setFeedState(response.metadata.partial_coverage ? "partial" : response.metadata.data_source === "live" ? "live" : response.metadata.data_source === "cached_actual" ? "cached" : "ready");
+      setLastRefresh(typeof response.metadata.snapshot_at === "string" ? response.metadata.snapshot_at : new Date().toISOString());
       setMergedCount(!historical && typeof response.metadata.events_total === "number" ? response.metadata.events_total : null);
       setHotspots(uniqueGlobePoints(response.hotspots));
       setRawHotspots(uniqueGlobePoints(historical ? response.hotspots : response.raw_hotspots ?? []));
       if (historical) setLayers((cur) => ({ ...cur, Harmonized: false, Terra: true, Aqua: true, "S-NPP": true, "NOAA-20": true, "NOAA-21": true }));
       const m = response.metadata as Record<string, number | string>;
-      const sourceLabel = m.data_source === "live" ? "LIVE FIRMS" : m.data_source === "cached_actual" ? "cached FIRMS fallback" : String(m.data_source ?? "FIRMS");
+      const missing = response.metadata.unavailable_live_sensors;
+      const sourceLabel = response.metadata.partial_coverage
+        ? `Partial FIRMS coverage (live sources unavailable: ${Array.isArray(missing) ? missing.join(", ") : "unknown"}; cached observations may be included)`
+        : m.data_source === "live" ? "LIVE FIRMS" : m.data_source === "cached_actual" ? "cached FIRMS fallback" : String(m.data_source ?? "FIRMS");
       setDataStatus(
-        historical ? `${sourceLabel} · On ${historicalDate}: ${Number(m.returned_hotspot_count).toLocaleString()} satellite detections.`
+        response.metadata.processing_pending ? `${sourceLabel}: ${Number(m.raw_hotspot_count).toLocaleString()} real observations loaded. Matching events in the background.`
+          : response.metadata.harmonization_unavailable ? `${sourceLabel}: showing real observations; event matching unavailable.`
+          : historical ? `${sourceLabel} · On ${historicalDate}: ${Number(m.returned_hotspot_count).toLocaleString()} satellite detections.`
           : `${sourceLabel} · ${periodLabels[period]}: ${Number(m.raw_hotspot_count).toLocaleString()} detections → ${Number(m.events_total ?? 0).toLocaleString()} footprint-merged events; showing ${Number(m.returned_hotspot_count).toLocaleString()}. Procedure Steps 1–4. Calibrated activity and Monte Carlo uncertainty await data.`,
       );
       if (!historical) {
@@ -404,6 +430,9 @@ export default function CesiumFireGlobe() {
       }
     } catch (error) {
       if (sequence !== loadSequence.current || unmountedRef.current) return;
+      setBackgroundRefresh(false);
+      setProcessingPending(false);
+      if (quiet) { setDataStatus(`Refresh unavailable: ${normalizeApiError(error)}. Keeping loaded observations.`); return; }
       setFeedState("failed");
       setHotspots([]);
       setRawHotspots([]);
@@ -414,7 +443,7 @@ export default function CesiumFireGlobe() {
     }
     if (historical) {
       setEvents([]);
-      setEventStatus("Fires are grouped only for recent days. Use Fire Memory to look at past years in one area.");
+      setEventStatus("Fires are grouped only for recent days. Use Burning Calendar to look at past years in one area.");
       return;
     }
     setEventStatus("Grouping heat spots into separate fires...");
@@ -430,6 +459,12 @@ export default function CesiumFireGlobe() {
       setEventStatus(`Event reconstruction unavailable: ${normalizeApiError(error)}`);
     }
   }
+
+  useEffect(() => {
+    if (!backgroundRefresh || period === "historical") return;
+    const timer = window.setTimeout(() => { void loadData(true); }, 10000);
+    return () => window.clearTimeout(timer);
+  }, [backgroundRefresh, hotspots, period, historicalDate]);
 
   async function waitForContainerSize(element: HTMLDivElement) {
     for (let attempt = 0; attempt < 120; attempt += 1) {
@@ -464,33 +499,32 @@ export default function CesiumFireGlobe() {
     }
   }
 
-  async function openEvent(eventId: string, detection: HotspotRecord | null) {
+  async function openEvent(eventId: string, detection: HotspotRecord | null, sequence = ++selectionSequence.current) {
+    setSelectedFire({ event: null, detection });
     setSelectionStatus("Loading fire event...");
     try {
       const ev = await getEvent(eventId);
-      setSelectedEvent(ev);
-      setSelectedDetection(detection);
+      if (sequence !== selectionSequence.current) return;
+      setSelectedFire({ event: ev, detection });
       setSelectionStatus(null);
     } catch (error) {
-      setSelectionStatus(normalizeApiError(error));
+      if (sequence === selectionSequence.current) setSelectionStatus(normalizeApiError(error));
     }
   }
 
   async function openDetection(h: HotspotRecord) {
-    setObservation(h);
-    if (h.harmonized) {
-      const a = h.harmonized;
-      setSelectionStatus(`Merged fire event · ${a.observations} observations · ${a.platforms} · footprint union ${a.footprint_area_km2.toFixed(2)} km² · fused confidence ${(a.confidence * 100).toFixed(1)}% (not calibrated fire probability). Peak overpass FRP ${(h.frp ?? 0).toFixed(1)} MW. Latent activity awaiting data.`);
-      return;
-    }
-    setSelectionStatus(h.place_hint
-      ? `${h.place_hint} · loading fire event…`
-      : "Finding the fire event this detection belongs to...");
+    const sequence = ++selectionSequence.current;
+    setSelectedFire({ event: null, detection: h });
+    setForecast({ horizon: null, size: 0 });
+    setExposure([]);
+    setSelectionStatus("Finding the fire event this detection belongs to...");
     try {
-      const eventId = await lookupEvent(h.sensor, h.lat, h.lon, h.acq_datetime);
-      await openEvent(eventId, h);
+      const lookup = h.lookup_detection ?? h;
+      const eventId = await lookupEvent(lookup.sensor, lookup.lat, lookup.lon, lookup.acq_datetime);
+      if (sequence !== selectionSequence.current) return;
+      await openEvent(eventId, h, sequence);
     } catch (error) {
-      setSelectionStatus(`${normalizeApiError(error)} Historical-date detections are not linked into events.`);
+      if (sequence === selectionSequence.current) setSelectionStatus(`${normalizeApiError(error)} Event analysis is unavailable; satellite details are in Sighting.`);
     }
   }
 
@@ -544,29 +578,8 @@ export default function CesiumFireGlobe() {
           requestRenderMode: true,
           maximumRenderTimeChange: Infinity,
         });
-        const observations = new Cesium.CustomDataSource("fire-observations");
-        observationSourceRef.current = observations;
-        observations.clustering.enabled = true;
-        observations.clustering.pixelRange = 28;
-        observations.clustering.minimumClusterSize = 4;
-        observations.clustering.clusterEvent.addEventListener((entities, cluster) => {
-          cluster.billboard.show = false;
-          cluster.point.show = true;
-          cluster.point.pixelSize = Math.min(30, 12 + Math.log2(entities.length) * 2);
-          cluster.point.color = Cesium.Color.fromCssColorString("#ea580c").withAlpha(.85);
-          cluster.point.outlineColor = Cesium.Color.WHITE;
-          cluster.point.outlineWidth = 2;
-          cluster.point.id = { fireCluster: entities };
-          cluster.label.show = true;
-          cluster.label.text = String(entities.length);
-          cluster.label.font = "600 11px sans-serif";
-          cluster.label.fillColor = Cesium.Color.fromCssColorString("#172033");
-          cluster.label.showBackground = true;
-          cluster.label.backgroundColor = Cesium.Color.WHITE.withAlpha(.9);
-          cluster.label.pixelOffset = new Cesium.Cartesian2(0, -23);
-          cluster.label.id = { fireCluster: entities };
-        });
-        void viewer.dataSources.add(observations);
+        // GPU point primitives avoid one tracked Entity and terrain subscription per observation.
+        observationPointsRef.current = viewer.scene.primitives.add(new Cesium.PointPrimitiveCollection());
         viewer.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 
         viewer.selectedEntityChanged.addEventListener((entity) => {
@@ -584,6 +597,8 @@ export default function CesiumFireGlobe() {
         handler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
           if (!drawingRef.current) {
             const picked = viewer.scene.pick(click.position);
+            const observation = picked?.id?.fireObservation as HotspotRecord | undefined;
+            if (observation) { void openDetection(observation); return; }
             const members = picked?.id?.fireCluster as Cesium.Entity[] | undefined;
             if (members?.length) void viewer.flyTo(members, { duration: 1 });
             return;
@@ -692,7 +707,7 @@ export default function CesiumFireGlobe() {
       removeCameraOcclusionRef.current = null;
       viewerRef.current?.destroy();
       viewerRef.current = null;
-      observationSourceRef.current = null;
+      observationPointsRef.current = null;
       buildingsRef.current = null;
       boundariesRef.current = null;
       photorealisticTilesRef.current = null;
@@ -748,6 +763,7 @@ export default function CesiumFireGlobe() {
       // Let the theme-aware CSS background and grid show through the canvas.
       viewer.scene.backgroundColor = Cesium.Color.TRANSPARENT;
       viewer.scene.globe.enableLighting = isDayTheme;
+      viewer.scene.globe.baseColor = globeBaseColor;
       viewer.scene.globe.showGroundAtmosphere = !isDayTheme;
       // Avoid dark atmospheric/FXAA fringes against the transparent day canvas.
       viewer.scene.postProcessStages.fxaa.enabled = !isDayTheme;
@@ -789,6 +805,8 @@ export default function CesiumFireGlobe() {
     viewer.scene.requestRender();
   }, [earthMode, lighting, showBuildings, showImagery, theme, viewerReady]);
 
+
+
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer || !boundariesRef.current) return;
@@ -808,44 +826,35 @@ export default function CesiumFireGlobe() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [earthMode, viewerReady]);
 
-  // Rebuild all overlay entities whenever data, layers, AOI or selection change.
+  // Upload large satellite layers in bounded batches so controls remain responsive.
+  // Selection, forecasts and evidence updates do not rebuild observation points.
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    const points = observationPointsRef.current;
+    if (!viewer || !points || !viewerReady) return;
+    points.removeAll();
+    const colors = new Map<string, Cesium.Color>();
+    return uploadPointBatches(visibleHotspots, h => {
+      const platform = satelliteLayer(h);
+      const css = h.harmonized ? "#ef4444" : platform ? satelliteColors[platform] : "#ef4444";
+      if (!colors.has(css)) colors.set(css, Cesium.Color.fromCssColorString(css));
+      points.add({
+        position: Cesium.Cartesian3.fromDegrees(h.lon, h.lat, 30),
+        pixelSize: 5,
+        color: colors.get(css)!,
+        id: { fireObservation: h },
+      });
+    }, () => { if (!viewer.isDestroyed()) viewer.scene.requestRender(); });
+  }, [visibleHotspots, viewerReady]);
+
+  // Only the small selected-event and analysis overlays use tracked entities.
   useEffect(() => {
     const viewer = viewerRef.current;
     if (!viewer) return;
     viewer.entities.removeAll();
-    observationSourceRef.current?.entities.removeAll();
     lookupRef.current = new Map();
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    visibleHotspots.forEach((h, index) => {
-      const id = hotspotKey(h);
-      lookupRef.current.set(id, h);
-      const isHighlighted = highlightRegion && isHighlightedHotspot(h);
-      const color = isHighlighted ? HIGHLIGHT_COLOR : hotspotColor(h, confirmed, sensorColors);
-      const basePx = h.sensor === "modis" ? 9 : 7;
-      const entityName = h.place_hint
-        ? `${sensorFamily(h.sensor)} · ${h.place_hint}`
-        : h.harmonized ? `Merged fire event · ${h.harmonized.observations} observations · ${h.harmonized.platforms}` : `${satelliteLayer(h) ?? sensorFamily(h.sensor)} detection`;
-      const age = Date.now() - Date.parse(h.acq_datetime);
-      const recent = !reduceMotion && age >= 0 && age < 2 * 3600000 && index < 120;
-      observationSourceRef.current?.entities.add({
-        id,
-        name: entityName,
-        position: Cesium.Cartesian3.fromDegrees(h.lon, h.lat, 0),
-        point: {
-          pixelSize: recent ? new Cesium.CallbackProperty(() => basePx + (1 + Math.sin(Date.now() / 650)) * 1.2, false) : isHighlighted ? basePx + 4 : basePx,
-          color,
-          outlineColor: isHighlighted ? HIGHLIGHT_COLOR.withAlpha(0.8) : Cesium.Color.BLACK.withAlpha(0.6),
-          outlineWidth: isHighlighted ? 3 : 1,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-          disableDepthTestDistance: 0,
-        },
-        cylinder: layers["FRP Columns"]
-          ? { length: Math.max(8000, (h.frp ?? 1) * 1500), topRadius: 9000, bottomRadius: 9000, material: color.withAlpha(0.4), heightReference: Cesium.HeightReference.CLAMP_TO_GROUND }
-          : undefined,
-      });
-    });
-
     if (layers["Fire Events"]) {
       visibleEvents.forEach((e) => {
         // Fire Case marker: hollow while unchecked, fill colour = fire type, outline weight = confirmation level, faded once ended.
@@ -898,6 +907,38 @@ export default function CesiumFireGlobe() {
             polyline: { positions: Cesium.Cartesian3.fromDegreesArray([...e.hull, e.hull[0]].flat()), width: isHighlighted ? 4 : selected ? 3 : 1.5, material: color, clampToGround: true },
           });
         }
+      });
+    }
+
+    // Keep the exact clicked observation marked, including while event lookup runs.
+    const selectedPosition = selectedDetection
+      ? { lon: selectedDetection.lon, lat: selectedDetection.lat }
+      : selectedEvent?.centroid;
+    if (selectedPosition) {
+      const markerId = selectedDetection ? `${hotspotKey(selectedDetection)}#selected` : `ev:${selectedEvent!.event_id}#selected`;
+      if (selectedDetection) lookupRef.current.set(hotspotKey(selectedDetection), selectedDetection);
+      const ring = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="#082f4933" stroke="#082f49" stroke-width="6"/><circle cx="24" cy="24" r="18" fill="none" stroke="#ffffff" stroke-width="3"/><path d="M24 1v10M24 37v10M1 24h10M37 24h10" stroke="#082f49" stroke-width="5"/><path d="M24 1v10M24 37v10M1 24h10M37 24h10" stroke="#22d3ee" stroke-width="2"/></svg>`;
+      viewer.entities.add({
+        id: markerId,
+        name: "Selected fire location",
+        position: Cesium.Cartesian3.fromDegrees(selectedPosition.lon, selectedPosition.lat),
+        billboard: {
+          image: `data:image/svg+xml,${encodeURIComponent(ring)}`,
+          width: 48, height: 48,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        },
+        label: {
+          text: "Selected",
+          font: "bold 12px sans-serif",
+          fillColor: Cesium.Color.WHITE,
+          showBackground: true,
+          backgroundColor: Cesium.Color.fromCssColorString("#082f49"),
+          backgroundPadding: new Cesium.Cartesian2(8, 5),
+          pixelOffset: new Cesium.Cartesian2(0, -36),
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        },
       });
     }
 
@@ -966,13 +1007,7 @@ export default function CesiumFireGlobe() {
 
     updateHotspotOcclusion(viewer);
     viewer.scene.requestRender();
-    if (!reduceMotion && visibleHotspots.slice(0,120).some(h => { const age = Date.now() - Date.parse(h.acq_datetime); return age >= 0 && age < 2 * 3600000; })) {
-      const pulse = window.setInterval(() => {
-        if (!document.hidden && !viewer.isDestroyed()) viewer.scene.requestRender();
-      }, 160);
-      return () => window.clearInterval(pulse);
-    }
-  }, [aoi, confirmed, drawPoints, exposure, forecast, highlightRegion, highlightedEventIds, layers, placeForEvent, selectedEvent, sensorColors, verifying, viewerReady, visibleEvents, visibleHotspots]);
+  }, [aoi, drawPoints, exposure, forecast, highlightedEventIds, layers["Fire Events"], layers["Forecast Corridor"], layers.Exposure, placeForEvent, selectedDetection, selectedEvent, verifying, viewerReady, visibleEvents]);
 
   // The scene renders on demand, so keep it ticking while any case marker pulses.
   const anyPulsing = useMemo(() => verifying.size > 0 || visibleEvents.some((e) => e.case?.evidence_checked && e.case.provisional && e.case.state !== "Ended"), [verifying, visibleEvents]);
@@ -1054,17 +1089,33 @@ export default function CesiumFireGlobe() {
   async function runPlaceSearch(event: React.FormEvent) {
     event.preventDefault();
     if (placeQuery.trim().length < 2) return;
+    placeRequest.current?.abort();
+    const controller = new AbortController();
+    placeRequest.current = controller;
+    setPlaceSearchStatus("Finding boundaries...");
     try {
-      setPlaceResults(await searchPlaces(placeQuery.trim()));
+      const results = await searchPlaces(placeQuery.trim(), controller.signal);
+      if (controller.signal.aborted) return;
+      setPlaceResults(results);
+      setPlaceSearchStatus(results.length ? null : "No places found. Try a more specific name.");
     } catch (error) {
-      setSelectionStatus(normalizeApiError(error));
+      if (controller.signal.aborted) return;
+      setPlaceSearchStatus(normalizeApiError(error));
     }
   }
 
   function choosePlace(p: PlaceResult) {
+    if (!p.geometry || !["Polygon", "MultiPolygon"].includes(p.geometry.type)) {
+      setPlaceSearchStatus("No administrative boundary available. Choose a country, region or district.");
+      return;
+    }
     setPlaceResults([]);
-    const next: AOI = p.geometry ? { geometry: p.geometry, bbox: p.bbox, name: p.name.split(",").slice(0, 2).join(","), kind: "place" } : { bbox: p.bbox, name: p.name, kind: "place" };
+    placeRequest.current?.abort();
+    setPlaceSearchStatus(null);
+    const next: AOI = { id: p.place_id, geometry: p.geometry, bbox: p.bbox, name: p.place_name || p.name.split(",")[0], kind: "place" };
     setAoi(next);
+    setFilterToAoi(true);
+    setSearchOpen(false);
     flyToBBox(p.bbox);
   }
 
@@ -1231,10 +1282,10 @@ export default function CesiumFireGlobe() {
 
       <aside id="map-filters" className={`scene-panel globe-left ${mobilePanel === "filters" ? "mobile-panel-open" : ""}`}>
         <section>
-          <p className="panel-title">Fires seen from space</p>
-          <p className="map-howto">Explore satellite-detected thermal hotspots around the world. Select a location to inspect recent fire observations and their characteristics.</p>
-          <span className={`firms-badge ${feedState}`} role="status"><i />NASA FIRMS | {feedState === "loading" ? "Loading" : feedState === "live" ? "NRT available" : feedState === "cached" ? "Cached observations" : feedState === "failed" ? "Unavailable" : "Observations loaded"}</span>
-          <h3 className="filter-section-title">Observation window</h3>
+          <p className="panel-title">Fire Now</p>
+          <p className="map-howto">Click a point for details.</p>
+          <span className={`firms-badge ${feedState}`} role="status"><i />NASA FIRMS | {feedState === "loading" ? "Loading" : feedState === "live" ? "NRT available" : feedState === "partial" ? "Partial coverage" : feedState === "cached" ? "Cached observations" : feedState === "failed" ? "Unavailable" : "Observations loaded"}</span>
+          <h3 className="filter-section-title">Time range</h3>
           <div className="option-grid">
             {(Object.keys(periodLabels) as Period[]).map((p) => (
               <button key={p} type="button" className={period === p ? "option-card active" : "option-card"} aria-pressed={period === p} onClick={() => setPeriod(p)}>{periodLabels[p]}</button>
@@ -1243,53 +1294,48 @@ export default function CesiumFireGlobe() {
           {period === "historical" && (
             <label className="select-row"><span>Date (UTC)</span><input type="date" value={historicalDate} max={new Date().toISOString().slice(0, 10)} min="2000-11-01" onChange={(e) => setHistoricalDate(e.target.value)} /></label>
           )}
-          <button className="option-card refresh-live-data" type="button" disabled={feedState === "loading"} onClick={loadData}><RefreshCw size={14} aria-hidden="true" className={feedState === "loading" ? "is-spinning" : ""} />Refresh FIRMS</button>
-          {lastRefresh && <p className="refresh-timestamp">Last successful fetch <time dateTime={lastRefresh}>{new Date(lastRefresh).toLocaleTimeString("en-GB", {timeZone: "UTC"})} UTC</time></p>}
+          <button className="option-card refresh-live-data" type="button" disabled={feedState === "loading"} onClick={() => void loadData()}><RefreshCw size={14} aria-hidden="true" className={feedState === "loading" ? "is-spinning" : ""} />Refresh FIRMS</button>
+          {lastRefresh && <p className="refresh-timestamp">Updated <time dateTime={lastRefresh}>{new Date(lastRefresh).toLocaleTimeString("en-GB", {timeZone: "UTC"})} UTC</time></p>}
         </section>
         <section className="harmonization-status" aria-live="polite" aria-busy={feedState === "loading"}>
-          <p className="panel-title">Harmonization status</p>
-          <p className={`processing-state ${feedState}`}>{feedState === "loading" ? "Loading observations & processing" : feedState === "failed" ? "Processing failed" : period === "historical" ? "Historical observations loaded" : "Footprint event matching complete"}</p>
+          <p className={`processing-state ${feedState}`}>{feedState === "loading" ? "Loading..." : feedState === "failed" ? "Processing failed" : processingPending ? "Observations loaded. Matching events..." : period === "historical" ? "Historical observations loaded" : "Ready"}</p>
           {feedState === "loading" && <span className="processing-indicator" aria-label="Processing observations" />}
-          {mergedCount !== null && <p className="merged-count"><strong>{mergedCount.toLocaleString()}</strong> footprint-merged events</p>}
-          {feedState !== "loading" && feedState !== "failed" && period !== "historical" && <p className="refresh-timestamp">Quality checks, footprints and event matching (Steps 1-4). Calibrated activity awaits data.</p>}
+          {mergedCount !== null && <p className="merged-count"><strong>{mergedCount.toLocaleString()}</strong> total merged events</p>}
+          {feedState === "failed" && <p className="refresh-timestamp">Data unavailable. Try Refresh FIRMS.</p>}
+          <details className="sidebar-data-details">
+            <summary>Data details</summary>
           <p className="tiles-status">{dataStatus}</p>
           {eventStatus && <p className="tiles-status">{eventStatus}</p>}
           {verifyStatus && <p className="tiles-status verify-status">{verifying.size > 0 && <span className="pulse-dot" />}{verifyStatus}</p>}
+          </details>
         </section>
         <section>
-          <p className="panel-title">Show on the map</p>
+          <p className="panel-title">Satellites</p>
           <div className="compact-layer-grid satellite-toggle-list">
             {satelliteLayers.map((platform) => {
-              const count = rawHotspots.filter((h) => satelliteLayer(h) === platform && (!filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon))).length;
-              return <button key={platform} className={layers[platform] ? "active" : ""} type="button" aria-pressed={layers[platform]} onClick={() => setLayers((cur) => ({ ...cur, [platform]: !cur[platform] }))}>
+              const count = satelliteCounts[platform];
+              return <button key={platform} className={layers[platform] ? "active" : ""} type="button" aria-pressed={layers[platform]} onClick={() => setLayers(cur => toggleObservationLayer(cur, platform, satelliteLayers))}>
                 <span className="layer-check" aria-hidden="true">{layers[platform] ? "\u2713" : ""}</span>
                 <i className="sensor-dot" style={{ background: satelliteColors[platform] }} />
                 <span className="satellite-name">{LAYER_LABEL[platform]}</span><span className="layer-count">{count.toLocaleString()}</span>
               </button>;
             })}
           </div>
-          <p className="panel-title">Harmonized</p>
           <div className="compact-layer-grid">
-            <button className={layers.Harmonized ? "active" : ""} type="button" aria-pressed={layers.Harmonized} disabled={period === "historical"} onClick={() => setLayers((cur) => ({ ...cur, Harmonized: !cur.Harmonized }))}>Harmonized events · {hotspots.filter((h) => h.harmonized && (!filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon))).length.toLocaleString()}</button>
+            <button className={layers.Harmonized ? "active" : ""} type="button" aria-pressed={layers.Harmonized} disabled={period === "historical"} onClick={() => setLayers(cur => toggleObservationLayer(cur, "Harmonized", satelliteLayers))}>Merged map points · {hotspots.filter((h) => h.harmonized && (!filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon))).length.toLocaleString()}</button>
           </div>
-          <p className="tiles-status">Satellite buttons show individual observations. Harmonized shows footprint-merged events (Steps 1–4). Toggle layers independently to compare. A count of 0 means no observations were returned; it does not establish clear coverage or absence of fire.</p>
-          <p className="panel-title">Map overlays</p>
+          {mergedCount !== null && <p className="refresh-timestamp">All merged events are loaded. Zoom in to separate overlapping points.</p>}
+          <p className="panel-title">Overlays</p>
           <div className="compact-layer-grid">
-            {(["FRP Columns", "Forecast Corridor", "Exposure", "Boundaries"] as LayerKey[]).map((layer) => (
-              <button key={layer} className={layers[layer] ? "active" : ""} type="button" onClick={() => setLayers((cur) => ({ ...cur, [layer]: !cur[layer] }))}>{LAYER_LABEL[layer]}</button>
+            {(["Forecast Corridor", "Exposure", "Boundaries"] as LayerKey[]).map((layer) => (
+              <button key={layer} className={layers[layer] ? "active" : ""} type="button" aria-pressed={layers[layer]} disabled={layer === "Forecast Corridor" ? !forecast.horizon : layer === "Exposure" ? exposure.length === 0 : false} title={layer === "Forecast Corridor" && !forecast.horizon ? "Select a fire and run its forecast first." : layer === "Exposure" && exposure.length === 0 ? "Select a fire and run its nearby analysis first." : undefined} onClick={() => setLayers((cur) => ({ ...cur, [layer]: !cur[layer] }))}>{LAYER_LABEL[layer]}</button>
             ))}
           </div>
-          <label className="switch-row"><span>Colour dots by satellite</span><input type="checkbox" checked={sensorColors} onChange={(e) => setSensorColors(e.target.checked)} /></label>
-          <p className="tiles-status">{sensorColors ? "Terra: green · Aqua: blue · S-NPP: yellow · NOAA-20: orange · NOAA-21: purple · Harmonized: pink." : "Dot colour shows fire strength: pale = weak, amber = medium, orange = strong, red = very strong."}</p>
           {layers["Fire Events"] && (
             <div className="behaviour-legend">
               {(Object.keys(KIND_COLORS) as Array<keyof typeof KIND_COLORS>).map((kind) => (
                 <span key={kind}><i style={{ borderColor: KIND_COLORS[kind], background: kind === "unknown" ? "transparent" : KIND_COLORS[kind] }} />{KIND_LABELS[kind]}</span>
               ))}
-              <small>
-                Circles are fires seen at least 3 times. Empty circle = not checked yet. Pulsing = being checked now. Colour = type of fire. Bolder = more certain. Faded = the fire
-                has ended.
-              </small>
               <label className="switch-row"><span>Check the {AUTO_VERIFY_COUNT} main fires automatically</span><input type="checkbox" checked={autoVerify} onChange={(e) => setAutoVerify(e.target.checked)} /></label>
 
               <small>
@@ -1299,12 +1345,18 @@ export default function CesiumFireGlobe() {
             </div>
           )}
         </section>
-        {!lockedArea && <section>
-          <p className="panel-title">Choose a place</p>
+      </aside>
+      {!lockedArea && <>
+        <button type="button" className="floating-place-button" aria-label={drawing ? "Finish polygon" : searchOpen ? "Close location search" : "Search location"} aria-expanded={searchOpen} aria-controls="floating-place-search" onClick={() => drawing ? finishDrawing() : setSearchOpen(open => !open)}>
+          {searchOpen ? <X size={18} aria-hidden="true" /> : <Search size={18} aria-hidden="true" />}<span>{drawing ? `Finish polygon (${drawPoints.length})` : "Search"}</span>
+        </button>
+        {searchOpen && <section id="floating-place-search" className="floating-place-search" aria-label="Location search" onKeyDown={e => { if (e.key === "Escape") { setSearchOpen(false); document.querySelector<HTMLButtonElement>(".floating-place-button")?.focus(); } }}>
+          <header><p className="panel-title">Choose a place</p><button type="button" aria-label="Close search panel" onClick={() => setSearchOpen(false)}><X size={16} aria-hidden="true" /></button></header>
           <form className="aoi-search dark" onSubmit={runPlaceSearch}>
-            <input value={placeQuery} onChange={(e) => setPlaceQuery(e.target.value)} placeholder="Country, state, district, forest..." aria-label="Search place" />
+            <input autoFocus value={placeQuery} onChange={(e) => { placeRequest.current?.abort(); setPlaceQuery(e.target.value); setPlaceResults([]); setPlaceSearchStatus(null); if (!e.target.value.trim() && aoi?.kind === "place") { setAoi(null); setFilterToAoi(false); } }} placeholder="Country, city, forest..." aria-label="Search place" />
             <button type="submit">Go</button>
           </form>
+          {placeSearchStatus && <p className="place-search-status" role="status">{placeSearchStatus}</p>}
           {placeResults.length > 0 && (
             <ul className="aoi-results dark">
               {placeResults.map((r) => (
@@ -1318,23 +1370,22 @@ export default function CesiumFireGlobe() {
             {drawing ? (
               <button type="button" className="active" onClick={finishDrawing}>Finish polygon ({drawPoints.length} pts)</button>
             ) : (
-              <button type="button" onClick={() => { setDrawing(true); setDrawPoints([]); }}>Draw polygon (click points)</button>
+              <button type="button" onClick={() => { setDrawing(true); setDrawPoints([]); setSearchOpen(false); }}>Draw polygon (click points)</button>
             )}
           </div>
           {aoi && (
             <div className="aoi-current">
               <strong>{describeAoi(aoi)}</strong>
-              {highlightRegion && <small className="aoi-demo-hint">✦ Active industrial clusters highlighted. Click one to see the place and open evidence.</small>}
               <label className="switch-row"><span>Show only this area</span><input type="checkbox" checked={filterToAoi} onChange={(e) => setFilterToAoi(e.target.checked)} /></label>
               <div className="aoi-actions">
                 <button type="button" onClick={() => flyToBBox(aoiBBox(aoi)!)}>Zoom</button>
-                <Link to="/fire-memory">Fire Memory →</Link>
+                <Link to="/fire-calendar">Fire Memory →</Link>
                 <button type="button" onClick={() => setAoi(null)}>Clear</button>
               </div>
             </div>
           )}
         </section>}
-      </aside>
+      </>}
       {viewerError && (
         <div className="cesium-error-panel">
           <h3>3D map could not start</h3>
@@ -1342,30 +1393,20 @@ export default function CesiumFireGlobe() {
         </div>
       )}
       {drawing && <div className="draw-hint">Click on the globe to add polygon points, then press "Finish polygon".</div>}
-      {selectionStatus && <div className="selection-status">{selectionStatus}</div>}
+      {selectionStatus && !selectedFire && <div className="selection-status">{selectionStatus}</div>}
       {feedState !== "loading" && visibleHotspots.length === 0 && (!layers["Fire Events"] || visibleEvents.length === 0) && !viewerError && <div className="map-empty-state" role="status"><strong>{feedState === "failed" ? "Observations unavailable" : "No observations to display"}</strong><span>{feedState === "failed" ? "Refresh FIRMS to retry the data request." : "Try another date, place or satellite layer. No detections does not establish absence of fire."}</span></div>}
-      {observation && <aside className="observation-popup" aria-label="Fire detection details">
-        <header><div><small>Satellite observation</small><h3>{sensorFamily(observation.sensor)} / {observation.satellite}</h3></div><button type="button" aria-label="Close observation" onClick={() => setObservation(null)}>{"\u00d7"}</button></header>
-        <dl>
-          <div><dt>Acquired (UTC)</dt><dd>{observation.acq_datetime.replace("T", " ").replace(/(?:Z|\+00:00)$/, "")} UTC</dd></div>
-          <div><dt>Coordinates</dt><dd>{observation.lat.toFixed(5)} deg, {observation.lon.toFixed(5)} deg</dd></div>
-          <div><dt>Fire radiative power</dt><dd>{observation.frp == null ? "Not available" : `${observation.frp.toFixed(1)} MW`}</dd></div>
-          <div><dt>Confidence</dt><dd>{Number.isFinite(observation.confidence_pct) ? `${observation.confidence_pct.toFixed(0)}%` : "Not available"}</dd></div>
-          <div><dt>Day / night</dt><dd>{observation.daynight === "D" ? "Day" : observation.daynight === "N" ? "Night" : "Unknown"}</dd></div>
-          {observation.harmonized && <div><dt>Harmonized event</dt><dd>{observation.harmonized.event_id}</dd></div>}
-        </dl>
-      </aside>}
       <div className="zoom-controls" aria-label="Map zoom controls">
         <button type="button" aria-label="Zoom in" onClick={() => zoom("in")}>+</button>
         <button type="button" aria-label="Zoom out" onClick={() => zoom("out")}>{"\u2212"}</button>
         <button type="button" aria-label="Reset globe view" title="Reset view" onClick={() => viewerRef.current?.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(locations["Atlantic View"].lon, locations["Atlantic View"].lat, locations["Atlantic View"].height), orientation: nadirOrientation, duration: 1.2 })}><RotateCcw size={17} aria-hidden="true" /></button>
       </div>
-      {selectedEvent && (
+      {selectedFire && (
         <Suspense fallback={<div className="event-panel-loading" role="status">Loading fire details…</div>}>
         <EventPanel
           event={selectedEvent}
           detection={selectedDetection}
-          onClose={() => { setSelectedEvent(null); setForecast({ horizon: null, size: 0 }); setExposure([]); }}
+          selectionStatus={selectionStatus}
+          onClose={() => { selectionSequence.current += 1; setSelectedFire(null); setSelectionStatus(null); setForecast({ horizon: null, size: 0 }); setExposure([]); }}
           onForecast={(horizon, size) => setForecast({ horizon, size })}
           onExposure={setExposure}
           onCaseUpdate={applyCaseMarker}

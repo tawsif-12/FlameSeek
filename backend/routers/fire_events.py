@@ -59,7 +59,7 @@ def _event_reconstruction_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any
 def _provisional_marker(ev: dict[str, Any]) -> dict[str, Any]:
     """Marker for an event whose case has not gathered external evidence yet."""
     since = ev["behaviour"]["metrics"]["hours_since_last_detection"]
-    state = "Ended" if since > 48 else "Growing" if ev["behaviour"]["state"] in {"Expanding", "Intensifying"} else "Weakening" if ev["behaviour"]["state"] == "Decaying" else "Active"
+    state = "Unknown"
     return {"kind": "unknown", "reality": "No external confirmation yet", "state": state, "provisional": True, "evidence_checked": False}
 
 
@@ -189,7 +189,10 @@ async def get_event(event_id: str) -> dict[str, Any]:
 async def _run_evidence(job: Job, ev: dict[str, Any], refresh: bool) -> dict[str, Any]:
     await job.update("Reverse geocoding and querying satellites, agencies and news", 0.1)
     subject = subject_from_event(ev)
-    subject["observation_quality"] = await _observation_quality(ev)
+    try:
+        subject["observation_quality"] = await asyncio.wait_for(_observation_quality(ev), 15)
+    except asyncio.TimeoutError:
+        subject["observation_quality"] = {}
 
     async def on_partial(case: dict[str, Any]) -> None:
         # Publish each provisional answer so the map marker updates after every stream.
@@ -216,7 +219,7 @@ async def get_case(event_id: str) -> dict[str, Any]:
 @router.post("/events/{event_id}/evidence")
 async def event_evidence(event_id: str, refresh: bool = False) -> dict[str, Any]:
     ev = _get(event_id)
-    return start_job("evidence", {"event_id": event_id}, lambda job: _run_evidence(job, ev, refresh)).to_dict()
+    return start_job("evidence", {"event_id": event_id, "refresh": refresh, "policy": "source-backed-v2"}, lambda job: _run_evidence(job, ev, refresh)).to_dict()
 
 
 async def _run_outlook(job: Job, ev: dict[str, Any], years: int) -> dict[str, Any]:
