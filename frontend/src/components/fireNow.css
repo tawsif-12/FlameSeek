@@ -1,0 +1,175 @@
+/* Scoped to the live globe: header, routes and other pages retain their theme. */
+/* The global freshness strip takes up space behind the fixed header.
+   Fire Now already reports source freshness in its sidebar. */
+#root:has(.command-globe.fire-now) > .pipeline-freshness {
+  display: none;
+}
+html .immersive-globe-page:has(.fire-now) {
+  --fire-now-background: var(--background, #030712);
+  background: var(--fire-now-background);
+  margin-top: 0;
+}
+html[data-theme="day"] .immersive-globe-page:has(.fire-now) {
+  --fire-now-background: #ffffff;
+}
+.cesium-shell.command-globe.fire-now {
+  --globe-left-panel-width: 312px;
+  --sp-text: #172033; --sp-text-dim: #64748b; --sp-border: #e2e8f0;
+  --sp-panel-bg: rgba(255,255,255,.96); --sp-hud-bg: rgba(255,255,255,.96);
+  --sp-cyan: #ea580c; --sp-cyan-glow: transparent;
+  color: #172033;
+  background: var(--fire-now-background, #030712);
+}
+.cesium-shell.command-globe.fire-now::before {
+  opacity: 1;
+  background-image:
+    linear-gradient(rgba(148,163,184,.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,.14) 1px, transparent 1px),
+    linear-gradient(rgba(148,163,184,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,.07) 1px, transparent 1px);
+  background-size: 200px 200px, 200px 200px, 40px 40px, 40px 40px;
+  background-position: center;
+  mask-image: none;
+}
+.command-globe.fire-now .cesium-container { position: absolute; top: 0; bottom: 0; left: 336px; width: calc(100% - 336px); height: 100%; filter: none; transform-origin: center; }
+html:not([data-theme="day"]) .immersive-globe-page:has(.fire-now),
+html:not([data-theme="day"]) .cesium-shell.command-globe.fire-now {
+  background: var(--background, #030712);
+}
+html:not([data-theme="day"]) .cesium-shell.command-globe.fire-now::before {
+  opacity: .45;
+  background-image:
+    linear-gradient(rgba(148,163,184,.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,.16) 1px, transparent 1px),
+    linear-gradient(rgba(148,163,184,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,.08) 1px, transparent 1px);
+}
+.command-globe.fire-now.insight-open .cesium-container { transform: translateX(-7%) scale(.86); }
+.command-globe.fire-now :is(.cesium-widget,.cesium-viewer) { background: transparent; }
+.command-globe.fire-now :is(.cesium-viewer-cesiumWidgetContainer, .cesium-container, canvas) {
+  background-color: transparent;
+}
+/* Apply the glow outside Cesium's clipping wrappers so it has no rectangular seam. */
+.cesium-shell.command-globe.fire-now .cesium-container {
+  filter: drop-shadow(0 18px 48px rgba(24, 45, 68, .22))
+    drop-shadow(0 0 80px rgba(139, 193, 233, .38));
+}
+html[data-theme="day"] .cesium-shell.command-globe.fire-now .cesium-container {
+  filter: drop-shadow(0 12px 48px rgba(118, 159, 190, .14))
+    drop-shadow(0 0 48px rgba(104, 174, 222, .32))
+    drop-shadow(0 0 100px rgba(143, 196, 232, .36));
+}
+.command-globe.fire-now :is(.scene-panel,.insight-dock,.insight-drawer,.observation-popup,.zoom-controls button,.mobile-map-controls button) {
+  background: rgba(255,255,255,.96); border: 1px solid #e2e8f0; color: #172033;
+  box-shadow: 0 12px 36px -18px #20395836, 0 2px 6px #20395805;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.command-globe.fire-now .scene-panel { left: 20px; top: 20px; bottom: 20px; border-radius: 16px; scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+.command-globe.fire-now .scene-panel::before { display: none; }
+.command-globe.fire-now .scene-panel > section { padding: 20px; border-bottom: 1px solid #e2e8f0; }
+.command-globe.fire-now :is(.panel-title,.filter-section-title) { color: #172033; font: 700 11px/1.5 Inter,system-ui,sans-serif; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 12px; }
+.command-globe.fire-now .filter-section-title { margin-top: 22px; }
+.command-globe.fire-now :is(.map-howto,.tiles-status,.refresh-timestamp,.insight-note,.switch-row,.select-row,.behaviour-legend) { color: #64748b; font-size: 12px; line-height: 1.65; }
+.command-globe.fire-now .map-howto { margin: 0 0 14px; }
+.command-globe.fire-now .tiles-status { overflow-wrap: anywhere; }
+.command-globe.fire-now .firms-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border-radius: 6px; background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; font-size: 10px; font-weight: 600; }
+.firms-badge i { width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; }
+.firms-badge.live i { background: #299477; } .firms-badge.failed i { background: #c65b36; }
+.command-globe.fire-now .option-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.command-globe.fire-now :is(.option-card,.compact-layer-grid button,.aoi-tools button,.aoi-actions button,.aoi-actions a) { background: #fff; color: #475569; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: none; min-height: 40px; font-size: 12px; transition: background .16s, border-color .16s; }
+.command-globe.fire-now :is(.option-card,.compact-layer-grid button,.aoi-tools button).active { background: #fff7ed; border-color: #fdba74; color: #9a3412; box-shadow: none; }
+.command-globe.fire-now :is(button,a,input,select):focus-visible { outline: 2px solid #0284c7; outline-offset: 3px; }
+.command-globe.fire-now button:hover { border-color: #cbd5e1; }
+.command-globe.fire-now button:disabled { opacity: .6; cursor: wait; }
+.command-globe.fire-now .refresh-live-data { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; margin-top: 12px; }
+.command-globe.fire-now .refresh-timestamp { font-size: 10px; margin: 9px 0 0; }
+.command-globe.fire-now .refresh-timestamp time { font-variant-numeric: tabular-nums; }
+.processing-state { font-size: 12px; color: #475569; margin: 0; }
+.processing-state.failed { color: #b45309; }
+.processing-indicator { display: block; height: 3px; margin-top: 12px; background: linear-gradient(90deg,#e2e8f0 0 25%,#fb923c 50%,#e2e8f0 75%); background-size: 200% 100%; border-radius: 3px; animation: firms-processing 1.8s linear infinite; }
+.merged-count { color: #64748b; font-size: 12px; margin: 10px 0 0; }.merged-count strong { color: #172033; font-size: 20px; margin-right: 5px; }
+.command-globe.fire-now .satellite-toggle-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 20px; }
+.command-globe.fire-now .satellite-toggle-list button { display: flex; align-items: center; text-align: left; padding: 10px; gap: 8px; background: #fff; color: #475569; }
+.command-globe.fire-now .satellite-toggle-list button.active { background: #f8fafc; border-color: #cbd5e1; color: #172033; }
+.layer-check { flex: 0 0 16px; height: 16px; display: grid; place-items: center; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 11px; }
+.active .layer-check { background: #334155; color: #fff; border-color: #334155; }
+.sensor-dot { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; }.satellite-name { flex: 1; font-size: 11px; }.layer-count { font-size: 11px; font-variant-numeric: tabular-nums; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
+.command-globe.fire-now :is(input:not([type=checkbox]), select, .aoi-current) { color: #172033; background: #f8fafc; border-color: #e2e8f0; color-scheme: light; }
+.command-globe.fire-now input[type=checkbox] { accent-color: #475569; }
+.command-globe.fire-now .zoom-controls { left: 350px; bottom: 30px; gap: 6px; }
+.command-globe.fire-now .zoom-controls button { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 9px; font-size: 22px; }
+.command-globe.fire-now .insight-dock { left: calc(50% + 168px); bottom: 28px; max-width: calc(100% - 460px); border-radius: 999px; padding: 5px; }
+.command-globe.fire-now .insight-dock button { color: #64748b; padding: 10px 14px; font-size: 10px; letter-spacing: .07em; }
+.command-globe.fire-now .insight-dock button.active { color: #9a3412; background: #fff1e6; box-shadow: none; }
+.command-globe.fire-now .insight-drawer { right: 20px; width: min(360px,30vw); border-radius: 16px; }
+.command-globe.fire-now .hud-stat { background: #f8fafc; border-color: #e2e8f0; color: #172033; }
+.command-globe.fire-now :is(.hud-stat strong,.insight-context,.insight-close,.mission-kicker) { color: #475569; }
+.command-globe.fire-now :is(.selection-status,.draw-hint,.cesium-error-panel) { background: #fff; color: #475569; border-color: #e2e8f0; }
+.command-globe.fire-now .selection-status { max-width: min(460px,45%); left: auto; right: 20px; }
+.command-globe.fire-now .observation-popup { position: absolute; z-index: 9; top: 20px; right: 20px; width: 310px; max-height: calc(100% - 110px); overflow: auto; border-radius: 14px; border-top: 3px solid #f97316; padding: 18px; }
+.observation-popup header { display: flex; justify-content: space-between; align-items: start; gap: 12px; }.observation-popup small { color: #64748b; font-size: 10px; text-transform: uppercase; letter-spacing: .09em; }.observation-popup h3 { font-size: 15px; margin: 5px 0 0; color: #172033; }.observation-popup header button { border: 0; background: #f1f5f9; color: #475569; border-radius: 7px; width: 30px; height: 30px; font-size: 20px; }.observation-popup dl { margin: 16px 0 0; }.observation-popup dl div { display: grid; gap: 3px; padding: 9px 0; border-top: 1px solid #f1f5f9; }.observation-popup dt { font-size: 10px; color: #64748b; }.observation-popup dd { margin: 0; font-size: 12px; color: #172033; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.map-empty-state { position: absolute; z-index: 2; left: calc(50% + 168px); bottom: 95px; transform: translateX(-50%); width: min(360px,38%); text-align: center; color: #64748b; background: rgba(255,255,255,.93); padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 12px; pointer-events: none; }.map-empty-state strong { display: block; font-size: 12px; color: #334155; margin-bottom: 3px; }.map-empty-state span { font-size: 11px; line-height: 1.5; }
+.is-spinning { animation: firms-spin 1.5s linear infinite; }@keyframes firms-spin { to { transform: rotate(360deg); } }@keyframes firms-processing { to { background-position: -200% 0; } }
+@media (min-width: 901px) and (max-width: 1200px) {
+ .cesium-shell.command-globe.fire-now { --globe-left-panel-width: 270px; }
+ .command-globe.fire-now .cesium-container { left: 294px; width: calc(100% - 294px); }
+ .command-globe.fire-now .zoom-controls { left: 306px; }
+ .command-globe.fire-now .insight-dock { left: calc(50% + 147px); max-width: calc(100% - 380px); }
+ .command-globe.fire-now .insight-dock button { padding: 10px; font-size: 9px; }
+}
+@media (max-width: 900px) {
+ .command-globe.fire-now .cesium-container { left: 0; width: 100%; }
+ .command-globe.fire-now.insight-open .cesium-container { transform: none; }
+ .command-globe.fire-now .scene-panel { left: 12px; top: 64px; bottom: auto; width: auto; }
+ .command-globe.fire-now .scene-panel > section { padding: 18px; }
+ .command-globe.fire-now .zoom-controls { left: 12px; bottom: 84px; }
+ .command-globe.fire-now .zoom-controls button { width: 44px; height: 44px; }
+ .command-globe.fire-now .insight-dock { left: 50%; bottom: 12px; max-width: calc(100% - 24px); }
+ .command-globe.fire-now .insight-dock button { min-height: 44px; }
+ .command-globe.fire-now .insight-drawer { left: 12px; right: 12px; width: auto; }
+ .command-globe.fire-now .observation-popup { top: 64px; right: 12px; width: min(310px,calc(100% - 82px)); max-height: calc(100% - 145px); }
+ .command-globe.fire-now .observation-popup header button { min-height: 36px; min-width: 36px; }
+ .map-empty-state { left: 50%; bottom: 82px; width: calc(100% - 150px); }
+ .command-globe.fire-now .selection-status { max-width: calc(100% - 90px); right: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .is-spinning,.processing-indicator { animation: none; }.command-globe.fire-now .cesium-container { transition: none; } }
+
+/* Night surfaces follow the site's navy palette; day surfaces stay white. */
+html:not([data-theme="day"]) .cesium-shell.command-globe.fire-now {
+  --sp-text: #e5edf7;
+  --sp-text-dim: #9aacc2;
+  --sp-border: #293b51;
+  --sp-border-strong: #405976;
+  --sp-panel-bg: rgba(12, 23, 39, .96);
+  --sp-hud-bg: rgba(12, 23, 39, .96);
+}
+html:not([data-theme="day"]) .command-globe.fire-now :is(.scene-panel,.insight-drawer,.insight-dock,.observation-popup,.zoom-controls button,.mobile-map-controls button,.map-empty-state,.selection-status,.draw-hint,.cesium-error-panel) {
+  background: rgba(12, 23, 39, .96);
+  color: #e5edf7;
+  border-color: #293b51;
+  box-shadow: 0 14px 36px -18px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.035);
+}
+html:not([data-theme="day"]) .command-globe.fire-now :is(.scene-panel > section,.observation-popup dl div,.insight-drawer > header) { border-color: #25364b; }
+html:not([data-theme="day"]) .command-globe.fire-now :is(.panel-title,.filter-section-title,.hud-stat strong,.mission-kicker,.merged-count strong,.observation-popup h3,.observation-popup dd,.map-empty-state strong,.behaviour-mini b) { color: #e5edf7; }
+html:not([data-theme="day"]) .command-globe.fire-now :is(.map-howto,.tiles-status,.refresh-timestamp,.insight-note,.switch-row,.select-row,.behaviour-legend,.insight-context,.insight-close,.processing-state,.merged-count,.observation-popup dt,.observation-popup small,.map-empty-state span,.behaviour-mini,.hud-empty) { color: #9aacc2; }
+html:not([data-theme="day"]) .command-globe.fire-now :is(.option-card,.compact-layer-grid button,.aoi-tools button,.aoi-actions button,.aoi-actions a,.hud-stat,.firms-badge,.aoi-current,input:not([type=checkbox]),select,.observation-popup header button) {
+  background: #132238;
+  border-color: #2c4059;
+  color: #c7d5e6;
+  color-scheme: dark;
+}
+html:not([data-theme="day"]) .command-globe.fire-now :is(.option-card,.compact-layer-grid button,.aoi-tools button).active,
+html:not([data-theme="day"]) .command-globe.fire-now .insight-dock button.active {
+  background: #38281f;
+  color: #ffb47c;
+  border-color: #95603c;
+}
+html:not([data-theme="day"]) .command-globe.fire-now .satellite-toggle-list button.active { background: #1a3048; color: #e5edf7; border-color: #46617e; }
+html:not([data-theme="day"]) .command-globe.fire-now :is(.layer-count,.layer-check) { background: #20334b; color: #bcd0e5; border-color: #405976; }
+html:not([data-theme="day"]) .command-globe.fire-now .active .layer-check { background: #94b8d8; color: #0c1727; }
+html:not([data-theme="day"]) .command-globe.fire-now .insight-dock button { color: #9aacc2; }
+html:not([data-theme="day"]) .command-globe.fire-now .insight-dock button.active { color: #ffb47c; }
+html:not([data-theme="day"]) .command-globe.fire-now button:hover { background-color: #1c324b; border-color: #506c8a; }
+html:not([data-theme="day"]) .command-globe.fire-now .processing-state.failed { color: #ffb47c; }
+html:not([data-theme="day"]) .command-globe.fire-now .scene-panel { scrollbar-color: #405976 transparent; }
+html:not([data-theme="day"]) .command-globe.fire-now input[type=checkbox] { accent-color: #94b8d8; }

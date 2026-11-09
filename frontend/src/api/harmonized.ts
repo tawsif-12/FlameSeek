@@ -103,7 +103,7 @@ export async function snapshotGet<T>(path: string, params: Record<string, string
 
 let siteCache: Promise<SiteData> | null = null;
 export function loadSiteData(): Promise<SiteData> {
-  siteCache ??= fetch("/site-data/site.json").then((r) => {
+  siteCache ??= fetch("/site-data/site.json", { cache: "force-cache" }).then((r) => {
     if (!r.ok) throw new Error(`site.json ${r.status}`);
     return r.json();
   });

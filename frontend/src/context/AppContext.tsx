@@ -17,13 +17,20 @@ const AppContext = createContext<AppState | null>(null);
 
 export const DEFAULT_SENSORS: SensorName[] = ["modis", "viirs_snpp", "viirs_noaa20", "viirs_noaa21"];
 const APP_STATE_KEY = "flameseek.analysis-state.v1";
+const APP_PREFS_KEY = "flameseek.analysis-prefs.v2";
+const APP_MEMORY_KEY = "flameseek.analysis-memory.v2";
 
-function readSavedState(): { aoi: AOI | null; sensors: SensorName[]; memory: FireMemoryResult | null } {
+function readSavedPreferences(): { aoi: AOI | null; sensors: SensorName[]; memory: FireMemoryResult | null } {
   const linked = areaFromUrl(window.location.search, window.location.hash);
+  const freshSearch = window.location.pathname === '/search';
   try {
-    const saved = JSON.parse(localStorage.getItem(APP_STATE_KEY) ?? "null");
-    const freshSearch = window.location.pathname === '/search';
-    return { aoi: linked ?? (freshSearch ? null : saved?.aoi ?? null), sensors: saved?.sensors?.length ? saved.sensors : DEFAULT_SENSORS, memory: linked || freshSearch ? null : saved?.memory ?? null };
+    const saved = JSON.parse(localStorage.getItem(APP_PREFS_KEY) ?? "null");
+    const needsAnalysis = /^\/(fire-memory|fire-dna|area|location)/.test(window.location.pathname);
+    const legacy = saved ? null : JSON.parse(localStorage.getItem(APP_STATE_KEY) ?? "null");
+    const memory = !linked && !freshSearch && needsAnalysis
+      ? JSON.parse(localStorage.getItem(APP_MEMORY_KEY) ?? "null") ?? legacy?.memory ?? null
+      : null;
+    return { aoi: linked ?? (freshSearch ? null : saved?.aoi ?? legacy?.aoi ?? null), sensors: saved?.sensors?.length ? saved.sensors : legacy?.sensors?.length ? legacy.sensors : DEFAULT_SENSORS, memory };
   } catch {
     return { aoi: linked, sensors: DEFAULT_SENSORS, memory: null };
   }
@@ -37,15 +44,55 @@ export const SENSOR_LABELS: Record<SensorName, string> = {
 };
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [saved] = useState(readSavedState);
+  const [saved] = useState(readSavedPreferences);
   const [aoi, setAoi] = useState<AOI | null>(saved.aoi);
   const [sensors, setSensors] = useState<SensorName[]>(saved.sensors);
   const [memory, setMemory] = useState<FireMemoryResult | null>(saved.memory);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    try { localStorage.setItem(APP_STATE_KEY, JSON.stringify({ aoi, sensors, memory })); }
+    // A Fire Memory result can be large. Parse it after the first paint on pages
+    // that do not consume it, while retaining immediate hydration on analysis pages.
+    const hydrate = () => {
+      try {
+        const currentMemory = JSON.parse(localStorage.getItem(APP_MEMORY_KEY) ?? "null");
+        const linked = areaFromUrl(window.location.search, window.location.hash);
+        const freshSearch = window.location.pathname === '/search';
+        if (currentMemory && !linked && !freshSearch) setMemory(currentMemory);
+        if (!localStorage.getItem(APP_PREFS_KEY)) {
+          const legacy = JSON.parse(localStorage.getItem(APP_STATE_KEY) ?? "null");
+          if (legacy?.aoi && !linked && !freshSearch) setAoi(legacy.aoi);
+          if (legacy?.sensors?.length) setSensors(legacy.sensors);
+          if (!currentMemory && legacy?.memory && !linked && !freshSearch) setMemory(legacy.memory);
+        }
+      } catch { /* Ignore corrupt optional saved analysis. */ }
+      setHydrated(true);
+    };
+    const needsAnalysis = /^\/(fire-memory|fire-dna|area)/.test(window.location.pathname);
+    if (needsAnalysis) {
+      hydrate();
+      return;
+    }
+    const win = window as typeof window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+    if (win.requestIdleCallback) {
+      const id = win.requestIdleCallback(hydrate, { timeout: 2000 });
+      return () => win.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(hydrate, 500);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try { localStorage.setItem(APP_PREFS_KEY, JSON.stringify({ aoi, sensors })); }
     catch { /* The live app remains usable if browser storage is unavailable or full. */ }
-  }, [aoi, sensors, memory]);
+  }, [aoi, sensors, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try { localStorage.setItem(APP_MEMORY_KEY, JSON.stringify(memory)); }
+    catch { /* The live app remains usable if browser storage is unavailable or full. */ }
+  }, [memory, hydrated]);
 
   const value = useMemo(() => ({ aoi, setAoi, sensors, setSensors, memory, setMemory }), [aoi, sensors, memory]);
 

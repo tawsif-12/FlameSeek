@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Plot from "react-plotly.js";
 import { GeoJSON, MapContainer, Rectangle, TileLayer, Tooltip, useMap } from "react-leaflet";
 import type { LatLngBoundsExpression } from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { getHotspotsInBox, normalizeApiError, runJob, startFireMemory, startPlacePipeline, savedFireMemory, savedPlacePipeline } from "../api/client";
 import { aoiBBox, aoiContains, describeAoi, useAppContext } from "../context/AppContext";
 import type { FireMemoryResult, HotspotRecord, Job, PlacePipelineSummary, SensorName } from "../types/api";

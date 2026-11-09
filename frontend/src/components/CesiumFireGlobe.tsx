@@ -1,12 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
+import { RefreshCw, RotateCcw } from "lucide-react";
+import "./fireNow.css";
 import { globePointKey, uniqueGlobePoints } from "../utils/globePoints";
 import { getHarmonizedHotspots, getCurrentHotspots, getEvent, getEvents, lookupEvent, normalizeApiError, runJob, searchPlaces, startEvidence } from "../api/client";
 import { DEFAULT_SENSORS, aoiBBox, aoiContains, describeAoi, useAppContext } from "../context/AppContext";
 import type { AOI, CaseMarker, FireEvent, FireEventSummary, ForecastHorizon, HotspotRecord, PlaceResult } from "../types/api";
-import EventPanel, { BEHAVIOUR_COLORS, BEHAVIOUR_PLAIN, KIND_COLORS, KIND_LABELS, REALITY_WEIGHT } from "./EventPanel";
+import { BEHAVIOUR_COLORS, BEHAVIOUR_PLAIN, KIND_COLORS, KIND_LABELS, REALITY_WEIGHT } from "./fireCasePresentation";
+
+const EventPanel = React.lazy(() => import("./EventPanel"));
 
 type SatelliteLayer = "Terra" | "Aqua" | "S-NPP" | "NOAA-20" | "NOAA-21";
 type LayerKey = SatelliteLayer | "Harmonized" | "Fire Events" | "FRP Columns" | "Forecast Corridor" | "Exposure" | "Boundaries";
@@ -182,7 +186,7 @@ function isPositionVisibleFromCamera(position: Cesium.Cartesian3, cameraPosition
 
 /** Hide entities on the far side of the Earth so the globe reads as a solid planet. */
 function updateHotspotOcclusion(viewer: Cesium.Viewer) {
-  viewer.entities.values.forEach((entity) => {
+  [...viewer.entities.values, ...viewer.dataSources.getByName("fire-observations").flatMap(source => source.entities.values)].forEach((entity) => {
     if (!entity.position) return;
     const position = entity.position.getValue(viewer.clock.currentTime);
     entity.show = position ? isPositionVisibleFromCamera(position, viewer.camera.positionWC) : false;
@@ -252,6 +256,11 @@ export default function CesiumFireGlobe() {
   }, []);
   const [eventMeta, setEventMeta] = useState<Record<string, unknown>>({});
   const [dataStatus, setDataStatus] = useState("Loading live FIRMS MODIS/VIIRS data...");
+  const [feedState, setFeedState] = useState<"loading" | "live" | "cached" | "ready" | "failed">("loading");
+  const [lastRefresh, setLastRefresh] = useState<string | null>(null);
+  const [mergedCount, setMergedCount] = useState<number | null>(null);
+  const [observation, setObservation] = useState<HotspotRecord | null>(null);
+  const loadSequence = useRef(0);
   const [eventStatus, setEventStatus] = useState<string | null>(null);
   const [filterToAoi, setFilterToAoi] = useState(Boolean(lockedArea) || searchParams.get("aoi") === "1");
   const [drawing, setDrawing] = useState(false);
@@ -267,6 +276,7 @@ export default function CesiumFireGlobe() {
   const [viewerReady, setViewerReady] = useState(false);
   const [viewerError, setViewerError] = useState<string | null>(null);
   const [activeInsight, setActiveInsight] = useState<null | "snapshot" | "intensity" | "timeline" | "events">(null);
+  const observationSourceRef = useRef<Cesium.CustomDataSource | null>(null);
   const buildingsRef = useRef<Cesium.Cesium3DTileset | null>(null);
   const boundariesRef = useRef<Cesium.ImageryLayer | null>(null);
   const photorealisticTilesRef = useRef<Cesium.Cesium3DTileset | null>(null);
@@ -357,6 +367,10 @@ export default function CesiumFireGlobe() {
   }, [drawing]);
 
   async function loadData() {
+    const sequence = ++loadSequence.current;
+    setFeedState("loading");
+    setMergedCount(null);
+    setObservation(null);
     const historical = period === "historical";
     const days = historical ? 1 : Number(period);
     if (!historical) {
@@ -370,6 +384,10 @@ export default function CesiumFireGlobe() {
       const response = historical
         ? await getCurrentHotspots(DEFAULT_SENSORS, days, 4000, historicalDate, false)
         : await getHarmonizedHotspots(days);
+      if (sequence !== loadSequence.current || unmountedRef.current) return;
+      setFeedState(response.metadata.data_source === "live" ? "live" : response.metadata.data_source === "cached_actual" ? "cached" : "ready");
+      setLastRefresh(new Date().toISOString());
+      setMergedCount(!historical && typeof response.metadata.events_total === "number" ? response.metadata.events_total : null);
       setHotspots(uniqueGlobePoints(response.hotspots));
       setRawHotspots(uniqueGlobePoints(historical ? response.hotspots : response.raw_hotspots ?? []));
       if (historical) setLayers((cur) => ({ ...cur, Harmonized: false, Terra: true, Aqua: true, "S-NPP": true, "NOAA-20": true, "NOAA-21": true }));
@@ -385,6 +403,8 @@ export default function CesiumFireGlobe() {
         return;
       }
     } catch (error) {
+      if (sequence !== loadSequence.current || unmountedRef.current) return;
+      setFeedState("failed");
       setHotspots([]);
       setRawHotspots([]);
       setEvents([]);
@@ -457,6 +477,7 @@ export default function CesiumFireGlobe() {
   }
 
   async function openDetection(h: HotspotRecord) {
+    setObservation(h);
     if (h.harmonized) {
       const a = h.harmonized;
       setSelectionStatus(`Merged fire event · ${a.observations} observations · ${a.platforms} · footprint union ${a.footprint_area_km2.toFixed(2)} km² · fused confidence ${(a.confidence * 100).toFixed(1)}% (not calibrated fire probability). Peak overpass FRP ${(h.frp ?? 0).toFixed(1)} MW. Latent activity awaiting data.`);
@@ -490,7 +511,7 @@ export default function CesiumFireGlobe() {
         const ellipsoidTerrain = new Cesium.EllipsoidTerrainProvider();
         ellipsoidTerrainRef.current = ellipsoidTerrain;
         const localImageryProvider = () =>
-          Cesium.TileMapServiceImageryProvider.fromUrl(Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII"));
+          Cesium.SingleTileImageryProvider.fromUrl("/textures/earth_day_2048.jpg", { credit: "NASA Earth imagery (illustrative basemap)" });
         let worldImageryProvider: Cesium.ImageryProvider;
         if (cesiumIonToken) {
           try {
@@ -505,6 +526,9 @@ export default function CesiumFireGlobe() {
         }
 
         const viewer = new Cesium.Viewer(containerRef.current, {
+          contextOptions: { webgl: { alpha: true, premultipliedAlpha: false, antialias: true } },
+          // Cesium's OIT composite can leave an opaque black limb on an alpha canvas.
+          orderIndependentTranslucency: false,
           animation: false,
           baseLayer: new Cesium.ImageryLayer(worldImageryProvider),
           baseLayerPicker: false,
@@ -520,6 +544,29 @@ export default function CesiumFireGlobe() {
           requestRenderMode: true,
           maximumRenderTimeChange: Infinity,
         });
+        const observations = new Cesium.CustomDataSource("fire-observations");
+        observationSourceRef.current = observations;
+        observations.clustering.enabled = true;
+        observations.clustering.pixelRange = 28;
+        observations.clustering.minimumClusterSize = 4;
+        observations.clustering.clusterEvent.addEventListener((entities, cluster) => {
+          cluster.billboard.show = false;
+          cluster.point.show = true;
+          cluster.point.pixelSize = Math.min(30, 12 + Math.log2(entities.length) * 2);
+          cluster.point.color = Cesium.Color.fromCssColorString("#ea580c").withAlpha(.85);
+          cluster.point.outlineColor = Cesium.Color.WHITE;
+          cluster.point.outlineWidth = 2;
+          cluster.point.id = { fireCluster: entities };
+          cluster.label.show = true;
+          cluster.label.text = String(entities.length);
+          cluster.label.font = "600 11px sans-serif";
+          cluster.label.fillColor = Cesium.Color.fromCssColorString("#172033");
+          cluster.label.showBackground = true;
+          cluster.label.backgroundColor = Cesium.Color.WHITE.withAlpha(.9);
+          cluster.label.pixelOffset = new Cesium.Cartesian2(0, -23);
+          cluster.label.id = { fireCluster: entities };
+        });
+        void viewer.dataSources.add(observations);
         viewer.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 
         viewer.selectedEntityChanged.addEventListener((entity) => {
@@ -535,7 +582,12 @@ export default function CesiumFireGlobe() {
 
         const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
         handler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
-          if (!drawingRef.current) return;
+          if (!drawingRef.current) {
+            const picked = viewer.scene.pick(click.position);
+            const members = picked?.id?.fireCluster as Cesium.Entity[] | undefined;
+            if (members?.length) void viewer.flyTo(members, { duration: 1 });
+            return;
+          }
           const cartesian = viewer.camera.pickEllipsoid(click.position, viewer.scene.globe.ellipsoid);
           if (!cartesian) return;
           const c = Cesium.Cartographic.fromCartesian(cartesian);
@@ -561,11 +613,32 @@ export default function CesiumFireGlobe() {
         viewer.scene.globe.atmosphereSaturationShift = -0.45;
         viewer.scene.globe.atmosphereBrightnessShift = -0.08;
         configureCameraController(viewer, earthMode);
-        viewer.scene.backgroundColor = Cesium.Color.fromCssColorString(daylightBackgrounds.Day);
+        viewer.scene.backgroundColor = Cesium.Color.TRANSPARENT;
+        if (viewer.scene.skyBox) viewer.scene.skyBox.show = false;
         if (viewer.scene.skyAtmosphere) {
           viewer.scene.skyAtmosphere.saturationShift = -0.55;
           viewer.scene.skyAtmosphere.brightnessShift = -0.15;
         }
+        // A camera-relative sun keeps the interactive daytime hemisphere readable.
+        const daylightSun = new Cesium.DirectionalLight({ direction: new Cesium.Cartesian3(1, 0, 0), intensity: 1.6 });
+        viewer.scene.light = daylightSun;
+        viewer.scene.preRender.addEventListener(() => {
+          const direction = Cesium.Cartesian3.add(viewer.camera.directionWC,
+            Cesium.Cartesian3.multiplyByScalar(viewer.camera.rightWC, 0.45, new Cesium.Cartesian3()), new Cesium.Cartesian3());
+          Cesium.Cartesian3.add(direction, Cesium.Cartesian3.multiplyByScalar(viewer.camera.upWC, -0.35, new Cesium.Cartesian3()), direction);
+          Cesium.Cartesian3.normalize(direction, daylightSun.direction);
+        });
+        void Cesium.SingleTileImageryProvider.fromUrl("/textures/earth_clouds_1024.png", { credit: "Cloud texture: illustrative, not current weather" }).then(provider => {
+          if (disposed || viewer.isDestroyed()) return;
+          const clouds = viewer.imageryLayers.addImageryProvider(provider);
+          clouds.alpha = 0.22;
+          clouds.colorToAlpha = Cesium.Color.BLACK;
+          clouds.colorToAlphaThreshold = 0.12;
+          viewer.scene.preRender.addEventListener(() => {
+            clouds.show = viewer.camera.positionCartographic.height > 7000000 && viewer.imageryLayers.get(0).show;
+          });
+          viewer.scene.requestRender();
+        }).catch(() => undefined);
         viewer.scene.sun = undefined;
         viewer.scene.moon = undefined;
         viewer.camera.setView({
@@ -619,6 +692,7 @@ export default function CesiumFireGlobe() {
       removeCameraOcclusionRef.current = null;
       viewerRef.current?.destroy();
       viewerRef.current = null;
+      observationSourceRef.current = null;
       buildingsRef.current = null;
       boundariesRef.current = null;
       photorealisticTilesRef.current = null;
@@ -671,8 +745,24 @@ export default function CesiumFireGlobe() {
     if (!viewer) return;
     const syncTheme = () => {
       const isDayTheme = document.documentElement.dataset.theme === "day";
-      viewer.scene.backgroundColor = Cesium.Color.fromCssColorString(isDayTheme ? "#e8f5ff" : daylightBackgrounds[lighting]);
-      if (viewer.scene.skyBox) viewer.scene.skyBox.show = !isDayTheme;
+      // Let the theme-aware CSS background and grid show through the canvas.
+      viewer.scene.backgroundColor = Cesium.Color.TRANSPARENT;
+      viewer.scene.globe.enableLighting = isDayTheme;
+      viewer.scene.globe.showGroundAtmosphere = !isDayTheme;
+      // Avoid dark atmospheric/FXAA fringes against the transparent day canvas.
+      viewer.scene.postProcessStages.fxaa.enabled = !isDayTheme;
+      viewer.scene.globe.dynamicAtmosphereLighting = false;
+      viewer.scene.globe.atmosphereSaturationShift = isDayTheme ? -0.15 : -0.45;
+      viewer.scene.globe.atmosphereBrightnessShift = isDayTheme ? 0.05 : -0.08;
+      viewer.scene.globe.lambertDiffuseMultiplier = isDayTheme ? 1.65 : 1;
+      if (viewer.scene.skyAtmosphere) {
+        // The sky shell creates a dark fringe when composited over white.
+        // Ground atmosphere retains the daylight haze without that outer rim.
+        viewer.scene.skyAtmosphere.show = !isDayTheme;
+        viewer.scene.skyAtmosphere.saturationShift = isDayTheme ? -0.2 : -0.55;
+        viewer.scene.skyAtmosphere.brightnessShift = isDayTheme ? 0.08 : -0.15;
+      }
+      if (viewer.scene.skyBox) viewer.scene.skyBox.show = false;
       viewer.scene.requestRender();
     };
     syncTheme();
@@ -723,9 +813,11 @@ export default function CesiumFireGlobe() {
     const viewer = viewerRef.current;
     if (!viewer) return;
     viewer.entities.removeAll();
+    observationSourceRef.current?.entities.removeAll();
     lookupRef.current = new Map();
 
-    visibleHotspots.forEach((h) => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    visibleHotspots.forEach((h, index) => {
       const id = hotspotKey(h);
       lookupRef.current.set(id, h);
       const isHighlighted = highlightRegion && isHighlightedHotspot(h);
@@ -734,12 +826,14 @@ export default function CesiumFireGlobe() {
       const entityName = h.place_hint
         ? `${sensorFamily(h.sensor)} · ${h.place_hint}`
         : h.harmonized ? `Merged fire event · ${h.harmonized.observations} observations · ${h.harmonized.platforms}` : `${satelliteLayer(h) ?? sensorFamily(h.sensor)} detection`;
-      viewer.entities.add({
+      const age = Date.now() - Date.parse(h.acq_datetime);
+      const recent = !reduceMotion && age >= 0 && age < 2 * 3600000 && index < 120;
+      observationSourceRef.current?.entities.add({
         id,
         name: entityName,
         position: Cesium.Cartesian3.fromDegrees(h.lon, h.lat, 0),
         point: {
-          pixelSize: isHighlighted ? basePx + 4 : basePx,
+          pixelSize: recent ? new Cesium.CallbackProperty(() => basePx + (1 + Math.sin(Date.now() / 650)) * 1.2, false) : isHighlighted ? basePx + 4 : basePx,
           color,
           outlineColor: isHighlighted ? HIGHLIGHT_COLOR.withAlpha(0.8) : Cesium.Color.BLACK.withAlpha(0.6),
           outlineWidth: isHighlighted ? 3 : 1,
@@ -825,7 +919,8 @@ export default function CesiumFireGlobe() {
       });
     }
 
-    if (aoi) {
+    // Keep user-drawn shapes visible, without highlighting selected countries/places.
+    if (aoi && (aoi.kind === "polygon" || aoi.kind === "radius" || aoi.kind === "bbox")) {
       const outline = aoiOutline(aoi);
       const b = aoiBBox(aoi)!;
       viewer.entities.add({
@@ -871,6 +966,12 @@ export default function CesiumFireGlobe() {
 
     updateHotspotOcclusion(viewer);
     viewer.scene.requestRender();
+    if (!reduceMotion && visibleHotspots.slice(0,120).some(h => { const age = Date.now() - Date.parse(h.acq_datetime); return age >= 0 && age < 2 * 3600000; })) {
+      const pulse = window.setInterval(() => {
+        if (!document.hidden && !viewer.isDestroyed()) viewer.scene.requestRender();
+      }, 160);
+      return () => window.clearInterval(pulse);
+    }
   }, [aoi, confirmed, drawPoints, exposure, forecast, highlightRegion, highlightedEventIds, layers, placeForEvent, selectedEvent, sensorColors, verifying, viewerReady, visibleEvents, visibleHotspots]);
 
   // The scene renders on demand, so keep it ticking while any case marker pulses.
@@ -990,7 +1091,7 @@ export default function CesiumFireGlobe() {
   const behaviourCounts = (eventMeta.behaviour_counts ?? {}) as Record<string, number>;
 
   return (
-    <section className={`cesium-shell command-globe ${themeClass(theme)} ${drawing ? "drawing" : ""} ${activeInsight ? "insight-open" : ""}`}>
+    <section className={`cesium-shell command-globe fire-now ${themeClass(theme)} ${drawing ? "drawing" : ""} ${activeInsight ? "insight-open" : ""}`}>
       <div ref={containerRef} className="cesium-container" />
       <div className="mobile-map-controls">
         <button type="button" aria-expanded={mobilePanel === "filters"} aria-controls="map-filters" onClick={() => setMobilePanel(mobilePanel === "filters" ? null : "filters")}>{mobilePanel === "filters" ? "Close filters" : "Filters & place"}</button>
@@ -1131,28 +1232,39 @@ export default function CesiumFireGlobe() {
       <aside id="map-filters" className={`scene-panel globe-left ${mobilePanel === "filters" ? "mobile-panel-open" : ""}`}>
         <section>
           <p className="panel-title">Fires seen from space</p>
-          <p className="map-howto">Each dot is heat seen by a satellite. A circle groups dots into one fire. Click a circle to find out if it is real, what kind it is and whether it is still burning.</p>
+          <p className="map-howto">Explore satellite-detected thermal hotspots around the world. Select a location to inspect recent fire observations and their characteristics.</p>
+          <span className={`firms-badge ${feedState}`} role="status"><i />NASA FIRMS | {feedState === "loading" ? "Loading" : feedState === "live" ? "NRT available" : feedState === "cached" ? "Cached observations" : feedState === "failed" ? "Unavailable" : "Observations loaded"}</span>
+          <h3 className="filter-section-title">Observation window</h3>
           <div className="option-grid">
             {(Object.keys(periodLabels) as Period[]).map((p) => (
-              <button key={p} type="button" className={period === p ? "option-card active" : "option-card"} onClick={() => setPeriod(p)}>{periodLabels[p]}</button>
+              <button key={p} type="button" className={period === p ? "option-card active" : "option-card"} aria-pressed={period === p} onClick={() => setPeriod(p)}>{periodLabels[p]}</button>
             ))}
           </div>
           {period === "historical" && (
             <label className="select-row"><span>Date (UTC)</span><input type="date" value={historicalDate} max={new Date().toISOString().slice(0, 10)} min="2000-11-01" onChange={(e) => setHistoricalDate(e.target.value)} /></label>
           )}
-          <button className="option-card refresh-live-data" type="button" onClick={loadData}>Refresh FIRMS</button>
+          <button className="option-card refresh-live-data" type="button" disabled={feedState === "loading"} onClick={loadData}><RefreshCw size={14} aria-hidden="true" className={feedState === "loading" ? "is-spinning" : ""} />Refresh FIRMS</button>
+          {lastRefresh && <p className="refresh-timestamp">Last successful fetch <time dateTime={lastRefresh}>{new Date(lastRefresh).toLocaleTimeString("en-GB", {timeZone: "UTC"})} UTC</time></p>}
+        </section>
+        <section className="harmonization-status" aria-live="polite" aria-busy={feedState === "loading"}>
+          <p className="panel-title">Harmonization status</p>
+          <p className={`processing-state ${feedState}`}>{feedState === "loading" ? "Loading observations & processing" : feedState === "failed" ? "Processing failed" : period === "historical" ? "Historical observations loaded" : "Footprint event matching complete"}</p>
+          {feedState === "loading" && <span className="processing-indicator" aria-label="Processing observations" />}
+          {mergedCount !== null && <p className="merged-count"><strong>{mergedCount.toLocaleString()}</strong> footprint-merged events</p>}
+          {feedState !== "loading" && feedState !== "failed" && period !== "historical" && <p className="refresh-timestamp">Quality checks, footprints and event matching (Steps 1-4). Calibrated activity awaits data.</p>}
           <p className="tiles-status">{dataStatus}</p>
           {eventStatus && <p className="tiles-status">{eventStatus}</p>}
           {verifyStatus && <p className="tiles-status verify-status">{verifying.size > 0 && <span className="pulse-dot" />}{verifyStatus}</p>}
         </section>
         <section>
           <p className="panel-title">Show on the map</p>
-          <div className="compact-layer-grid">
+          <div className="compact-layer-grid satellite-toggle-list">
             {satelliteLayers.map((platform) => {
               const count = rawHotspots.filter((h) => satelliteLayer(h) === platform && (!filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon))).length;
               return <button key={platform} className={layers[platform] ? "active" : ""} type="button" aria-pressed={layers[platform]} onClick={() => setLayers((cur) => ({ ...cur, [platform]: !cur[platform] }))}>
-                <i style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: satelliteColors[platform], marginRight: 6 }} />
-                {LAYER_LABEL[platform]} · {count.toLocaleString()}
+                <span className="layer-check" aria-hidden="true">{layers[platform] ? "\u2713" : ""}</span>
+                <i className="sensor-dot" style={{ background: satelliteColors[platform] }} />
+                <span className="satellite-name">{LAYER_LABEL[platform]}</span><span className="layer-count">{count.toLocaleString()}</span>
               </button>;
             })}
           </div>
@@ -1231,11 +1343,25 @@ export default function CesiumFireGlobe() {
       )}
       {drawing && <div className="draw-hint">Click on the globe to add polygon points, then press "Finish polygon".</div>}
       {selectionStatus && <div className="selection-status">{selectionStatus}</div>}
+      {feedState !== "loading" && visibleHotspots.length === 0 && (!layers["Fire Events"] || visibleEvents.length === 0) && !viewerError && <div className="map-empty-state" role="status"><strong>{feedState === "failed" ? "Observations unavailable" : "No observations to display"}</strong><span>{feedState === "failed" ? "Refresh FIRMS to retry the data request." : "Try another date, place or satellite layer. No detections does not establish absence of fire."}</span></div>}
+      {observation && <aside className="observation-popup" aria-label="Fire detection details">
+        <header><div><small>Satellite observation</small><h3>{sensorFamily(observation.sensor)} / {observation.satellite}</h3></div><button type="button" aria-label="Close observation" onClick={() => setObservation(null)}>{"\u00d7"}</button></header>
+        <dl>
+          <div><dt>Acquired (UTC)</dt><dd>{observation.acq_datetime.replace("T", " ").replace(/(?:Z|\+00:00)$/, "")} UTC</dd></div>
+          <div><dt>Coordinates</dt><dd>{observation.lat.toFixed(5)} deg, {observation.lon.toFixed(5)} deg</dd></div>
+          <div><dt>Fire radiative power</dt><dd>{observation.frp == null ? "Not available" : `${observation.frp.toFixed(1)} MW`}</dd></div>
+          <div><dt>Confidence</dt><dd>{Number.isFinite(observation.confidence_pct) ? `${observation.confidence_pct.toFixed(0)}%` : "Not available"}</dd></div>
+          <div><dt>Day / night</dt><dd>{observation.daynight === "D" ? "Day" : observation.daynight === "N" ? "Night" : "Unknown"}</dd></div>
+          {observation.harmonized && <div><dt>Harmonized event</dt><dd>{observation.harmonized.event_id}</dd></div>}
+        </dl>
+      </aside>}
       <div className="zoom-controls" aria-label="Map zoom controls">
         <button type="button" aria-label="Zoom in" onClick={() => zoom("in")}>+</button>
-        <button type="button" aria-label="Zoom out" onClick={() => zoom("out")}>-</button>
+        <button type="button" aria-label="Zoom out" onClick={() => zoom("out")}>{"\u2212"}</button>
+        <button type="button" aria-label="Reset globe view" title="Reset view" onClick={() => viewerRef.current?.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(locations["Atlantic View"].lon, locations["Atlantic View"].lat, locations["Atlantic View"].height), orientation: nadirOrientation, duration: 1.2 })}><RotateCcw size={17} aria-hidden="true" /></button>
       </div>
       {selectedEvent && (
+        <Suspense fallback={<div className="event-panel-loading" role="status">Loading fire details…</div>}>
         <EventPanel
           event={selectedEvent}
           detection={selectedDetection}
@@ -1244,6 +1370,7 @@ export default function CesiumFireGlobe() {
           onExposure={setExposure}
           onCaseUpdate={applyCaseMarker}
         />
+        </Suspense>
       )}
     </section>
   );
