@@ -1,0 +1,12 @@
+# Install into the same environment as environment.yml, not the API-only Python.
+pandas>=2.2
+numpy
+pyarrow
+geopandas
+shapely>=2,<3
+pyproj
+scikit-learn
+networkx
+scipy
+pyyaml
+pytest

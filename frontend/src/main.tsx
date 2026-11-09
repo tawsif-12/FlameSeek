@@ -8,6 +8,7 @@ import { AppProvider } from "./context/AppContext";
 import HomePage from "./pages/HomePage";
 import { LanguageProvider, useLanguage } from "./context/LanguageContext";
 import ThemeToggle from "./components/ThemeToggle";
+import PipelineFreshness from "./components/PipelineFreshness";
 import "./theme.css";
 import "./responsive.css";
 
@@ -92,6 +93,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <LanguageProvider>
       <Router>
         <Header />
+        <PipelineFreshness />
         <React.Suspense fallback={<main className="content-page" role="status">Loading page…</main>}>
         <Routes>
           <Route path="/" element={<HomePage />} />

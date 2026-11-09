@@ -1,0 +1,13 @@
+
+  VITE v5.4.21  ready in 1786 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+4:01:08 PM [vite] hmr update /src/main.tsx
+4:01:08 PM [vite] hmr update /src/main.tsx
+4:01:08 PM [vite] hmr invalidate /src/main.tsx Could not Fast Refresh ("true" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+4:01:08 PM [vite] page reload src/main.tsx
+4:01:11 PM [vite] hmr update /src/responsive.css
+4:02:01 PM [vite] hmr update /src/components/PipelineFreshness.tsx
+4:08:49 PM [vite] hmr update /src/components/PipelineFreshness.tsx
+4:11:21 PM [vite] hmr update /src/components/HarmonizedRecordSection.tsx, /src/components/HarmonizedProvenance.tsx
+4:22:11 PM [vite] hmr update /src/components/PipelineFreshness.tsx

@@ -28,7 +28,12 @@ def manifest():
     return json.loads(MANIFEST_PATH.read_text(encoding='utf-8'))
 
 
-def metadata(window=None):
+def metadata(window=None,con=None):
+    if con is not None:
+        try:
+            row=con.execute("SELECT payload FROM metadata WHERE key='meta'").fetchone()
+            if row:return json.loads(row[0])
+        except sqlite3.OperationalError:pass  # legacy snapshots without metadata
     data=manifest();window=window or data['default_window']
     return data['windows'].get(window,dict(window=window,data_version='awaiting data',last_observation_time=None,status='awaiting data'))
 
@@ -50,7 +55,9 @@ router=APIRouter(route_class=SnapshotRoute)
 def connect(window):
     data=manifest();window=window or data['default_window']
     if window not in data['windows']:raise HTTPException(400,'Unknown or unavailable processing window')
-    path=ROOT/'data/processed/snapshots'/(window+'.sqlite')
+    filename=data['windows'][window].get('snapshot_file',window+'.sqlite')
+    if Path(filename).name!=filename:raise HTTPException(503,'Invalid snapshot filename')
+    path=ROOT/'data/processed/snapshots'/filename
     if not path.exists():raise HTTPException(503,'Awaiting local snapshot build')
     con=POOL.acquire(path)
     return con,window
@@ -139,7 +146,7 @@ def search_fires(payload:FireSearch,window:str|None=None,limit:int=Query(2000,ge
     """Search event centroids: exact containment precedes counting and pagination."""
     started=perf_counter();exact_seconds=0.;exact_calls=0
     area=PreparedArea(search_area(payload))
-    con,window=connect(window);meta=metadata(window)
+    con,window=connect(window);meta=metadata(window,con)
     try:
         stage=perf_counter()
         where,params=event_candidates(con,area.bbox)
@@ -245,14 +252,14 @@ def active_period(meta):
 @router.get('/meta')
 def get_meta(window:str|None=None):
     con,window=connect(window)
-    try:return {**metadata(window),'available_windows':list(manifest()['windows'])}
+    try:return {**metadata(window,con),'available_windows':list(manifest()['windows'])}
     finally:con.close()
 
 
 @router.get('/fires/active')
 def active_fires(window:str|None=None,bbox:str|None=None,limit:int=Query(500,ge=1,le=5000),offset:int=Query(0,ge=0),
                  geometry:bool=False):
-    con,window=connect(window);meta=metadata(window)
+    con,window=connect(window);meta=metadata(window,con)
     try:
         start,now,_=active_period(meta)
         clauses=['end_time>=?','end_time<=?'];params=[start.isoformat(sep=' '),now.isoformat(sep=' ')]
@@ -272,7 +279,7 @@ def active_fires(window:str|None=None,bbox:str|None=None,limit:int=Query(500,ge=
 @router.get('/fires')
 def window_fires(bbox:str,window:str|None=None,limit:int=Query(2000,ge=1,le=5000),offset:int=Query(0,ge=0),geometry:bool=False):
     """All fire events of the window inside a box (e.g. a searched place), most recent first."""
-    con,window=connect(window);meta=metadata(window)
+    con,window=connect(window);meta=metadata(window,con)
     try:
         where,params=event_candidates(con,parse_bbox(bbox))
         count=con.execute('SELECT count(*) FROM events WHERE '+where,params).fetchone()[0]
@@ -288,7 +295,7 @@ def window_fires(bbox:str,window:str|None=None,limit:int=Query(2000,ge=1,le=5000
 @router.get('/detections')
 def detections(window:str|None=None,bbox:str|None=None,limit:int=Query(5000,ge=1,le=20000),offset:int=Query(0,ge=0)):
     """Clean (quality-filtered) satellite detections in the active period, before event grouping."""
-    con,window=connect(window);meta=metadata(window)
+    con,window=connect(window);meta=metadata(window,con)
     try:
         start,now,hours=active_period(meta)
         clauses=['time>=?','time<=?'];params=[start.isoformat(sep=' '),now.isoformat(sep=' ')]
@@ -307,7 +314,7 @@ def detections(window:str|None=None,bbox:str|None=None,limit:int=Query(5000,ge=1
 
 @router.get('/events/{fire_id}')
 def event_detail(fire_id:str,window:str|None=None):
-    con,window=connect(window);meta=metadata(window)
+    con,window=connect(window);meta=metadata(window,con)
     try:
         row=con.execute('SELECT payload FROM events WHERE fire_id=?',(fire_id,)).fetchone()
         if row is None:raise HTTPException(404,'Fire event not found in this window')
@@ -318,7 +325,7 @@ def event_detail(fire_id:str,window:str|None=None):
 
 @router.get('/grid/lambda')
 def grid_lambda(window:str|None=None,bbox:str|None=None,limit:int=Query(500,ge=1,le=5000),offset:int=Query(0,ge=0)):
-    con,window=connect(window);meta=metadata(window)
+    con,window=connect(window);meta=metadata(window,con)
     try:
         box=parse_bbox(bbox);where='';params=[]
         if box:

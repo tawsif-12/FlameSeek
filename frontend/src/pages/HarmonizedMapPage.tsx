@@ -66,7 +66,10 @@ export default function HarmonizedMapPage() {
   const { t, lang, fmt } = useLanguage();
   const { aoi } = useAppContext();
   const { data: site } = useSiteData();
-  const [win, setWin] = useState("current_2026");
+  const [win, setWin] = useState("");
+  useEffect(() => {
+    if (site) setWin(current => current || site.meta.default_window);
+  }, [site]);
   const [list, setList] = useState<ListResponse<HarmonizedEvent> | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,7 +109,7 @@ export default function HarmonizedMapPage() {
     setSelected(null);
     setList(null);
     return scheduleSearch({ key: searchKey, cache: searchCache,
-      load: (signal) => snapshotGet<ListResponse<HarmonizedEvent>>("/fires/search", { window: win, limit: 5000, geometry: true }, searchBody, signal),
+      load: (signal) => snapshotGet<ListResponse<HarmonizedEvent>>("/fires/search", { window: win || undefined, limit: 5000, geometry: true }, searchBody, signal),
       onResult: (r) => { if (id === req.current) setList(r); },
       onError: (e) => { if (id === req.current) { setError(e.message); setList(null); } },
       onSettled: () => { if (id === req.current) setLoading(false); },

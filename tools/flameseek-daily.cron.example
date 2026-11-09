@@ -1,0 +1,4 @@
+# Install with crontab -e, adapting paths to an always-on Linux deployment.
+# cron follows the server timezone; 02:00 UTC = 08:00 Asia/Dhaka.
+# Configure the server timezone as UTC (CRON_TZ is not portable across cron implementations).
+0 2 * * * cd /srv/flameseek && /srv/flameseek/.venv/bin/python -m pipeline.daily run >> /srv/flameseek/data/logs/cron.log 2>&1

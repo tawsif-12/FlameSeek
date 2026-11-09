@@ -23,6 +23,8 @@ export interface SnapshotMeta {
   start?: string;
   end?: string;
   n_events?: number;
+  n_detections?: number;
+  raw_observation_count?: number;
   status?: string;
 }
 
@@ -112,7 +114,30 @@ export function useSiteData() {
   const [data, setData] = useState<SiteData | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    loadSiteData().then(setData).catch((e) => setError(String(e)));
+    let alive = true;
+    async function refresh() {
+      try {
+        const base = await loadSiteData();
+        const catalog = await snapshotGet<SiteData['meta']>('/api/pipeline/catalog').catch(() => base.meta);
+        const current = catalog.windows[catalog.default_window];
+        let updated: SiteData = { ...base, meta: catalog };
+        if (current?.window === 'daily') {
+          const label = (value: number | null, text: string): Labelled => ({ value, label: text, status: 'published near-real-time snapshot', source: '/meta daily', unit: 'count' });
+          updated = { ...updated, headline: { data_version: current.data_version || '',
+            raw_detections: label(current.raw_observation_count ?? null, 'Raw satellite observations'),
+            clean_detections: label(current.n_detections ?? null, 'Quality-filtered observations'),
+            events: label(current.n_events ?? null, 'Reconstructed fire events'),
+            low_confidence: label(null, 'Low-confidence count: see processing outputs') },
+            energy: { status: 'awaiting data' }, calibration: { status: 'awaiting data' },
+            geo_assignment: { status: 'awaiting data' }, detection_limits: [],
+            naus: { status: 'awaiting data', source: 'Daily snapshot: validation not computed' } };
+        }
+        if (alive) { setData(updated); setError(null); }
+      } catch (e) { if (alive) setError(String(e)); }
+    }
+    void refresh();
+    const timer = window.setInterval(refresh, 60000);
+    return () => { alive = false; window.clearInterval(timer); };
   }, []);
   return { data, error };
 }
@@ -135,6 +160,6 @@ export function useSnapshotMeta(window?: string) {
     return () => {
       alive = false;
     };
-  }, [window]);
+  }, [window, site?.meta.windows[window || site.meta.default_window]?.data_version]);
   return { meta, fromApi };
 }

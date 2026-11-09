@@ -7,6 +7,7 @@ import AnalysisNavigation from "../components/AnalysisNavigation";
 import AOISelector from "../components/AOISelector";
 import WorldviewButton from "../components/WorldviewButton";
 import DataCoverageNotice from "../components/DataCoverageNotice";
+import AccumulatedHistory from "../components/AccumulatedHistory";
 import { DEFAULT_SENSORS, SENSOR_LABELS, aoiBBox, describeAoi, useAppContext } from "../context/AppContext";
 import type { FireMemoryResult, Job, SensorName } from "../types/api";
 
@@ -84,6 +85,7 @@ export default function FireMemoryPage() {
   return (
     <main className="memory-page space-shell space-page">
       <AnalysisNavigation />
+      <AccumulatedHistory />
       <div className="space-hero-strip">
         <div className="space-hero-orbit" aria-hidden="true"><span /><span /></div>
         <header className="memory-intro nasa-page-intro">

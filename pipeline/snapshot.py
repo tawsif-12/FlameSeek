@@ -63,8 +63,8 @@ def create_event_spatial_index(con):
     con.execute('CREATE INDEX event_order ON events(end_time DESC,fire_id ASC)')
 
 
-def build_window(window,root=ROOT):
-    cfg=load_settings(window=window);processed=root/'data/processed/windows'/window
+def build_window(window,root=ROOT,cfg=None):
+    cfg=cfg or load_settings(window=window);processed=root/'data/processed/windows'/window
     dest=root/'data/processed/snapshots';dest.mkdir(parents=True,exist_ok=True)
     path=dest/(window+'.sqlite');tmp=path.with_suffix('.tmp.sqlite')
     # Task-owned temporary DB only; existing published snapshot remains readable until replacement.

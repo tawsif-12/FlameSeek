@@ -50,6 +50,10 @@ All of this is synthetic. Outlets, reports and figures are invented (marked "(de
 
 ## Running it
 
+For automatic daily downloads, permanent observation history, safe snapshot
+publication, Windows/Linux scheduling and recovery commands, see
+[Automated FIRMS ingestion](docs/daily-pipeline.md).
+
 ```bash
 # backend (Python 3.11+)
 cd backend
