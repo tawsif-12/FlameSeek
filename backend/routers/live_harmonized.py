@@ -54,7 +54,7 @@ async def _refresh(days):
         observed_at = datetime.now(timezone.utc).isoformat()
         # Publish actual observations first, without pretending event merging is complete.
         payload = await asyncio.to_thread(jsonable_encoder, {
-            'hotspots': sorted(rows, key=lambda p: p.get('frp') or 0, reverse=True),
+            'hotspots': [],
             'raw_hotspots': rows,
             'metadata': {'raw_hotspot_count': len(rows), 'data_source': source_status,
                          'unavailable_live_sensors': missing_sensors, 'partial_coverage': bool(missing_sensors),
@@ -134,8 +134,14 @@ async def harmonized_hotspots(days: int = Query(1, ge=1, le=5), limit: int | Non
         if not cached:
             raise HTTPException(502, detail={'message': f'FIRMS observations unavailable: {_errors.get(days, "retry shortly")}'})
     stamp, payload = cached
-    points = payload['hotspots'] if limit is None else payload['hotspots'][:limit]
+    # Legacy snapshots may contain a raw preview in hotspots. Never publish it
+    # as merged output, including after a failed or incomplete pipeline run.
+    merged_ready = not payload['metadata'].get('processing_pending') and not payload['metadata'].get('harmonization_unavailable')
+    merged = [point for point in payload['hotspots'] if point.get('harmonized')] if merged_ready else []
+    points = merged if limit is None else merged[:limit]
     metadata = {**payload['metadata'], 'returned_hotspot_count': len(points),
+                'merged_ready': merged_ready, 'harmonization_scope': 'footprint_events_steps_1_4',
+                'full_harmonization_complete': False,
                 'cache_age_seconds': round(time.time() - stamp), 'stale_snapshot': bool(stale),
                 'refresh_in_progress': days in _jobs and not _jobs[days].done()}
     if stale:

@@ -1,4 +1,43 @@
 firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
 firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:58355 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
 event set warmed
-INFO:     127.0.0.1:57903 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49395 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55000 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54338 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59968 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62417 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50533 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50121 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62520 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49334 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61076 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57108 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54354 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52425 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51579 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51340 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60691 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:64218 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50073 - "GET /api/events/lookup?sensor=viirs_noaa21&lat=23.2152&lon=91.95415&acq_datetime=2026-11-09T07:22:00%2B00:00 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51559 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57134 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65495 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61338 - "GET /api/places/search?q=chittagong&suggest=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:64040 - "GET /api/places/search?q=chittagong&suggest=false HTTP/1.1" 502 Bad Gateway
+current hotspots warmed
+INFO:     127.0.0.1:52097 - "GET /api/places/search?q=chittagong&suggest=false HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:55865 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53735 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58949 - "GET /api/events/lookup?sensor=viirs_noaa21&lat=23.71763&lon=89.84279&acq_datetime=2026-11-09T07:22:00%2B00:00 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:64102 - "GET /api/events/lookup?sensor=viirs_noaa20&lat=24.34628&lon=90.11325&acq_datetime=2026-11-09T06:39:00%2B00:00 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51147 - "GET /api/events/lookup?sensor=viirs_noaa20&lat=18.77855&lon=77.89668&acq_datetime=2026-11-09T08:20:00%2B00:00 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:57838 - "GET /api/events/lookup?sensor=viirs_noaa20&lat=18.77855&lon=77.89668&acq_datetime=2026-11-09T08:20:00%2B00:00 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58556 - "GET /api/events/lookup?sensor=viirs_noaa21&lat=18.59261&lon=77.88937&acq_datetime=2026-11-09T07:22:00%2B00:00 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:65286 - "GET /api/events/lookup?sensor=viirs_noaa21&lat=18.59261&lon=77.88937&acq_datetime=2026-11-09T07:22:00%2B00:00 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:65160 - "GET /api/events/lookup?sensor=viirs_noaa20&lat=18.64174&lon=78.31705&acq_datetime=2026-11-09T08:20:00%2B00:00 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60926 - "GET /api/events/lookup?sensor=viirs_noaa20&lat=18.64174&lon=78.31705&acq_datetime=2026-11-09T08:20:00%2B00:00 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51845 - "GET /api/events/lookup?sensor=viirs_noaa20&lat=17.83103&lon=77.61679&acq_datetime=2026-11-09T08:17:00%2B00:00 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51147 - "GET /api/events/lookup?sensor=viirs_noaa20&lat=17.49387&lon=78.3897&acq_datetime=2026-11-09T08:17:00%2B00:00 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51782 - "GET /api/events/lookup?sensor=viirs_noaa20&lat=17.04882&lon=79.65978&acq_datetime=2026-11-09T08:17:00%2B00:00 HTTP/1.1" 404 Not Found

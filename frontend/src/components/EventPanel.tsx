@@ -457,18 +457,24 @@ function CaseTab({ fireCase, updating, job, error, onRefresh }: { fireCase: Fire
 }
 
 function SatelliteTab({ det, event, compact = false }: { det: HotspotRecord; event: FireEvent | null; compact?: boolean }) {
+  const platforms = det.harmonized?.platforms.split(";").map(name => name.trim()).filter(Boolean) ?? [];
+  const representative = det.lookup_detection;
   return (
     <section className="tag-obs">
-      <h4>Satellite observation</h4>
+      <h4>{det.harmonized ? "Merged satellite observations" : "Satellite observation"}</h4>
       <p className="plain-lead">
-        The {satelliteName(det)} satellite saw heat here on {fmtWhen(det.acq_datetime)}{det.daynight === "N" ? ", during the night" : det.daynight === "D" ? ", during the day" : ""}.
+        {det.harmonized
+          ? `${det.harmonized.observations} observations from ${platforms.length} satellite${platforms.length === 1 ? "" : "s"}: ${platforms.join(", ")}. Footprints were grouped using procedure Steps 1–4.`
+          : `The ${satelliteName(det)} satellite saw heat here on ${fmtWhen(det.acq_datetime)}${det.daynight === "N" ? ", during the night" : det.daynight === "D" ? ", during the day" : ""}.`}
       </p>
+      {det.harmonized && <p className="note">{platforms.length > 1 ? "Multiple satellites contributed to this event." : "Only one satellite contributed to this event; repeated detections do not establish cross-satellite confirmation."} Full sensor calibration and latent activity estimation are not included in this live layer.</p>}
       <table className="cesium-info-table">
         <tbody>
-          <Row k="Satellite" v={satelliteName(det)} />
-          <Row k="Acquired (UTC)" v={`${det.acq_datetime.replace("T", " ").replace(/(?:Z|\+00:00)$/, "")} UTC`} />
-          <Row k="Coordinates" v={`${det.lat.toFixed(5)}°, ${det.lon.toFixed(5)}°`} />
-          <Row k="Day / night" v={det.daynight === "D" ? "Day" : det.daynight === "N" ? "Night" : "Unknown"} />
+          <Row k={det.harmonized ? "Representative satellite" : "Satellite"} v={satelliteName(det)} />
+          <Row k={det.harmonized ? "Latest event observation (UTC)" : "Acquired (UTC)"} v={`${det.acq_datetime.replace("T", " ").replace(/(?:Z|\+00:00)$/, "")} UTC`} />
+          {det.harmonized && representative && <Row k="Representative acquired (UTC)" v={fmtTime(representative.acq_datetime)} />}
+          <Row k={det.harmonized ? "Event footprint centroid" : "Coordinates"} v={`${det.lat.toFixed(5)}°, ${det.lon.toFixed(5)}°`} />
+          <Row k={det.harmonized ? "Representative day / night" : "Day / night"} v={det.daynight === "D" ? "Day" : det.daynight === "N" ? "Night" : "Unknown"} />
           {det.harmonized && <><Row k="Satellites merged" v={det.harmonized.platforms} /><Row k="Observations combined" v={det.harmonized.observations} /><Row k="Harmonized event" v={det.harmonized.event_id} /><Row k="Footprint union" v={`${det.harmonized.footprint_area_km2.toFixed(2)} km²`} /><Row k="Fused confidence" v={`${(det.harmonized.confidence * 100).toFixed(1)}% (not calibrated fire probability)`} /></>}
           <Row k="When" v={`${fmtWhen(det.acq_datetime)} (your local time)`} />
           <Row k="Where" v={`${det.lat.toFixed(4)}, ${det.lon.toFixed(4)}`} />

@@ -41,7 +41,9 @@ def test_real_points_return_before_merging_and_concurrent_requests_share_work(mo
             responses = await asyncio.wait_for(asyncio.gather(*(live.harmonized_hotspots(1, 5) for _ in range(3))), 2)
             for response in responses:
                 payload = json.loads(response.body)
-                assert payload['hotspots'][0]['lat'] == 23
+                assert payload['hotspots'] == []
+                assert payload['raw_hotspots'][0]['lat'] == 23
+                assert payload['metadata']['merged_ready'] is False
                 assert payload['metadata']['processing_pending'] is True
                 assert 'events_total' not in payload['metadata']
         finally:
@@ -55,7 +57,7 @@ def test_real_points_return_before_merging_and_concurrent_requests_share_work(mo
 
 
 def test_recent_real_snapshot_survives_nasa_failure_and_retry_is_throttled(monkeypatch):
-    payload = {'hotspots': [{'lat': 23, 'lon': 90}], 'raw_hotspots': [],
+    payload = {'hotspots': [{'lat': 23, 'lon': 90, 'harmonized': {'event_id': 'real'}}], 'raw_hotspots': [],
                'metadata': {'data_source': 'live', 'snapshot_at': '2026-11-09T10:00:00+00:00'}}
     live._snapshots[1] = (time.time() - live.FRESH_SECONDS - 10, payload)
     calls = []
@@ -90,10 +92,24 @@ def test_processing_failure_preserves_downloaded_observations(monkeypatch):
         await live.harmonized_hotspots(1, 5)
         await live._jobs[1]
         data = json.loads((await live.harmonized_hotspots(1, 5)).body)
-        assert data['hotspots'][0]['lat'] == 23
+        assert data['hotspots'] == []
+        assert data['raw_hotspots'][0]['lat'] == 23
+        assert data['metadata']['merged_ready'] is False
         assert data['metadata']['harmonization_unavailable'] is True
         assert data['metadata']['processing_pending'] is False
     asyncio.run(check())
+
+
+def test_legacy_raw_preview_never_appears_in_merged_layer():
+    live._snapshots[1] = (time.time(), {
+        'hotspots': [{'lat': 23, 'lon': 90}],
+        'raw_hotspots': [{'lat': 23, 'lon': 90}],
+        'metadata': {'harmonization_unavailable': True},
+    })
+    data = json.loads(asyncio.run(live.harmonized_hotspots(1, None)).body)
+    assert data['hotspots'] == []
+    assert len(data['raw_hotspots']) == 1
+    assert data['metadata']['full_harmonization_complete'] is False
 
 
 def test_full_merged_set_is_returned_without_limit():

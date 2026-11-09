@@ -260,7 +260,7 @@ export default function CesiumFireGlobe() {
   const [feedState, setFeedState] = useState<"loading" | "live" | "partial" | "cached" | "ready" | "failed">("loading");
   const [lastRefresh, setLastRefresh] = useState<string | null>(null);
   const [mergedCount, setMergedCount] = useState<number | null>(null);
-  const [rawPreview, setRawPreview] = useState(false);
+  const [mergedUnavailable, setMergedUnavailable] = useState(false);
   const [backgroundRefresh, setBackgroundRefresh] = useState(false);
   const [processingPending, setProcessingPending] = useState(false);
   const loadSequence = useRef(0);
@@ -297,10 +297,10 @@ export default function CesiumFireGlobe() {
 
   const visibleHotspots = useMemo(
     () => [
-      ...(layers.Harmonized ? hotspots.filter((h) => rawPreview || Boolean(h.harmonized)) : []),
+      ...(layers.Harmonized ? hotspots.filter((h) => !mergedUnavailable && Boolean(h.harmonized)) : []),
       ...rawHotspots.filter((h) => { const platform = satelliteLayer(h); return platform !== null && layers[platform]; }),
     ].filter((h) => !filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon)),
-    [hotspots, rawHotspots, layers.Harmonized, layers.Terra, layers.Aqua, layers["S-NPP"], layers["NOAA-20"], layers["NOAA-21"], filterToAoi, aoi, rawPreview],
+    [hotspots, rawHotspots, layers.Harmonized, layers.Terra, layers.Aqua, layers["S-NPP"], layers["NOAA-20"], layers["NOAA-21"], filterToAoi, aoi, mergedUnavailable],
   );
   const visibleEvents = useMemo(
     () => events.filter((e) => e.observation_count >= 3 && (!filterToAoi || !aoi || aoiContains(aoi, e.centroid.lat, e.centroid.lon))),
@@ -314,6 +314,15 @@ export default function CesiumFireGlobe() {
     }
     return counts;
   }, [rawHotspots, filterToAoi, aoi]);
+  const mergedSatelliteCounts = useMemo(() => {
+    let single = 0, multiple = 0;
+    for (const h of hotspots) {
+      if (!h.harmonized || (filterToAoi && aoi && !aoiContains(aoi, h.lat, h.lon))) continue;
+      if (h.harmonized.platforms.split(";").filter(Boolean).length > 1) multiple++;
+      else single++;
+    }
+    return { single, multiple };
+  }, [hotspots, filterToAoi, aoi]);
   const confirmed = useMemo(() => crossSensorSet(hotspots), [hotspots]);
   const highlightRegion = useMemo(() => aoiIsBangladesh(aoi), [aoi]);
   // Find events whose centroid sits on top of one of our highlighted point clusters.
@@ -403,12 +412,12 @@ export default function CesiumFireGlobe() {
         ? await getCurrentHotspots(DEFAULT_SENSORS, days, 4000, historicalDate, false)
         : await getHarmonizedHotspots(days);
       if (sequence !== loadSequence.current || unmountedRef.current) return;
-      setRawPreview(Boolean(response.metadata.processing_pending || response.metadata.harmonization_unavailable));
+      setMergedUnavailable(Boolean(response.metadata.processing_pending || response.metadata.harmonization_unavailable));
       setProcessingPending(Boolean(response.metadata.processing_pending));
       setBackgroundRefresh(Boolean(response.metadata.refresh_in_progress));
       setFeedState(response.metadata.partial_coverage ? "partial" : response.metadata.data_source === "live" ? "live" : response.metadata.data_source === "cached_actual" ? "cached" : "ready");
       setLastRefresh(typeof response.metadata.snapshot_at === "string" ? response.metadata.snapshot_at : new Date().toISOString());
-      setMergedCount(!historical && typeof response.metadata.events_total === "number" ? response.metadata.events_total : null);
+      setMergedCount(!historical && !response.metadata.processing_pending && !response.metadata.harmonization_unavailable && typeof response.metadata.events_total === "number" ? response.metadata.events_total : null);
       setHotspots(uniqueGlobePoints(response.hotspots));
       setRawHotspots(uniqueGlobePoints(historical ? response.hotspots : response.raw_hotspots ?? []));
       if (historical) setLayers((cur) => ({ ...cur, Harmonized: false, Terra: true, Aqua: true, "S-NPP": true, "NOAA-20": true, "NOAA-21": true }));
@@ -419,7 +428,7 @@ export default function CesiumFireGlobe() {
         : m.data_source === "live" ? "LIVE FIRMS" : m.data_source === "cached_actual" ? "cached FIRMS fallback" : String(m.data_source ?? "FIRMS");
       setDataStatus(
         response.metadata.processing_pending ? `${sourceLabel}: ${Number(m.raw_hotspot_count).toLocaleString()} real observations loaded. Matching events in the background.`
-          : response.metadata.harmonization_unavailable ? `${sourceLabel}: showing real observations; event matching unavailable.`
+          : response.metadata.harmonization_unavailable ? `${sourceLabel}: event matching unavailable. Choose a satellite to view raw detections.`
           : historical ? `${sourceLabel} · On ${historicalDate}: ${Number(m.returned_hotspot_count).toLocaleString()} satellite detections.`
           : `${sourceLabel} · ${periodLabels[period]}: ${Number(m.raw_hotspot_count).toLocaleString()} detections → ${Number(m.events_total ?? 0).toLocaleString()} footprint-merged events; showing ${Number(m.returned_hotspot_count).toLocaleString()}. Procedure Steps 1–4. Calibrated activity and Monte Carlo uncertainty await data.`,
       );
@@ -574,6 +583,7 @@ export default function CesiumFireGlobe() {
           timeline: false,
           infoBox: false,
           navigationInstructionsInitiallyVisible: false,
+          navigationHelpButton: false,
           terrainProvider: ellipsoidTerrain,
           requestRenderMode: true,
           maximumRenderTimeChange: Infinity,
@@ -1298,7 +1308,7 @@ export default function CesiumFireGlobe() {
           {lastRefresh && <p className="refresh-timestamp">Updated <time dateTime={lastRefresh}>{new Date(lastRefresh).toLocaleTimeString("en-GB", {timeZone: "UTC"})} UTC</time></p>}
         </section>
         <section className="harmonization-status" aria-live="polite" aria-busy={feedState === "loading"}>
-          <p className={`processing-state ${feedState}`}>{feedState === "loading" ? "Loading..." : feedState === "failed" ? "Processing failed" : processingPending ? "Observations loaded. Matching events..." : period === "historical" ? "Historical observations loaded" : "Ready"}</p>
+          <p className={`processing-state ${feedState}`}>{feedState === "loading" ? "Loading..." : feedState === "failed" ? "Processing failed" : processingPending ? "Observations loaded. Matching events..." : mergedUnavailable ? "Merged output unavailable" : period === "historical" ? "Historical observations loaded" : "Ready"}</p>
           {feedState === "loading" && <span className="processing-indicator" aria-label="Processing observations" />}
           {mergedCount !== null && <p className="merged-count"><strong>{mergedCount.toLocaleString()}</strong> total merged events</p>}
           {feedState === "failed" && <p className="refresh-timestamp">Data unavailable. Try Refresh FIRMS.</p>}
@@ -1322,9 +1332,10 @@ export default function CesiumFireGlobe() {
             })}
           </div>
           <div className="compact-layer-grid">
-            <button className={layers.Harmonized ? "active" : ""} type="button" aria-pressed={layers.Harmonized} disabled={period === "historical"} onClick={() => setLayers(cur => toggleObservationLayer(cur, "Harmonized", satelliteLayers))}>Merged map points · {hotspots.filter((h) => h.harmonized && (!filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon))).length.toLocaleString()}</button>
+            <button className={layers.Harmonized ? "active" : ""} type="button" aria-pressed={layers.Harmonized} disabled={period === "historical" || mergedUnavailable || feedState === "loading"} title={mergedUnavailable ? "Merged output is not ready. Raw detections are available through the satellite buttons." : "Footprint-merged events from procedure Steps 1-4; later harmonization stages are not computed here."} onClick={() => setLayers(cur => toggleObservationLayer(cur, "Harmonized", satelliteLayers))}>Merged map points · {hotspots.filter((h) => h.harmonized && (!filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon))).length.toLocaleString()}</button>
           </div>
-          {mergedCount !== null && <p className="refresh-timestamp">All merged events are loaded. Zoom in to separate overlapping points.</p>}
+          {mergedCount !== null && <p className="refresh-timestamp">Footprint-merged events (Steps 1-4). Sensor calibration, diurnal correction and activity uncertainty are not computed for this live layer.</p>}
+          {mergedCount !== null && <p className="refresh-timestamp">{mergedSatelliteCounts.multiple.toLocaleString()} multi-satellite events · {mergedSatelliteCounts.single.toLocaleString()} single-satellite events in this area. Satellite buttons show raw detections; choose Merged map points for combined events.</p>}
           <p className="panel-title">Overlays</p>
           <div className="compact-layer-grid">
             {(["Forecast Corridor", "Exposure", "Boundaries"] as LayerKey[]).map((layer) => (
@@ -1394,7 +1405,7 @@ export default function CesiumFireGlobe() {
       )}
       {drawing && <div className="draw-hint">Click on the globe to add polygon points, then press "Finish polygon".</div>}
       {selectionStatus && !selectedFire && <div className="selection-status">{selectionStatus}</div>}
-      {feedState !== "loading" && visibleHotspots.length === 0 && (!layers["Fire Events"] || visibleEvents.length === 0) && !viewerError && <div className="map-empty-state" role="status"><strong>{feedState === "failed" ? "Observations unavailable" : "No observations to display"}</strong><span>{feedState === "failed" ? "Refresh FIRMS to retry the data request." : "Try another date, place or satellite layer. No detections does not establish absence of fire."}</span></div>}
+      {feedState !== "loading" && visibleHotspots.length === 0 && (!layers["Fire Events"] || visibleEvents.length === 0) && !viewerError && <div className="map-empty-state" role="status"><strong>{feedState === "failed" ? "Observations unavailable" : mergedUnavailable && layers.Harmonized ? "Merged points are not ready" : "No observations to display"}</strong><span>{feedState === "failed" ? "Refresh FIRMS to retry the data request." : mergedUnavailable && layers.Harmonized ? "Choose a satellite layer to view raw observations while merging is unavailable." : "Try another date, place or satellite layer. No detections does not establish absence of fire."}</span></div>}
       <div className="zoom-controls" aria-label="Map zoom controls">
         <button type="button" aria-label="Zoom in" onClick={() => zoom("in")}>+</button>
         <button type="button" aria-label="Zoom out" onClick={() => zoom("out")}>{"\u2212"}</button>

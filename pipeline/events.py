@@ -185,10 +185,13 @@ def fused(p: pd.Series) -> float:
 
 def build_tables(gdf: gpd.GeoDataFrame, cfg: dict, day_col: str):
     # Per-overpass FRP: summed only within one platform + one acquisition time.
-    ov = (gdf.groupby(["fire_id", "sensor", "platform", "acq_datetime_utc"])
+    overpass_data = pd.DataFrame(gdf.drop(columns="geometry"))
+    overpass_data["p_miss"] = 1 - overpass_data["p_conf"]
+    ov = (overpass_data.groupby(["fire_id", "sensor", "platform", "acq_datetime_utc"])
              .agg(n_detections=("det_id", "size"), frp_sum_mw=("frp_mw", "sum"),
-                  p_conf_fused=("p_conf", fused), bt_max_k=("bt_k", "max"))
+                  p_conf_miss=("p_miss", "prod"), bt_max_k=("bt_k", "max"))
              .reset_index())
+    ov["p_conf_fused"] = 1 - ov.pop("p_conf_miss")
 
     d = pd.DataFrame(gdf.drop(columns="geometry"))
     d["is_m"] = d["sensor"].eq("MODIS").astype(int)
@@ -265,8 +268,10 @@ def window_by_platform(cfg: dict) -> dict:
 def component_labels(graph: nx.Graph, pos: pd.Series) -> np.ndarray:
     """networkx connected components as one integer label per detection (row order)."""
     labels = np.empty(len(pos), dtype=np.int64)
+    positions = pos.to_dict()
     for k, c in enumerate(nx.connected_components(graph)):
-        labels[pos[list(c)].to_numpy()] = k
+        for node in c:
+            labels[positions[node]] = k
     return labels
 
 

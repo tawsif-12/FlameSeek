@@ -40,11 +40,14 @@ def harmonize(rows):
         return dict(hotspots=[], metadata=metadata)
     result = events.run(footprints.run(q['clean'], cfg), cfg)
     points = []
-    member_groups = {fid: group for fid, group in result['detections'].groupby('fire_id')}
+    # Pick representatives in one grouped pass instead of constructing and
+    # sorting a separate DataFrame for every event.
+    detections = result['detections']
+    representative_indices = detections.groupby('fire_id', sort=False)['frp_mw'].idxmax()
+    representatives = detections.loc[representative_indices].set_index('fire_id')['det_id'].to_dict()
     peak_power = result['overpasses'].groupby('fire_id')['frp_sum_mw'].max()
-    for _, ev in result['events'].iterrows():
-        members = member_groups[ev.fire_id]
-        idx = int(members.sort_values('frp_mw', ascending=False).iloc[0].det_id)
+    for ev in result['events'].itertuples(index=False):
+        idx = int(representatives[ev.fire_id])
         representative = rows[idx]
         power = peak_power.loc[ev.fire_id]
         points.append({**representative, 'lat': float(ev.centroid_lat), 'lon': float(ev.centroid_lon),
