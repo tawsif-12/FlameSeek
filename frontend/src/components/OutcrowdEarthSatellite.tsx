@@ -136,6 +136,23 @@ function createSatelliteModel(): THREE.Group {
   return satGroup;
 }
 
+function createImageSatelliteModel(texture: THREE.Texture, aspect: number, size: number) {
+  const group = new THREE.Group();
+  const material = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+    alphaTest: 0.025,
+    depthTest: true,
+    depthWrite: false,
+    toneMapped: false,
+  });
+  const billboard = new THREE.Sprite(material);
+  if (aspect >= 1) billboard.scale.set(size, size / aspect, 1);
+  else billboard.scale.set(size * aspect, size, 1);
+  group.add(billboard);
+  return { group, billboard };
+}
+
 function createSatelliteLabel(name: string, sensor: string): THREE.Sprite {
   const canvas = document.createElement("canvas");
   canvas.width = 384;
@@ -388,13 +405,22 @@ export default function OutcrowdEarthSatellite({
     });
     targetPinsRef.current = beacons.map(({ pin }) => pin);
 
-    // Five independent decorative orbits; Earth depth-testing naturally hides far-side models.
-    const satelliteTemplate = createSatelliteModel();
-    satelliteTemplate.scale.setScalar(0.23);
-    const trailSamples = 22;
+    // The supplied transparent spacecraft artwork is shared as two GPU textures,
+    // while every satellite owns its material, rotation, speed, and orbital plane.
+    const spacecraftTextures = new Map<string, THREE.Texture>();
+    for (const orbit of HERO_ORBITS) {
+      if (spacecraftTextures.has(orbit.image)) continue;
+      const texture = textureLoader.load(orbit.image, onTextureReady);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 4);
+      spacecraftTextures.set(orbit.image, texture);
+    }
+    const trailSamples = 28;
     const fleet = HERO_ORBITS.map((orbit) => {
-      const model = satelliteTemplate.clone(true); // Share geometry/materials across the five models.
-      model.name = `${orbit.name} ? ${orbit.sensor}`;
+      const { group: model, billboard } = createImageSatelliteModel(
+        spacecraftTextures.get(orbit.image)!, orbit.imageAspect, orbit.imageSize,
+      );
+      model.name = `${orbit.name} · ${orbit.sensor}`;
       scene.add(model);
       const marker = new THREE.Mesh(
         new THREE.SphereGeometry(0.028, 8, 8),
@@ -404,7 +430,7 @@ export default function OutcrowdEarthSatellite({
       scene.add(marker, label);
       const pathPoints = Array.from({ length: 97 }, (_, i) => orbitPosition(orbit, i / 96 * Math.PI * 2));
       const path = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pathPoints),
-        new THREE.LineBasicMaterial({ color: orbit.color, transparent: true, opacity: 0.16, depthWrite: false }));
+        new THREE.LineBasicMaterial({ color: orbit.color, transparent: true, opacity: 0.34, depthWrite: false }));
       scene.add(path);
       const trailGeometry = new THREE.BufferGeometry();
       const trailPositions = new Float32Array(trailSamples * 3);
@@ -415,9 +441,9 @@ export default function OutcrowdEarthSatellite({
       trailGeometry.setAttribute("position", positions);
       trailGeometry.setAttribute("color", new THREE.BufferAttribute(trailColors, 3));
       const trail = new THREE.Line(trailGeometry,
-        new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.5, depthWrite: false }));
+        new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.72, depthWrite: false }));
       scene.add(trail);
-      return { orbit, model, marker, label, trail, positions };
+      return { orbit, model, billboard, marker, label, trail, positions };
     });
     const orbitPoint = new THREE.Vector3();
 
@@ -575,16 +601,16 @@ export default function OutcrowdEarthSatellite({
       earthGroup.rotation.z = -0.12 + Math.sin(time * 0.22) * 0.012;
       cloudsMesh.rotation.y += 0.00095 * frameScale;
       cloudsMesh.rotation.x += 0.00014 * frameScale;
-      for (const [fleetIndex, { orbit, model, marker, label, positions }] of fleet.entries()) {
+      for (const { orbit, model, billboard, marker, label, positions } of fleet) {
         const angle = orbit.phase + time * orbit.speed;
         orbitPosition(orbit, angle, model.position);
-        model.lookAt(earthGroup.position);
-        model.rotateZ(Math.sin(time * 1.1 + fleetIndex) * 0.055);
+        billboard.material.rotation = orbit.phase * 0.17 + time * orbit.spin;
         marker.position.copy(model.position).multiplyScalar(1.045);
         label.position.copy(model.position);
         label.position.y += 0.18;
         for (let i = 0; i < trailSamples; i++) {
-          orbitPosition(orbit, angle - 0.5 * (1 - i / (trailSamples - 1)), orbitPoint);
+          const trailAngle = angle - Math.sign(orbit.speed) * 0.62 * (1 - i / (trailSamples - 1));
+          orbitPosition(orbit, trailAngle, orbitPoint);
           positions.setXYZ(i, orbitPoint.x, orbitPoint.y, orbitPoint.z);
         }
         positions.needsUpdate = true;

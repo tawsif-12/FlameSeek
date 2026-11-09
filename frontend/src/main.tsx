@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { Link, NavLink, Navigate, Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
 import "./styles.css";
 import { AppProvider } from "./context/AppContext";
-import { LanguageProvider, useLanguage } from "./context/LanguageContext";
+import { LanguageProvider } from "./context/LanguageContext";
 import ThemeToggle from "./components/ThemeToggle";
 import RouteLoadingFallback from "./components/RouteLoadingFallback";
 import "./theme.css";
@@ -47,15 +47,6 @@ const HarmonizedMapPage = React.lazy(routeLoaders["/fire-events"]);
 const MethodologyPage = React.lazy(routeLoaders["/methodology"]);
 const AboutPage = React.lazy(routeLoaders["/about"]);
 const AreaIntelligencePage = React.lazy(routeLoaders["/area"]);
-
-function LanguageToggle() {
-  const { lang, setLang, t } = useLanguage();
-  return (
-    <button className="header-language" type="button" aria-label="Switch language English / Bangla" onClick={() => setLang(lang === "en" ? "bn" : "en")}>
-      {t("toggle")}
-    </button>
-  );
-}
 
 function Header() {
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -110,7 +101,6 @@ function Header() {
         ))}
       </nav>
       <div className="header-actions">
-        <LanguageToggle />
         <ThemeToggle />
       </div>
     </header>
