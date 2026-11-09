@@ -8,6 +8,7 @@ contains a point. Falls back to coarse country boxes when OSM is unreachable.
 from __future__ import annotations
 
 import time
+import unicodedata
 from typing import Any
 
 from geo import geojson_to_polygons, haversine_km, polygons_bbox
@@ -180,10 +181,12 @@ out tags center 50;"""
 
 async def search_places(query: str, limit: int = 8) -> list[dict[str, Any]]:
     """Forward search for AOI selection (country, state, district, forest, protected area...)."""
+    # Equivalent spelling/casing must reuse the same provider cache and rate budget.
+    query = ' '.join(unicodedata.normalize('NFKC', query).casefold().split())
     data = await request_json(
         f"{NOMINATIM}/search",
         service="Nominatim",
-        params={"q": query, "format": "jsonv2", "polygon_geojson": 1, "polygon_threshold": 0.005, "limit": limit, "accept-language": "en"},
+        params={"q": query.strip(), "format": "jsonv2", "polygon_geojson": 1, "polygon_threshold": 0.005, "limit": limit, "accept-language": "en,bn", "addressdetails": 1, "namedetails": 1},
         ttl_seconds=30 * 86400,
         disk_namespace="nominatim",
     )
@@ -196,10 +199,19 @@ async def search_places(query: str, limit: int = 8) -> list[dict[str, Any]]:
         elif bbox:
             south, north, west, east = (float(v) for v in bbox)
         else:
-            continue
+            west = east = float(item['lon'])
+            south = north = float(item['lat'])
+        names = item.get('namedetails') or {}
+        address = item.get('address') or {}
+        label = names.get('name:en') or item.get('name') or (item.get('display_name') or '').split(',')[0]
+        parent = ', '.join(dict.fromkeys(str(address[k]) for k in ('city', 'county', 'state_district', 'state', 'country') if address.get(k) and address[k] != label))
         results.append(
             {
                 "name": item.get("display_name"),
+                "place_id": f"osm:{item.get('osm_type')}:{item.get('osm_id')}" if item.get('osm_id') else None,
+                "place_name": label,
+                "parent_region": parent or ','.join((item.get('display_name') or '').split(',')[1:]),
+                "names": names,
                 "category": item.get("category"),
                 "type": item.get("type"),
                 "addresstype": item.get("addresstype"),
@@ -208,6 +220,9 @@ async def search_places(query: str, limit: int = 8) -> list[dict[str, Any]]:
                 "geometry": item.get("geojson") if polygons else None,
             }
         )
+    normalize = lambda text: unicodedata.normalize('NFKC', str(text)).casefold().strip()
+    target = normalize(query)
+    results.sort(key=lambda result: not any(normalize(value) == target for value in [result['place_name'], *result['names'].values()]))
     return results
 
 

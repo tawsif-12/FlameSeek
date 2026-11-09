@@ -91,10 +91,10 @@ function DrawTools({ variant = "default" }: { variant?: "default" | "dna" }) {
   return null;
 }
 
-export default function AOISelector({ variant = "default" }: { variant?: "default" | "dna" }) {
+export default function AOISelector({ variant = "default", mapOnly = false, initialCenter }: { variant?: "default" | "dna"; mapOnly?: boolean; initialCenter?: [number, number] }) {
   const location = useLocation();
   const effectiveVariant = variant === "dna" || location.pathname === "/fire-dna" ? "dna" : "default";
-  const { aoi, setAoi } = useAppContext();
+  const { aoi, setAoi, lockedArea } = useAppContext();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [status, setStatus] = useState<string | null>(null);
@@ -125,8 +125,10 @@ export default function AOISelector({ variant = "default" }: { variant?: "defaul
     setAoi({ center: picked.center, radius_km: radiusKm, name: `${radiusKm} km around ${picked.name.split(",")[0]}`, kind: "radius" });
   }
 
+  if (lockedArea) return null;
   return (
     <section className={`aoi-selector${effectiveVariant === "dna" ? " dna-aoi-selector" : ""}`}>
+      <div hidden={mapOnly}>
       <form className="aoi-search" onSubmit={search}>
         <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={`Search: ${PLACE_HINTS.join(", ")}`} aria-label="Search for a place" />
         <button className="secondary-button" type="submit">Search</button>
@@ -153,8 +155,9 @@ export default function AOISelector({ variant = "default" }: { variant?: "defaul
           <button className="secondary-button" type="button" onClick={useRadius}>Use radius around {picked.name.split(",")[0]}</button>
         </div>
       )}
+      </div>
       <div className={effectiveVariant === "dna" ? "dna-aoi-map-shell" : undefined}>
-        <MapContainer center={[15, 20]} zoom={2} minZoom={2} scrollWheelZoom className={`map aoi-map${effectiveVariant === "dna" ? " dna-region-map" : ""}`}>
+        <MapContainer center={initialCenter ? [initialCenter[1], initialCenter[0]] : [15, 20]} zoom={initialCenter ? 10 : 2} minZoom={2} scrollWheelZoom className={`map aoi-map${effectiveVariant === "dna" ? " dna-region-map" : ""}`}>
           <TileLayer
             attribution={effectiveVariant === "dna" ? "Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics" : "&copy; OpenStreetMap contributors"}
             url={effectiveVariant === "dna" ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
@@ -168,10 +171,10 @@ export default function AOISelector({ variant = "default" }: { variant?: "defaul
           <span className="dna-map-readout">AOI BOUNDARY · LIVE GEOMETRY</span>
         </div>}
       </div>
-      <p className="meta-text">
+      {!mapOnly && <p className="meta-text">
         {aoi ? <>Selected: <strong>{describeAoi(aoi)}</strong></> : "Search a place or draw a rectangle, polygon or circle with the map tools."}
         {aoi && <button className="link-button" type="button" onClick={() => setAoi(null)}>Clear</button>}
-      </p>
+      </p>}
     </section>
   );
 }

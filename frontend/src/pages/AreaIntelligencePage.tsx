@@ -9,6 +9,7 @@ import type { FireMemoryResult, HotspotRecord, Job, PlacePipelineSummary, Sensor
 import { StatusPill } from "../components/HarmonizedProvenance";
 import DataCoverageNotice from "../components/DataCoverageNotice";
 import "../harmonized.css";
+import { featureHref } from '../api/locationRoutes';
 
 /* "<Place> Fire Intelligence": one page answering the eight area questions from the area's own
    records. The first answers come from Fire Memory (fast, Aqua 13:30-equivalent counts); once the
@@ -56,7 +57,7 @@ function Q({ n, q, children, source, status }: { n: number; q: string; children:
 }
 
 export default function AreaIntelligencePage() {
-  const { aoi, setMemory: shareMemory } = useAppContext();
+  const { aoi, lockedArea, setMemory: shareMemory } = useAppContext();
   const [years, setYears] = useState(5);
   const [quick, setQuick] = useState<FireMemoryResult | null>(null);
   const [full, setFull] = useState<FireMemoryResult | null>(null);
@@ -456,7 +457,7 @@ export default function AreaIntelligencePage() {
             ["/fire-events", "Fire Events", "Recent fire events as true burned-ground outlines."],
             ["/fire-map", "FireNow", "Live 3D globe of current fires."],
           ].map(([to, h, p], i) => (
-            <Link key={to} to={to} className="method-card glass-card" style={{ textDecoration: "none" }}>
+            <Link key={to} to={featureHref(to, aoi, Boolean(lockedArea))} className="method-card glass-card" style={{ textDecoration: "none" }}>
               <span className="method-index" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
               <h4>{h}</h4><p>{p}</p>
             </Link>

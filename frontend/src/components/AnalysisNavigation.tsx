@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { useAppContext } from '../context/AppContext';
 
 const ANALYSIS_PAGES = [
   { to: "/fire-memory", label: "Fire Memory" },
@@ -8,6 +9,8 @@ const ANALYSIS_PAGES = [
 
 export default function AnalysisNavigation() {
   const navigate = useNavigate();
+  const { lockedArea } = useAppContext();
+  if (lockedArea) return null;
 
   return (
     <nav className="analysis-navigation" aria-label="Fire history sections">

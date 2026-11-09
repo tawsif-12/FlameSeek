@@ -1,8 +1,10 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, useRef, useCallback } from "react";
 import type { ReactNode } from "react";
 import type { AOI, FireMemoryResult, SensorName } from "../types/api";
+import { areaFromUrl } from '../api/locationRoutes';
 
 interface AppState {
+  lockedArea?: boolean;
   aoi: AOI | null;
   setAoi: (aoi: AOI | null) => void;
   sensors: SensorName[];
@@ -17,11 +19,13 @@ export const DEFAULT_SENSORS: SensorName[] = ["modis", "viirs_snpp", "viirs_noaa
 const APP_STATE_KEY = "flameseek.analysis-state.v1";
 
 function readSavedState(): { aoi: AOI | null; sensors: SensorName[]; memory: FireMemoryResult | null } {
+  const linked = areaFromUrl(window.location.search, window.location.hash);
   try {
     const saved = JSON.parse(localStorage.getItem(APP_STATE_KEY) ?? "null");
-    return { aoi: saved?.aoi ?? null, sensors: saved?.sensors?.length ? saved.sensors : DEFAULT_SENSORS, memory: saved?.memory ?? null };
+    const freshSearch = window.location.pathname === '/search';
+    return { aoi: linked ?? (freshSearch ? null : saved?.aoi ?? null), sensors: saved?.sensors?.length ? saved.sensors : DEFAULT_SENSORS, memory: linked || freshSearch ? null : saved?.memory ?? null };
   } catch {
-    return { aoi: null, sensors: DEFAULT_SENSORS, memory: null };
+    return { aoi: linked, sensors: DEFAULT_SENSORS, memory: null };
   }
 }
 
@@ -52,6 +56,18 @@ export function useAppContext() {
   const context = useContext(AppContext);
   if (!context) throw new Error("useAppContext must be used inside AppProvider");
   return context;
+}
+
+/** Each location owns its async writes. Unmounted locations cannot overwrite results. */
+export function LocationAreaScope({ area, children }: { area: AOI; children: ReactNode }) {
+  const parent = useAppContext();
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const saveMemory = useCallback((value: FireMemoryResult | null) => {
+    if (alive.current) parent.setMemory(value);
+  }, [parent.setMemory]);
+  const fixedArea = useCallback(() => {}, []);
+  return <AppContext.Provider value={{ ...parent, aoi: area, lockedArea: true, setAoi: fixedArea, setMemory: saveMemory }}>{children}</AppContext.Provider>;
 }
 
 /** Bounding box of any AOI shape (used to frame maps and describe the area). */

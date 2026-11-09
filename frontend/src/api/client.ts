@@ -75,8 +75,8 @@ export async function getEvent(eventId: string): Promise<FireEvent> {
   return data;
 }
 
-export async function searchPlaces(q: string): Promise<PlaceResult[]> {
-  const { data } = await api.get<{ results: PlaceResult[] }>("/api/places/search", { params: { q } });
+export async function searchPlaces(q: string, signal?: AbortSignal): Promise<PlaceResult[]> {
+  const { data } = await api.get<{ results: PlaceResult[] }>("/api/places/search", { params: { q }, signal });
   return data.results;
 }
 

@@ -30,6 +30,7 @@ const HarmonizedMapPage = React.lazy(() => import("./pages/HarmonizedMapPage"));
 const MethodologyPage = React.lazy(() => import("./pages/MethodologyPage"));
 const AboutPage = React.lazy(() => import("./pages/AboutPage"));
 const AreaIntelligencePage = React.lazy(() => import("./pages/AreaIntelligencePage"));
+const LocationDashboard = React.lazy(() => import('./pages/LocationDashboard'));
 
 function LanguageToggle() {
   const { lang, setLang, t } = useLanguage();
@@ -99,6 +100,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="/" element={<HomePage />} />
           <Route path="/fire-map" element={<FireGlobePage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/location" element={<LocationDashboard />} />
+          <Route path="/location/:section" element={<LocationDashboard />} />
           <Route path="/fire-memory" element={<FireMemoryPage />} />
           <Route path="/fire-dna" element={<FireDnaPage />} />
           <Route path="/fire-calendar" element={<FireMemoryPage />} />

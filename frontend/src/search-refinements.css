@@ -68,3 +68,17 @@ html[data-theme="day"] .search-guidance a { color: #086397; }
   .minimal-search-page .area-destinations a { min-height: 140px; }
 }
 @media(prefers-reduced-motion:reduce) { .minimal-search-page .area-destinations { animation: none; } }
+/* Search-only Explore; location features belong to the dashboard. */
+.minimal-search-page .explore-search-box { display: flex; gap: 10px; }
+.minimal-search-page .explore-search-box input { flex: 1; min-width: 0; width: 0; }
+.minimal-search-page .explore-search-box .explore-clear { flex: 0 0 44px; min-width: 44px; padding: 0; font-size: 28px; color: #c9f5ff; background: transparent; border: 0; box-shadow: none; }
+.minimal-search-page .explore-place-results { padding: 6px; list-style: none; background: rgba(4,22,37,.98); border: 1px solid #47728b; border-radius: 14px; overflow-y: auto; }
+.minimal-search-page .explore-place-results li button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 16px; text-align: left; padding: 14px; color: #effaff; background: transparent; border: 0; border-radius: 8px; }
+.minimal-search-page .explore-place-results li[aria-selected="true"] button { background: #14465b; box-shadow: inset 3px 0 #65e1fa; }
+.explore-place-results strong, .explore-place-results small { display: block; overflow-wrap: anywhere; }
+.minimal-search-page .explore-place-results small { color: #bdd4e3; margin-top: 4px; }
+.minimal-search-page .explore-place-results em { color: #8ce6fa; flex-shrink: 0; font-size: 12px; }
+.explore-map-button { display: block; margin: 20px auto; min-height: 44px; padding: 10px 20px; border: 1px solid #46829b; border-radius: 12px; color: #8ce6fa; background: #0b2a40; cursor: pointer; }
+.explore-map-panel { margin-top: 20px; padding: 16px; border: 1px solid #47728b; border-radius: 16px; background: #071b2bef; }
+.explore-map-panel .aoi-map { height: 360px; }
+@media(max-width:700px) { .minimal-search-page .explore-place-results li button { align-items: flex-start; gap: 8px; } .minimal-search-page .explore-place-results em { max-width: 80px; overflow-wrap: anywhere; } .minimal-search-page .explore-search-box { gap: 5px; } }

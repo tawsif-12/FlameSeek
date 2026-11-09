@@ -352,3 +352,199 @@ INFO:     127.0.0.1:60914 - "GET /api/jobs/eda53597c161 HTTP/1.1" 200 OK
 INFO:     127.0.0.1:53440 - "GET /api/pipeline/status HTTP/1.1" 200 OK
 INFO:     127.0.0.1:59801 - "POST /api/pipeline/history HTTP/1.1" 200 OK
 INFO:     127.0.0.1:59800 - "POST /api/pipeline/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63817 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59171 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56455 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60420 - "POST /api/fire_memory/saved HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51152 - "POST /api/place_pipeline/saved HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63825 - "POST /api/fire_memory/saved HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63347 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63827 - "POST /api/place_pipeline/saved HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57653 - "POST /api/place_pipeline HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57654 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50472 - "GET /api/jobs/9c935464dd3c HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+INFO:     127.0.0.1:63826 - "GET /api/current_hotspots?bbox=83.3359,14.1000,97.3520,32.9037&days=1&limit=20000 HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:62743 - "GET /api/jobs/9c935464dd3c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53069 - "GET /api/current_hotspots?bbox=83.3359,14.1000,97.3520,32.9037&days=1&limit=20000 HTTP/1.1" 502 Bad Gateway
+INFO:     127.0.0.1:59497 - "GET /api/jobs/9c935464dd3c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60895 - "GET /api/jobs/9c935464dd3c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53145 - "GET /api/jobs/9c935464dd3c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56938 - "GET /api/jobs/9c935464dd3c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52583 - "GET /api/jobs/9c935464dd3c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51573 - "GET /api/jobs/9c935464dd3c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53993 - "GET /api/jobs/9c935464dd3c HTTP/1.1" 200 OK
+Traceback (most recent call last):
+  File "D:\nasa space\Burning_Activity\backend\jobs.py", line 92, in runner
+    job.result = await fn(job)
+                 ^^^^^^^^^^^^^
+  File "D:\nasa space\Burning_Activity\backend\routers\place_pipeline.py", line 150, in run_place_pipeline
+    summary_path = await asyncio.to_thread(_run_pipeline, job, args)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\asyncio\threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\concurrent\futures\thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "C:\Python314\Lib\concurrent\futures\thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "D:\nasa space\Burning_Activity\backend\routers\place_pipeline.py", line 92, in _run_pipeline
+    raise RuntimeError("Pipeline failed: " + " | ".join(tail[-6:]))
+RuntimeError: Pipeline failed: Please carefully study the information and documentation linked above. | This is unlikely to be a NumPy issue but will be caused by a bad install | or environment on your machine. |  | Original error was: No module named 'numpy._core._multiarray_umath' | 
+
+INFO:     127.0.0.1:51840 - "GET /api/jobs/9c935464dd3c HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57495 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54350 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63565 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65162 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54885 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62054 - "POST /api/pipeline/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62053 - "POST /api/pipeline/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62063 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58737 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61216 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54393 - "GET /meta?window= HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50264 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52870 - "GET /meta?window= HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57149 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61533 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63325 - "GET /meta?window= HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60624 - "GET /meta?window=daily HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63941 - "POST /fires/search?window=daily&limit=5000&geometry=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63334 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63003 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50612 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53802 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64184 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49305 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60246 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60253 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58535 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51658 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50631 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55544 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55545 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60190 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50929 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49671 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57251 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62778 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62237 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55668 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63040 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50473 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52575 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52576 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56394 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56395 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56396 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56397 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52279 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52280 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51091 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60637 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64133 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63771 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+INFO:     127.0.0.1:53848 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51351 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64645 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57752 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53853 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53434 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60810 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56068 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56079 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64072 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63775 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59528 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49749 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53802 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56427 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62211 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57998 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53618 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53652 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54255 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54256 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54257 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61332 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64666 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64667 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60174 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63856 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57778 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63273 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54040 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61619 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49951 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49955 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65302 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59948 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52143 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58633 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52540 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51133 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56914 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61597 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55021 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53649 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49244 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62723 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58636 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57149 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+INFO:     127.0.0.1:65140 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52779 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52780 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63459 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55241 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61655 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55916 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55917 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55896 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56193 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63041 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63081 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49671 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65046 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52103 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54264 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58728 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49671 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61033 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64949 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52628 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49671 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63699 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63293 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50281 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60229 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61428 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57313 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55540 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49317 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+firms_unavailable reason=FirmsAPIError muted_for_seconds=120.0
+current hotspots warm-up skipped: FIRMS request failed (502): Live FIRMS is unavailable and no cached observations cover the requested time window. [world]
+INFO:     127.0.0.1:58584 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61863 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50168 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65473 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52454 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61006 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51185 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64351 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60894 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63894 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60930 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58003 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65456 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50915 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51020 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50883 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58620 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63028 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59049 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63428 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK

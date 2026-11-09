@@ -26,6 +26,7 @@ import FireDnaFingerprint from "../components/FireDnaFingerprint";
 import { DEFAULT_SENSORS, SENSOR_LABELS, describeAoi, useAppContext } from "../context/AppContext";
 import type { FireMemoryResult, Job, SensorName } from "../types/api";
 import "../fire-dna-bento.css";
+import { featureHref } from '../api/locationRoutes';
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -57,7 +58,7 @@ function quote(value: unknown) {
 }
 
 export default function FireDnaPage() {
-  const { aoi, setAoi, sensors, setSensors, memory, setMemory } = useAppContext();
+  const { aoi, setAoi, lockedArea, sensors, setSensors, memory, setMemory } = useAppContext();
   const navigate = useNavigate();
   const [years, setYears] = useState(5);
   const [job, setJob] = useState<Job<FireMemoryResult> | null>(null);
@@ -67,6 +68,10 @@ export default function FireDnaPage() {
   const [showMeaning, setShowMeaning] = useState(false);
   const running = job?.status === "queued" || job?.status === "running";
   const profile = memory?.fire_dna;
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (lockedArea && aoi && !memory && !autoStarted.current) { autoStarted.current = true; void analyze(); }
+  }, [lockedArea, aoi, memory]);
 
   async function analyze() {
     if (!aoi) return;
@@ -292,21 +297,21 @@ export default function FireDnaPage() {
           <div className="bento-card-header">
             <div className="bento-card-header-left">
               <span className="bento-card-kicker">SECTION 01 // GEOSPATIAL BOUNDARY</span>
-              <h3 className="bento-card-title">Select Region & Analysis Period</h3>
+              <h3 className="bento-card-title">{lockedArea ? 'Analysis settings' : 'Select Region & Analysis Period'}</h3>
             </div>
             <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-              Interactive Leaflet AOI
+              {lockedArea ? 'Dashboard boundary' : 'Interactive Leaflet AOI'}
             </span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Left Column: Leaflet Map Selector (7 cols) */}
-            <div className="lg:col-span-7 space-y-2">
+            {!lockedArea && <div className="lg:col-span-7 space-y-2">
               <AOISelector />
-            </div>
+            </div>}
 
             {/* Right Column: Analysis Controls & Sensor Selection (5 cols) */}
-            <div className="lg:col-span-5 space-y-4">
+            <div className={lockedArea ? 'lg:col-span-12 space-y-4' : 'lg:col-span-5 space-y-4'}>
               {/* Period Dropdown */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Analysis Period</label>
@@ -949,7 +954,7 @@ export default function FireDnaPage() {
                     type="button"
                     onClick={() =>
                       navigate(
-                        `/fire-map?date=${selectedYear}-${String(selectedMonth).padStart(2, "0")}-15&aoi=1&from=dna`
+                        featureHref(`/fire-map?date=${selectedYear}-${String(selectedMonth).padStart(2, "0")}-15&aoi=1&from=dna`, aoi, Boolean(lockedArea))
                       )
                     }
                     className="px-4 py-2 rounded-xl bg-amber-900 hover:bg-amber-950 text-white font-bold text-xs flex items-center gap-1.5 transition-colors shadow-xs"

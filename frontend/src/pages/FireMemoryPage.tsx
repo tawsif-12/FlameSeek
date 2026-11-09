@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Plot from "react-plotly.js";
 import "../memory-refinements.css";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import AnalysisNavigation from "../components/AnalysisNavigation";
 import AOISelector from "../components/AOISelector";
 import WorldviewButton from "../components/WorldviewButton";
 import DataCoverageNotice from "../components/DataCoverageNotice";
+import { featureHref } from '../api/locationRoutes';
 import AccumulatedHistory from "../components/AccumulatedHistory";
 import { DEFAULT_SENSORS, SENSOR_LABELS, aoiBBox, describeAoi, useAppContext } from "../context/AppContext";
 import type { FireMemoryResult, Job, SensorName } from "../types/api";
@@ -51,16 +52,20 @@ function csvValue(value: unknown) {
 }
 
 export default function FireMemoryPage() {
-  const { aoi, sensors, setSensors, memory, setMemory } = useAppContext();
+  const { aoi, lockedArea, sensors, setSensors, memory, setMemory } = useAppContext();
   const location = useLocation();
   const [years, setYears] = useState(5);
   const [windowDays, setWindowDays] = useState(30);
   const [job, setJob] = useState<Job<FireMemoryResult> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const running = job?.status === "queued" || job?.status === "running";
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (lockedArea && aoi && !memory && !autoStarted.current) { autoStarted.current = true; void run(); }
+  }, [lockedArea, aoi, memory]);
 
   useEffect(() => {
-    if (location.pathname !== "/fire-calendar") return;
+    if (location.pathname !== "/fire-calendar" && location.pathname !== '/location/calendar') return;
     const frame = window.requestAnimationFrame(() => {
       document.getElementById("fire-calendar")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
@@ -100,13 +105,13 @@ export default function FireMemoryPage() {
         <DataCoverageNotice start={memory?.period.start} end={memory?.period.end} />
       </details>
       <section className="memory-setup glass-card">
-        <div className="memory-setup-map">
+        {!lockedArea && <div className="memory-setup-map">
           <h3>1. Select location</h3>
           <p className="memory-selection-help">Search for a place, or use the rectangle, polygon or circle tools on the map to select a smaller area. Drag to move the map; zoom in for detail.</p>
           <AOISelector />
-        </div>
+        </div>}
         <div className="memory-setup-controls">
-          <h3>2. Configure history</h3>
+          <h3>{lockedArea ? 'History settings' : '2. Configure history'}</h3>
           <label>
             How many years to look back
             <select value={years} onChange={(e) => setYears(Number(e.target.value))}>
@@ -218,6 +223,7 @@ function MemorySummary({ memory }: { memory: FireMemoryResult }) {
 
 function MemoryResults({ memory }: { memory: FireMemoryResult }) {
   const navigate = useNavigate();
+  const { aoi: selectedArea, lockedArea } = useAppContext();
   const [calendarMode, setCalendarMode] = useState<CalendarMode>("harmonized");
   const [selectedMonth, setSelectedMonth] = useState<{ year: number; month: number } | null>(null);
   const cmp = memory.current_vs_historical;
@@ -366,7 +372,7 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
                 <div><dt>Sensor coverage</dt><dd>{selectedDays.reduce((sum, day) => sum + day.modis_count, 0)} MODIS · {selectedDays.reduce((sum, day) => sum + day.viirs_count, 0)} VIIRS</dd></div>
                 <div><dt>Static-source filtering</dt><dd>Not applied; backend flagging is unavailable</dd></div>
               </dl>
-              <button className="primary-button" onClick={() => navigate(`/fire-map?date=${selectedMonth.year}-${String(selectedMonth.month).padStart(2, "0")}-15&aoi=1&from=memory`)}>View Hotspots on Map</button>
+              <button className="primary-button" onClick={() => navigate(featureHref(`/fire-map?date=${selectedMonth.year}-${String(selectedMonth.month).padStart(2, "0")}-15&aoi=1&from=memory`, selectedArea, Boolean(lockedArea)))}>View Hotspots on Map</button>
               <small>The historical map loads one day at a time, so it opens the middle day of this month.</small>
             </> : <p className="empty-state">No observation record exists for this month; it is not treated as zero.</p>}
           </div>}

@@ -18,7 +18,7 @@ async def places_search(q: str = Query(min_length=2, max_length=120)) -> dict[st
     try:
         return {"results": await search_places(q)}
     except ExternalServiceError as exc:
-        raise HTTPException(status_code=502, detail={"error": "geocoder_unavailable", "message": str(exc)}) from exc
+        raise HTTPException(status_code=502, detail={"error": "geocoder_unavailable", "message": "Location search is temporarily unavailable. Retry search or select an area on the map."}) from exc
 
 
 @router.get("/places/reverse")

@@ -10,6 +10,7 @@ export interface GeoJSONGeometry {
 
 /** Area of interest: bbox, polygon geometry (drawn or from place search), or radius. */
 export interface AOI {
+  id?: string;
   bbox?: BBox;
   geometry?: GeoJSONGeometry | null;
   center?: LonLat;
@@ -101,6 +102,10 @@ export interface Job<T> {
 // --- Places ------------------------------------------------------------------------
 
 export interface PlaceResult {
+  place_id?: string;
+  place_name?: string;
+  parent_region?: string;
+  names?: Record<string, string>;
   name: string;
   category: string;
   type: string;

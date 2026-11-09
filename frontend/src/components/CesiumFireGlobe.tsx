@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { globePointKey, uniqueGlobePoints } from "../utils/globePoints";
@@ -199,15 +199,20 @@ function aoiOutline(aoi: AOI): number[][] {
     });
   }
   if (aoi.geometry) {
-    return aoi.geometry.type === "Polygon" ? (aoi.geometry.coordinates as number[][][])[0] : (aoi.geometry.coordinates as number[][][][]).sort((a, b) => b[0].length - a[0].length)[0][0];
+    return aoi.geometry.type === "Polygon" ? (aoi.geometry.coordinates as number[][][])[0] : [...(aoi.geometry.coordinates as number[][][][])].sort((a, b) => b[0].length - a[0].length)[0][0];
   }
   const b = aoiBBox(aoi)!;
   return [[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]], [b[0], b[1]]];
 }
 
 export default function CesiumFireGlobe() {
-  const { aoi, setAoi } = useAppContext();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { aoi, setAoi, lockedArea } = useAppContext();
+  const [searchParams] = useSearchParams();
+  const route = useLocation();
+  const navigate = useNavigate();
+  const setSearchParams = (update: (current: URLSearchParams) => URLSearchParams, options: { replace: boolean }) => {
+    navigate({ search: `?${update(searchParams)}`, hash: route.hash }, options);
+  };
   const containerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const [mobilePanel, setMobilePanel] = useState<"filters" | null>(null);
@@ -248,7 +253,7 @@ export default function CesiumFireGlobe() {
   const [eventMeta, setEventMeta] = useState<Record<string, unknown>>({});
   const [dataStatus, setDataStatus] = useState("Loading live FIRMS MODIS/VIIRS data...");
   const [eventStatus, setEventStatus] = useState<string | null>(null);
-  const [filterToAoi, setFilterToAoi] = useState(searchParams.get("aoi") === "1");
+  const [filterToAoi, setFilterToAoi] = useState(Boolean(lockedArea) || searchParams.get("aoi") === "1");
   const [drawing, setDrawing] = useState(false);
   const [drawPoints, setDrawPoints] = useState<number[][]>([]);
   const [placeQuery, setPlaceQuery] = useState("");
@@ -629,6 +634,12 @@ export default function CesiumFireGlobe() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period, historicalDate]);
 
+  useEffect(() => {
+    if (!lockedArea || !aoi || !viewerReady) return;
+    const box = aoiBBox(aoi);
+    if (box) viewerRef.current?.camera.setView({ destination: Cesium.Rectangle.fromDegrees(...box) });
+  }, [lockedArea, aoi, viewerReady]);
+
   // Deep link: /fire-map?event=EV-XXXX opens that event once events are loaded.
   useEffect(() => {
     const linked = searchParams.get("event");
@@ -646,11 +657,11 @@ export default function CesiumFireGlobe() {
   useEffect(() => {
     if (selectedEvent) {
       hadEventRef.current = true;
-      setSearchParams({ event: selectedEvent.event_id }, { replace: true });
+      setSearchParams(current => { const next = new URLSearchParams(current); next.set('event', selectedEvent.event_id); return next; }, { replace: true });
     } else if (hadEventRef.current) {
       // Only clear the link when the user closes an open event, not before a linked one loads.
       hadEventRef.current = false;
-      setSearchParams({}, { replace: true });
+      setSearchParams(current => { const next = new URLSearchParams(current); next.delete('event'); return next; }, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEvent]);
@@ -1149,7 +1160,7 @@ export default function CesiumFireGlobe() {
           <div className="compact-layer-grid">
             <button className={layers.Harmonized ? "active" : ""} type="button" aria-pressed={layers.Harmonized} disabled={period === "historical"} onClick={() => setLayers((cur) => ({ ...cur, Harmonized: !cur.Harmonized }))}>Harmonized events · {hotspots.filter((h) => h.harmonized && (!filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon))).length.toLocaleString()}</button>
           </div>
-          <p className="tiles-status">Satellite buttons show individual observations. Harmonized shows footprint-merged events (Steps 1–4). Toggle layers independently to compare. A count of 0 means no observations were returned for that satellite in this window.</p>
+          <p className="tiles-status">Satellite buttons show individual observations. Harmonized shows footprint-merged events (Steps 1–4). Toggle layers independently to compare. A count of 0 means no observations were returned; it does not establish clear coverage or absence of fire.</p>
           <p className="panel-title">Map overlays</p>
           <div className="compact-layer-grid">
             {(["FRP Columns", "Forecast Corridor", "Exposure", "Boundaries"] as LayerKey[]).map((layer) => (
@@ -1176,7 +1187,7 @@ export default function CesiumFireGlobe() {
             </div>
           )}
         </section>
-        <section>
+        {!lockedArea && <section>
           <p className="panel-title">Choose a place</p>
           <form className="aoi-search dark" onSubmit={runPlaceSearch}>
             <input value={placeQuery} onChange={(e) => setPlaceQuery(e.target.value)} placeholder="Country, state, district, forest..." aria-label="Search place" />
@@ -1210,7 +1221,7 @@ export default function CesiumFireGlobe() {
               </div>
             </div>
           )}
-        </section>
+        </section>}
       </aside>
       {viewerError && (
         <div className="cesium-error-panel">
