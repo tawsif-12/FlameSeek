@@ -3,7 +3,17 @@ import { useLanguage } from "../context/LanguageContext";
 import DataCoverageNotice from "./DataCoverageNotice";
 
 /** data_version and last_observation_time from /meta, in the hero-chips style. */
-export default function HarmonizedProvenance({ window }: { window?: string }) {
+export default function HarmonizedProvenance({
+  window,
+  showNotice = true,
+  noticeId,
+  onCloseNotice,
+}: {
+  window?: string;
+  showNotice?: boolean;
+  noticeId?: string;
+  onCloseNotice?: () => void;
+}) {
   const { meta, fromApi } = useSnapshotMeta(window);
   const { t } = useLanguage();
   return (
@@ -13,7 +23,7 @@ export default function HarmonizedProvenance({ window }: { window?: string }) {
       <li><span className="dot" />{t("last_obs")}: {meta?.last_observation_time ? `${meta.last_observation_time} UTC` : t("awaiting")}</li>
       {meta && !fromApi && <li className="hz-warn"><span className="dot" />{t("api_offline")}</li>}
     </ul>
-    <DataCoverageNotice start={meta?.start} end={meta?.end} snapshot />
+    {showNotice && <DataCoverageNotice id={noticeId} start={meta?.start} end={meta?.end} snapshot onClose={onCloseNotice} />}
     </>
   );
 }
