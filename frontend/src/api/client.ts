@@ -3,7 +3,6 @@ import type {
   PlacePipelineSummary,
   AOI,
   CurrentHotspotsResponse,
-  DataSource,
   EventsResponse,
   EvidenceResult,
   FireEvent,
@@ -58,11 +57,6 @@ export async function getHotspotsInBox(bbox: [number, number, number, number], d
 export async function getVerifiedHotspots(sensors: SensorName[]): Promise<VerifiedHotspotsResponse> {
   const { data } = await api.get<VerifiedHotspotsResponse>("/api/verified_hotspots", { params: { days: 1, limit: 20, sensors }, ...repeatParams });
   return data;
-}
-
-export async function getDataSources(): Promise<DataSource[]> {
-  const { data } = await api.get("/data-sources");
-  return data.sources;
 }
 
 export async function getEvents(days: number, limit = 4000, includeDemo = false): Promise<EventsResponse> {

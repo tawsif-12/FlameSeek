@@ -1,96 +1,266 @@
-import { useEffect, useState } from "react";
-import { getDataSources, normalizeApiError } from "../api/client";
-import VerificationPanel from "../components/VerificationPanel";
-import type { DataSource } from "../types/api";
+import {
+  BadgeCheck,
+  CloudSun,
+  Database,
+  ExternalLink,
+  Map,
+  Newspaper,
+  Satellite,
+  ShieldCheck,
+} from "lucide-react";
+import "../data-sources.css";
 
-const METHODS = [
-  ["Four-Witness harmonization", "Terra, Aqua, Suomi NPP and NOAA-20 are witnesses with known blind spots. MODIS same-overpass duplicates are merged. A detection profile, P(MODIS detects | VIIRS FRP, pixel area), is learned from Aqua/S-NPP matchups within 20 minutes; the Li et al. (2020) prior is used when matchups are too few. Every observation is converted to its Aqua 13:30 local-time equivalent with a fitted daily fire curve, which also removes orbit drift."],
-  ["Two tiers and effort", "The consistent record keeps MODIS-level sensitivity from 2000 to today (VIIRS fires weighted by the chance MODIS would have seen them) and drives the calendar, trends and anomalies. The detailed layer keeps every VIIRS detection for the globe. Activity is expressed per clear-sky look (swath / track spacing × clear fraction)."],
-  ["Fused fire probability", "Per 0.1° cell and local day: start from the cell's historical burning rate for that month; each detection raises the odds by detection chance / false-alarm rate, each clear miss lowers them; cloudy looks are ignored. Validated by the continuity test (no 2012 step) and the hide-one-witness test."],
-  ["Fire Cases", "Every event opens a case. Stream A classifies later polar passes predicted from current orbits; stream B uses geostationary start, duration and end; stream C uses NLP-matched news and official reports. Background facts are land use, heat sources, the local burning season and repeat heat. Items vote for categories by reliability, and a type is named only above 50% with a 20-point lead."],
-  ["Observation quality", "Each day is classed as reliable multi-sensor, valid no-fire, limited evidence, sensor disagreement (AMBIGUOUS), cloud-covered (UNKNOWN) or missing (INSUFFICIENT OBSERVATION). Cloud cover is an ERA5 proxy."],
-  ["Anomalies", "Robust z = (x − median) / (1.4826·MAD) against the same ±7-day window in other years: Normal < 2, Above Normal 2–3.5, Unusual 3.5–5, Highly Unusual ≥ 5. These are statistical, not severity, labels."],
-  ["Change points", "PELT on the deseasonalized log monthly series. Results are statistically detected changes, not proven physical shifts."],
-  ["Fire events", "Detections link when ≤ 48 h apart and within both pixels' location uncertainty + 0.5 km + 2 km/day spread allowance (max 6 km). Behaviour states are inferred from FRP, count, extent, persistence and movement per 12 h overpass window."],
-  ["Evidence fusion", "Expert-weighted components (satellite 20, repeat/agreement 10, regional satellite 20, official 25, news 10, geographic 8, temporal 7). The score is evidence strength, not a probability. 'Confirmed Fire' requires an official report within 15 km."],
-  ["Analogues", "Historical events from the same ~60 km region and season are truncated to the current event's age, compared on standardized features with shrinkage-regularized Mahalanobis distance, and the 5 nearest are shown with their full outcomes."],
-  ["Forecast", "Persistence, seasonal and wind-only baselines against LightGBM, tested on a temporal holdout (latest season) and a spatial holdout (east/west). LightGBM is used only if it wins on Brier score in both without losing footprint CSI; otherwise the best baseline is used, or FORECAST WITHHELD."],
-  ["Exposure", "Corridor cells (p ≥ 0.1, any horizon) are overlaid with WorldPop population and OpenStreetMap assets. Assets are described as lying within or near the corridor, never as certain to be affected."],
+type SourceGroup = "Fire observations" | "Observation context" | "Corroboration and incidents" | "Geography and evidence";
+
+type ProjectDataSource = {
+  name: string;
+  description: string;
+  dataType: string;
+  organization: string;
+  url: string;
+  group: SourceGroup;
+  optional?: boolean;
+};
+
+const DATA_SOURCES: ProjectDataSource[] = [
+  {
+    name: "MODIS Terra and Aqua Active Fire",
+    description: "MOD14 and MYD14 thermal-anomaly observations used as FlameSeek's long-running, approximately 1 km active-fire record.",
+    dataType: "Satellite active-fire detections",
+    organization: "NASA GSFC / NASA FIRMS",
+    url: "https://modis.gsfc.nasa.gov/data/dataprod/mod14.php",
+    group: "Fire observations",
+  },
+  {
+    name: "VIIRS S-NPP Active Fire",
+    description: "VNP14IMG 375 m observations that add finer spatial detail and sensitivity to smaller thermal signals.",
+    dataType: "Satellite active-fire detections",
+    organization: "NASA GSFC / NASA FIRMS",
+    url: "https://viirsland.gsfc.nasa.gov/Products/NASA/FireESDR.html",
+    group: "Fire observations",
+  },
+  {
+    name: "VIIRS NOAA-20 Active Fire",
+    description: "VJ114IMG 375 m observations used for current monitoring, event construction and cross-sensor checks.",
+    dataType: "Satellite active-fire detections",
+    organization: "NASA GSFC / NASA FIRMS",
+    url: "https://viirsland.gsfc.nasa.gov/Products/NASA/FireESDR.html",
+    group: "Fire observations",
+  },
+  {
+    name: "VIIRS NOAA-21 Active Fire",
+    description: "VJ214IMG-family 375 m observations used by the current-fire stream; the configured historical archive does not claim NOAA-21 coverage.",
+    dataType: "Near Real-Time active-fire detections",
+    organization: "NASA GSFC / NASA FIRMS",
+    url: "https://viirsland.gsfc.nasa.gov/Products/NASA/FireESDR.html",
+    group: "Fire observations",
+  },
+  {
+    name: "GOES-East and GOES-West Fire",
+    description: "Frequent geostationary active-fire detections used as regional corroboration and timing context across the Americas.",
+    dataType: "Geostationary fire detections",
+    organization: "NOAA / NASA FIRMS",
+    url: "https://firms.modaps.eosdis.nasa.gov/",
+    group: "Fire observations",
+  },
+  {
+    name: "Landsat 8 and 9 Active Fire",
+    description: "Higher-resolution active-fire and thermal-anomaly detections used as supporting evidence where FIRMS coverage is available.",
+    dataType: "30 m satellite fire detections",
+    organization: "NASA / USGS via NASA FIRMS",
+    url: "https://firms.modaps.eosdis.nasa.gov/content/descriptions/FIRMS_Landsat_Firehotspots.html",
+    group: "Fire observations",
+  },
+  {
+    name: "NASA FIRMS Data Availability",
+    description: "Per-source archive date ranges used to distinguish unavailable observations from valid periods with no detections.",
+    dataType: "Archive availability metadata",
+    organization: "NASA EOSDIS FIRMS",
+    url: "https://firms.modaps.eosdis.nasa.gov/api/data_availability/",
+    group: "Observation context",
+  },
+  {
+    name: "CelesTrak Orbital Elements",
+    description: "Current orbital elements for Terra, Aqua, S-NPP, NOAA-20 and NOAA-21 used to predict passes and expected swath coverage.",
+    dataType: "Two-line orbital elements",
+    organization: "CelesTrak",
+    url: "https://celestrak.org/",
+    group: "Observation context",
+  },
+  {
+    name: "Open-Meteo Historical and Forecast Weather",
+    description: "Cloud cover, wind, humidity and temperature used for observation-quality context, historical analogues and forecasts.",
+    dataType: "Weather reanalysis and forecast",
+    organization: "Open-Meteo",
+    url: "https://open-meteo.com/en/docs/historical-weather-api",
+    group: "Observation context",
+  },
+  {
+    name: "Open-Meteo Elevation",
+    description: "Copernicus DEM-derived elevation values used to provide terrain and slope-direction context for forecast features.",
+    dataType: "Digital elevation data",
+    organization: "Open-Meteo / Copernicus",
+    url: "https://open-meteo.com/en/docs/elevation-api",
+    group: "Observation context",
+  },
+  {
+    name: "Sentinel-2 Level-2A Scene Metadata",
+    description: "Scene availability, acquisition details and cloud cover used to locate imagery for smoke and burn-scar review.",
+    dataType: "Satellite scene metadata",
+    organization: "ESA Copernicus / Element 84 Earth Search",
+    url: "https://earth-search.aws.element84.com/v1",
+    group: "Corroboration and incidents",
+  },
+  {
+    name: "EFFIS Burnt Areas",
+    description: "Mapped burnt-area records used as regional corroboration across Europe, the Middle East and North Africa.",
+    dataType: "Mapped burnt-area polygons",
+    organization: "European Commission / Copernicus EMS",
+    url: "https://effis.jrc.ec.europa.eu/",
+    group: "Corroboration and incidents",
+  },
+  {
+    name: "CWFIS M3 Fire Perimeters",
+    description: "Canadian satellite-derived fire perimeters used to corroborate Fire Cases within Canada.",
+    dataType: "Fire-perimeter geospatial data",
+    organization: "Natural Resources Canada",
+    url: "https://cwfis.cfs.nrcan.gc.ca/",
+    group: "Corroboration and incidents",
+  },
+  {
+    name: "GDACS Wildfire Alerts",
+    description: "Global disaster alerts used as independent official-event evidence for large wildfire events.",
+    dataType: "Official disaster alerts",
+    organization: "United Nations / European Commission",
+    url: "https://www.gdacs.org/",
+    group: "Corroboration and incidents",
+  },
+  {
+    name: "NIFC WFIGS Incident Locations",
+    description: "Current United States wildland-fire incident locations, including prescribed-fire classifications when supplied.",
+    dataType: "Official incident locations",
+    organization: "U.S. National Interagency Fire Center",
+    url: "https://data-nifc.opendata.arcgis.com/",
+    group: "Corroboration and incidents",
+  },
+  {
+    name: "NSW Rural Fire Service Major Incidents",
+    description: "Major-incident and hazard-reduction information used as official regional evidence in New South Wales.",
+    dataType: "Official incident feed",
+    organization: "NSW Rural Fire Service",
+    url: "https://www.rfs.nsw.gov.au/fire-information/fires-near-me",
+    group: "Corroboration and incidents",
+  },
+  {
+    name: "GDELT DOC 2.0",
+    description: "Global English-language news results queried by place and event time for transparent Fire Case evidence matching.",
+    dataType: "News event records",
+    organization: "The GDELT Project",
+    url: "https://www.gdeltproject.org/",
+    group: "Geography and evidence",
+  },
+  {
+    name: "NewsAPI",
+    description: "Additional event- and location-based news articles used only when a NewsAPI credential is configured.",
+    dataType: "News article metadata",
+    organization: "NewsAPI",
+    url: "https://newsapi.org/",
+    group: "Geography and evidence",
+    optional: true,
+  },
+  {
+    name: "OpenStreetMap Nominatim",
+    description: "Place search and reverse geocoding used for location selection and administrative geographic context.",
+    dataType: "Geocoding and place data",
+    organization: "OpenStreetMap Foundation / Nominatim",
+    url: "https://nominatim.org/",
+    group: "Geography and evidence",
+  },
+  {
+    name: "OpenStreetMap Overpass",
+    description: "Mapped forests, protected areas, known heat sources, roads, facilities and farmland used for context and exposure analysis.",
+    dataType: "Open geospatial features",
+    organization: "OpenStreetMap contributors / Overpass",
+    url: "https://overpass-api.de/",
+    group: "Geography and evidence",
+  },
+  {
+    name: "WorldPop Population Data",
+    description: "Modelled population estimates used to summarize people located inside an issued forecast corridor.",
+    dataType: "Gridded population estimates",
+    organization: "WorldPop, University of Southampton",
+    url: "https://www.worldpop.org/",
+    group: "Geography and evidence",
+  },
 ];
 
-export default function DataSourcesPage() {
-  const [sources, setSources] = useState<DataSource[]>([]);
+const GROUPS: Array<{ name: SourceGroup; description: string; icon: typeof Satellite }> = [
+  { name: "Fire observations", description: "Primary and supporting satellite measurements of active fire and thermal anomalies.", icon: Satellite },
+  { name: "Observation context", description: "Sources that describe satellite availability, expected coverage, weather and terrain.", icon: CloudSun },
+  { name: "Corroboration and incidents", description: "Independent satellite products and official records used to check fire events.", icon: ShieldCheck },
+  { name: "Geography and evidence", description: "Place, exposure and news sources used to interpret observed fire activity.", icon: Map },
+];
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [attempt, setAttempt] = useState(0);
-  useEffect(() => {
-    let active = true;
-    setLoading(true);
-    setError(null);
-    getDataSources().then(value => { if (active) setSources(value); })
-      .catch(reason => { if (active) setError(normalizeApiError(reason)); })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
-  }, [attempt]);
-
-  const groups = [...new Set(sources.map((s) => s.group))];
-
+function DataSourceCard({ source }: { source: ProjectDataSource }) {
   return (
-    <main className="content-page space-shell space-page">
-      <div className="space-hero-strip">
-        <div className="space-hero-orbit" aria-hidden="true"><span /><span /></div>
-        <header className="nasa-page-intro">
-          <p className="eyebrow"><span className="dot" /> Transparency</p>
-          <h2>Sources & Methods</h2>
-          <p className="lead">
-            Every result names its source and processing method. <strong>Automated</strong> sources are queried by the backend. <strong>Review links</strong> are offered for an analyst to check
-            and are never counted as checked evidence.
-          </p>
-          <ul className="hero-chips">
-            <li><span className="dot" />NASA FIRMS</li>
-            <li><span className="dot" />Regional satellites</li>
-            <li><span className="dot" />Government agencies</li>
-            <li><span className="dot" />News NLP</li>
-          </ul>
-        </header>
+    <article className="ds-card">
+      <div className="ds-card-topline">
+        <span className="ds-status"><BadgeCheck size={14} aria-hidden="true" />{source.optional ? "Optional integration" : "Implemented"}</span>
+        <Database size={18} aria-hidden="true" />
       </div>
-      {loading && <p role="status">Loading data sources...</p>}
-      {error && <p role="alert">Data sources unavailable: {error} <button type="button" onClick={() => setAttempt(value => value + 1)}>Retry</button></p>}
-      {!loading && !error && !sources.length && <p>No data sources were returned.</p>}
-      {groups.map((group) => (
-        <section key={group} className="source-group">
-          <h3>{group}</h3>
-          <div className="source-grid">
-            {sources.filter((s) => s.group === group).map((source) => (
-              <article key={source.name} className="source-card glass-card">
-                <div className="source-card-glyph" aria-hidden="true">
-                  <svg viewBox="0 0 32 32" width="26" height="26"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.5" /><circle cx="16" cy="16" r="3" fill="currentColor" /><path d="M4 16h24M16 4v24" stroke="currentColor" strokeWidth="0.6" opacity="0.4" /></svg>
-                </div>
-                <h3>{source.name}</h3>
-                <p>{source.description}</p>
-                <div className="source-card-footer">
-                  <span className={`access-pill ${source.access.replace(/\s/g, "-")}`}>{source.access}</span>
-                  {source.url && <a href={source.url} target="_blank" rel="noreferrer">Visit ↗</a>}
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      ))}
-      <section className="methods">
-        <h3>Methods</h3>
-        <div className="method-grid">
-          {METHODS.map(([k, v]) => (
-            <article key={k} className="method-card glass-card">
-              <span className="method-index" aria-hidden="true">{String(METHODS.findIndex(([kk]) => kk === k) + 1).padStart(2, "0")}</span>
-              <h4>{k}</h4>
-              <p>{v}</p>
-            </article>
-          ))}
+      <h3>{source.name}</h3>
+      <p>{source.description}</p>
+      <dl>
+        <div><dt>Data type</dt><dd>{source.dataType}</dd></div>
+        <div><dt>Source</dt><dd>{source.organization}</dd></div>
+      </dl>
+      <a href={source.url} target="_blank" rel="noreferrer" aria-label={`Visit the official source for ${source.name}`}>
+        Visit official source <ExternalLink size={15} aria-hidden="true" />
+      </a>
+    </article>
+  );
+}
+
+export default function DataSourcesPage() {
+  return (
+    <main className="content-page space-shell space-page ds-page">
+      <header className="ds-hero">
+        <div className="ds-hero-copy">
+          <p className="ds-eyebrow"><Database size={14} aria-hidden="true" />Verified project sources</p>
+          <h1>Data Sources</h1>
+          <p>The satellite, environmental, geographic and evidence datasets implemented in FlameSeek. Every link opens the source organization's official website.</p>
         </div>
-      </section>
-      <VerificationPanel />
+        <div className="ds-hero-summary" aria-label="Dataset summary">
+          <strong>{DATA_SOURCES.length}</strong>
+          <span>implemented source integrations</span>
+          <small>Primary observations, context and corroboration</small>
+        </div>
+      </header>
+
+      <nav className="ds-index" aria-label="Data source categories">
+        {GROUPS.map(({ name, icon: Icon }) => (
+          <a href={`#${name.toLowerCase().replace(/\s+/g, "-")}`} key={name}><Icon size={15} aria-hidden="true" />{name}</a>
+        ))}
+      </nav>
+
+      {GROUPS.map(({ name, description, icon: Icon }) => {
+        const sources = DATA_SOURCES.filter((source) => source.group === name);
+        return (
+          <section className="ds-group" id={name.toLowerCase().replace(/\s+/g, "-")} key={name}>
+            <header className="ds-group-header">
+              <span><Icon size={21} aria-hidden="true" /></span>
+              <div><h2>{name}</h2><p>{description}</p></div>
+              <b>{sources.length} sources</b>
+            </header>
+            <div className="ds-grid">{sources.map((source) => <DataSourceCard source={source} key={source.name} />)}</div>
+          </section>
+        );
+      })}
+
+      <aside className="ds-note">
+        <Newspaper size={19} aria-hidden="true" />
+        <p><strong>Scope note.</strong> Manual-review websites are not listed as integrated datasets. NewsAPI is shown separately because the code uses it only when its API key is configured.</p>
+      </aside>
     </main>
   );
 }

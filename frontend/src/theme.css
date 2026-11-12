@@ -165,6 +165,7 @@ html[data-theme="day"] .oc-hero-title span.glow-gradient {
 html[data-theme="day"] :is(.oc-home, .content-page) :is(h1, h2, h3, h4, h5, h6) { color: #153552; }
 html[data-theme="day"] :is(.oc-spec-row strong, .oc-panel-title) { color: #153552; }
 html[data-theme="day"] .oc-btn-primary { background: linear-gradient(135deg, #b9e7ff, #70c5f3); color: #103952; box-shadow: 0 5px 20px #70bce333; }
+html[data-theme="day"] .oc-btn-secondary { background: #294f6d; color: #fff; border-color: #294f6d; }
 html[data-theme="day"] .oc-btn-secondary:hover { background: #dff2ff; color: #075985; }
 html[data-theme="day"] :is(.oc-cta-horizon, .oc-footer) { background: #e5f4ff; color: #153552; border-color: #c2e1f5; }
 html[data-theme="day"] :is(.hz-provenance code, .hz-panel-head, .hz-pill-info) { color: #0369a1; }
@@ -232,6 +233,86 @@ html[data-theme="day"] .dna-panel :is(h3, strong, dd), html[data-theme="day"] .d
 html[data-theme="day"] :is(.dna-metric-grid > div, .dna-history-stats > div, .dna-anomaly-table > span, .dna-selected dl div, .dna-reliability > div > span, .dna-preview-rows span, .dna-summary > button, .dna-meaning) { background: #edf7fe; border-color: #c2dfee; }
 html[data-theme="day"] :is(.dna-panel small, .dna-panel p, .dna-panel label, .dna-panel dt, .dna-panel em, .dna-method, .dna-interpretation) { color: #526e85; }
 html[data-theme="day"] :is(.dna-panel select, .dna-mode button, .dna-selector .aoi-search input) { color: #153552; background: #fff; border-color: #b4d6ec; }
+
+/* High-contrast daylight pass shared by every route. */
+:root[data-theme="day"] {
+  --foreground: #102f49;
+  --muted-foreground: #304f67;
+  --border: #9fc7df;
+  --oc-text-primary: #102f49;
+  --oc-text-secondary: #304f67;
+  --oc-text-muted: #3b5b73;
+}
+
+html[data-theme="day"] .space-shell,
+html[data-theme="day"] .immersive-globe-page,
+html[data-theme="day"] #root {
+  --sp-text: #102f49;
+  --sp-text-dim: #304f67;
+  --sp-border: #a8cce2;
+  --sp-border-strong: #629fc5;
+}
+
+html[data-theme="day"] body,
+html[data-theme="day"] #root {
+  color: #102f49;
+  background-color: #edf7fd;
+}
+
+html[data-theme="day"] :is(.content-page, .mission-home, .space-shell, .minimal-search-page, .area-intelligence, .dna-workspace) {
+  color: #102f49;
+}
+
+html[data-theme="day"] :is(
+  .meta-text, .lead, .hz-src, .hz-lead, .hz-panel p, .hz-panel small,
+  .oc-hero-subtitle, .oc-section-subtitle, .oc-stat-label, .oc-spec-row,
+  .oc-hud-row span, .oc-event-meta, .oc-card-copy, .oc-footer p,
+  .sat-card-tagline, .pipe-card-question, .pipe-card-narrative,
+  .roadmap-short-desc, .inspector-question, .inspector-full-answer,
+  .roadmap-mobile-desc, .source-card p, .method-card p,
+  .memory-intro p, .memory-grid p, .memory-grid small,
+  .scene-note, .map-howto, .behaviour-legend, .switch-row, .select-row,
+  .area-destinations > p, .area-destinations a p, .hz-open-intel small,
+  .dna-panel small, .dna-panel p, .dna-panel label, .dna-panel dt,
+  .dna-panel em, .dna-method, .dna-interpretation
+) { color: #304f67; }
+
+html[data-theme="day"] .nasa-page-intro .eyebrow,
+html[data-theme="day"] .minimal-search-heading > p {
+  color: #00689d;
+}
+
+html[data-theme="day"] .minimal-search-heading > span {
+  color: #304f67;
+}
+
+html[data-theme="day"] :is(
+  .glass-card, .viz-panel, .hz-flow-step, .hz-provenance li,
+  .oc-hud-card, .oc-dashboard-panel, .scene-panel, .control-panel-3d,
+  .insight-drawer, .option-card, .theme-card, .hud-stat,
+  .dna-panel, .area-destinations a, .hz-open-intel
+) { border-color: #a8cce2; }
+
+html[data-theme="day"] :is(button, a, summary, input, select, textarea) {
+  text-shadow: none;
+}
+
+html[data-theme="day"] :is(input, textarea)::placeholder {
+  color: #516b7f;
+  opacity: 1;
+}
+
+html[data-theme="day"] :is(.mission-header nav a, .header-more summary, .analysis-back, .analysis-navigation-links a) {
+  color: #294a63;
+}
+
+html[data-theme="day"] :is(.mission-header nav a, .header-more summary, .analysis-back, .analysis-navigation-links a):hover {
+  color: #004f7d;
+}
+
+html[data-theme="day"] :is(.access-pill, .category, .season-pill, .status-pill, .evidence-status) {
+  font-weight: 700;
+}
 
 @media (max-width: 760px) {
   .mission-header { flex-wrap: nowrap; gap: 6px; }

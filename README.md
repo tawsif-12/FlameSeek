@@ -85,7 +85,7 @@ The harmonized record is part of the existing FlameSeek site, in its own theme. 
 - a **Harmonized Record** section on Home;
 - **Fire Events**: open Search, choose a place, then pick "04 Fire Events". It lists every event of the window
   in that place and draws each one's true burned-ground outline on Esri imagery. FireNow stays the main live map;
-- **Methodology** (`/methodology`) and **About** (`/about`);
+- **Methodology** (`/methodology`) and **Data Sources** (`/data-sources`);
 - a বাংলা / EN toggle in the header.
 
 These pages show only pipeline outputs already on disk; anything not computed shows "awaiting data".

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, BookOpen, Layers, Map as MapIcon, Users } from "lucide-react";
+import { ArrowRight, BookOpen, Database, Layers, Map as MapIcon } from "lucide-react";
 import { computed, HeadlineData, useSiteData, useSnapshotMeta } from "../api/harmonized";
 import { useLanguage } from "../context/LanguageContext";
 import HarmonizedProvenance, { StatusPill } from "./HarmonizedProvenance";
@@ -60,7 +60,7 @@ export default function HarmonizedRecordSection() {
         {[
           { to: "/fire-map", icon: <MapIcon size={18} />, title: "Fire map", text: t("card_map") },
           { to: "/methodology", icon: <BookOpen size={18} />, title: t("nav_method"), text: t("card_method") },
-          { to: "/about", icon: <Users size={18} />, title: t("nav_about"), text: t("card_about") },
+          { to: "/data-sources", icon: <Database size={18} />, title: "Data Sources", text: "The verified datasets and services used by FlameSeek." },
         ].map((c) => (
           <Link key={c.to} to={c.to} className="oc-dashboard-panel hz-link-card">
             <span className="oc-panel-title">{c.icon}{c.title}</span>

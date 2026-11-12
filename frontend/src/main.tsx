@@ -13,8 +13,8 @@ const PRIMARY_NAVIGATION = [
   { to: "/", label: "Home", end: true },
   { to: "/fire-map", label: "Fire Now" },
   { to: "/search", label: "Search" },
+  { to: "/data-sources", label: "Data Sources" },
   { to: "/methodology", label: "Methodology" },
-  { to: "/about", label: "About" },
 ] as const;
 
 // Keep every route out of the startup graph. The same stable loaders power
@@ -24,7 +24,6 @@ const routeLoaders = {
   "/fire-map": () => import("./pages/FireGlobePage"),
   "/search": () => import("./pages/SearchPage"),
   "/methodology": () => import("./pages/MethodologyPage"),
-  "/about": () => import("./pages/AboutPage"),
   "/fire-memory": () => import("./pages/FireMemoryPage"),
   "/fire-dna": () => import("./pages/FireDnaPage"),
   "/data-sources": () => import("./pages/DataSourcesPage"),
@@ -45,7 +44,6 @@ const FireMemoryPage = React.lazy(routeLoaders["/fire-memory"]);
 const FireDnaPage = React.lazy(routeLoaders["/fire-dna"]);
 const SearchPage = React.lazy(routeLoaders["/search"]);
 const MethodologyPage = React.lazy(routeLoaders["/methodology"]);
-const AboutPage = React.lazy(routeLoaders["/about"]);
 const AreaIntelligencePage = React.lazy(routeLoaders["/area"]);
 
 function MergedFeatureRedirect({ to, view }: { to: string; view?: string }) {
@@ -80,7 +78,7 @@ function Header() {
   React.useEffect(() => {
     // Warm small primary routes after first paint. The 3D globe is intentionally
     // fetched only on hover/focus so mobile users do not pay for it speculatively.
-    const warm = () => ["/search", "/methodology", "/about"].forEach(prefetchRoute);
+    const warm = () => ["/search", "/data-sources", "/methodology"].forEach(prefetchRoute);
     const win = window as typeof window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
     if (win.requestIdleCallback) {
       const id = win.requestIdleCallback(warm, { timeout: 2500 });
@@ -134,7 +132,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="/data-sources" element={<DataSourcesPage />} />
           <Route path="/fire-events" element={<MergedFeatureRedirect to="/area" view="events" />} />
           <Route path="/methodology" element={<MethodologyPage />} />
-          <Route path="/about" element={<AboutPage />} />
+          <Route path="/about" element={<Navigate to="/data-sources" replace />} />
           <Route path="/area" element={<AreaIntelligencePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

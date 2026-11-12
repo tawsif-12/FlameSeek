@@ -10,7 +10,7 @@ const LANGUAGE_STORAGE_KEY = "flameseek-lang-v2";
 const STRINGS = {
   en: {
     toggle: "বাংলা",
-    nav_events: "Fire Events", nav_method: "Methodology", nav_about: "About",
+    nav_events: "Fire Events", nav_method: "Methodology",
     window: "Data period", data_version: "Record version", last_obs: "Latest observation", api_offline: "Showing saved data; the data service is unavailable",
     awaiting: "Not available yet",
     record_tag: "COMBINED FIRE RECORD",
@@ -21,7 +21,6 @@ const STRINGS = {
     raw_to_events: "From heat detections to fire groups",
     card_map: "See recent heat detections on the globe. Search for a place to explore its fire activity.",
     card_method: "See how we process the data, check results and explain missing information.",
-    card_about: "Meet the team and learn about the project.",
     open: "Open",
     map_title: "Harmonized Fire Events",
     map_lead: "Every fire event the satellites recorded in this place during the window, drawn as its true burned-ground outline. Pick one from the list to zoom to it.",
@@ -46,7 +45,7 @@ const STRINGS = {
   },
   bn: {
     toggle: "EN",
-    nav_events: "আগুনের ঘটনা", nav_method: "পদ্ধতি", nav_about: "আমাদের সম্পর্কে",
+    nav_events: "আগুনের ঘটনা", nav_method: "পদ্ধতি",
     window: "সময়সীমা", data_version: "ডেটা সংস্করণ", last_obs: "সর্বশেষ পর্যবেক্ষণ", api_offline: "API বন্ধ — রপ্তানিকৃত স্ন্যাপশট থেকে",
     awaiting: "তথ্য আসার অপেক্ষায়",
     record_tag: "সমন্বিত রেকর্ড",
@@ -57,7 +56,6 @@ const STRINGS = {
     raw_to_events: "কাঁচা শনাক্তকরণ থেকে আগুনের ঘটনা",
     card_map: "উপগ্রহে দেখা আগুনের লাইভ ৩ডি গ্লোব। কোনো এলাকার সমন্বিত আগুনের ঘটনা দেখতে Search ব্যবহার করুন।",
     card_method: "রেকর্ড কীভাবে তৈরি ও যাচাই হয়েছে, আর কী বাকি।",
-    card_about: "FlameSeek-এর পেছনের দল।",
     open: "খুলুন",
     map_title: "সমন্বিত আগুনের ঘটনা",
     map_lead: "এই এলাকায় সময়সীমার মধ্যে উপগ্রহে ধরা পড়া প্রতিটি আগুনের ঘটনা, প্রকৃত পোড়া এলাকার সীমানাসহ। তালিকা থেকে একটি বেছে নিলে মানচিত্র সেখানে যাবে।",

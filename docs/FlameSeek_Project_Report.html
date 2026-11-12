@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FlameSeek — Complete Project Solution</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 17mm; }
+  * { box-sizing: border-box; }
+  html { font-family: "Segoe UI", Arial, sans-serif; color: #172033; font-size: 10.4pt; line-height: 1.46; }
+  body { margin: 0; background: white; }
+  h1,h2,h3,h4 { color: #09233f; margin: 0 0 8px; line-height: 1.2; page-break-after: avoid; }
+  h1 { font-size: 29pt; letter-spacing: -.7px; }
+  h2 { font-size: 19pt; border-bottom: 2px solid #20a8d8; padding-bottom: 6px; margin-top: 4px; }
+  h3 { font-size: 13.4pt; margin-top: 15px; color: #0c4a6e; }
+  h4 { font-size: 11pt; margin-top: 10px; }
+  p { margin: 5px 0 9px; }
+  ul,ol { margin: 5px 0 10px 20px; padding: 0; }
+  li { margin: 3px 0; }
+  code { font-family: Consolas, monospace; font-size: 9pt; background: #edf4f8; padding: 1px 4px; border-radius: 3px; }
+  pre { white-space: pre-wrap; background: #071626; color: #dff6ff; padding: 11px 13px; border-radius: 8px; font: 8.5pt/1.45 Consolas, monospace; page-break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 9px 0 13px; font-size: 9.1pt; page-break-inside: auto; }
+  th { background: #0b3b5c; color: white; text-align: left; }
+  th,td { border: 1px solid #bad3df; padding: 6px 7px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f2f8fb; }
+  tr { page-break-inside: avoid; }
+  .page { page-break-before: always; }
+  .keep { page-break-inside: avoid; }
+  .cover { height: 260mm; margin: -16mm -15mm -17mm; padding: 24mm 20mm 18mm; color: white; position: relative; overflow: hidden;
+    background: linear-gradient(145deg,#020813 0%,#071a2c 48%,#063d58 100%); page-break-after: always; }
+  .cover:before { content:""; position:absolute; width:330mm; height:330mm; border:1px solid rgba(99,219,255,.18); border-radius:50%; right:-190mm; top:-70mm; box-shadow:0 0 60px rgba(28,188,230,.2); }
+  .cover .tag { letter-spacing: 2px; text-transform: uppercase; color: #76ddff; font-weight: 700; font-size: 9.5pt; margin-top: 6mm; }
+  .cover h1 { color:white; font-size: 43pt; margin-top: 23mm; }
+  .cover .subtitle { font-size: 18pt; color:#c8efff; max-width: 150mm; line-height:1.35; }
+  .cover .chain { margin-top:17mm; color:#89cde6; font-size:12pt; letter-spacing:.4px; }
+  .cover .truth { position:absolute; bottom:29mm; left:20mm; right:20mm; border-left:4px solid #39c9f5; padding:10px 14px; background:rgba(3,16,30,.55); font-size:12pt; }
+  .cover .meta { position:absolute; bottom:13mm; left:20mm; right:20mm; display:flex; justify-content:space-between; color:#9fc5d5; font-size:9pt; }
+  .lead { font-size: 12pt; color:#284760; }
+  .callout { border-left:4px solid #1da8d5; background:#eef9fd; padding:9px 12px; margin:10px 0; page-break-inside:avoid; }
+  .warning { border-left-color:#e59119; background:#fff8e9; }
+  .success { border-left-color:#1a9f72; background:#edf9f4; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0; }
+  .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:10px 0; }
+  .card { border:1px solid #bcd6e2; border-radius:8px; padding:10px; background:#f8fcfe; page-break-inside:avoid; }
+  .card h3,.card h4 { margin-top:0; }
+  .num { display:inline-flex; width:23px; height:23px; border-radius:50%; background:#0b638c; color:#fff; align-items:center; justify-content:center; font-weight:700; margin-right:5px; }
+  .flow { display:flex; align-items:stretch; gap:5px; margin:12px 0; page-break-inside:avoid; }
+  .flow .box { flex:1; padding:9px 6px; text-align:center; border-radius:7px; color:#07324b; background:#dff5fd; border:1px solid #83cde5; font-weight:650; font-size:8.5pt; }
+  .flow .arrow { align-self:center; color:#1486ae; font-size:14pt; }
+  .diagram { background:#061827; color:#dff7ff; border-radius:9px; padding:14px; margin:10px 0 14px; page-break-inside:avoid; font:8.8pt/1.35 Consolas, monospace; text-align:center; }
+  .diagram .row { display:flex; justify-content:center; align-items:center; gap:7px; margin:7px 0; }
+  .diagram .node { border:1px solid #42c5ea; background:#0a2b40; padding:7px 10px; border-radius:6px; min-width:35mm; }
+  .diagram .wide { min-width:80mm; }
+  .diagram .arr { color:#7be4ff; font-size:14pt; }
+  .caption { font-size:8.6pt; color:#526879; margin-top:4px; text-align:center; }
+  .screenshot { width:100%; max-height:145mm; object-fit:contain; border:1px solid #9eb7c5; border-radius:6px; display:block; background:#020b14; }
+  .smallshot { max-height:102mm; }
+  .toc td { border:none; border-bottom:1px dotted #9eb6c3; padding:5px 2px; background:white !important; }
+  .pill { display:inline-block; border-radius:12px; padding:2px 8px; background:#d9f4fe; color:#07587d; font-size:8pt; font-weight:700; }
+  .footer-note { color:#657887; font-size:8.5pt; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="tag">NASA Space Apps Challenge • Global Fire Intelligence</div>
+  <h1>FlameSeek</h1>
+  <div class="subtitle">Complete Project Solution and Technical Report</div>
+  <div class="chain">Past → Present → Identify → Verify → Compare → Forecast → Exposure</div>
+  <div class="truth"><strong>Core principle:</strong> a satellite hotspot is an observation—not automatically a confirmed wildfire—and the absence of a hotspot is not proof that no fire exists.</div>
+  <div class="meta"><span>Beginner-friendly English edition</span><span>Prepared from the implementation • 9 November 2026</span></div>
+</section>
+
+<section>
+  <h2>Document Guide</h2>
+  <p class="lead">This report explains the complete FlameSeek project from the user problem to the technical implementation. It is written so that a beginner can understand the idea, while still documenting the architecture, algorithms, APIs, setup, tests, limitations, and future scope.</p>
+  <table class="toc">
+    <tr><td>1. Executive Summary</td><td>What FlameSeek does and why it matters</td></tr>
+    <tr><td>2. Project Overview and Problem Statement</td><td>The real-world problem, users, and objectives</td></tr>
+    <tr><td>3. Proposed Solution</td><td>The seven-stage fire story and trust model</td></tr>
+    <tr><td>4. System Architecture</td><td>Frontend, API, intelligence services, pipeline, and data</td></tr>
+    <tr><td>5. End-to-End Workflow</td><td>How a raw detection becomes an explainable result</td></tr>
+    <tr><td>6. Detailed Feature Explanation</td><td>Every major user-facing capability</td></tr>
+    <tr><td>7. Data Sources and Sensor Harmonization</td><td>How different witnesses are compared fairly</td></tr>
+    <tr><td>8. Algorithms and Decision Logic</td><td>Events, anomalies, evidence, forecast, and exposure</td></tr>
+    <tr><td>9. Technology Stack and Code Organization</td><td>Languages, frameworks, and important files</td></tr>
+    <tr><td>10. API and Data Flow</td><td>Endpoints and background jobs</td></tr>
+    <tr><td>11. Installation and Operation</td><td>Beginner-friendly setup and usage</td></tr>
+    <tr><td>12. Testing and Verification</td><td>Automated tests and build status</td></tr>
+    <tr><td>13. Strengths, Limitations, and Ethics</td><td>What results mean—and what they do not mean</td></tr>
+    <tr><td>14. Future Improvements and Conclusion</td><td>Practical roadmap and final assessment</td></tr>
+  </table>
+  <div class="callout"><strong>Scope note.</strong> This report is based on the project files, source code, configuration, tests, generated outputs, and interface screenshots in the FlameSeek repository. The Bangladesh walkthrough cases are explicitly presented as synthetic demonstrations, because the code labels them that way.</div>
+</section>
+
+<section class="page">
+  <h2>1. Executive Summary</h2>
+  <p>FlameSeek is a full-stack, evidence-driven platform for monitoring, verifying, explaining, comparing, and forecasting satellite-observed fire activity. It combines observations from NASA MODIS and VIIRS instruments with orbit information, cloud/observation context, regional satellite products, government sources, news, historical patterns, wind-based forecasting, and exposure data.</p>
+  <p>The platform addresses a common misunderstanding: a thermal hotspot detected from space is not automatically a wildfire. It may be a crop burn, industrial heat source, controlled burn, or a detection affected by cloud, sensor resolution, viewing angle, and revisit timing. FlameSeek therefore separates four kinds of information:</p>
+  <div class="grid2">
+    <div class="card"><h4>Observation</h4><p>What a satellite directly detected: sensor, time, location, footprint, confidence, and fire radiative power (FRP).</p></div>
+    <div class="card"><h4>Inference</h4><p>What the system calculates: events, harmonized activity, anomalies, behaviour states, and evidence status.</p></div>
+    <div class="card"><h4>External evidence</h4><p>Independent support from other satellites, agencies, and news, with source provenance.</p></div>
+    <div class="card"><h4>Forecast</h4><p>Where new satellite-observed activity may appear in 6, 12, or 24 hours—or a clear “forecast withheld” result.</p></div>
+  </div>
+  <p>The main innovation is the <strong>Four-Witness Fire Intelligence</strong> approach. Terra MODIS, Aqua MODIS, Suomi NPP VIIRS, NOAA-20 VIIRS, and NOAA-21 VIIRS are treated as witnesses with different strengths and blind spots. Their observations are cleaned, de-duplicated, corrected for time of day and sensor sensitivity, adjusted for observation opportunity, and fused into a consistent interpretation.</p>
+  <div class="callout success"><strong>Outcome:</strong> FlameSeek turns a scattered set of satellite detections into a transparent fire story: what normally happens in an area, what is happening now, whether detections form one event, what evidence supports the event, how similar fires behaved, where activity may appear next, and what people or infrastructure may be exposed.</div>
+  <img class="screenshot smallshot" src="../screenshots/02_home_full.png" alt="FlameSeek home page">
+  <div class="caption">Figure 1. FlameSeek home interface and the seven-stage fire story.</div>
+</section>
+
+<section class="page">
+  <h2>2. Project Overview and Problem Statement</h2>
+  <h3>2.1 Background</h3>
+  <p>Satellites provide global fire observations, including places where ground monitoring is limited. However, raw hotspot feeds are difficult to interpret correctly. Different instruments have different pixel sizes, sensitivity levels, overpass times, swath widths, orbit drift, and cloud-related gaps. A higher number of detections may mean more fire activity, but it can also mean that a newer or more sensitive sensor observed the area more often.</p>
+  <h3>2.2 Problem Statement</h3>
+  <p>Emergency planners, researchers, journalists, communities, and non-specialist users need a system that answers more than “where are the red dots?” They need an explainable answer to these questions:</p>
+  <ol>
+    <li>What is happening now, and what did the satellites actually observe?</li>
+    <li>Do nearby detections belong to the same evolving fire event?</li>
+    <li>Is the event supported by later passes, other satellites, agencies, or news?</li>
+    <li>Is current activity normal or unusual for this place and season?</li>
+    <li>How did comparable historical events develop?</li>
+    <li>Where might new satellite-observed activity appear next?</li>
+    <li>Which population, roads, settlements, ecosystems, and facilities may be exposed?</li>
+  </ol>
+  <p>A useful solution must also report uncertainty. Cloud cover, missed overpasses, weak signals, sensor differences, and missing external reports must not be silently converted into false certainty.</p>
+  <h3>2.3 Project Objectives</h3>
+  <table>
+    <tr><th>Objective</th><th>How FlameSeek addresses it</th></tr>
+    <tr><td>Global situational awareness</td><td>Near-real-time MODIS and VIIRS observations on a 3D globe.</td></tr>
+    <tr><td>Long-term comparability</td><td>A MODIS-sensitivity consistent record plus a separate detailed VIIRS layer.</td></tr>
+    <tr><td>Evidence-based verification</td><td>Later passes, geostationary review, government reports, and matched news.</td></tr>
+    <tr><td>Place-based intelligence</td><td>Country, region, district, forest, polygon, rectangle, or radius selection.</td></tr>
+    <tr><td>Transparent decisions</td><td>Provenance, quality labels, score breakdowns, explanations, and source links.</td></tr>
+    <tr><td>Actionable outlook</td><td>Historical analogues, validated short-term forecast corridors, and exposure layers.</td></tr>
+  </table>
+  <h3>2.4 Intended Users</h3>
+  <p>Potential users include disaster-management teams, environmental agencies, researchers, local authorities, journalists, NGOs, students, and members of the public. FlameSeek is an intelligence and decision-support tool; it is not a replacement for official emergency warnings or field confirmation.</p>
+</section>
+
+<section class="page">
+  <h2>3. Proposed Solution</h2>
+  <p>The proposed solution is a connected seven-stage workflow. Each stage answers one clear human question while preserving the difference between direct observation and system interpretation.</p>
+  <div class="flow">
+    <div class="box">1<br>Fire Memory</div><div class="arrow">→</div>
+    <div class="box">2<br>Fire Now</div><div class="arrow">→</div>
+    <div class="box">3<br>Fire Identity</div><div class="arrow">→</div>
+    <div class="box">4<br>Fire Evidence</div><div class="arrow">→</div>
+    <div class="box">5<br>Fire Past</div><div class="arrow">→</div>
+    <div class="box">6<br>Fire Future</div><div class="arrow">→</div>
+    <div class="box">7<br>Exposure</div>
+  </div>
+  <table>
+    <tr><th>Stage</th><th>Question answered</th><th>Main result</th></tr>
+    <tr><td>Fire Memory</td><td>What normally happened here in the past?</td><td>Consistent record, seasonal profile, calendar, anomalies, and change points.</td></tr>
+    <tr><td>Fire Now</td><td>What are satellites observing now?</td><td>Live footprints and events on a globe, with quality and uncertainty.</td></tr>
+    <tr><td>Fire Identity</td><td>Which observations belong to one evolving fire?</td><td>Spatio-temporal event reconstruction and inferred behaviour state.</td></tr>
+    <tr><td>Fire Evidence</td><td>Do independent sources support the event?</td><td>A time-ordered Fire Case with reliability-weighted evidence.</td></tr>
+    <tr><td>Fire Past</td><td>How did similar events behave?</td><td>Same-age historical analogues and outcomes.</td></tr>
+    <tr><td>Fire Future</td><td>Where might activity be observed next?</td><td>6/12/24-hour probability corridor or “forecast withheld.”</td></tr>
+    <tr><td>Exposure</td><td>What lies inside the possible activity corridor?</td><td>Population, settlements, roads, land, protected areas, and facilities.</td></tr>
+  </table>
+  <h3>3.1 Trust and Uncertainty Model</h3>
+  <p>FlameSeek does not hide missing data. It uses quality and sufficiency states such as <strong>UNKNOWN</strong>, <strong>AMBIGUOUS</strong>, and <strong>INSUFFICIENT OBSERVATION</strong>. Fire Cases remain provisional until all expected satellite passes have occurred or 24 hours have elapsed. A fire type is named only when its evidence score exceeds the configured decision margins.</p>
+  <div class="callout warning"><strong>Important interpretation:</strong> evidence scores and category percentages are evidence-strength measures. They are not automatically calibrated probabilities. A forecast concerns future <em>satellite-observed activity</em>, not a physical fire-spread perimeter.</div>
+  <h3>3.2 Demonstration Mode</h3>
+  <p>The repository includes three synthetic Bangladesh walkthroughs: a garment-factory fire at Ashulia, paddy-straw burning at Shibganj in Bogura, and a forest fire in the Sundarbans’ Chandpai range. They demonstrate staged evidence, historical analogues, forecasts, and exposure without relying on live services. Names, reports, and figures in these scenarios are invented and labelled as demo data.</p>
+</section>
+
+<section class="page">
+  <h2>4. System Architecture</h2>
+  <p>FlameSeek follows a layered architecture. The browser provides interactive maps and explanations; the FastAPI backend manages requests and analysis jobs; intelligence modules perform domain-specific calculations; the scientific pipeline builds consistent datasets; caches and processed files reduce repeated work.</p>
+  <div class="diagram">
+    <div class="row"><div class="node wide">USER — browser, desktop, tablet, or mobile</div></div>
+    <div class="arr">↓</div>
+    <div class="row"><div class="node">React + TypeScript</div><div class="node">Cesium 3D globe</div><div class="node">Leaflet + Plotly</div></div>
+    <div class="arr">↓ REST/JSON + job polling</div>
+    <div class="row"><div class="node wide">FastAPI application — routers, schemas, validation, CORS, cache-aware jobs</div></div>
+    <div class="arr">↓</div>
+    <div class="row"><div class="node">Fire Memory</div><div class="node">Fire Cases</div><div class="node">Forecast &amp; Exposure</div><div class="node">Place Intelligence</div></div>
+    <div class="arr">↓</div>
+    <div class="row"><div class="node wide">Scientific harmonization pipeline — ingest → quality → footprints → events → grid → calibration → history</div></div>
+    <div class="arr">↓</div>
+    <div class="row"><div class="node">NASA FIRMS</div><div class="node">Orbit/cloud context</div><div class="node">Agencies &amp; news</div><div class="node">WorldPop + OSM</div></div>
+    <div class="row"><div class="node wide">Local cache, Parquet/CSV/JSON outputs, parameter versions, snapshots</div></div>
+  </div>
+  <div class="caption">Figure 2. High-level architecture of FlameSeek.</div>
+  <h3>4.1 Frontend Layer</h3>
+  <p>The frontend is a React 18 and TypeScript application built with Vite. It uses Cesium for the 3D globe, Leaflet for 2D geographic views, Plotly for analytical charts, and React Router for page navigation. Large pages are lazy-loaded so that users do not download every mapping library on the first visit.</p>
+  <h3>4.2 API and Application Layer</h3>
+  <p>The FastAPI application exposes typed endpoints for hotspots, places, events, Fire Memory, evidence, outlook, data sources, saved results, harmonized snapshots, and long-running jobs. Pydantic schemas validate areas of interest, dates, sensors, and response structures.</p>
+  <h3>4.3 Intelligence Services</h3>
+  <p>Separate Python modules handle event reconstruction, quality, geocoding, witness fusion, evidence matching, Fire Cases, historical analogues, forecasting, exposure, and seasonal analysis. This modular design makes individual methods testable and replaceable.</p>
+  <h3>4.4 Data and Scientific Pipeline</h3>
+  <p>The pipeline preserves raw files, writes interim and processed products, partitions large datasets by day, stores versioned parameters, and exports snapshots for the website. This separates reproducible scientific processing from interactive web requests.</p>
+</section>
+
+<section class="page">
+  <h2>5. End-to-End Workflow</h2>
+  <h3>5.1 Live Event Workflow</h3>
+  <div class="flow">
+    <div class="box">Acquire satellite detections</div><div class="arrow">→</div>
+    <div class="box">Clean and standardize</div><div class="arrow">→</div>
+    <div class="box">Build true footprints</div><div class="arrow">→</div>
+    <div class="box">Group into events</div><div class="arrow">→</div>
+    <div class="box">Open Fire Case</div>
+  </div>
+  <div class="flow">
+    <div class="box">Predict later passes</div><div class="arrow">→</div>
+    <div class="box">Gather external evidence</div><div class="arrow">→</div>
+    <div class="box">Classify and explain</div><div class="arrow">→</div>
+    <div class="box">Find analogues</div><div class="arrow">→</div>
+    <div class="box">Forecast + exposure</div>
+  </div>
+  <ol>
+    <li><strong>Acquire:</strong> obtain recent MODIS and VIIRS active-fire records through NASA FIRMS.</li>
+    <li><strong>Standardize:</strong> normalize timestamps, coordinates, sensor names, confidence classes, FRP, day/night flags, scan, and track.</li>
+    <li><strong>Quality-control:</strong> remove unsuitable confidence classes and known non-vegetation types where the archive provides them.</li>
+    <li><strong>Footprint:</strong> represent each observation as its scan × track ground footprint rather than a dimensionless point.</li>
+    <li><strong>Event reconstruction:</strong> link observations close in space and time, subject to event size and duration limits.</li>
+    <li><strong>Evidence collection:</strong> check later polar passes, regional satellite context, agencies, news, land use, nearby heat sources, season, and repeat history.</li>
+    <li><strong>Answer:</strong> provide three parts—“Is it real?”, “What kind?”, and “What is it doing now?”—with provenance and uncertainty.</li>
+    <li><strong>Outlook:</strong> retrieve same-age historical analogues, generate a validated forecast corridor, and calculate exposure.</li>
+  </ol>
+  <h3>5.2 Place Intelligence Workflow</h3>
+  <p>When a user selects a place, the page loads in stages: saved exact-query results where available, live 24-hour hotspots, a quick one-year Fire Memory result, a full historical result, and the place pipeline. Expensive downloads and computations are cached and shared so that repeated requests become faster.</p>
+  <div class="diagram">
+    <div class="row"><div class="node">Search / draw AOI</div><div class="arr">→</div><div class="node">Validate geometry</div><div class="arr">→</div><div class="node">Live hotspots</div></div>
+    <div class="row"><div class="node">Quick history</div><div class="arr">→</div><div class="node">Full Fire Memory</div><div class="arr">→</div><div class="node">Place pipeline</div></div>
+    <div class="row"><div class="node wide">Eight area questions + maps + provenance + downloadable results</div></div>
+  </div>
+  <h3>5.3 Background Job Pattern</h3>
+  <p>Long operations return a job identifier instead of freezing a request. The frontend polls <code>/api/jobs/{id}</code> and displays queued, running, completed, or failed status with progress. Identical work may reuse an existing job, reducing duplicate NASA requests.</p>
+</section>
+
+<section class="page">
+  <h2>6. Detailed Feature Explanation</h2>
+  <h3>6.1 Home Dashboard</h3>
+  <p>The home page introduces the seven-stage model and the four information layers. It presents recent detections, events, system status, and direct entry points to the live globe and historical analysis.</p>
+  <h3>6.2 Fire Now — 3D Global Map</h3>
+  <p>Fire Now displays recent satellite observations and reconstructed events on a Cesium globe. Users can choose time windows such as 24 hours, 48 hours, five days, or a historical date. The globe supports far-side occlusion, event selection, observation footprints, forecast corridors, and exposure layers.</p>
+  <ul>
+    <li>Markers represent observations or events, not automatically confirmed wildfires.</li>
+    <li>A hollow event marker means that evidence has not yet been gathered.</li>
+    <li>Fill colour represents inferred fire type; outline weight represents confirmation strength.</li>
+    <li>Markers fade after activity has ended.</li>
+  </ul>
+  <img class="screenshot" src="../screenshots/04_fire_now_bangladesh.png" alt="Fire Now Bangladesh view">
+  <div class="caption">Figure 3. Fire Now with Bangladesh selected and event markers available for investigation.</div>
+</section>
+
+<section class="page">
+  <h2>6. Detailed Features — Continued</h2>
+  <h3>6.3 Area of Interest and Search</h3>
+  <p>Users can search for a country, state, district, forest, or protected area through OpenStreetMap Nominatim. They may also draw a rectangle or polygon or define a radius. The same area model is reused across live, historical, and place-based analysis.</p>
+  <h3>6.4 Fire Memory</h3>
+  <p>Fire Memory asks, “What is normal for this area?” It produces a consistent historical record, daily and monthly summaries, seasonal profiles, anomaly categories, change points, sensor agreement, observation effort, and provenance. Long-term charts use harmonized activity rather than simply counting all raw detections.</p>
+  <h3>6.5 Fire DNA</h3>
+  <p>Fire DNA summarizes the characteristic fire pattern of a place: typical active months, peak month, recurrence, annual activity, spatial concentration, sensor consistency, and selected-month comparison with its historical median. The page supports CSV-style exports for further study.</p>
+  <h3>6.6 Fire Events</h3>
+  <p>The harmonized Fire Events page lists events for a selected window and place. It maps each event using a burned-ground or observation-derived outline rather than treating every record as an isolated point. Event attributes include time span, footprint, energy, detections, association confidence, and inferred behaviour.</p>
+  <h3>6.7 Fire Case and Evidence Panel</h3>
+  <p>Every reconstructed event can become a Fire Case. The evidence panel combines:</p>
+  <ul>
+    <li><strong>Stream A:</strong> predicted later polar satellite passes and their outcomes—stronger, weaker, spread, clear miss, cloud/smoke, or not covered.</li>
+    <li><strong>Stream B:</strong> geostationary timelines such as GOES, with Himawari and Meteosat review links.</li>
+    <li><strong>Stream C:</strong> geographically and temporally matched news or official reports.</li>
+    <li><strong>Background:</strong> land use, nearby heat sources, local burning season, and repeated heat at the same location.</li>
+  </ul>
+  <p>Evidence items vote for candidate categories using reliability weights. The interface separates original sources, generated summaries, and system interpretation.</p>
+  <img class="screenshot smallshot" src="../screenshots/07_case_ashulia_fire_story.png" alt="Fire Case story">
+  <div class="caption">Figure 4. Synthetic Ashulia demonstration showing the time-ordered fire story.</div>
+</section>
+
+<section class="page">
+  <h2>6. Detailed Features — Outlook and Intelligence</h2>
+  <h3>6.8 Historical Analogues — Fire Past</h3>
+  <p>FlameSeek finds events that were similar at the same age. This prevents an unfair comparison between a new event and a fully developed historical one. Candidate events are compared with K-nearest neighbours using a shrinkage-regularized Mahalanobis distance, which accounts for scale and correlation among features. The result includes analogue outcomes rather than promising that history will repeat.</p>
+  <h3>6.9 Fire Future</h3>
+  <p>The forecast service compares persistence, seasonal, wind-only, and LightGBM models using temporal and spatial holdouts. Metrics include Brier score, Brier skill score, probability of detection, false-alarm ratio, critical success index, footprint intersection-over-union, and calibration. A 6-, 12-, or 24-hour probability corridor is shown only when the selected model passes the configured skill rules; otherwise the result is <strong>FORECAST WITHHELD</strong>.</p>
+  <img class="screenshot smallshot" src="../screenshots/11_case_ashulia_forecast.png" alt="Fire forecast">
+  <div class="caption">Figure 5. Synthetic Ashulia forecast tab with a downwind activity corridor and validation context.</div>
+  <h3>6.10 Exposure</h3>
+  <p>The exposure module asks what lies inside a possible activity corridor. It can summarize WorldPop population and OpenStreetMap settlements, roads, farmland, forests, protected areas, schools, hospitals, power infrastructure, and other critical facilities. Exposure indicates presence inside a corridor; it does not claim damage or evacuation need.</p>
+  <h3>6.11 Area Intelligence</h3>
+  <p>The place page combines live detections, Fire Memory, the full scientific pipeline, hotspot recurrence, seasonality, change, unusual activity, neighbouring context, and risk indicators. Every answer names its source and status so the user can distinguish computed data from unavailable or provisional results.</p>
+  <h3>6.12 Methodology, Sources, and Language</h3>
+  <p>Dedicated pages explain the harmonization method and list data sources. Harmonized pages support English and Bangla through the language context and <code>?lang=bn</code>. The interface also provides light/dark theming and responsive navigation.</p>
+</section>
+
+<section class="page">
+  <h2>7. Data Sources and Sensor Harmonization</h2>
+  <h3>7.1 Main Data Families</h3>
+  <table>
+    <tr><th>Data family</th><th>Examples</th><th>Purpose</th></tr>
+    <tr><td>Primary fire observations</td><td>NASA FIRMS MODIS and VIIRS</td><td>Location, time, confidence, FRP, scan/track, satellite witness.</td></tr>
+    <tr><td>Orbit and observation context</td><td>CelesTrak/current TLEs, Skyfield, ERA5 cloud proxy</td><td>Expected passes, coverage, viewing opportunity, and clear-sky looks.</td></tr>
+    <tr><td>Regional satellite corroboration</td><td>GOES, Landsat, Sentinel-2, EFFIS, CWFIS; review links for Himawari/Meteosat</td><td>Independent context where machine-readable access is available.</td></tr>
+    <tr><td>Government and disaster sources</td><td>GDACS, NIFC WFIGS, NSW RFS, country source directory</td><td>Official incident or controlled-burn evidence.</td></tr>
+    <tr><td>News</td><td>GDELT and optional NewsAPI</td><td>Place/time-matched reporting, cause, impact, and infrastructure clues.</td></tr>
+    <tr><td>Population and map context</td><td>WorldPop and OpenStreetMap</td><td>Exposure, settlements, roads, facilities, land use, and place search.</td></tr>
+  </table>
+  <h3>7.2 The Eight Harmonization Stages</h3>
+  <ol>
+    <li>Collect detections and observation opportunities.</li>
+    <li>Keep suitable vegetation-fire records, standardize confidence, local solar time, pixel area, and grid cell.</li>
+    <li>Merge same-overpass MODIS duplicates and group small VIIRS pixels into approximately 1 km clusters.</li>
+    <li>Learn or apply a sensor detection profile: the chance that MODIS detects a VIIRS-observed fire at a given strength and pixel area.</li>
+    <li>Fit a daily fire curve and convert observations to an Aqua 13:30-equivalent value, reducing time-of-day and orbit-drift effects.</li>
+    <li>Create two tiers: a long-term consistent record and a detailed VIIRS layer.</li>
+    <li>Measure activity per clear-sky look to address latitude, swath, revisit, and cloud differences.</li>
+    <li>Fuse evidence into a per-cell, per-local-day fire probability using historical rate, detections, clear misses, and witness detection chance.</li>
+  </ol>
+  <h3>7.3 Why Two Tiers Are Necessary</h3>
+  <p>VIIRS is more detailed and sensitive than MODIS, but it begins later. Mixing all detections directly can create artificial increases around sensor launch dates. FlameSeek therefore uses a MODIS-sensitivity consistent record for long-term trends and anomalies, while keeping the complete VIIRS observations for detailed current mapping.</p>
+  <h3>7.4 Continuity and Hide-One-Witness Tests</h3>
+  <p>The continuity test checks raw and consistent ratios across major sensor-start dates. The hide-one-witness test temporarily removes NOAA-20 and checks how well the fused result predicts its detections using AUC and Brier score compared with a historical-rate baseline.</p>
+</section>
+
+<section class="page">
+  <h2>8. Algorithms and Decision Logic</h2>
+  <table>
+    <tr><th>Capability</th><th>Method</th><th>Beginner-friendly meaning</th></tr>
+    <tr><td>Footprints</td><td>Scan × track rectangles, ground-track orientation, fractional grid attribution</td><td>A detection covers an area; it is not a perfect point.</td></tr>
+    <tr><td>Events</td><td>Spatio-temporal linking with 25 km extent and 14-day caps</td><td>Nearby observations close in time are grouped into an evolving event.</td></tr>
+    <tr><td>Anomalies</td><td>Robust median/MAD z-score</td><td>Current activity is compared with the usual value without letting extreme years dominate.</td></tr>
+    <tr><td>Change points</td><td>PELT mean-shift detection</td><td>The system finds statistically detected shifts in the long-term level.</td></tr>
+    <tr><td>Observation quality</td><td>Six quality classes and Observation Sufficiency Score</td><td>Results reflect whether the satellites had enough clear opportunities to observe.</td></tr>
+    <tr><td>Evidence matching</td><td>Distance, time, event-type, source reliability, and contradiction rules</td><td>Nearby and timely independent reports count more than weak or distant matches.</td></tr>
+    <tr><td>Type decision</td><td>Top category above 50% and at least 20 points ahead</td><td>The system names a type only when one explanation clearly leads.</td></tr>
+    <tr><td>Historical analogues</td><td>KNN + shrinkage Mahalanobis distance</td><td>Find similar past events while accounting for feature scales and relationships.</td></tr>
+    <tr><td>Forecast</td><td>Baselines versus LightGBM, spatial/temporal holdouts, skill gates</td><td>A forecast is displayed only after comparison with simple alternatives.</td></tr>
+  </table>
+  <h3>8.1 Fire Radiative Power and Energy</h3>
+  <p>FRP is an estimate of the rate of radiant energy emitted by the fire at observation time, measured in megawatts. FlameSeek retains FRP but avoids treating it as an exact burned area. When observations are assigned fractionally to grid cells, the pipeline checks energy conservation so that the total FRP is not accidentally created or lost by geometry processing.</p>
+  <h3>8.2 Local Solar Time</h3>
+  <p>A satellite sees different fire behaviour in morning, afternoon, and night. FlameSeek calculates local solar time and converts measurements to an Aqua 13:30-equivalent value using learned daily curves. This makes different overpass times more comparable.</p>
+  <h3>8.3 Fused Probability Intuition</h3>
+  <p>Each cell starts from its historical fire rate for the month. A credible detection increases the odds. A clear overpass with no detection decreases the odds according to that sensor’s expected detection chance. A cloudy pass is ignored rather than treated as proof of no fire.</p>
+  <div class="callout"><strong>Design principle:</strong> FlameSeek gives different witnesses different reliability. It does not count every observation or every missing observation as equally informative.</div>
+</section>
+
+<section class="page">
+  <h2>9. Technology Stack and Code Organization</h2>
+  <h3>9.1 Technology Stack</h3>
+  <table>
+    <tr><th>Layer</th><th>Technologies</th></tr>
+    <tr><td>Frontend</td><td>React 18, TypeScript, Vite, React Router, Cesium, Leaflet, Plotly, GSAP, Lucide icons.</td></tr>
+    <tr><td>Backend</td><td>Python, FastAPI, Uvicorn, Pydantic, HTTPX, NumPy, scikit-learn, LightGBM, Skyfield, Shapely.</td></tr>
+    <tr><td>Scientific pipeline</td><td>Pandas/GeoPandas ecosystem, Parquet/GeoParquet, NumPy, statistical calibration and validation modules.</td></tr>
+    <tr><td>Testing</td><td>Pytest for Python and Node-based frontend request/benchmark tests.</td></tr>
+    <tr><td>Deployment</td><td>Dockerfiles and Docker Compose; Nginx serves the production frontend.</td></tr>
+  </table>
+  <h3>9.2 Repository Structure</h3>
+  <pre>FlameSeek/
+├── frontend/             React/TypeScript user interface
+│   └── src/
+│       ├── pages/        Main application pages
+│       ├── components/   Globe, AOI, event panel, charts, verification
+│       ├── api/          Backend request clients
+│       └── types/        TypeScript API types
+├── backend/              FastAPI application and intelligence modules
+│   ├── routers/          HTTP endpoint groups
+│   └── tests/            Backend unit and integration tests
+├── pipeline/             Reproducible scientific harmonization pipeline
+├── forecast/             Forecast baselines, model, and evaluation
+├── config/               Versioned settings and processing windows
+├── params/               Calibrated model/curve parameters
+├── data/                 Raw, interim, and processed datasets
+├── outputs/              Reports, figures, diagnostics, and snapshots
+├── tests/                Scientific pipeline tests
+├── docs/                 Methodology and design decisions
+└── docker-compose.yml    Backend + frontend deployment</pre>
+  <h3>9.3 Important Design Choices</h3>
+  <ul>
+    <li><strong>Lazy frontend routes:</strong> mapping-heavy pages are loaded when needed.</li>
+    <li><strong>Typed contracts:</strong> Pydantic and TypeScript reduce mismatches between API and UI.</li>
+    <li><strong>Permanent science cache:</strong> historical FIRMS archives are reused after the first request.</li>
+    <li><strong>Partitioned processing:</strong> large datasets are organized by year/month/day for incremental runs.</li>
+    <li><strong>Versioned parameters:</strong> calibration, detection, MODIS probability, and diurnal parameters are recorded.</li>
+    <li><strong>Raw-data preservation:</strong> raw inputs are read-only; transformations produce separate files.</li>
+  </ul>
+</section>
+
+<section class="page">
+  <h2>10. API and Data Flow</h2>
+  <h3>10.1 Main API Endpoints</h3>
+  <table>
+    <tr><th>Endpoint</th><th>Purpose</th></tr>
+    <tr><td><code>GET /api/current_hotspots</code></td><td>Recent satellite observations.</td></tr>
+    <tr><td><code>GET /api/events</code></td><td>Reconstructed fire events for a time/area filter.</td></tr>
+    <tr><td><code>GET /api/events/{id}</code></td><td>Details for one event.</td></tr>
+    <tr><td><code>GET /api/events/{id}/case</code></td><td>Current Fire Case state.</td></tr>
+    <tr><td><code>POST /api/events/{id}/evidence</code></td><td>Start evidence gathering as a job.</td></tr>
+    <tr><td><code>POST /api/events/{id}/outlook</code></td><td>Start analogue, forecast, and exposure analysis.</td></tr>
+    <tr><td><code>POST /api/fire_memory</code></td><td>Build historical place intelligence.</td></tr>
+    <tr><td><code>POST /api/place_pipeline</code></td><td>Run the scientific pipeline for a selected place.</td></tr>
+    <tr><td><code>GET /api/jobs/{id}</code></td><td>Read progress and the result of a background job.</td></tr>
+    <tr><td><code>GET /api/places/search</code></td><td>Find an administrative or named geographic area.</td></tr>
+    <tr><td><code>GET /api/places/reverse</code></td><td>Describe a coordinate using nearby place context.</td></tr>
+    <tr><td><code>GET /data-sources</code></td><td>List source availability and descriptions.</td></tr>
+    <tr><td><code>GET /health</code></td><td>Simple backend health check.</td></tr>
+  </table>
+  <p>Interactive OpenAPI documentation is available at <code>/docs</code> while the backend is running.</p>
+  <h3>10.2 Example Job Flow</h3>
+  <div class="diagram">
+    <div class="row"><div class="node">POST analysis request</div><div class="arr">→</div><div class="node">202 + job ID</div></div>
+    <div class="row"><div class="node">GET /api/jobs/{id}</div><div class="arr">→</div><div class="node">queued / running + progress</div></div>
+    <div class="row"><div class="node">GET /api/jobs/{id}</div><div class="arr">→</div><div class="node">completed + typed result</div></div>
+  </div>
+  <h3>10.3 Area Model</h3>
+  <p>An area of interest can contain a bounding box, GeoJSON Polygon or MultiPolygon, or a centre with radius. It may also carry a human-readable name and a kind such as place, polygon, radius, or box. The backend validates radius limits and reuses this contract across features.</p>
+</section>
+
+<section class="page">
+  <h2>11. Installation and Operation</h2>
+  <h3>11.1 Prerequisites</h3>
+  <ul>
+    <li>Python 3.11 or the supplied Conda environment for the scientific pipeline.</li>
+    <li>Node.js and npm for the frontend.</li>
+    <li>A NASA FIRMS map key for live and historical FIRMS access.</li>
+    <li>Optional: NewsAPI, Cesium ion, and Google Maps keys for enhanced services.</li>
+  </ul>
+  <h3>11.2 Backend</h3>
+  <pre>cd backend
+pip install -r requirements.txt
+# Create backend/.env and add FIRMS_MAP_KEY=your_key
+python -m uvicorn main:app --host 127.0.0.1 --port 8000</pre>
+  <h3>11.3 Frontend</h3>
+  <pre>cd frontend
+npm install
+npm run dev
+# Open http://127.0.0.1:5173</pre>
+  <h3>11.4 Docker</h3>
+  <pre># From the FlameSeek directory
+# Ensure FIRMS_MAP_KEY is available in the environment
+docker compose up --build</pre>
+  <p>The backend is exposed on port 8000 and the frontend on port 5173.</p>
+  <h3>11.5 Scientific Pipeline</h3>
+  <pre>conda env create -f environment.yml
+conda activate flameseek
+python run_pipeline.py
+python -m pytest tests</pre>
+  <p>Raw FIRMS CSV files belong in <code>data/raw/</code> and are not modified. The pipeline writes cleaned detections, footprints, events, grids, calibration products, figures, and reports to the interim, processed, parameter, and output directories.</p>
+  <h3>11.6 Basic User Journey</h3>
+  <ol>
+    <li>Open <strong>Fire Now</strong> to view recent observations globally.</li>
+    <li>Search for a place or draw an area.</li>
+    <li>Select an event to inspect its observation, quality, and evidence tabs.</li>
+    <li>Run evidence gathering and wait for the job to complete.</li>
+    <li>Run outlook analysis to view historical analogues, forecast, and exposure.</li>
+    <li>Open <strong>Fire Memory</strong>, <strong>Fire DNA</strong>, or the area page for long-term context.</li>
+  </ol>
+</section>
+
+<section class="page">
+  <h2>12. Testing and Verification</h2>
+  <h3>12.1 Test Coverage Areas</h3>
+  <p>The repository contains scientific, backend, simulated-data, and frontend tests. Covered topics include calibration, footprints, energy conservation, FRP time adjustment, event caps, partitioned processing, synchronization gates, quality on empty days, translation, drift, Himawari phases, live globe output, place runs, Fire Cases, evidence, saved results, job reuse, search performance, snapshot APIs, and area intelligence.</p>
+  <h3>12.2 Verification Snapshot — 9 November 2026</h3>
+  <table>
+    <tr><th>Check</th><th>Result</th><th>Meaning</th></tr>
+    <tr><td><code>npm run build</code></td><td><span class="pill">PASSED</span></td><td>TypeScript compilation and the Vite production build completed successfully; 3,698 modules were transformed.</td></tr>
+    <tr><td>Bundle review</td><td>Warning</td><td>Cesium and Plotly chunks exceed Vite’s 500 kB warning threshold. Routes are lazy-loaded, but further vendor chunking is a performance opportunity.</td></tr>
+    <tr><td><code>python -m pytest tests backend/tests -q</code></td><td>Environment-blocked</td><td>Collection in the system Python 3.14 environment stopped because the dedicated geospatial/plotting dependencies were absent and backend tests require the backend import path. This is not recorded as a product test failure.</td></tr>
+  </table>
+  <div class="callout warning"><strong>Correct Python verification method:</strong> create or activate the repository’s <code>flameseek</code> Conda environment from <code>environment.yml</code>, run pipeline tests from the repository root, and run backend tests with <code>backend</code> on the Python import path. The backend runtime requirements alone do not include the full GeoPandas/Matplotlib scientific stack.</div>
+  <h3>12.3 Recommended Release Checklist</h3>
+  <ul>
+    <li>Run all pipeline and backend tests in the documented Conda environment.</li>
+    <li>Run frontend request tests and a production build.</li>
+    <li>Verify <code>/health</code>, <code>/docs</code>, place search, and one live hotspot request.</li>
+    <li>Verify an evidence job and outlook job with a known demo case.</li>
+    <li>Check empty-data, cloudy, rate-limit, and unavailable-source states.</li>
+    <li>Confirm that demo labels remain visible and no synthetic result appears as live evidence.</li>
+  </ul>
+</section>
+
+<section class="page">
+  <h2>13. Strengths, Limitations, and Ethics</h2>
+  <h3>13.1 Main Strengths</h3>
+  <div class="grid2">
+    <div class="card"><h4>Honest information layers</h4><p>Observation, inference, external evidence, and forecast are explicitly separated.</p></div>
+    <div class="card"><h4>Sensor-aware history</h4><p>Harmonization avoids treating more sensitive sensors as automatic increases in fire activity.</p></div>
+    <div class="card"><h4>Explainable verification</h4><p>Evidence has source, time, reliability, and interpretation rather than one unexplained label.</p></div>
+    <div class="card"><h4>End-to-end context</h4><p>The same event connects present observations, past analogues, future activity, and exposure.</p></div>
+    <div class="card"><h4>Reproducible processing</h4><p>Raw data is preserved, parameters are versioned, and outputs identify their provenance.</p></div>
+    <div class="card"><h4>Graceful uncertainty</h4><p>Unknown, ambiguous, insufficient, provisional, and withheld states are part of the design.</p></div>
+  </div>
+  <h3>13.2 Known Limitations</h3>
+  <ul>
+    <li>Evidence weights are expert-set; evidence scores are not calibrated probabilities.</li>
+    <li>ERA5 cloud cover is a proxy for each satellite’s own cloud mask.</li>
+    <li>News extraction is transparent rule-based NLP, not a trained language model.</li>
+    <li>Some regional satellites and agencies offer review links but no machine-readable fire feed.</li>
+    <li>Forecasts predict satellite-observed activity, not exact physical spread, flame front, or evacuation zone.</li>
+    <li>Forecast training uses reanalysis wind for the forecast window, so live performance may be lower.</li>
+    <li>Observation opportunity uses orbit geometry and cloud context rather than all official daily fire-mask products.</li>
+    <li>Fire Case category scores need validation on labelled real cases.</li>
+    <li>Very long Fire Memory requests over large areas may require thousands of FIRMS transactions on first use.</li>
+  </ul>
+  <h3>13.3 Responsible Use</h3>
+  <p>FlameSeek should support—not replace—official emergency agencies and field observations. Users should not interpret “no detection” as “no fire,” a probability corridor as a guaranteed spread path, or exposure as confirmed harm. Original source links and timestamps should be checked before making high-impact decisions.</p>
+  <h3>13.4 Privacy and Security Considerations</h3>
+  <p>The core data is environmental and geographic rather than personal. API keys should remain in environment files and must not be committed to source control. Production deployments should restrict CORS origins, add TLS, protect administrative endpoints, validate external content, limit request rates, monitor cache storage, and record model/data versions with each decision.</p>
+</section>
+
+<section class="page">
+  <h2>14. Future Improvements and Conclusion</h2>
+  <h3>14.1 Recommended Roadmap</h3>
+  <table>
+    <tr><th>Priority</th><th>Improvement</th><th>Expected benefit</th></tr>
+    <tr><td>1</td><td>Validate evidence and fire-type scores against a labelled multi-country dataset.</td><td>Convert evidence strength into better-calibrated confidence and reveal regional bias.</td></tr>
+    <tr><td>2</td><td>Add live fuel, land-cover, moisture, and higher-resolution weather inputs to forecasting.</td><td>Move from activity extrapolation toward more physically informed fire behaviour.</td></tr>
+    <tr><td>3</td><td>Operationalize official satellite cloud/fire masks where credentials permit.</td><td>Improve observation sufficiency and clear-miss interpretation.</td></tr>
+    <tr><td>4</td><td>Expand machine-readable national-agency connectors and source-health monitoring.</td><td>Increase confirmation coverage and make outages visible.</td></tr>
+    <tr><td>5</td><td>Split Cesium and Plotly vendor bundles more aggressively and measure real-device performance.</td><td>Reduce initial load time and improve mobile usability.</td></tr>
+    <tr><td>6</td><td>Add authentication, saved AOIs, alerts, audit logs, and role-based operational views.</td><td>Support agencies and recurring monitoring workflows.</td></tr>
+    <tr><td>7</td><td>Add continuous integration using the documented Conda and Node environments.</td><td>Make scientific and web verification repeatable for every change.</td></tr>
+    <tr><td>8</td><td>Conduct accessibility and multilingual review beyond the current EN/Bangla foundation.</td><td>Improve clarity for diverse users and assistive technologies.</td></tr>
+  </table>
+  <h3>14.2 Conclusion</h3>
+  <p>FlameSeek is more than a hotspot map. Its central contribution is a transparent chain of reasoning from raw satellite observation to event identity, external evidence, historical comparison, forecast, and exposure. The system treats satellites as imperfect witnesses, preserves uncertainty, and explains why a result was produced.</p>
+  <p>The project is technically ambitious: it combines a modern geospatial web interface, an asynchronous API, a reproducible scientific pipeline, sensor calibration, evidence fusion, historical analysis, machine-learning forecasts, and population/infrastructure context. Its strongest design choice is epistemic honesty—showing what was observed, what was inferred, what came from independent evidence, and what remains uncertain.</p>
+  <div class="callout success"><strong>Final assessment:</strong> FlameSeek provides a credible foundation for global, explainable fire intelligence. With labelled-case validation, stronger operational data feeds, complete environment-based continuous testing, and production hardening, it can grow from a rich research and demonstration platform into a dependable decision-support service.</div>
+  <h3>Glossary</h3>
+  <table>
+    <tr><th>Term</th><th>Meaning</th></tr>
+    <tr><td>AOI</td><td>Area of interest selected by search, boundary, polygon, box, or radius.</td></tr>
+    <tr><td>FIRMS</td><td>NASA Fire Information for Resource Management System.</td></tr>
+    <tr><td>MODIS</td><td>Moderate Resolution Imaging Spectroradiometer on Terra and Aqua.</td></tr>
+    <tr><td>VIIRS</td><td>Visible Infrared Imaging Radiometer Suite on Suomi NPP and NOAA satellites.</td></tr>
+    <tr><td>FRP</td><td>Fire Radiative Power, an estimate of radiant energy rate in megawatts.</td></tr>
+    <tr><td>TLE</td><td>Two-Line Element set used to propagate a satellite orbit.</td></tr>
+    <tr><td>MAD</td><td>Median Absolute Deviation, a robust measure of typical variation.</td></tr>
+    <tr><td>PELT</td><td>A change-point algorithm used to find statistically detected shifts.</td></tr>
+    <tr><td>Brier score</td><td>A measure of probability-forecast error; lower is better.</td></tr>
+    <tr><td>Provenance</td><td>Information explaining where a value came from and how it was produced.</td></tr>
+  </table>
+  <p class="footer-note">Prepared from the FlameSeek repository at C:\nasapace\FlameSeek. Primary internal references: README.md, config/settings.yaml, backend and frontend source, pipeline modules, tests, methodology documentation, and repository screenshots.</p>
+</section>
+
+</body>
+</html>
