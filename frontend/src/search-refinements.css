@@ -82,3 +82,34 @@ html[data-theme="day"] .search-guidance a { color: #086397; }
 .explore-map-panel { margin-top: 20px; padding: 16px; border: 1px solid #47728b; border-radius: 16px; background: #071b2bef; }
 .explore-map-panel .aoi-map { height: 360px; }
 @media(max-width:700px) { .minimal-search-page .explore-place-results li button { align-items: flex-start; gap: 8px; } .minimal-search-page .explore-place-results em { max-width: 80px; overflow-wrap: anywhere; } .minimal-search-page .explore-search-box { gap: 5px; } }
+
+.search-attribution { margin: 4px 0 16px; color: var(--muted-foreground); font-size: 11px; text-align: center; }
+.search-attribution a { color: inherit; text-underline-offset: 3px; }
+
+/* Keep location names and their context readable in the light theme. */
+html[data-theme="day"] .minimal-search-page .explore-place-results {
+  background: #ffffff;
+  border-color: #adcfe5;
+}
+html[data-theme="day"] .minimal-search-page .explore-place-results li button,
+html[data-theme="day"] .minimal-search-page .explore-place-results strong {
+  color: #173b56;
+}
+html[data-theme="day"] .minimal-search-page .explore-place-results small {
+  color: #45627a;
+}
+html[data-theme="day"] .minimal-search-page .explore-place-results em {
+  color: #315976;
+  background: #f0f7fc;
+  border-color: #adcfe5;
+}
+html[data-theme="day"] .minimal-search-page .explore-place-results li[aria-selected="true"] button,
+html[data-theme="day"] .minimal-search-page .explore-place-results li button:hover,
+html[data-theme="day"] .minimal-search-page .explore-place-results li button:focus-visible {
+  background: #e0f2fe;
+  box-shadow: inset 3px 0 #0284a8;
+}
+.minimal-search-page .explore-place-results li button:focus-visible {
+  outline: 2px solid #0284a8;
+  outline-offset: -2px;
+}

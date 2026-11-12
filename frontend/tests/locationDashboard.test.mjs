@@ -16,7 +16,7 @@ await build({ stdin: { contents: `export { default as SearchPage } from './src/p
   builder.onResolve({ filter: /api\/client$/ }, () => ({ path: 'client', namespace: 'test' }));
   builder.onResolve({ filter: /components\/AOISelector$/ }, () => ({ path: 'map', namespace: 'test' }));
   builder.onResolve({ filter: /\/(AreaIntelligencePage|FireGlobePage|FireMemoryPage|FireDnaPage|HarmonizedMapPage)$/ }, ({ path }) => ({ path: path.split('/').at(-1), namespace: 'test' }));
-  builder.onLoad({ filter: /.*/, namespace: 'test' }, ({ path }) => ({ resolveDir: process.cwd(), loader: 'jsx', contents: path === 'client' ? `export const searchPlaces=(q,signal)=>globalThis.locationSearch(q,signal); export const normalizeApiError=e=>e.message;` : path === 'map' ? `import {useAppContext} from './src/context/AppContext'; export default function Map(){const {setAoi}=useAppContext();return <button onClick={()=>setAoi(globalThis.drawnArea)}>Draw test boundary</button>;}` : `import {useEffect} from 'react';import {useLocation} from 'react-router-dom';import {useAppContext} from './src/context/AppContext';export default function Feature(){const state=useAppContext();const route=useLocation();useEffect(()=>{globalThis.featureWrites.push({area:state.aoi,save:state.setMemory});},[]);return <main><h1>${path}</h1><pre data-testid="feature-area">{JSON.stringify({area:state.aoi,memory:state.memory,locked:state.lockedArea,section:route.pathname})}</pre></main>;}` }));
+  builder.onLoad({ filter: /.*/, namespace: 'test' }, ({ path }) => ({ resolveDir: process.cwd(), loader: 'jsx', contents: path === 'client' ? `export const searchPlaces=(q,signal)=>globalThis.locationSearch(q,signal); export const resolvePlace=(id,signal)=>globalThis.locationResolve(id,signal); export const normalizeApiError=e=>e.message;` : path === 'map' ? `import {useAppContext} from './src/context/AppContext'; export default function Map(){const {setAoi}=useAppContext();return <button onClick={()=>setAoi(globalThis.drawnArea)}>Draw test boundary</button>;}` : `import {useEffect} from 'react';import {useLocation} from 'react-router-dom';import {useAppContext} from './src/context/AppContext';export default function Feature(){const state=useAppContext();const route=useLocation();useEffect(()=>{globalThis.featureWrites.push({area:state.aoi,save:state.setMemory});},[]);return <main><h1>${path}</h1><pre data-testid="feature-area">{JSON.stringify({area:state.aoi,memory:state.memory,locked:state.lockedArea,section:route.pathname})}</pre></main>;}` }));
 } }] });
 const React = await import('react');
 const { render, screen, cleanup, waitFor, act } = await import('@testing-library/react');
@@ -153,4 +153,22 @@ test('merged links preserve the location and event query while legacy sections r
     assert.equal(new URLSearchParams(window.location.search).get('event'), 'existing-event');
     cleanup();
   }
+});
+
+
+test('fresh suggestions resolve their boundary on selection instead of treating a point as an area', async () => {
+  let resolutions = 0;
+  globalThis.locationSearch = async () => [{ ...result('Chattogram District'), geometry: null, requires_resolution: true, place_id: 'osm:relation:3824577' }];
+  globalThis.locationResolve = async id => { resolutions++; assert.equal(id, 'osm:relation:3824577'); return { ...result('Chattogram District'), place_id: id }; };
+  mount();
+  try {
+    await userEvent.type(screen.getByRole('combobox'), 'chittagong');
+    await screen.findAllByRole('option');
+    assert.equal(resolutions, 0);
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    await screen.findByTestId('feature-area');
+    assert.equal(resolutions, 1);
+    assert.equal(current().area.id, 'osm:relation:3824577');
+    assert.deepEqual(current().area.geometry, boundary);
+  } finally { delete globalThis.locationResolve; }
 });

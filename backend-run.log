@@ -1,11 +1,674 @@
 current hotspots warmed
-INFO:     127.0.0.1:59155 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59155 - "POST /fires/search?limit=1 HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59155 - "POST /api/fire_memory/saved HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59529 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63504 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49818 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62945 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52425 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52426 - "GET /api/places/search?q=chittagong&suggest=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52426 - "GET /api/places/search?q=chittagong&suggest=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60921 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
 event set warmed
-INFO:     127.0.0.1:57338 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
-INFO:     127.0.0.1:65403 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49677 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
-INFO:     127.0.0.1:49677 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57424 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
-INFO:     127.0.0.1:58755 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52426 - "GET /api/places/resolve?place_id=osm%3Arelation%3A3824577 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62445 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64375 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53297 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57818 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64734 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59393 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65162 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54542 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49677 - "GET /api/harmonization/e7a93a54f13f15bceaed8da8/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51736 - "GET /api/places/search?q=dh&suggest=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52584 - "GET /api/places/search?q=dha&suggest=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49677 - "GET /api/places/search?q=dhaka&suggest=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60975 - "GET /api/places/resolve?place_id=osm:relation:3862099 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62112 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61242 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62113 - "POST /api/fire_memory/saved HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61243 - "POST /api/place_pipeline HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62114 - "POST /api/place_pipeline/saved HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61244 - "POST /api/fire_memory HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57132 - "GET /api/current_hotspots?bbox=77.2017,28.7041,77.2106,28.7133&days=1&limit=20000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58203 - "POST /api/fire_memory/saved HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65453 - "POST /api/place_pipeline/saved HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60711 - "GET /api/jobs/db8dd1f24749 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56883 - "GET /api/pipeline/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62713 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61457 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56109 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60574 - "GET /api/current_hotspots?bbox=77.2017,28.7041,77.2106,28.7133&days=1&limit=20000 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61959 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50061 - "GET /meta?window= HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51656 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55565 - "GET /meta?window= HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64050 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65156 - "GET /meta?window= HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62813 - "GET /meta?window=daily HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58150 - "POST /fires/search?limit=5000&geometry=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58426 - "POST /fires/search?window=daily&limit=5000&geometry=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64970 - "GET /api/harmonized_hotspots?days=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52275 - "GET /api/jobs/db8dd1f24749 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52276 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54557 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54558 - "GET /api/harmonization/531aac3d5e27822a261496bc/status HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2021-11-21 days=5 elapsed_ms=2636.8
+firms_request source=MODIS_SP chunk_start=2021-12-16 days=5 elapsed_ms=2642.4
+firms_request source=MODIS_SP chunk_start=2022-01-05 days=5 elapsed_ms=2657.7
+firms_request source=MODIS_SP chunk_start=2021-12-21 days=5 elapsed_ms=2663.6
+firms_request source=MODIS_SP chunk_start=2021-12-01 days=5 elapsed_ms=2669.8
+firms_request source=MODIS_SP chunk_start=2022-01-20 days=5 elapsed_ms=2673.6
+firms_request source=MODIS_SP chunk_start=2022-01-15 days=5 elapsed_ms=2679.6
+firms_request source=MODIS_SP chunk_start=2021-12-26 days=5 elapsed_ms=2683.8
+firms_request source=MODIS_SP chunk_start=2021-11-16 days=5 elapsed_ms=2689.8
+firms_request source=MODIS_SP chunk_start=2025-12-25 days=5 elapsed_ms=2687.2
+firms_request source=MODIS_SP chunk_start=2025-11-20 days=5 elapsed_ms=2689.4
+firms_request source=MODIS_SP chunk_start=2021-12-06 days=5 elapsed_ms=2700.6
+firms_request source=MODIS_SP chunk_start=2025-12-10 days=5 elapsed_ms=2699.3
+firms_request source=MODIS_SP chunk_start=2026-01-19 days=5 elapsed_ms=2707.9
+firms_request source=MODIS_SP chunk_start=2025-12-30 days=5 elapsed_ms=2719.6
+firms_request source=MODIS_SP chunk_start=2022-01-10 days=5 elapsed_ms=2738.1
+firms_request source=MODIS_SP chunk_start=2025-12-20 days=5 elapsed_ms=2731.3
+firms_request source=MODIS_SP chunk_start=2021-11-12 days=4 elapsed_ms=2748.0
+firms_request source=MODIS_SP chunk_start=2026-01-09 days=5 elapsed_ms=2738.8
+firms_request source=MODIS_SP chunk_start=2021-12-31 days=5 elapsed_ms=2752.5
+firms_request source=MODIS_SP chunk_start=2026-01-04 days=5 elapsed_ms=2750.9
+firms_request source=MODIS_SP chunk_start=2026-01-24 days=5 elapsed_ms=2755.2
+firms_request source=MODIS_SP chunk_start=2025-11-30 days=5 elapsed_ms=2870.3
+INFO:     127.0.0.1:59725 - "GET /api/jobs/db8dd1f24749 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58223 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58224 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2022-02-04 days=5 elapsed_ms=396.6
+firms_request source=MODIS_SP chunk_start=2022-02-14 days=5 elapsed_ms=392.3
+firms_request source=MODIS_SP chunk_start=2022-02-09 days=5 elapsed_ms=414.6
+firms_request source=MODIS_SP chunk_start=2022-03-01 days=5 elapsed_ms=420.3
+firms_request source=MODIS_SP chunk_start=2022-03-06 days=5 elapsed_ms=419.8
+firms_request source=MODIS_SP chunk_start=2022-03-11 days=5 elapsed_ms=417.0
+firms_request source=MODIS_SP chunk_start=2026-01-29 days=5 elapsed_ms=407.9
+firms_request source=MODIS_SP chunk_start=2022-02-19 days=5 elapsed_ms=459.6
+firms_request source=MODIS_SP chunk_start=2026-02-03 days=5 elapsed_ms=417.4
+firms_request source=MODIS_SP chunk_start=2022-02-24 days=5 elapsed_ms=464.0
+firms_request source=MODIS_SP chunk_start=2026-02-13 days=5 elapsed_ms=419.2
+firms_request source=MODIS_SP chunk_start=2026-02-08 days=5 elapsed_ms=437.0
+firms_request source=MODIS_SP chunk_start=2022-03-16 days=5 elapsed_ms=456.0
+firms_request source=MODIS_SP chunk_start=2026-02-28 days=5 elapsed_ms=413.1
+firms_request source=MODIS_SP chunk_start=2026-03-05 days=5 elapsed_ms=415.4
+firms_request source=MODIS_SP chunk_start=2026-02-23 days=5 elapsed_ms=427.3
+firms_request source=MODIS_SP chunk_start=2026-02-18 days=5 elapsed_ms=448.4
+firms_request source=MODIS_SP chunk_start=2022-03-31 days=5 elapsed_ms=445.8
+firms_request source=MODIS_SP chunk_start=2026-03-10 days=5 elapsed_ms=440.0
+firms_request source=MODIS_SP chunk_start=2022-03-26 days=5 elapsed_ms=469.8
+firms_request source=MODIS_SP chunk_start=2022-01-30 days=5 elapsed_ms=617.9
+firms_request source=MODIS_SP chunk_start=2026-03-15 days=5 elapsed_ms=391.6
+firms_request source=MODIS_SP chunk_start=2022-03-21 days=5 elapsed_ms=624.4
+firms_request source=MODIS_SP chunk_start=2022-04-05 days=5 elapsed_ms=378.0
+firms_request source=MODIS_SP chunk_start=2022-01-25 days=5 elapsed_ms=3458.5
+firms_request source=MODIS_SP chunk_start=2022-04-15 days=5 elapsed_ms=394.9
+firms_request source=MODIS_SP chunk_start=2022-04-20 days=5 elapsed_ms=406.0
+firms_request source=MODIS_SP chunk_start=2022-05-05 days=5 elapsed_ms=395.8
+firms_request source=MODIS_SP chunk_start=2022-04-25 days=5 elapsed_ms=426.8
+firms_request source=MODIS_SP chunk_start=2026-03-25 days=5 elapsed_ms=431.8
+firms_request source=MODIS_SP chunk_start=2022-05-20 days=5 elapsed_ms=389.3
+firms_request source=MODIS_SP chunk_start=2022-05-25 days=5 elapsed_ms=394.2
+firms_request source=MODIS_SP chunk_start=2026-04-04 days=5 elapsed_ms=412.5
+firms_request source=MODIS_SP chunk_start=2026-05-04 days=5 elapsed_ms=368.5
+firms_request source=MODIS_SP chunk_start=2022-04-10 days=5 elapsed_ms=597.1
+firms_request source=MODIS_SP chunk_start=2022-05-30 days=5 elapsed_ms=388.5
+firms_request source=MODIS_SP chunk_start=2026-04-29 days=5 elapsed_ms=419.1
+firms_request source=MODIS_SP chunk_start=2026-04-14 days=5 elapsed_ms=448.9
+firms_request source=MODIS_SP chunk_start=2026-04-09 days=5 elapsed_ms=459.4
+firms_request source=MODIS_SP chunk_start=2025-11-12 days=3 elapsed_ms=3705.7
+firms_request source=MODIS_SP chunk_start=2025-11-25 days=5 elapsed_ms=3745.0
+firms_request source=MODIS_SP chunk_start=2022-04-30 days=5 elapsed_ms=654.2
+firms_request source=MODIS_SP chunk_start=2022-06-09 days=5 elapsed_ms=389.6
+firms_request source=MODIS_SP chunk_start=2022-06-04 days=5 elapsed_ms=432.6
+firms_request source=MODIS_SP chunk_start=2022-06-19 days=5 elapsed_ms=395.1
+firms_request source=MODIS_SP chunk_start=2022-06-14 days=5 elapsed_ms=418.2
+firms_request source=MODIS_SP chunk_start=2026-04-24 days=5 elapsed_ms=681.5
+firms_request source=MODIS_SP chunk_start=2022-06-24 days=5 elapsed_ms=420.9
+firms_request source=MODIS_SP chunk_start=2022-06-29 days=5 elapsed_ms=418.2
+firms_request source=MODIS_SP chunk_start=2022-07-04 days=5 elapsed_ms=443.5
+firms_request source=MODIS_SP chunk_start=2026-05-14 days=5 elapsed_ms=355.8
+firms_request source=MODIS_SP chunk_start=2026-05-09 days=5 elapsed_ms=401.2
+firms_request source=MODIS_SP chunk_start=2026-05-24 days=5 elapsed_ms=370.7
+firms_request source=MODIS_SP chunk_start=2022-07-09 days=5 elapsed_ms=418.9
+firms_request source=MODIS_SP chunk_start=2022-07-14 days=5 elapsed_ms=406.7
+firms_request source=MODIS_SP chunk_start=2026-05-19 days=5 elapsed_ms=409.3
+firms_request source=MODIS_SP chunk_start=2022-07-24 days=5 elapsed_ms=404.8
+firms_request source=MODIS_SP chunk_start=2022-07-19 days=5 elapsed_ms=415.2
+firms_request source=MODIS_SP chunk_start=2026-05-29 days=5 elapsed_ms=384.0
+firms_request source=MODIS_SP chunk_start=2026-06-03 days=5 elapsed_ms=385.9
+firms_request source=MODIS_SP chunk_start=2026-06-08 days=5 elapsed_ms=400.8
+firms_request source=MODIS_SP chunk_start=2026-06-13 days=5 elapsed_ms=406.8
+firms_request source=MODIS_SP chunk_start=2022-08-08 days=5 elapsed_ms=445.3
+firms_request source=MODIS_SP chunk_start=2022-08-03 days=5 elapsed_ms=450.2
+firms_request source=MODIS_SP chunk_start=2021-11-26 days=5 elapsed_ms=4277.5
+firms_request source=MODIS_SP chunk_start=2022-08-13 days=5 elapsed_ms=411.2
+firms_request source=MODIS_SP chunk_start=2026-06-18 days=5 elapsed_ms=381.1
+firms_request source=MODIS_SP chunk_start=2022-08-18 days=5 elapsed_ms=452.7
+firms_request source=MODIS_SP chunk_start=2022-08-23 days=5 elapsed_ms=426.1
+firms_request source=MODIS_SP chunk_start=2022-08-28 days=5 elapsed_ms=419.4
+firms_request source=MODIS_SP chunk_start=2026-06-28 days=5 elapsed_ms=386.9
+firms_request source=MODIS_SP chunk_start=2026-06-23 days=5 elapsed_ms=401.5
+firms_request source=MODIS_SP chunk_start=2026-07-03 days=5 elapsed_ms=415.6
+firms_request source=MODIS_SP chunk_start=2022-09-02 days=5 elapsed_ms=463.7
+firms_request source=MODIS_SP chunk_start=2026-07-08 days=5 elapsed_ms=408.4
+firms_request source=MODIS_SP chunk_start=2026-07-13 days=5 elapsed_ms=406.2
+firms_request source=MODIS_SP chunk_start=2022-09-12 days=5 elapsed_ms=441.2
+firms_request source=MODIS_SP chunk_start=2022-09-07 days=5 elapsed_ms=452.7
+firms_request source=MODIS_SP chunk_start=2022-09-22 days=5 elapsed_ms=435.9
+firms_request source=MODIS_SP chunk_start=2022-09-17 days=5 elapsed_ms=447.3
+INFO:     127.0.0.1:58982 - "GET /api/jobs/db8dd1f24749 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61717 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61718 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2026-07-28 days=5 elapsed_ms=406.5
+firms_request source=MODIS_SP chunk_start=2022-05-10 days=5 elapsed_ms=1475.9
+firms_request source=MODIS_SP chunk_start=2022-10-12 days=5 elapsed_ms=391.1
+firms_request source=MODIS_SP chunk_start=2022-10-02 days=5 elapsed_ms=410.2
+firms_request source=MODIS_SP chunk_start=2022-09-27 days=5 elapsed_ms=424.8
+firms_request source=MODIS_SP chunk_start=2022-10-17 days=5 elapsed_ms=387.4
+firms_request source=MODIS_SP chunk_start=2026-08-02 days=5 elapsed_ms=410.2
+firms_request source=MODIS_SP chunk_start=2026-08-07 days=5 elapsed_ms=380.5
+firms_request source=MODIS_SP chunk_start=2022-10-27 days=5 elapsed_ms=390.9
+firms_request source=MODIS_SP chunk_start=2026-08-12 days=5 elapsed_ms=420.1
+firms_request source=MODIS_SP chunk_start=2026-08-17 days=5 elapsed_ms=392.8
+firms_request source=MODIS_SP chunk_start=2022-11-01 days=5 elapsed_ms=411.0
+firms_request source=MODIS_SP chunk_start=2022-07-29 days=5 elapsed_ms=1091.1
+firms_request source=MODIS_SP chunk_start=2022-11-06 days=5 elapsed_ms=419.9
+firms_request source=MODIS_SP chunk_start=2022-11-16 days=5 elapsed_ms=404.9
+firms_request source=MODIS_SP chunk_start=2021-12-11 days=5 elapsed_ms=4945.1
+firms_request source=MODIS_SP chunk_start=2026-08-27 days=5 elapsed_ms=443.3
+firms_request source=MODIS_NRT chunk_start=2026-09-01 days=5 elapsed_ms=440.2
+firms_request source=MODIS_SP chunk_start=2026-08-22 days=5 elapsed_ms=548.9
+firms_request source=MODIS_SP chunk_start=2022-12-06 days=5 elapsed_ms=397.8
+firms_request source=MODIS_SP chunk_start=2022-12-11 days=5 elapsed_ms=424.1
+firms_request source=MODIS_SP chunk_start=2022-11-21 days=5 elapsed_ms=614.7
+firms_request source=MODIS_NRT chunk_start=2026-09-11 days=5 elapsed_ms=368.2
+firms_request source=MODIS_NRT chunk_start=2026-09-21 days=5 elapsed_ms=418.0
+firms_request source=MODIS_SP chunk_start=2022-12-26 days=5 elapsed_ms=397.1
+firms_request source=MODIS_SP chunk_start=2023-01-10 days=5 elapsed_ms=404.9
+firms_request source=MODIS_SP chunk_start=2023-01-05 days=5 elapsed_ms=416.4
+firms_request source=MODIS_NRT chunk_start=2026-09-26 days=5 elapsed_ms=406.6
+firms_request source=MODIS_SP chunk_start=2023-01-15 days=5 elapsed_ms=432.0
+firms_request source=MODIS_NRT chunk_start=2026-10-01 days=5 elapsed_ms=407.4
+firms_request source=MODIS_NRT chunk_start=2026-10-06 days=5 elapsed_ms=400.6
+firms_request source=MODIS_SP chunk_start=2026-07-23 days=5 elapsed_ms=1401.7
+firms_request source=MODIS_SP chunk_start=2023-01-25 days=5 elapsed_ms=401.4
+firms_request source=MODIS_SP chunk_start=2022-12-31 days=5 elapsed_ms=636.4
+firms_request source=MODIS_NRT chunk_start=2026-10-11 days=5 elapsed_ms=380.8
+firms_request source=MODIS_NRT chunk_start=2026-10-16 days=5 elapsed_ms=362.0
+firms_request source=MODIS_SP chunk_start=2023-02-04 days=5 elapsed_ms=415.9
+firms_request source=MODIS_SP chunk_start=2022-10-07 days=5 elapsed_ms=1452.8
+firms_request source=MODIS_SP chunk_start=2023-02-09 days=5 elapsed_ms=422.2
+firms_request source=MODIS_NRT chunk_start=2026-10-21 days=5 elapsed_ms=415.5
+firms_request source=MODIS_SP chunk_start=2023-02-14 days=5 elapsed_ms=426.1
+firms_request source=MODIS_NRT chunk_start=2026-10-26 days=5 elapsed_ms=385.7
+firms_request source=MODIS_SP chunk_start=2023-02-19 days=5 elapsed_ms=435.7
+firms_request source=MODIS_NRT chunk_start=2026-10-31 days=5 elapsed_ms=373.6
+firms_request source=MODIS_NRT chunk_start=2026-11-05 days=5 elapsed_ms=386.9
+firms_request source=MODIS_NRT chunk_start=2026-11-10 days=2 elapsed_ms=383.6
+firms_request source=VIIRS_SNPP_SP chunk_start=2025-11-12 days=3 elapsed_ms=403.5
+firms_request source=MODIS_SP chunk_start=2023-03-06 days=5 elapsed_ms=387.2
+firms_request source=MODIS_SP chunk_start=2023-03-16 days=5 elapsed_ms=385.6
+firms_request source=MODIS_SP chunk_start=2023-03-21 days=5 elapsed_ms=384.5
+INFO:     127.0.0.1:55035 - "GET /api/jobs/db8dd1f24749 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55036 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2022-12-21 days=5 elapsed_ms=1449.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2025-11-15 days=5 elapsed_ms=461.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2025-11-20 days=5 elapsed_ms=470.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2025-11-25 days=5 elapsed_ms=476.8
+firms_request source=MODIS_SP chunk_start=2023-03-26 days=5 elapsed_ms=491.3
+INFO:     127.0.0.1:55037 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=VIIRS_SNPP_SP chunk_start=2025-12-05 days=5 elapsed_ms=463.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2025-12-10 days=5 elapsed_ms=443.4
+firms_request source=MODIS_SP chunk_start=2023-03-31 days=5 elapsed_ms=415.5
+firms_request source=MODIS_SP chunk_start=2023-01-30 days=5 elapsed_ms=1409.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2025-11-30 days=5 elapsed_ms=721.6
+firms_request source=MODIS_SP chunk_start=2023-04-15 days=5 elapsed_ms=409.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2025-12-15 days=5 elapsed_ms=442.4
+firms_request source=MODIS_SP chunk_start=2023-04-20 days=5 elapsed_ms=396.6
+firms_request source=VIIRS_SNPP_SP chunk_start=2025-12-20 days=5 elapsed_ms=454.6
+firms_request source=VIIRS_SNPP_SP chunk_start=2025-12-30 days=5 elapsed_ms=477.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-01-04 days=5 elapsed_ms=457.4
+firms_request source=MODIS_SP chunk_start=2023-04-30 days=5 elapsed_ms=395.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2025-12-25 days=5 elapsed_ms=661.6
+firms_request source=MODIS_SP chunk_start=2023-04-25 days=5 elapsed_ms=486.9
+firms_request source=MODIS_SP chunk_start=2023-03-01 days=5 elapsed_ms=1475.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-01-09 days=5 elapsed_ms=451.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-01-14 days=5 elapsed_ms=474.3
+firms_request source=MODIS_SP chunk_start=2023-05-10 days=5 elapsed_ms=508.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-01-19 days=5 elapsed_ms=505.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-01-24 days=5 elapsed_ms=476.0
+firms_request source=MODIS_SP chunk_start=2023-05-15 days=5 elapsed_ms=389.5
+firms_request source=MODIS_SP chunk_start=2023-05-20 days=5 elapsed_ms=412.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-02-03 days=5 elapsed_ms=464.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-01-29 days=5 elapsed_ms=489.6
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-02-08 days=5 elapsed_ms=438.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-02-13 days=5 elapsed_ms=458.2
+firms_request source=MODIS_SP chunk_start=2023-05-05 days=5 elapsed_ms=983.5
+firms_request source=MODIS_SP chunk_start=2023-05-30 days=5 elapsed_ms=423.2
+firms_request source=MODIS_SP chunk_start=2026-01-14 days=5 elapsed_ms=7700.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-02-18 days=5 elapsed_ms=455.9
+firms_request source=MODIS_SP chunk_start=2025-11-15 days=5 elapsed_ms=7713.5
+firms_request source=MODIS_SP chunk_start=2025-12-05 days=5 elapsed_ms=7718.8
+firms_request source=MODIS_SP chunk_start=2023-06-04 days=5 elapsed_ms=393.4
+INFO:     127.0.0.1:55040 - "GET /api/jobs/db8dd1f24749 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55041 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2023-06-09 days=5 elapsed_ms=417.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-02-23 days=5 elapsed_ms=477.2
+INFO:     127.0.0.1:55042 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-02-28 days=5 elapsed_ms=503.2
+firms_request source=MODIS_SP chunk_start=2023-06-14 days=5 elapsed_ms=413.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-03-15 days=5 elapsed_ms=428.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-03-05 days=5 elapsed_ms=649.9
+firms_request source=MODIS_SP chunk_start=2023-06-19 days=5 elapsed_ms=474.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-03-20 days=5 elapsed_ms=476.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-04-04 days=5 elapsed_ms=492.6
+firms_request source=MODIS_SP chunk_start=2023-06-29 days=5 elapsed_ms=443.6
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-04-09 days=5 elapsed_ms=447.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-03-30 days=5 elapsed_ms=690.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-04-14 days=5 elapsed_ms=482.4
+firms_request source=MODIS_SP chunk_start=2023-07-04 days=5 elapsed_ms=427.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-04-19 days=5 elapsed_ms=483.5
+firms_request source=MODIS_SP chunk_start=2026-03-20 days=5 elapsed_ms=5411.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-04-24 days=5 elapsed_ms=481.6
+firms_request source=MODIS_SP chunk_start=2023-07-09 days=5 elapsed_ms=459.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-04-29 days=5 elapsed_ms=413.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-05-04 days=5 elapsed_ms=414.6
+firms_request source=MODIS_SP chunk_start=2026-03-30 days=5 elapsed_ms=5440.0
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-03-25 days=5 elapsed_ms=942.7
+firms_request source=MODIS_SP chunk_start=2023-07-14 days=5 elapsed_ms=398.2
+firms_request source=MODIS_SP chunk_start=2026-04-19 days=5 elapsed_ms=5459.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-05-09 days=5 elapsed_ms=496.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-05-14 days=5 elapsed_ms=425.4
+firms_request source=MODIS_SP chunk_start=2025-12-15 days=5 elapsed_ms=8913.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-03-10 days=5 elapsed_ms=1422.9
+firms_request source=MODIS_SP chunk_start=2023-07-19 days=5 elapsed_ms=465.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-05-29 days=5 elapsed_ms=425.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-06-03 days=5 elapsed_ms=465.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-06-08 days=5 elapsed_ms=459.6
+firms_request source=MODIS_SP chunk_start=2023-07-24 days=5 elapsed_ms=484.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-06-13 days=5 elapsed_ms=491.6
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-06-18 days=5 elapsed_ms=503.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-06-28 days=5 elapsed_ms=497.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-05-24 days=5 elapsed_ms=673.6
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-06-23 days=5 elapsed_ms=601.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-07-08 days=5 elapsed_ms=431.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-07-03 days=5 elapsed_ms=507.4
+INFO:     127.0.0.1:56789 - "GET /api/jobs/db8dd1f24749 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56790 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-07-13 days=5 elapsed_ms=431.3
+INFO:     127.0.0.1:59282 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2023-08-03 days=5 elapsed_ms=436.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-07-18 days=5 elapsed_ms=516.5
+firms_request source=MODIS_SP chunk_start=2026-07-18 days=5 elapsed_ms=5408.9
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-08-01 days=1 elapsed_ms=429.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-07-23 days=5 elapsed_ms=533.0
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-07-28 days=4 elapsed_ms=474.7
+firms_request source=MODIS_SP chunk_start=2023-08-08 days=5 elapsed_ms=464.1
+firms_request source=MODIS_SP chunk_start=2023-07-29 days=5 elapsed_ms=864.5
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-08-07 days=5 elapsed_ms=529.0
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-08-12 days=5 elapsed_ms=557.5
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-08-17 days=5 elapsed_ms=571.8
+firms_request source=MODIS_SP chunk_start=2023-08-13 days=5 elapsed_ms=431.8
+firms_request source=MODIS_SP chunk_start=2022-10-22 days=5 elapsed_ms=5461.9
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-09-06 days=5 elapsed_ms=510.2
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-08-27 days=5 elapsed_ms=609.6
+firms_request source=MODIS_SP chunk_start=2022-11-11 days=5 elapsed_ms=5434.4
+firms_request source=MODIS_SP chunk_start=2023-08-18 days=5 elapsed_ms=442.7
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-09-11 days=5 elapsed_ms=514.6
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-09-21 days=5 elapsed_ms=495.5
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-10-01 days=5 elapsed_ms=467.0
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-09-26 days=5 elapsed_ms=499.9
+firms_request source=MODIS_SP chunk_start=2022-11-26 days=5 elapsed_ms=5388.9
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-09-16 days=5 elapsed_ms=540.2
+firms_request source=MODIS_SP chunk_start=2023-08-23 days=5 elapsed_ms=499.0
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-08-22 days=5 elapsed_ms=795.5
+firms_request source=MODIS_SP chunk_start=2022-12-01 days=5 elapsed_ms=5400.2
+firms_request source=MODIS_SP chunk_start=2022-12-16 days=5 elapsed_ms=5426.1
+firms_request source=MODIS_NRT chunk_start=2026-09-06 days=5 elapsed_ms=5447.5
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-10-11 days=5 elapsed_ms=433.3
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-10-06 days=5 elapsed_ms=523.1
+firms_request source=MODIS_SP chunk_start=2023-08-28 days=5 elapsed_ms=434.2
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-10-16 days=5 elapsed_ms=473.9
+firms_request source=MODIS_SP chunk_start=2023-09-02 days=5 elapsed_ms=494.6
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-10-21 days=5 elapsed_ms=500.9
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-11-10 days=2 elapsed_ms=372.9
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-10-26 days=5 elapsed_ms=494.9
+firms_request source=MODIS_SP chunk_start=2023-09-07 days=5 elapsed_ms=438.3
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-11-05 days=5 elapsed_ms=401.1
+firms_request source=MODIS_SP chunk_start=2023-09-17 days=5 elapsed_ms=395.5
+firms_request source=MODIS_SP chunk_start=2023-01-20 days=5 elapsed_ms=5392.6
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-10-31 days=5 elapsed_ms=482.1
+firms_request source=MODIS_SP chunk_start=2023-09-27 days=5 elapsed_ms=418.0
+firms_request source=MODIS_NRT chunk_start=2026-09-16 days=5 elapsed_ms=5661.3
+firms_request source=MODIS_SP chunk_start=2023-09-22 days=5 elapsed_ms=470.8
+firms_request source=MODIS_SP chunk_start=2023-10-02 days=5 elapsed_ms=446.2
+firms_request source=MODIS_SP chunk_start=2023-10-07 days=5 elapsed_ms=406.0
+firms_request source=MODIS_SP chunk_start=2023-10-12 days=5 elapsed_ms=410.8
+firms_request source=MODIS_SP chunk_start=2023-10-22 days=5 elapsed_ms=416.2
+firms_request source=MODIS_SP chunk_start=2023-10-27 days=5 elapsed_ms=378.6
+INFO:     127.0.0.1:58407 - "GET /api/jobs/db8dd1f24749 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60932 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2023-11-01 days=5 elapsed_ms=406.2
+INFO:     127.0.0.1:61882 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2023-11-06 days=5 elapsed_ms=401.8
+firms_request source=MODIS_SP chunk_start=2023-02-24 days=5 elapsed_ms=5428.6
+firms_request source=MODIS_SP chunk_start=2023-11-16 days=5 elapsed_ms=408.4
+firms_request source=MODIS_SP chunk_start=2023-03-11 days=5 elapsed_ms=5409.2
+firms_request source=MODIS_SP chunk_start=2023-11-21 days=5 elapsed_ms=405.4
+firms_request source=MODIS_SP chunk_start=2023-12-01 days=5 elapsed_ms=408.8
+firms_request source=MODIS_SP chunk_start=2023-11-26 days=5 elapsed_ms=419.0
+firms_request source=MODIS_SP chunk_start=2023-12-06 days=5 elapsed_ms=386.8
+firms_request source=MODIS_SP chunk_start=2023-12-11 days=5 elapsed_ms=455.8
+firms_request source=MODIS_SP chunk_start=2023-12-21 days=5 elapsed_ms=429.6
+firms_request source=MODIS_SP chunk_start=2023-12-26 days=5 elapsed_ms=410.8
+firms_request source=MODIS_SP chunk_start=2023-12-31 days=5 elapsed_ms=414.9
+firms_request source=MODIS_SP chunk_start=2023-04-05 days=5 elapsed_ms=5416.1
+firms_request source=MODIS_SP chunk_start=2023-12-16 days=5 elapsed_ms=635.7
+firms_request source=MODIS_SP chunk_start=2023-04-10 days=5 elapsed_ms=5442.3
+firms_request source=MODIS_SP chunk_start=2024-01-05 days=5 elapsed_ms=379.2
+firms_request source=MODIS_SP chunk_start=2024-01-10 days=5 elapsed_ms=400.1
+firms_request source=MODIS_SP chunk_start=2024-01-15 days=5 elapsed_ms=409.8
+firms_request source=MODIS_SP chunk_start=2024-01-20 days=5 elapsed_ms=419.2
+firms_request source=MODIS_SP chunk_start=2024-01-25 days=5 elapsed_ms=394.7
+firms_request source=MODIS_SP chunk_start=2024-02-04 days=5 elapsed_ms=380.8
+firms_request source=MODIS_SP chunk_start=2024-02-09 days=5 elapsed_ms=420.0
+firms_request source=MODIS_SP chunk_start=2024-02-14 days=5 elapsed_ms=440.9
+firms_request source=MODIS_SP chunk_start=2024-02-24 days=5 elapsed_ms=381.2
+firms_request source=MODIS_SP chunk_start=2024-02-19 days=5 elapsed_ms=426.9
+firms_request source=MODIS_SP chunk_start=2023-11-11 days=5 elapsed_ms=1478.7
+firms_request source=MODIS_SP chunk_start=2024-02-29 days=5 elapsed_ms=397.8
+firms_request source=MODIS_SP chunk_start=2024-01-30 days=5 elapsed_ms=635.1
+firms_request source=MODIS_SP chunk_start=2024-03-10 days=5 elapsed_ms=418.5
+firms_request source=MODIS_SP chunk_start=2024-03-15 days=5 elapsed_ms=407.1
+firms_request source=MODIS_SP chunk_start=2024-03-20 days=5 elapsed_ms=378.9
+INFO:     127.0.0.1:57664 - "GET /api/jobs/db8dd1f24749 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57665 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2024-03-25 days=5 elapsed_ms=406.1
+INFO:     127.0.0.1:50531 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2024-04-09 days=5 elapsed_ms=404.3
+firms_request source=MODIS_SP chunk_start=2024-04-04 days=5 elapsed_ms=408.4
+firms_request source=MODIS_SP chunk_start=2023-05-25 days=5 elapsed_ms=5450.0
+firms_request source=MODIS_SP chunk_start=2024-03-30 days=5 elapsed_ms=442.1
+firms_request source=MODIS_SP chunk_start=2024-04-14 days=5 elapsed_ms=395.8
+firms_request source=MODIS_SP chunk_start=2024-04-29 days=5 elapsed_ms=419.3
+firms_request source=MODIS_SP chunk_start=2024-05-09 days=5 elapsed_ms=390.3
+firms_request source=MODIS_SP chunk_start=2024-05-04 days=5 elapsed_ms=413.3
+firms_request source=MODIS_SP chunk_start=2024-05-14 days=5 elapsed_ms=377.9
+firms_request source=MODIS_SP chunk_start=2024-05-29 days=5 elapsed_ms=387.4
+firms_request source=MODIS_SP chunk_start=2024-05-24 days=5 elapsed_ms=405.7
+firms_request source=MODIS_SP chunk_start=2024-05-19 days=5 elapsed_ms=411.4
+firms_request source=MODIS_SP chunk_start=2024-06-03 days=5 elapsed_ms=404.2
+firms_request source=MODIS_SP chunk_start=2024-04-24 days=5 elapsed_ms=843.4
+firms_request source=MODIS_SP chunk_start=2024-06-13 days=5 elapsed_ms=412.0
+firms_request source=MODIS_SP chunk_start=2024-04-19 days=5 elapsed_ms=1015.7
+firms_request source=MODIS_SP chunk_start=2024-06-08 days=5 elapsed_ms=645.4
+firms_request source=MODIS_SP chunk_start=2024-06-23 days=5 elapsed_ms=405.4
+firms_request source=MODIS_SP chunk_start=2024-06-18 days=5 elapsed_ms=431.4
+firms_request source=MODIS_SP chunk_start=2023-06-24 days=5 elapsed_ms=5424.5
+firms_request source=MODIS_SP chunk_start=2024-06-28 days=5 elapsed_ms=425.3
+firms_request source=MODIS_SP chunk_start=2024-07-13 days=5 elapsed_ms=440.6
+firms_request source=MODIS_SP chunk_start=2024-07-08 days=5 elapsed_ms=451.9
+firms_request source=MODIS_SP chunk_start=2024-07-23 days=5 elapsed_ms=420.5
+firms_request source=MODIS_SP chunk_start=2024-07-28 days=5 elapsed_ms=469.8
+firms_request source=MODIS_SP chunk_start=2024-08-02 days=5 elapsed_ms=441.9
+firms_request source=MODIS_SP chunk_start=2024-08-17 days=5 elapsed_ms=417.6
+firms_request source=MODIS_SP chunk_start=2024-08-22 days=5 elapsed_ms=443.6
+firms_request source=MODIS_SP chunk_start=2022-05-15 days=5 elapsed_ms=10439.6
+firms_request source=MODIS_SP chunk_start=2024-08-27 days=5 elapsed_ms=422.3
+firms_request source=MODIS_SP chunk_start=2024-09-01 days=5 elapsed_ms=431.4
+firms_request source=MODIS_SP chunk_start=2024-09-06 days=5 elapsed_ms=455.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2026-05-19 days=5 elapsed_ms=5450.9
+firms_request source=MODIS_SP chunk_start=2024-09-11 days=5 elapsed_ms=437.5
+firms_request source=MODIS_SP chunk_start=2024-09-16 days=5 elapsed_ms=407.8
+INFO:     127.0.0.1:49161 - "GET /api/jobs/db8dd1f24749 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60045 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60046 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2024-10-11 days=5 elapsed_ms=403.0
+firms_request source=MODIS_SP chunk_start=2024-10-01 days=5 elapsed_ms=425.9
+firms_request source=MODIS_SP chunk_start=2024-10-06 days=5 elapsed_ms=474.9
+firms_request source=MODIS_SP chunk_start=2024-10-16 days=5 elapsed_ms=412.4
+firms_request source=MODIS_SP chunk_start=2024-10-21 days=5 elapsed_ms=442.7
+firms_request source=MODIS_SP chunk_start=2024-07-03 days=5 elapsed_ms=1454.8
+firms_request source=MODIS_SP chunk_start=2024-10-26 days=5 elapsed_ms=412.0
+firms_request source=MODIS_SP chunk_start=2024-11-10 days=5 elapsed_ms=419.3
+firms_request source=MODIS_SP chunk_start=2024-11-15 days=5 elapsed_ms=389.9
+firms_request source=MODIS_SP chunk_start=2024-11-20 days=5 elapsed_ms=390.8
+firms_request source=MODIS_SP chunk_start=2024-11-25 days=5 elapsed_ms=391.2
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-08-02 days=5 elapsed_ms=5496.1
+firms_request source=MODIS_SP chunk_start=2024-12-05 days=5 elapsed_ms=391.0
+firms_request source=MODIS_SP chunk_start=2024-11-30 days=5 elapsed_ms=422.3
+firms_request source=VIIRS_SNPP_NRT chunk_start=2026-09-01 days=5 elapsed_ms=5558.9
+firms_request source=MODIS_SP chunk_start=2024-12-20 days=5 elapsed_ms=442.9
+firms_request source=MODIS_SP chunk_start=2024-12-25 days=5 elapsed_ms=423.5
+firms_request source=MODIS_SP chunk_start=2024-12-30 days=5 elapsed_ms=409.8
+firms_request source=MODIS_SP chunk_start=2025-01-04 days=5 elapsed_ms=386.0
+firms_request source=MODIS_SP chunk_start=2024-10-31 days=5 elapsed_ms=1454.5
+firms_request source=MODIS_SP chunk_start=2023-09-12 days=5 elapsed_ms=5472.3
+INFO:     127.0.0.1:53810 - "GET /api/jobs/db8dd1f24749 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52392 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2024-11-05 days=5 elapsed_ms=1444.6
+INFO:     127.0.0.1:52393 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2023-10-17 days=5 elapsed_ms=5428.9
+firms_request source=MODIS_SP chunk_start=2025-01-24 days=5 elapsed_ms=1610.9
+firms_request source=MODIS_SP chunk_start=2025-01-09 days=5 elapsed_ms=1751.9
+firms_request source=MODIS_SP chunk_start=2025-02-03 days=5 elapsed_ms=1299.4
+firms_request source=MODIS_SP chunk_start=2025-01-29 days=5 elapsed_ms=1370.4
+firms_request source=MODIS_SP chunk_start=2025-02-13 days=5 elapsed_ms=992.9
+firms_request source=MODIS_SP chunk_start=2025-02-08 days=5 elapsed_ms=1333.0
+INFO:     127.0.0.1:64038 - "GET /api/jobs/db8dd1f24749 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62220 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62221 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2024-03-05 days=5 elapsed_ms=5375.0
+firms_request source=MODIS_SP chunk_start=2025-02-23 days=5 elapsed_ms=367.2
+firms_request source=MODIS_SP chunk_start=2025-02-18 days=5 elapsed_ms=426.8
+firms_request source=MODIS_SP chunk_start=2025-02-28 days=5 elapsed_ms=409.9
+firms_request source=MODIS_SP chunk_start=2025-03-10 days=5 elapsed_ms=416.2
+firms_request source=MODIS_SP chunk_start=2025-03-15 days=5 elapsed_ms=479.0
+firms_request source=MODIS_SP chunk_start=2025-03-05 days=5 elapsed_ms=610.2
+firms_request source=MODIS_SP chunk_start=2025-03-20 days=5 elapsed_ms=400.3
+firms_request source=MODIS_SP chunk_start=2025-03-25 days=5 elapsed_ms=423.7
+firms_request source=MODIS_SP chunk_start=2025-03-30 days=5 elapsed_ms=414.0
+firms_request source=MODIS_SP chunk_start=2025-04-04 days=5 elapsed_ms=412.8
+firms_request source=MODIS_SP chunk_start=2025-04-14 days=5 elapsed_ms=391.7
+firms_request source=MODIS_SP chunk_start=2025-04-09 days=5 elapsed_ms=485.4
+firms_request source=MODIS_SP chunk_start=2025-01-14 days=5 elapsed_ms=2742.5
+firms_request source=MODIS_SP chunk_start=2025-04-24 days=5 elapsed_ms=400.4
+firms_request source=MODIS_SP chunk_start=2025-04-29 days=5 elapsed_ms=390.4
+firms_request source=MODIS_SP chunk_start=2025-05-04 days=5 elapsed_ms=395.1
+firms_request source=MODIS_SP chunk_start=2025-05-09 days=5 elapsed_ms=449.4
+firms_request source=MODIS_SP chunk_start=2025-05-14 days=5 elapsed_ms=410.0
+firms_request source=MODIS_SP chunk_start=2025-05-19 days=5 elapsed_ms=425.0
+firms_request source=MODIS_SP chunk_start=2025-05-24 days=5 elapsed_ms=394.4
+firms_request source=MODIS_SP chunk_start=2025-04-19 days=5 elapsed_ms=824.0
+firms_request source=MODIS_SP chunk_start=2025-05-29 days=5 elapsed_ms=415.6
+firms_request source=MODIS_SP chunk_start=2025-06-03 days=5 elapsed_ms=436.3
+firms_request source=MODIS_SP chunk_start=2025-06-08 days=5 elapsed_ms=431.2
+firms_request source=MODIS_SP chunk_start=2025-06-13 days=5 elapsed_ms=416.0
+firms_request source=MODIS_SP chunk_start=2025-06-18 days=5 elapsed_ms=416.8
+INFO:     127.0.0.1:61069 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61070 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=MODIS_SP chunk_start=2025-06-23 days=5 elapsed_ms=420.6
+firms_request source=MODIS_SP chunk_start=2024-08-12 days=5 elapsed_ms=5462.7
+firms_request source=MODIS_SP chunk_start=2024-08-07 days=5 elapsed_ms=5483.9
+firms_request source=MODIS_SP chunk_start=2025-07-03 days=5 elapsed_ms=398.6
+firms_request source=MODIS_SP chunk_start=2025-07-08 days=5 elapsed_ms=420.6
+firms_request source=MODIS_SP chunk_start=2025-07-13 days=5 elapsed_ms=385.5
+firms_request source=MODIS_SP chunk_start=2024-07-18 days=5 elapsed_ms=5895.7
+firms_request source=MODIS_SP chunk_start=2024-09-26 days=5 elapsed_ms=5395.3
+firms_request source=MODIS_SP chunk_start=2025-07-28 days=5 elapsed_ms=450.7
+firms_request source=MODIS_SP chunk_start=2025-08-02 days=5 elapsed_ms=419.9
+firms_request source=MODIS_SP chunk_start=2024-09-21 days=5 elapsed_ms=5449.3
+firms_request source=MODIS_SP chunk_start=2025-08-07 days=5 elapsed_ms=399.0
+firms_request source=MODIS_SP chunk_start=2025-08-12 days=5 elapsed_ms=429.2
+firms_request source=MODIS_SP chunk_start=2025-08-22 days=5 elapsed_ms=411.5
+firms_request source=MODIS_SP chunk_start=2025-08-27 days=5 elapsed_ms=408.6
+firms_request source=MODIS_SP chunk_start=2025-09-01 days=5 elapsed_ms=515.9
+firms_request source=MODIS_SP chunk_start=2025-07-23 days=5 elapsed_ms=938.1
+firms_request source=MODIS_SP chunk_start=2025-09-16 days=5 elapsed_ms=411.2
+firms_request source=MODIS_SP chunk_start=2025-09-06 days=5 elapsed_ms=444.4
+firms_request source=MODIS_SP chunk_start=2025-09-21 days=5 elapsed_ms=422.3
+firms_request source=MODIS_SP chunk_start=2025-09-11 days=5 elapsed_ms=441.3
+firms_request source=MODIS_SP chunk_start=2025-09-26 days=5 elapsed_ms=430.5
+firms_request source=MODIS_SP chunk_start=2025-10-01 days=5 elapsed_ms=415.7
+firms_request source=MODIS_SP chunk_start=2025-10-06 days=5 elapsed_ms=465.8
+firms_request source=MODIS_SP chunk_start=2025-10-11 days=5 elapsed_ms=441.1
+firms_request source=MODIS_SP chunk_start=2025-10-16 days=5 elapsed_ms=418.9
+firms_request source=MODIS_SP chunk_start=2025-10-26 days=5 elapsed_ms=390.4
+firms_request source=MODIS_SP chunk_start=2025-10-31 days=5 elapsed_ms=406.6
+firms_request source=MODIS_SP chunk_start=2025-11-10 days=5 elapsed_ms=417.0
+firms_request source=MODIS_SP chunk_start=2024-12-10 days=5 elapsed_ms=5421.5
+firms_request source=MODIS_SP chunk_start=2025-11-05 days=5 elapsed_ms=458.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2021-11-16 days=5 elapsed_ms=450.4
+firms_request source=MODIS_SP chunk_start=2024-12-15 days=5 elapsed_ms=5420.0
+firms_request source=VIIRS_SNPP_SP chunk_start=2021-11-12 days=4 elapsed_ms=467.2
+INFO:     127.0.0.1:55728 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55729 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=VIIRS_SNPP_SP chunk_start=2021-11-21 days=5 elapsed_ms=481.0
+firms_request source=VIIRS_SNPP_SP chunk_start=2021-11-26 days=5 elapsed_ms=492.1
+firms_request source=VIIRS_SNPP_SP chunk_start=2021-12-06 days=5 elapsed_ms=446.0
+firms_request source=VIIRS_SNPP_SP chunk_start=2021-12-11 days=5 elapsed_ms=451.3
+firms_request source=MODIS_SP chunk_start=2025-07-18 days=5 elapsed_ms=1946.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2021-12-16 days=5 elapsed_ms=491.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-01-10 days=5 elapsed_ms=440.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2021-12-26 days=5 elapsed_ms=487.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2021-12-31 days=5 elapsed_ms=491.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2021-12-01 days=5 elapsed_ms=722.0
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-01-05 days=5 elapsed_ms=515.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2021-12-21 days=5 elapsed_ms=551.0
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-01-15 days=5 elapsed_ms=502.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-01-20 days=5 elapsed_ms=500.6
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-01-30 days=5 elapsed_ms=452.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-01-25 days=5 elapsed_ms=510.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-02-09 days=5 elapsed_ms=472.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-02-14 days=5 elapsed_ms=475.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-02-04 days=5 elapsed_ms=503.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-02-19 days=5 elapsed_ms=465.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-03-11 days=5 elapsed_ms=427.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-03-06 days=5 elapsed_ms=495.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-03-01 days=5 elapsed_ms=517.1
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-03-21 days=5 elapsed_ms=407.0
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-03-16 days=5 elapsed_ms=442.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-02-24 days=5 elapsed_ms=709.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-03-31 days=5 elapsed_ms=461.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-03-26 days=5 elapsed_ms=520.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-04-05 days=5 elapsed_ms=471.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-04-20 days=5 elapsed_ms=448.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-04-10 days=5 elapsed_ms=487.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-04-15 days=5 elapsed_ms=521.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-04-30 days=5 elapsed_ms=450.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-05-05 days=5 elapsed_ms=483.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-05-10 days=5 elapsed_ms=429.6
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-05-15 days=5 elapsed_ms=430.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-05-20 days=5 elapsed_ms=425.2
+INFO:     127.0.0.1:61567 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61568 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-04-25 days=5 elapsed_ms=697.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-05-25 days=5 elapsed_ms=493.6
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-05-30 days=5 elapsed_ms=485.2
+firms_request source=MODIS_SP chunk_start=2025-01-19 days=5 elapsed_ms=6647.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-06-09 days=5 elapsed_ms=485.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-06-14 days=5 elapsed_ms=456.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-06-04 days=5 elapsed_ms=506.1
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-06-19 days=5 elapsed_ms=443.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-06-24 days=5 elapsed_ms=501.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-07-09 days=5 elapsed_ms=447.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-06-29 days=5 elapsed_ms=509.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-07-04 days=5 elapsed_ms=509.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-07-14 days=5 elapsed_ms=486.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-07-19 days=5 elapsed_ms=533.1
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-07-24 days=5 elapsed_ms=450.6
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-07-29 days=5 elapsed_ms=426.1
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-08-03 days=5 elapsed_ms=451.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-08-13 days=5 elapsed_ms=460.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-08-08 days=5 elapsed_ms=471.1
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-08-23 days=5 elapsed_ms=456.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-08-18 days=5 elapsed_ms=582.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-09-07 days=5 elapsed_ms=468.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-09-02 days=5 elapsed_ms=534.1
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-09-22 days=5 elapsed_ms=509.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-10-07 days=5 elapsed_ms=468.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-10-12 days=5 elapsed_ms=428.6
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-09-27 days=5 elapsed_ms=538.6
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-09-12 days=5 elapsed_ms=763.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-10-22 days=5 elapsed_ms=455.1
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-09-17 days=5 elapsed_ms=719.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-10-17 days=5 elapsed_ms=534.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-11-01 days=5 elapsed_ms=458.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-10-02 days=5 elapsed_ms=710.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-11-06 days=5 elapsed_ms=474.5
+INFO:     127.0.0.1:57397 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57398 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-11-11 days=5 elapsed_ms=488.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-10-27 days=5 elapsed_ms=725.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-11-16 days=5 elapsed_ms=461.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-11-26 days=5 elapsed_ms=446.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-11-21 days=5 elapsed_ms=517.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-12-06 days=5 elapsed_ms=475.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-12-01 days=5 elapsed_ms=495.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-12-11 days=5 elapsed_ms=465.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-12-16 days=5 elapsed_ms=451.7
+INFO:     127.0.0.1:63450 - "GET /api/places/search?q=dha&suggest=true HTTP/1.1" 200 OK
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-12-26 days=5 elapsed_ms=444.6
+firms_request source=VIIRS_SNPP_SP chunk_start=2022-08-28 days=5 elapsed_ms=1515.3
+firms_request source=MODIS_SP chunk_start=2025-06-28 days=5 elapsed_ms=5428.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-01-10 days=5 elapsed_ms=494.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-01-20 days=5 elapsed_ms=487.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-01-05 days=5 elapsed_ms=538.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-02-14 days=5 elapsed_ms=456.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-01-30 days=5 elapsed_ms=495.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-02-09 days=5 elapsed_ms=518.0
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-02-04 days=5 elapsed_ms=526.0
+INFO:     127.0.0.1:64958 - "GET /api/places/search?q=dhaka&suggest=true HTTP/1.1" 200 OK
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-02-19 days=5 elapsed_ms=473.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-01-15 days=5 elapsed_ms=698.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-02-24 days=5 elapsed_ms=455.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-03-06 days=5 elapsed_ms=425.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-03-01 days=5 elapsed_ms=442.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-03-11 days=5 elapsed_ms=432.1
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-03-16 days=5 elapsed_ms=456.1
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-03-21 days=5 elapsed_ms=459.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-04-05 days=5 elapsed_ms=427.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-03-31 days=5 elapsed_ms=483.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-04-20 days=5 elapsed_ms=416.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-04-15 days=5 elapsed_ms=462.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-04-30 days=5 elapsed_ms=452.0
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-04-25 days=5 elapsed_ms=470.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-04-10 days=5 elapsed_ms=761.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-05-10 days=5 elapsed_ms=462.3
+INFO:     127.0.0.1:61542 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61543 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-05-05 days=5 elapsed_ms=520.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-05-15 days=5 elapsed_ms=433.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-05-20 days=5 elapsed_ms=459.0
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-05-25 days=5 elapsed_ms=457.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-06-04 days=5 elapsed_ms=435.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-05-30 days=5 elapsed_ms=468.8
+firms_request source=MODIS_SP chunk_start=2025-10-21 days=5 elapsed_ms=5437.7
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-06-09 days=5 elapsed_ms=458.9
+firms_request source=MODIS_SP chunk_start=2025-08-17 days=5 elapsed_ms=6398.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-06-14 days=5 elapsed_ms=504.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-06-19 days=5 elapsed_ms=506.3
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-06-24 days=5 elapsed_ms=521.8
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-06-29 days=5 elapsed_ms=513.0
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-07-09 days=5 elapsed_ms=527.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-07-14 days=5 elapsed_ms=503.2
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-07-24 days=5 elapsed_ms=480.1
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-03-26 days=5 elapsed_ms=1544.4
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-07-19 days=5 elapsed_ms=560.5
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-07-29 days=5 elapsed_ms=483.9
+firms_request source=VIIRS_SNPP_SP chunk_start=2023-08-03 days=5 elapsed_ms=558.5
+INFO:     127.0.0.1:50852 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50853 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55073 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55074 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52343 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52344 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58816 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58817 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55390 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57192 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58920 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64751 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62077 - "GET /api/jobs/73e762dc258a HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62078 - "GET /api/jobs/2e7d19483a57 HTTP/1.1" 200 OK

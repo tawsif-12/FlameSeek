@@ -11,6 +11,7 @@ import type { AOI, CaseMarker, FireEvent, FireEventSummary, ForecastHorizon, Hot
 import { BEHAVIOUR_COLORS, BEHAVIOUR_PLAIN, KIND_COLORS, KIND_LABELS, REALITY_WEIGHT } from "./fireCasePresentation";
 
 import HarmonizationProgress from "./HarmonizationProgress";
+import { fireInsights } from "../utils/fireInsights";
 
 const EventPanel = React.lazy(() => import("./EventPanel"));
 
@@ -234,8 +235,8 @@ export default function CesiumFireGlobe() {
   const [showBuildings] = useState(true);
   const [tilesStatus, setTilesStatus] = useState<string | null>(null);
   const calendarDate = searchParams.get("date");
-  const [period, setPeriod] = useState<Period>(calendarDate ? "historical" : "1");
-  const [historicalDate, setHistoricalDate] = useState(() => calendarDate ?? new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10));
+  const [period] = useState<Period>("1");
+  const [historicalDate] = useState(() => calendarDate ?? new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10));
   const [hotspots, setHotspots] = useState<HotspotRecord[]>([]);
   const [rawHotspots, setRawHotspots] = useState<HotspotRecord[]>([]);
   const [events, setEvents] = useState<FireEventSummary[]>([]);
@@ -263,6 +264,7 @@ export default function CesiumFireGlobe() {
   const [lastRefresh, setLastRefresh] = useState<string | null>(null);
   const [harmonizationRun, setHarmonizationRun] = useState<string | null>(null);
   const [mergedCount, setMergedCount] = useState<number | null>(null);
+  const [rawObservationCount, setRawObservationCount] = useState<number | null>(null);
   const [mergedUnavailable, setMergedUnavailable] = useState(false);
   const [backgroundRefresh, setBackgroundRefresh] = useState(false);
   const [processingPending, setProcessingPending] = useState(false);
@@ -286,6 +288,7 @@ export default function CesiumFireGlobe() {
   const [exposure, setExposure] = useState<ExposureMarker[]>([]);
   const [viewerReady, setViewerReady] = useState(false);
   const [viewerError, setViewerError] = useState<string | null>(null);
+  const [selectedTimelineBin, setSelectedTimelineBin] = useState<number | null>(null);
   const [activeInsight, setActiveInsight] = useState<null | "snapshot" | "intensity" | "timeline" | "events">(null);
   const observationPointsRef = useRef<Cesium.PointPrimitiveCollection | null>(null);
   const buildingsRef = useRef<Cesium.Cesium3DTileset | null>(null);
@@ -326,6 +329,22 @@ export default function CesiumFireGlobe() {
     }
     return { single, multiple };
   }, [hotspots, filterToAoi, aoi]);
+  const observationSummary = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const inArea = (point: HotspotRecord) => !filterToAoi || !aoi || aoiContains(aoi, point.lat, point.lon);
+    const raw = rawHotspots.filter(inArea);
+    const merged = hotspots.filter((point) => Boolean(point.harmonized) && inArea(point));
+    const isToday = (point: HotspotRecord) => {
+      const time = new Date(point.acq_datetime);
+      return Number.isFinite(time.getTime()) && time.toISOString().slice(0, 10) === today;
+    };
+    return {
+      raw: filterToAoi && aoi ? raw.length : rawObservationCount,
+      merged: filterToAoi && aoi && mergedCount !== null ? merged.length : mergedCount,
+      todayRaw: raw.filter(isToday).length,
+      todayMerged: merged.filter(isToday).length,
+    };
+  }, [rawHotspots, hotspots, filterToAoi, aoi, rawObservationCount, mergedCount, lastRefresh]);
   const confirmed = useMemo(() => crossSensorSet(hotspots), [hotspots]);
   const highlightRegion = useMemo(() => aoiIsBangladesh(aoi), [aoi]);
   // Find events whose centroid sits on top of one of our highlighted point clusters.
@@ -360,35 +379,18 @@ export default function CesiumFireGlobe() {
     return lookup;
   }, [events, hotspots]);
 
-  const stats = useMemo(() => {
-    const modis = visibleHotspots.filter((h) => h.sensor === "modis").length;
-    const viirs = visibleHotspots.length - modis;
-    const crossConfirmed = visibleHotspots.filter((h) => confirmed.has(hotspotKey(h))).length;
-    const frps = visibleHotspots.map((h) => h.frp ?? 0);
-    const totalFrp = frps.reduce((s, v) => s + v, 0);
-    const maxFrp = frps.length ? frps.reduce((max, value) => Math.max(max, value), 0) : 0;
-    const intense = frps.filter((v) => v >= 100).length;
-    const strong = frps.filter((v) => v >= 30 && v < 100).length;
-    const mild = frps.filter((v) => v >= 10 && v < 30).length;
-    const weak = frps.filter((v) => v < 10).length;
-    const eventCount = visibleEvents.length;
-    const eventArea = visibleEvents.reduce((s, e) => s + (e.extent_km2 ?? 0), 0);
-    const topEvents = [...visibleEvents]
-      .sort((a, b) => (b.observation_count ?? 0) - (a.observation_count ?? 0))
-      .slice(0, 4);
-    const behaviour = (eventMeta.behaviour_counts ?? {}) as Record<string, number>;
-    const now = Date.now();
-    const hours = Array.from({ length: 12 }, () => 0);
-    for (const h of visibleHotspots) {
-      const t = new Date(h.acq_datetime).getTime();
-      if (!Number.isFinite(t)) continue;
-      const dh = (now - t) / 3600000;
-      if (dh < 0 || dh >= 24) continue;
-      hours[Math.min(11, Math.floor(dh / 2))] += 1;
-    }
-    const hourMax = Math.max(1, ...hours);
-    return { modis, viirs, crossConfirmed, totalFrp, maxFrp, intense, strong, mild, weak, eventCount, eventArea, topEvents, behaviour, hours, hourMax };
-  }, [visibleHotspots, visibleEvents, confirmed, eventMeta]);
+  const insightData = useMemo(() => {
+    const inArea = (point: HotspotRecord) => !filterToAoi || !aoi || aoiContains(aoi, point.lat, point.lon);
+    const raw = rawHotspots.filter(inArea);
+    const merged = mergedUnavailable ? [] : hotspots.filter(point => point.harmonized && inArea(point));
+    const useMerged = layers.Harmonized && !mergedUnavailable;
+    const powerPoints = useMerged ? merged : visibleHotspots.filter(point => !point.harmonized);
+    const end = period === "historical" ? Date.parse(`${historicalDate}T00:00:00Z`) + 86400000 : Date.now();
+    return { ...fireInsights(raw, merged, powerPoints, end), raw, merged, powerBasis: useMerged ? "merged event peak heat output" : "visible satellite detections" };
+  }, [rawHotspots, hotspots, mergedUnavailable, filterToAoi, aoi, layers.Harmonized, visibleHotspots, period, historicalDate, lastRefresh]);
+  useEffect(() => { setSelectedTimelineBin(null); }, [period, historicalDate, lastRefresh, filterToAoi, aoi]);
+  const binLabel = (bin: { start: number; end: number }) => `${new Date(bin.start).toISOString().slice(11, 16)} to ${new Date(bin.end).toISOString().slice(11, 16)} UTC`;
+
 
   useEffect(() => {
     drawingRef.current = drawing;
@@ -399,6 +401,7 @@ export default function CesiumFireGlobe() {
     if (!quiet) {
       setFeedState("loading");
       setMergedCount(null);
+      setRawObservationCount(null);
       selectionSequence.current += 1;
       setSelectedFire(null);
     }
@@ -415,6 +418,7 @@ export default function CesiumFireGlobe() {
         ? await getCurrentHotspots(DEFAULT_SENSORS, days, 4000, historicalDate, false)
         : await getHarmonizedHotspots(days);
       if (sequence !== loadSequence.current || unmountedRef.current) return;
+      setRawObservationCount(typeof response.metadata.raw_hotspot_count === "number" ? response.metadata.raw_hotspot_count : (response.raw_hotspots ?? response.hotspots).length);
       setHarmonizationRun(typeof response.metadata.harmonization_run === "string" ? response.metadata.harmonization_run : null);
       setMergedUnavailable(Boolean(response.metadata.processing_pending || response.metadata.harmonization_unavailable));
       setProcessingPending(Boolean(response.metadata.processing_pending));
@@ -1166,7 +1170,7 @@ export default function CesiumFireGlobe() {
         {([
           { key: "snapshot", label: "At a glance" },
           { key: "intensity", label: "How strong" },
-          { key: "timeline", label: "Last 24 hours" },
+          { key: "timeline", label: period === "historical" ? "Selected day" : "Last 24 hours" },
           { key: "events", label: "Biggest fires" },
         ] as const).map((o) => (
           <button
@@ -1175,6 +1179,7 @@ export default function CesiumFireGlobe() {
             className={activeInsight === o.key ? "active" : ""}
             onClick={() => setActiveInsight((cur) => (cur === o.key ? null : o.key))}
             aria-pressed={activeInsight === o.key}
+            aria-controls="fire-insight-panel"
           >
             {o.label}
           </button>
@@ -1182,115 +1187,67 @@ export default function CesiumFireGlobe() {
       </nav>
 
       {activeInsight && (
-        <aside className="insight-drawer" aria-label="Insight panel">
+        <aside id="fire-insight-panel" className="insight-drawer" aria-label="Insight panel">
           <header>
             <div>
               <p className="mission-kicker">
                 <span className="hud-dot" />{" "}
-                {activeInsight === "snapshot" && "Live snapshot"}
+                {activeInsight === "snapshot" && "At a glance"}
                 {activeInsight === "intensity" && "How strong are the fires?"}
                 {activeInsight === "timeline" && "Satellite sightings · last 24 hours"}
-                {activeInsight === "events" && "Biggest fires right now"}
+                {activeInsight === "events" && "Largest observed fire groups"}
               </p>
               <small className="insight-context">{periodLabels[period]}{period === "historical" ? ` · ${historicalDate}` : ""}</small>
             </div>
             <button type="button" className="insight-close" onClick={() => setActiveInsight(null)} aria-label="Close panel">×</button>
           </header>
 
+          {feedState === "loading" ? <p className="hud-empty" role="status">Loading satellite observations...</p> : feedState === "failed" ? <p className="hud-empty" role="status">Observations are unavailable. Use Refresh FIRMS to retry.</p> : <>
+          <p className="insight-note insight-scope">{filterToAoi && aoi ? describeAoi(aoi) : "Worldwide"}. Counts use the loaded observation window; they are not confirmed wildfire counts.</p>
           {activeInsight === "snapshot" && (
             <div className="insight-body snapshot-body">
-              <div className="hud-stat">
-                <span>Heat spots seen</span>
-                <strong>{visibleHotspots.length.toLocaleString()}</strong>
-                <small>MODIS {stats.modis.toLocaleString()} · VIIRS {stats.viirs.toLocaleString()}</small>
-              </div>
-              <div className="hud-stat tone-warn">
-                <span>Seen by two satellite types</span>
-                <strong>{stats.crossConfirmed.toLocaleString()}</strong>
-                <small>Both MODIS and VIIRS, close in place and time</small>
-              </div>
-              <div className="hud-stat">
-                <span>Separate fires</span>
-                <strong>{stats.eventCount.toLocaleString()}</strong>
-                <small>{Math.round(stats.eventArea).toLocaleString()} km² covered</small>
-              </div>
-              <div className="hud-stat tone-hot">
-                <span>Strongest fire</span>
-                <strong>{Math.round(stats.maxFrp).toLocaleString()}<i>MW</i></strong>
-                <small>All fires together: {Math.round(stats.totalFrp).toLocaleString()} MW of heat</small>
-              </div>
+              <div className="hud-stat"><span>Satellite heat detections</span><strong>{insightData.raw.length.toLocaleString()}</strong><small>MODIS {insightData.modis.toLocaleString()} / VIIRS {insightData.viirs.toLocaleString()}</small></div>
+              <div className="hud-stat"><span>Merged fire groups</span><strong>{mergedUnavailable ? "Not ready" : insightData.merged.length.toLocaleString()}</strong><small>Nearby detections grouped by place and time</small></div>
+              <div className="hud-stat"><span>Groups seen by multiple satellites</span><strong>{mergedUnavailable ? "Not ready" : insightData.multipleSatellites.toLocaleString()}</strong><small>Repeated observations, not independent confirmation</small></div>
+              <div className="hud-stat"><span>Highest measured heat output</span><strong>{insightData.maxFrp === null ? "Unavailable" : `${Math.round(insightData.maxFrp).toLocaleString()} MW`}</strong><small>Based on {insightData.powerBasis}; not a simultaneous total</small></div>
             </div>
           )}
-
           {activeInsight === "intensity" && (
             <div className="insight-body">
+              <p className="insight-note">Based on {insightData.powerBasis}.</p>
               <ul className="frp-bars">
-                {(() => {
-                  const total = Math.max(1, stats.weak + stats.mild + stats.strong + stats.intense);
-                  const rows = [
-                    { key: "Very strong", n: stats.intense, hint: "≥100 MW", color: "#b91c1c" },
-                    { key: "Strong", n: stats.strong, hint: "30–100", color: "#ea580c" },
-                    { key: "Medium", n: stats.mild, hint: "10–30", color: "#f59e0b" },
-                    { key: "Weak", n: stats.weak, hint: "<10", color: "#fde68a" },
-                  ];
-                  return rows.map((r) => (
-                    <li key={r.key}>
-                      <em>{r.key}</em>
-                      <div className="bar-track"><i style={{ width: `${(r.n / total) * 100}%`, background: r.color }} /></div>
-                      <b>{r.n.toLocaleString()}</b>
-                      <small>{r.hint}</small>
-                    </li>
-                  ));
-                })()}
+                {[
+                  { label: "Very strong", count: insightData.intense, hint: "100 MW or more", color: "#b91c1c" },
+                  { label: "Strong", count: insightData.strong, hint: "30 to below 100 MW", color: "#ea580c" },
+                  { label: "Medium", count: insightData.mild, hint: "10 to below 30 MW", color: "#f59e0b" },
+                  { label: "Weak", count: insightData.weak, hint: "Below 10 MW", color: "#fde68a" },
+                ].map(row => <li key={row.label}><em>{row.label}</em><div className="bar-track"><i style={{ width: `${row.count / Math.max(1, insightData.intense + insightData.strong + insightData.mild + insightData.weak) * 100}%`, background: row.color }} /></div><b>{row.count.toLocaleString()}</b><small>{row.hint}</small></li>)}
               </ul>
-              <p className="insight-note">Fire power is the heat a fire gives off, in megawatts (MW). A cooking stove is about 0.002 MW; a large forest fire can exceed 100 MW per spot.</p>
+              {insightData.unknown > 0 && <p className="insight-note">Heat output unavailable for {insightData.unknown.toLocaleString()} points. These are not counted as weak.</p>}
+              <p className="insight-note">Heat output is measured in megawatts (MW). It does not tell us the burned area or how dangerous a fire is.</p>
             </div>
           )}
-
           {activeInsight === "timeline" && (
             <div className="insight-body">
-              <div className="hud-sparkbars" aria-hidden="true">
-                {stats.hours.map((n, i) => (
-                  <div key={i} style={{ height: `${Math.max(6, (n / stats.hourMax) * 100)}%` }} title={`${n} detections`} />
-                ))}
+              <p className="insight-note">Raw satellite detections, oldest to newest. Select a bar to see its count.</p>
+              <div className="hud-sparkbars insight-timeline" aria-label="Detections in two-hour intervals">
+                {insightData.bins.map((bin, index) => <button key={index} type="button" aria-label={`${binLabel(bin)}: ${bin.count} detections`} aria-pressed={selectedTimelineBin === index} onClick={() => setSelectedTimelineBin(index)}><span style={{ height: `${bin.count / insightData.hourMax * 100}%` }} /></button>)}
               </div>
-              <ul className="axis-mini"><li>-24h</li><li>-12h</li><li>now</li></ul>
-              <p className="insight-note">Each bar is two hours. The busiest two hours had {Math.max(...stats.hours).toLocaleString()} sightings. Bars rise when satellites pass over, not only when fires grow.</p>
+              <ul className="axis-mini"><li>{period === "historical" ? "00:00 UTC" : "24h ago"}</li><li>{period === "historical" ? "12:00 UTC" : "12h ago"}</li><li>{period === "historical" ? "24:00 UTC" : "Now"}</li></ul>
+              <p className="insight-note" role="status">{selectedTimelineBin === null ? `${insightData.bins.reduce((sum, bin) => sum + bin.count, 0).toLocaleString()} detections in this 24-hour window.` : `${binLabel(insightData.bins[selectedTimelineBin])}: ${insightData.bins[selectedTimelineBin].count.toLocaleString()} detections.`}</p>
+              <p className="insight-note">Empty intervals mean no detections in the loaded data, not proof of no fire. Satellite pass times affect the pattern.</p>
             </div>
           )}
-
           {activeInsight === "events" && (
             <div className="insight-body">
-              {stats.topEvents.length === 0 ? (
-                <p className="hud-empty">No fire has been seen more than once yet.</p>
-              ) : (
-                <ul className="hud-events">
-                  {stats.topEvents.map((e) => {
-                    const color = BEHAVIOUR_COLORS[e.behaviour_state] ?? "#6ad7ff";
-                    return (
-                      <li key={e.event_id}>
-                        <span className="hud-event-dot" style={{ background: color }} />
-                        <div>
-                          <strong>{placeForEvent[e.event_id] ?? `Fire near ${e.centroid.lat.toFixed(1)}°, ${e.centroid.lon.toFixed(1)}°`}</strong>
-                          <em>{BEHAVIOUR_PLAIN[e.behaviour_state] ?? e.behaviour_state} · seen {e.observation_count} times</em>
-                        </div>
-                        <b>{e.observation_count}</b>
-                      </li>
-                    );
-                  })}
-                </ul>
+              <p className="insight-note">Ranked by the area covered by satellite pixels, not confirmed burned area. Select a group to open its details.</p>
+              {mergedUnavailable ? <p className="hud-empty">Merged groups are not ready yet. Raw detections remain available in the satellite layers.</p> : insightData.topEvents.length === 0 ? <p className="hud-empty">No merged groups with footprint measurements are available in this area and period.</p> : (
+                <ol className="hud-events insight-event-list">{insightData.topEvents.map(point => <li key={point.harmonized!.event_id}><button type="button" onClick={() => { viewerRef.current?.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(point.lon, point.lat, 300000), duration: 1 }); void openDetection(point); }} aria-label={`Open fire group ${point.harmonized!.event_id}`}><strong>Group near {point.lat.toFixed(2)}, {point.lon.toFixed(2)}</strong><span>{point.harmonized!.footprint_area_km2.toLocaleString(undefined, { maximumFractionDigits: 2 })} square km observed footprint</span><small>{point.harmonized!.observations.toLocaleString()} detections / {point.frp === null ? "Heat output unavailable" : `${Math.round(point.frp).toLocaleString()} MW peak heat output`}</small></button></li>)}</ol>
               )}
-              <ul className="behaviour-mini">
-                {Object.entries(BEHAVIOUR_COLORS).map(([state, color]) => (
-                  <li key={state}>
-                    <i style={{ background: color }} />
-                    <span>{BEHAVIOUR_PLAIN[state] ?? state}</span>
-                    <b>{(stats.behaviour[state] ?? 0).toLocaleString()}</b>
-                  </li>
-                ))}
-              </ul>
             </div>
           )}
+          </>}
+
         </aside>
       )}
 
@@ -1300,21 +1257,22 @@ export default function CesiumFireGlobe() {
           <p className="map-howto">Click a point for details.</p>
           <span className={`firms-badge ${feedState}`} role="status"><i />NASA FIRMS | {feedState === "loading" ? "Loading" : feedState === "live" ? "NRT available" : feedState === "partial" ? "Partial coverage" : feedState === "cached" ? "Cached observations" : feedState === "failed" ? "Unavailable" : "Observations loaded"}</span>
           <h3 className="filter-section-title">Time range</h3>
-          <div className="option-grid">
-            {(Object.keys(periodLabels) as Period[]).map((p) => (
-              <button key={p} type="button" className={period === p ? "option-card active" : "option-card"} aria-pressed={period === p} onClick={() => setPeriod(p)}>{periodLabels[p]}</button>
-            ))}
-          </div>
-          {period === "historical" && (
-            <label className="select-row"><span>Date (UTC)</span><input type="date" value={historicalDate} max={new Date().toISOString().slice(0, 10)} min="2000-11-01" onChange={(e) => setHistoricalDate(e.target.value)} /></label>
-          )}
+          <p className="map-howto">Showing fire data from the last 24 hours.</p>
           <button className="option-card refresh-live-data" type="button" disabled={feedState === "loading"} onClick={() => void loadData()}><RefreshCw size={14} aria-hidden="true" className={feedState === "loading" ? "is-spinning" : ""} />Refresh FIRMS</button>
           {lastRefresh && <p className="refresh-timestamp">Updated <time dateTime={lastRefresh}>{new Date(lastRefresh).toLocaleTimeString("en-GB", {timeZone: "UTC"})} UTC</time></p>}
         </section>
         <section className="harmonization-status" aria-live="polite" aria-busy={feedState === "loading"}>
           <p className={`processing-state ${feedState}`}>{feedState === "loading" ? "Loading..." : feedState === "failed" ? "Processing failed" : processingPending ? "Observations loaded. Matching events..." : mergedUnavailable ? "Merged output unavailable" : period === "historical" ? "Historical observations loaded" : "Ready"}</p>
           {feedState === "loading" && <span className="processing-indicator" aria-label="Processing observations" />}
-          {mergedCount !== null && <p className="merged-count"><strong>{mergedCount.toLocaleString()}</strong> total merged events</p>}
+          {feedState !== "failed" && observationSummary.raw !== null && (
+            <div className="observation-count-summary">
+              <p className="refresh-timestamp">{period === "historical" ? historicalDate : periodLabels[period]}{filterToAoi && aoi ? " in the selected area" : " worldwide"}</p>
+              <p className="detection-count"><strong>{observationSummary.raw.toLocaleString()}</strong> satellite heat detections</p>
+              {observationSummary.merged !== null && <p className="merged-count"><strong>{observationSummary.merged.toLocaleString()}</strong> merged fire events</p>}
+              {period !== "historical" && <p className="today-fire-count">Today (UTC): {observationSummary.todayRaw.toLocaleString()} heat detections{observationSummary.merged !== null ? `; ${observationSummary.todayMerged.toLocaleString()} merged event${observationSummary.todayMerged === 1 ? "" : "s"} last seen today.` : "; event matching is not ready yet."}</p>}
+              <p className="refresh-timestamp">Several detections may belong to one fire. Merged events are estimates, not confirmed wildfire counts.</p>
+            </div>
+          )}
           {feedState === "failed" && <p className="refresh-timestamp">Data unavailable. Try Refresh FIRMS.</p>}
           <HarmonizationProgress runId={harmonizationRun} />
           <details className="sidebar-data-details">
@@ -1341,12 +1299,6 @@ export default function CesiumFireGlobe() {
           </div>
           {mergedCount !== null && <p className="refresh-timestamp">Footprint-merged events (Steps 1-4). Sensor calibration, diurnal correction and activity uncertainty are not computed for this live layer.</p>}
           {mergedCount !== null && <p className="refresh-timestamp">{mergedSatelliteCounts.multiple.toLocaleString()} multi-satellite events · {mergedSatelliteCounts.single.toLocaleString()} single-satellite events in this area. Satellite buttons show raw detections; choose Merged map points for combined events.</p>}
-          <p className="panel-title">Overlays</p>
-          <div className="compact-layer-grid">
-            {(["Forecast Corridor", "Exposure", "Boundaries"] as LayerKey[]).map((layer) => (
-              <button key={layer} className={layers[layer] ? "active" : ""} type="button" aria-pressed={layers[layer]} disabled={layer === "Forecast Corridor" ? !forecast.horizon : layer === "Exposure" ? exposure.length === 0 : false} title={layer === "Forecast Corridor" && !forecast.horizon ? "Select a fire and run its forecast first." : layer === "Exposure" && exposure.length === 0 ? "Select a fire and run its nearby analysis first." : undefined} onClick={() => setLayers((cur) => ({ ...cur, [layer]: !cur[layer] }))}>{LAYER_LABEL[layer]}</button>
-            ))}
-          </div>
           {layers["Fire Events"] && (
             <div className="behaviour-legend">
               {(Object.keys(KIND_COLORS) as Array<keyof typeof KIND_COLORS>).map((kind) => (

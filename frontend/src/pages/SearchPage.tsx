@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { normalizeApiError, searchPlaces } from '../api/client';
+import { normalizeApiError, searchPlaces, resolvePlace } from '../api/client';
 import { areaFromUrl, dashboardUrl, placeArea } from '../api/locationRoutes';
 import AOISelector from '../components/AOISelector';
 import { useAppContext } from '../context/AppContext';
@@ -30,7 +30,21 @@ export default function SearchPage() {
     if (!areaFromUrl(`?area=${encodeURIComponent(JSON.stringify(area))}`)) { setError('Draw a valid rectangle, polygon, or circle before opening its dashboard.'); return; }
     invalidate(); setMemory(null); setAoi(area); navigate(dashboardUrl(area));
   }
-  function choose(place: PlaceResult) {
+  async function choose(place: PlaceResult) {
+    if (place.requires_resolution && place.place_id) {
+      invalidate();
+      const id = generation.current;
+      const request = new AbortController(); controller.current = request;
+      setSearching(true); setError(null); setOpen(false);
+      try {
+        const resolved = await resolvePlace(place.place_id, request.signal);
+        if (id !== generation.current || request.signal.aborted) return;
+        place = resolved ?? place;
+      } catch (reason) {
+        if (id === generation.current && !request.signal.aborted) setError(normalizeApiError(reason));
+        return;
+      } finally { if (id === generation.current) setSearching(false); }
+    }
     const area = placeArea(place);
     if (area) { openArea(area); return; }
     invalidate(); setAoi(null); setPoint(place); setResults([]); setOpen(false);
@@ -42,7 +56,8 @@ export default function SearchPage() {
     if (name.length < 2) { setError('Enter at least two characters.'); return; }
     const id = generation.current;
     const request = new AbortController(); controller.current = request;
-    setQuery(name); setSearching(true); setError(null); setResults([]); setOpen(true); setActive(-1); setSearched(true); setPoint(null);
+    if (!suggest) setQuery(name);
+    setSearching(true); setError(null); setResults([]); setOpen(true); setActive(-1); setSearched(true); setPoint(null);
     try {
       const found = await searchPlaces(name, request.signal, suggest);
       if (id !== generation.current || request.signal.aborted) return;
@@ -68,19 +83,20 @@ export default function SearchPage() {
     <section className="minimal-search-stage" aria-labelledby="search-page-title">
       <div className="minimal-search-heading"><p>FlameSeek Explore</p><h2 id="search-page-title">Find a place.<br />Explore its fire story.</h2><span>Describe a place or ask about fires there to find its dashboard.</span></div>
       <div className="minimal-search-workspace">
-        <form className="minimal-search-box explore-search-box" onSubmit={event => { event.preventDefault(); if (!searching) void search(); }}>
+        <form aria-busy={searching} className="minimal-search-box explore-search-box" onSubmit={event => { event.preventDefault(); void search(); }}>
           <span aria-hidden="true">⌕</span>
           <input ref={input} autoFocus value={query} placeholder={'Try fires in Bangladesh or Sundarbans forest'} aria-label="Search for a location" role="combobox" aria-autocomplete="list" aria-expanded={open && results.length > 0} aria-controls="explore-places" aria-activedescendant={open && active >= 0 ? `explore-place-${active}` : undefined} aria-describedby="search-guidance"
-            onChange={event => { const value = event.target.value; invalidate(); setAoi(null); setQuery(value); setResults([]); setOpen(false); setActive(-1); setError(null); setSearched(false); setPoint(null); if (value.trim().length >= 2) suggestionTimer.current = setTimeout(() => void search(value, false, true), 500); }}
+            onChange={event => { const value = event.target.value; invalidate(); setAoi(null); setQuery(value); setResults([]); setOpen(false); setActive(-1); setError(null); setSearched(false); setPoint(null); if (value.trim().length >= 2) { setSearching(true); setOpen(true); suggestionTimer.current = setTimeout(() => void search(value, false, true), 150); } }}
             onKeyDown={event => {
               if (event.key === 'Escape') { event.preventDefault(); invalidate(); setOpen(false); setActive(-1); }
               if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && results.length) { event.preventDefault(); setOpen(true); setActive(index => event.key === 'ArrowDown' ? (index + 1) % results.length : (index < 0 ? results.length - 1 : (index - 1 + results.length) % results.length)); }
               if (event.key === 'Enter' && open && active >= 0) { event.preventDefault(); choose(results[active]); }
             }} />
           {!!query && <button type="button" className="explore-clear" aria-label="Clear location search" onClick={() => { invalidate(); setAoi(null); setMapOpen(false); setQuery(''); setResults([]); setPoint(null); setError(null); setSearched(false); setOpen(false); input.current?.focus(); }}>×</button>}
-          <button type="submit" disabled={searching}>{searching ? 'Searching…' : 'Search'}</button>
+          <button type="submit">Search</button>
         </form>
-        <p id="search-guidance" className="search-guidance">Suggestions appear as you type. Use the arrow keys and Enter to choose a location.</p>
+        <p id="search-guidance" className="search-guidance">Live suggestions appear as you type. Use the arrow keys and Enter to choose a location.</p>
+        <p className="search-attribution">Place suggestions from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> via <a href="https://photon.komoot.io" target="_blank" rel="noreferrer">Photon</a>.</p>
         <button className="explore-map-button" type="button" onClick={() => { setMapOpen(true); if (!mapOpen) setAoi(null); }}>Select an area on the map</button>
         {searching && <p className="search-status" role="status">Finding matching locations…</p>}
         {error && <div className="minimal-search-error" role="alert">{error} <button type="button" onClick={() => void search()}>Retry search</button></div>}

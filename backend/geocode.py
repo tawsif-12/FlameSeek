@@ -179,7 +179,7 @@ out tags center 50;"""
     return best
 
 
-async def search_places(query: str, limit: int = 8) -> list[dict[str, Any]]:
+async def search_places(query: str, limit: int = 8, *, fresh: bool = False) -> list[dict[str, Any]]:
     """Forward search for AOI selection (country, state, district, forest, protected area...)."""
     # Equivalent spelling/casing must reuse the same provider cache and rate budget.
     query = ' '.join(unicodedata.normalize('NFKC', query).casefold().split())
@@ -187,8 +187,8 @@ async def search_places(query: str, limit: int = 8) -> list[dict[str, Any]]:
         f"{NOMINATIM}/search",
         service="Nominatim",
         params={"q": query.strip(), "format": "jsonv2", "polygon_geojson": 1, "polygon_threshold": 0.005, "limit": limit, "accept-language": "en,bn", "addressdetails": 1, "namedetails": 1},
-        ttl_seconds=30 * 86400,
-        disk_namespace="nominatim",
+        ttl_seconds=0 if fresh else 30 * 86400,
+        disk_namespace=None if fresh else "nominatim",
     )
     return place_results(data, query)
 

@@ -1,0 +1,13 @@
+[Step 5] Energy conservation: FRP before gridding = 247828.310000 MW, after = 247828.310000 MW, rel. diff = 0.00e+00 -> PASS
+         6602 cell-days, 9434 cell-overpass rows; max raw weight-sum deviation 3.75e-06
+[Step 6E] day: n=4,368 F_min=8.31 MW alpha=1.848 R=-3.86 p=0.000115 -> lognormal
+[Step 6E] night: n=4,569 F_min=4.16 MW alpha=2.017 R=-2.89 p=0.00382 -> lognormal
+
+E:\anaconda\envs\flameseek\Lib\site-packages\statsmodels\discrete\discrete_model.py:268: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  mlefit = super().fit(
+E:\anaconda\envs\flameseek\Lib\site-packages\statsmodels\discrete\discrete_model.py:2620: RuntimeWarning: overflow encountered in exp
+  return 1 / (1 + np.exp(-X))
+E:\anaconda\envs\flameseek\Lib\site-packages\statsmodels\discrete\discrete_model.py:268: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  mlefit = super().fit(
+E:\anaconda\envs\flameseek\Lib\site-packages\statsmodels\discrete\discrete_model.py:268: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  mlefit = super().fit(

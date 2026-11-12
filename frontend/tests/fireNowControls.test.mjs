@@ -26,17 +26,17 @@ await build({
       export const getHarmonizedHotspots=(days)=>globalThis.fetchFireFixture(days);
       export const getCurrentHotspots=(sensors,days,limit,date)=>globalThis.fetchFireFixture(days,date);
       export const normalizeApiError=e=>e.message;
-      export const getEvent=async()=>null, getEvents=async()=>({events:[],metadata:{}}), lookupEvent=async()=>null,
+      export const getEvent=async()=>null, getEvents=async()=>({events:[],metadata:{}}), lookupEvent=async(...args)=>{globalThis.insightLookups?.push(args);return "fixture-event";},
         runJob=async()=>null, searchPlaces=async()=>globalThis.searchPlaceFixture?.() ?? [], startEvidence=async()=>null, startOutlook=async()=>null;
     ` }));
   } }],
 });
 const React = await import('react');
-const { render, screen, fireEvent, waitFor, cleanup, act } = await import('@testing-library/react');
+const { render, screen, fireEvent, waitFor, cleanup, act, within } = await import('@testing-library/react');
 const { MemoryRouter } = await import('react-router-dom');
 const { Globe, AppProvider, useAppContext } = await import('../.test-tmp-fire-now/components.mjs');
 
-test('date filters fetch real windows; toggles preserve counts; refresh failure exposes an honest empty state', async () => {
+test('map stays on the last 24 hours; toggles preserve counts; refresh failure exposes an honest empty state', async () => {
   const requests = [];
   let fail = false;
   globalThis.fetchFireFixture = async (days, date) => {
@@ -57,19 +57,17 @@ test('date filters fetch real windows; toggles preserve counts; refresh failure 
     assert.match(terra.textContent, /1$/);
     fireEvent.click(terra);
     assert.match(terra.textContent, /1$/);
-    fireEvent.click(screen.getByRole('button', { name: 'Last 2 days' }));
-    await waitFor(() => assert.equal(requests.at(-1).days, 2));
-    await waitFor(() => assert.equal(screen.getByRole('button', { name: 'Refresh FIRMS' }).disabled, false));
-    fireEvent.click(screen.getByRole('button', { name: 'Last 5 days' }));
-    await waitFor(() => assert.equal(requests.at(-1).days, 5));
+    assert.ok(screen.getByText('Showing fire data from the last 24 hours.'));
+    for (const name of ['Last 2 days', 'Last 5 days', 'Pick a past date']) {
+      assert.equal(screen.queryByRole('button', { name }), null);
+    }
+    assert.equal(screen.queryByLabelText('Date (UTC)'), null);
+    const previousRequests = requests.length;
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh FIRMS' }));
+    await waitFor(() => assert.ok(requests.length > previousRequests));
+    assert.ok(requests.every(({ days, date }) => days === 1 && date === undefined));
     await waitFor(() => assert.equal(screen.getByRole('button', { name: 'Refresh FIRMS' }).disabled, false));
     assert.ok(document.querySelector('time[datetime]'));
-    fireEvent.click(screen.getByRole('button', { name: 'Pick a past date' }));
-    await waitFor(() => assert.ok(requests.at(-1).date));
-    fireEvent.change(screen.getByLabelText('Date (UTC)'), { target: { value: '2025-03-12' } });
-    await waitFor(() => assert.equal(requests.at(-1).date, '2025-03-12'));
-    await waitFor(() => assert.equal(screen.getByRole('button', { name: 'Refresh FIRMS' }).disabled, false));
-    assert.ok(screen.getByText('Historical observations loaded'));
     fail = true;
     fireEvent.click(screen.getByRole('button', { name: 'Refresh FIRMS' }));
     await screen.findByText('Processing failed');
@@ -134,4 +132,57 @@ test('floating search rejects point-only results and selects and clears the actu
     assert.equal(document.querySelector('.boundary-focus'),null);
     assert.equal(screen.getByTestId('selected-area').textContent,'null');
   } finally {cleanup();delete globalThis.searchPlaceFixture;}
+});
+
+
+test('summary separates raw detections, merged events and today in UTC', async () => {
+  localStorage.clear();
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const point = { lat: 24, lon: 90, acq_datetime: today + 'T00:00:00Z', confidence_pct: 90, frp: 12, sensor: 'modis', satellite: 'Terra', daynight: 'D' };
+  const merged = (id, time) => ({ ...point, acq_datetime: time, harmonized: { event_id: id, observations: 2, platforms: 'Terra', confidence: .9, footprint_area_km2: 1 } });
+  globalThis.fetchFireFixture = async () => ({ raw_hotspots: [point, { ...point, lon: 90.01 }, { ...point, acq_datetime: yesterday + 'T12:00:00Z' }], hotspots: [merged('today', point.acq_datetime), merged('yesterday', yesterday + 'T12:00:00Z')], metadata: { data_source: 'live', events_total: 2, raw_hotspot_count: 3, returned_hotspot_count: 2 } });
+  render(React.createElement(MemoryRouter, null, React.createElement(AppProvider, null, React.createElement(Globe))));
+  try {
+    await screen.findByText('Ready');
+    assert.match(document.querySelector('.detection-count').textContent, /3.*satellite heat detections/);
+    assert.match(document.querySelector('.merged-count').textContent, /2.*merged fire events/);
+    assert.equal(document.querySelector('.today-fire-count').textContent, 'Today (UTC): 2 heat detections; 1 merged event last seen today.');
+    fireEvent.click(screen.getByRole('button', { name: /MODIS.*Terra/ }));
+    assert.match(document.querySelector('.detection-count').textContent, /^3/);
+  } finally { cleanup(); }
+});
+
+
+test('all four insight panels use real observations and merged groups, with working interval and event buttons', async () => {
+  localStorage.clear();
+  const now = Date.now();
+  const point = { lat: 24, lon: 90, acq_datetime: new Date(now - 3600000).toISOString(), confidence_pct: 90, frp: 140, sensor: 'modis', satellite: 'Terra', daynight: 'D' };
+  const large = { ...point, harmonized: { event_id: 'large-footprint', observations: 3, platforms: 'Terra;Aqua', confidence: .9, footprint_area_km2: 9 } };
+  const small = { ...point, lat: 25, frp: null, harmonized: { ...large.harmonized, event_id: 'small-footprint', footprint_area_km2: 2 } };
+  globalThis.insightLookups = [];
+  globalThis.fetchFireFixture = async () => ({ raw_hotspots: [point, { ...point, lon: 90.01 }, { ...point, acq_datetime: new Date(now - 23 * 3600000).toISOString() }], hotspots: [small, large], metadata: { data_source: 'live', events_total: 2, raw_hotspot_count: 3, returned_hotspot_count: 2 } });
+  render(React.createElement(MemoryRouter, null, React.createElement(AppProvider, null, React.createElement(Globe))));
+  try {
+    await screen.findByText('Ready');
+    fireEvent.click(screen.getByRole('button', { name: 'At a glance', exact: true }));
+    assert.match(screen.getByRole('complementary', { name: 'Insight panel' }).textContent, /Satellite heat detections3/);
+    assert.match(screen.getByRole('complementary', { name: 'Insight panel' }).textContent, /Merged fire groups2/);
+    fireEvent.click(screen.getByRole('button', { name: 'How strong', exact: true }));
+    assert.match(screen.getByRole('complementary', { name: 'Insight panel' }).textContent, /Heat output unavailable for 1 points/);
+    fireEvent.click(within(screen.getByRole('navigation', { name: 'Data insights' })).getByRole('button', { name: 'Last 24 hours', exact: true }));
+    const bars = document.querySelectorAll('.insight-timeline button');
+    assert.equal(bars.length, 12);
+    assert.match(bars[0].getAttribute('aria-label'), /1 detections/);
+    assert.match(bars[11].getAttribute('aria-label'), /2 detections/);
+    fireEvent.click(bars[11]); assert.equal(bars[11].getAttribute('aria-pressed'), 'true');
+    assert.equal(bars[5].querySelector('span').style.height, '0%');
+    fireEvent.click(screen.getByRole('button', { name: 'Biggest fires', exact: true }));
+    const groups = [...document.querySelectorAll('.insight-event-list button')];
+    assert.equal(groups[0].getAttribute('aria-label'), 'Open fire group large-footprint');
+    fireEvent.click(groups[0]);
+    await waitFor(() => assert.equal(globalThis.insightLookups.length, 1));
+    fireEvent.click(screen.getByRole('button', { name: 'Close panel' }));
+    assert.equal(screen.queryByRole('complementary', { name: 'Insight panel' }), null);
+  } finally { cleanup(); delete globalThis.insightLookups; }
 });

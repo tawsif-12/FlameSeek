@@ -92,7 +92,7 @@ function Header() {
   return (
     <header ref={headerRef} className="app-header mission-header" onKeyDown={(event) => { if (event.key === "Escape") setMenuOpen(false); }}>
       <Link to="/" className="brand-mark" style={{ textDecoration: "none" }}>
-        <span className="brand-glyph brand-flame" aria-hidden="true">🔥</span>
+        <img className="brand-logo" src="/branding/flameseek-logo.png?v=3" width="52" height="52" alt="" />
         <div>
           <h1>FlameSeek</h1>
           <p className="eyebrow">Global Fire Intelligence</p>
