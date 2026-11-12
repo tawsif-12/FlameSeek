@@ -19,3 +19,15 @@ Error: connect ECONNREFUSED 127.0.0.1:8000
 12:54:19 AM [vite] http proxy error: /meta
 Error: connect ECONNREFUSED 127.0.0.1:8000
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
+1:01:02 AM [vite] http proxy error: /meta
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
+1:01:02 AM [vite] http proxy error: /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
+1:01:02 AM [vite] http proxy error: /api/events?days=2&limit=40&include_demo=false
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
+1:01:02 AM [vite] http proxy error: /meta
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
