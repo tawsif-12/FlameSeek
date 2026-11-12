@@ -28,3 +28,21 @@
 2:58:45 PM [vite] hmr update /src/pages/HomePage.tsx
 2:58:45 PM [vite] hmr invalidate /src/main.tsx Could not Fast Refresh ("true" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
 2:58:45 PM [vite] page reload src/main.tsx
+3:00:01 PM [vite] hmr update /src/pages/HomePage.tsx
+3:00:01 PM [vite] hmr update /src/components/Pipeline3DTransition.tsx
+3:00:01 PM [vite] hmr update /src/pages/HomePage.tsx
+3:00:01 PM [vite] hmr update /src/components/HarmonizedRecordSection.tsx
+3:00:02 PM [vite] hmr invalidate /src/components/Pipeline3DTransition.tsx Could not Fast Refresh ("PIPELINE_STAGES_DATA" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+3:00:02 PM [vite] hmr update /src/pages/HomePage.tsx
+3:02:39 PM [vite] hmr update /src/pages/HomePage.tsx
+3:02:40 PM [vite] hmr update /src/outcrowd-satellite.css
+3:07:33 PM [vite] hmr update /src/responsive.css
+3:09:21 PM [vite] page reload index.html
+3:09:21 PM [vite] hmr update /src/responsive.css
+3:23:56 PM [vite] hmr update /src/pages/FireMemoryPage.tsx
+3:23:56 PM [vite] hmr update /src/pages/FireDnaPage.tsx, /src/fire-dna-utilities.css
+3:23:56 PM [vite] hmr update /src/pages/AreaIntelligencePage.tsx
+3:23:56 PM [vite] hmr update /src/pages/HomePage.tsx, /src/pages/SearchPage.tsx, /src/components/AOISelector.tsx, /src/components/CesiumFireGlobe.tsx, /src/pages/AreaIntelligencePage.tsx, /src/pages/FireMemoryPage.tsx, /src/pages/FireDnaPage.tsx, /src/fire-dna-utilities.css
+3:24:39 PM [vite] hmr update /src/pages/FireMemoryPage.tsx
+3:24:39 PM [vite] hmr update /src/pages/FireDnaPage.tsx, /src/fire-dna-utilities.css
+3:25:11 PM [vite] hmr update /src/pages/HomePage.tsx, /src/pages/SearchPage.tsx, /src/components/AOISelector.tsx, /src/components/CesiumFireGlobe.tsx, /src/pages/AreaIntelligencePage.tsx, /src/pages/FireMemoryPage.tsx, /src/pages/FireDnaPage.tsx, /src/fire-dna-utilities.css
