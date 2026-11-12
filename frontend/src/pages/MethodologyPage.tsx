@@ -1,13 +1,11 @@
-import { useState } from "react";
-import LazyPlot from "../components/LazyPlot";
+import { useEffect, useState } from "react";
 import { CalibrationData, CalibrationRow, computed, DriftData, EnergyData, GeoData, Labelled, SiteData, useSiteData } from "../api/harmonized";
 import { useLanguage } from "../context/LanguageContext";
 import HarmonizedProvenance, { StatusPill } from "../components/HarmonizedProvenance";
+import { CoverageCautionButton } from "../components/DataCoverageNotice";
+import HarmonizedStepsDeck from "../components/HarmonizedStepsDeck";
+import { AnimatedDriftChart, AnimatedIntervalChart, type IntervalChartRow } from "../components/AnimatedMethodologyCharts";
 import "../harmonized.css";
-
-type PlotProps = React.ComponentProps<typeof LazyPlot>;
-type Data = PlotProps["data"][number];
-type Layout = NonNullable<PlotProps["layout"]>;
 
 const S1 = "#3987e5"; // validated dark-surface pair (harmonized.css)
 const S2 = "#d95926";
@@ -27,18 +25,6 @@ const STEPS: [string, string, string][] = [
     "P(detect) = logistic(b0 + b1·log10 F − b2·log10 A); observation opportunities O_s from orbits; latent rate λ = N_observed / Σ_overpasses π_s."],
 ];
 
-const BASE_LAYOUT = {
-  paper_bgcolor: "transparent",
-  plot_bgcolor: "transparent",
-  font: { color: "#c6dcf6", family: "Space Grotesk, Inter, sans-serif", size: 12 },
-  margin: { t: 28, r: 60, b: 40, l: 230 },
-  autosize: true,
-  showlegend: false,
-  xaxis: { gridcolor: "rgba(148,197,255,0.12)", zeroline: false, color: "#94a3b8" },
-  yaxis: { gridcolor: "rgba(0,0,0,0)", color: "#e6f1ff", automargin: true },
-  hoverlabel: { bgcolor: "#0a1220", bordercolor: "#6ad7ff", font: { color: "#e6f1ff" } },
-};
-const CONFIG = { displayModeBar: false, responsive: true };
 const hhmm = (h: number) => `${String(Math.floor(h)).padStart(2, "0")}:${String(Math.round((h % 1) * 60)).padStart(2, "0")}`;
 
 function TableToggle({ children }: { children: React.ReactNode }) {
@@ -63,81 +49,27 @@ function Tile({ v, fmt, digits = 0 }: { v: Labelled; fmt: (n: number, d?: number
 }
 
 function DriftChart({ d, fmt }: { d: DriftData; fmt: (n: number, d?: number) => string }) {
-  const years = Array.from(new Set(d.rows.map((r) => r.year))).sort();
-  const platforms = Array.from(new Set(d.rows.map((r) => r.platform)));
-  const colours = [S1, S2];
-  const links = platforms.map((p) => {
-    const pts = d.rows.filter((r) => r.platform === p);
-    return { type: "scatter", mode: "lines", x: pts.map((r) => r.median_lst_h), y: pts.map(() => p), line: { color: "rgba(148,197,255,0.35)", width: 2 }, hoverinfo: "skip" };
-  });
-  const dots = years.map((yr, i) => {
-    const pts = d.rows.filter((r) => r.year === yr);
-    return {
-      type: "scatter", mode: "markers+text", name: String(yr), x: pts.map((r) => r.median_lst_h), y: pts.map((r) => r.platform),
-      marker: { color: colours[i], size: 12, line: { color: "#05080f", width: 2 } },
-      text: pts.map((r) => (r.platform === "Aqua" || r.platform === "Terra" ? hhmm(r.median_lst_h) : "")), textposition: "top center",
-      textfont: { color: "#e6f1ff", size: 11 },
-      customdata: pts.map((r) => [hhmm(r.median_lst_h), fmt(r.n)]),
-      hovertemplate: `%{y} · ${yr}<br>median %{customdata[0]} local solar time<br>n = %{customdata[1]} daytime detections<extra></extra>`,
-    };
-  });
-  const xs = d.rows.map((r) => r.median_lst_h).concat(d.nominal_lst_h);
-  const ticks: number[] = [];
-  for (let h = Math.floor(Math.min(...xs)); h <= Math.ceil(Math.max(...xs)); h++) ticks.push(h);
   return (
-    <div className="glass-card hz-chart-card">
-      <div className="hz-chart-legend">
-        {years.map((y, i) => <span key={y}><span className="hz-sw" style={{ background: colours[i] }} />{y}</span>)}
-        <span>┆ design crossing {hhmm(d.nominal_lst_h)}</span>
-      </div>
-      <div style={{ height: 300 }}>
-        <LazyPlot data={[...links, ...dots] as Data[]} config={CONFIG} style={{ width: "100%", height: "100%" }}
-          layout={{ ...BASE_LAYOUT, margin: { ...BASE_LAYOUT.margin, l: 90 },
-            xaxis: { ...BASE_LAYOUT.xaxis, tickvals: ticks, ticktext: ticks.map(hhmm), range: [Math.min(...xs) - 0.6, Math.max(...xs) + 0.6] },
-            shapes: [{ type: "line", x0: d.nominal_lst_h, x1: d.nominal_lst_h, yref: "paper", y0: 0, y1: 1, line: { color: "#94a3b8", dash: "dot", width: 1 } }] } as Partial<Layout>} />
-      </div>
+    <AnimatedDriftChart d={d} fmt={fmt}>
       <TableToggle>
         <table className="hz-table"><thead><tr><th>Platform</th><th>Year</th><th>Median local solar time</th><th>Daytime detections</th></tr></thead>
           <tbody>{d.rows.map((r) => <tr key={r.platform + r.year}><td>{r.platform}</td><td>{r.year}</td><td className="num">{hhmm(r.median_lst_h)}</td><td className="num">{fmt(r.n)}</td></tr>)}</tbody></table>
       </TableToggle>
-    </div>
+    </AnimatedDriftChart>
   );
 }
 
-interface IRow { label: string; value: number; lo?: number | null; hi?: number | null; status: string; colour: string; note?: string }
+type IRow = IntervalChartRow;
 
 function IntervalChart({ rows, title, unit, log, reference, intervalLabel, fmt }: { rows: IRow[]; title: string; unit?: string; log?: boolean; reference?: number; intervalLabel: string; fmt: (n: number, d?: number) => string }) {
-  const traces = rows.map((r) => ({
-    type: "scatter", mode: "markers+text", x: [r.value], y: [r.label],
-    marker: { color: r.colour, size: 12, line: { color: "#05080f", width: 2 } },
-    error_x: r.lo != null && r.hi != null ? { type: "data", symmetric: false, array: [r.hi - r.value], arrayminus: [r.value - r.lo], color: r.colour, thickness: 2, width: 0 } : undefined,
-    text: [fmt(r.value, r.value < 10 ? 2 : 1)], textposition: "top center", textfont: { color: "#e6f1ff", size: 11 },
-    hovertemplate: `${r.label}<br>${fmt(r.value, 3)}${unit ? ` ${unit}` : ""}${r.lo != null ? `<br>${intervalLabel}: ${fmt(r.lo, 3)} – ${fmt(r.hi!, 3)}` : ""}<br>status: ${r.status}<extra></extra>`,
-  }));
   return (
-    <div className="glass-card hz-chart-card">
-      <div className="hz-chart-legend"><b style={{ color: "#e6f1ff" }}>{title}</b><span>● estimate</span><span>— {intervalLabel}</span></div>
-      <div style={{ height: 70 + rows.length * 56 }}>
-        <LazyPlot data={traces as Data[]} config={CONFIG} style={{ width: "100%", height: "100%" }}
-          layout={{ ...BASE_LAYOUT, xaxis: { ...BASE_LAYOUT.xaxis, type: log ? "log" : "linear", ...(log ? logTicks(rows) : {}) },
-            yaxis: { ...BASE_LAYOUT.yaxis, autorange: "reversed" },
-            shapes: reference !== undefined ? [{ type: "line", x0: reference, x1: reference, yref: "paper", y0: 0, y1: 1, line: { color: "#94a3b8", dash: "dot", width: 1 } }] : [] } as Partial<Layout>} />
-      </div>
+    <AnimatedIntervalChart rows={rows} title={title} unit={unit} log={log} reference={reference} intervalLabel={intervalLabel} fmt={fmt}>
       <TableToggle>
         <table className="hz-table"><thead><tr><th>Item</th><th>Estimate</th><th>{intervalLabel}</th><th>Status</th></tr></thead>
           <tbody>{rows.map((r) => <tr key={r.label}><td>{r.label}</td><td className="num">{fmt(r.value, 3)}{unit ? ` ${unit}` : ""}</td><td className="num">{r.lo != null ? `${fmt(r.lo, 3)} – ${fmt(r.hi!, 3)}` : "—"}</td><td>{r.status}</td></tr>)}</tbody></table>
       </TableToggle>
-    </div>
+    </AnimatedIntervalChart>
   );
-}
-
-/** 1-2-5 ticks across the data range, so a log axis is not crowded with minor labels. */
-function logTicks(rows: IRow[]) {
-  const vals = rows.flatMap((r) => [r.value, r.lo ?? r.value, r.hi ?? r.value]);
-  const lo = Math.min(...vals) / 1.5, hi = Math.max(...vals) * 1.5;
-  const ticks: number[] = [];
-  for (let e = Math.floor(Math.log10(lo)); e <= Math.ceil(Math.log10(hi)); e++) [1, 2, 5].forEach((m) => { const v = m * 10 ** e; if (v >= lo && v <= hi) ticks.push(v); });
-  return { tickvals: ticks, ticktext: ticks.map(String), range: [Math.log10(lo), Math.log10(hi)] };
 }
 
 function calibRows(rows: CalibrationRow[], key: "a" | "b"): IRow[] {
@@ -158,18 +90,8 @@ function Body({ d }: { d: SiteData }) {
 
   return (
     <>
-      <section className="methods">
-        <h3>How the harmonized record is built</h3>
-        <div className="method-grid">
-          {STEPS.map(([title, plain, math], i) => (
-            <article key={title} className="method-card glass-card">
-              <span className="method-index" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
-              <h4>{title}</h4>
-              <p>{plain}</p>
-              <details className="hz-math"><summary>Show the math</summary><pre>{math}</pre></details>
-            </article>
-          ))}
-        </div>
+      <section className="pt-methods-section" aria-label="How the harmonized record is built">
+        <HarmonizedStepsDeck steps={STEPS} />
       </section>
 
       <section className="hz-block">
@@ -234,11 +156,6 @@ function Body({ d }: { d: SiteData }) {
           <IntervalChart log unit="MW" title="50% detection power (log scale)" intervalLabel="interval / tested bracket" fmt={fmt}
             rows={limits.map((x, i) => ({ label: x.label.replace(" 50% detection power", " F50"), value: x.value!, lo: x.interval?.[0], hi: x.interval?.[1], status: x.status, colour: i === 0 ? S1 : S2 }))} />
         )}
-        <ul className="hz-list" style={{ marginTop: 10 }}>
-          {d.detection_limits.map((x) => ("value" in x && x.value != null
-            ? <li key={x.label}><b>{x.label}:</b> {fmt(x.value, 1)} MW <StatusPill status={x.status} /> <span className="hz-src">{x.note} ({x.source})</span></li>
-            : <li key={x.label}><b>{x.label}:</b> <StatusPill status="awaiting data" /></li>))}
-        </ul>
       </section>
 
       <section className="hz-block">
@@ -263,11 +180,8 @@ function Body({ d }: { d: SiteData }) {
       </section>
 
       <section className="hz-block">
-        <h3>Northern Australia diurnal investigation <StatusPill status={d.naus.status} /></h3>
-        {d.naus.findings ? (
+        {d.naus.checks || d.naus.figure ? (
           <>
-            <ul className="hz-list">{d.naus.findings.map((f) => <li key={f}>{f}</li>)}</ul>
-            {d.naus.published_peak && <p className="hz-lead" style={{ marginTop: 10 }}>{d.naus.published_peak.label}: <b>{fmt(d.naus.published_peak.value!, 2)} h</b> <StatusPill status={d.naus.published_peak.status} /></p>}
             {d.naus.checks && (
               <div className="glass-card hz-table-wrap" style={{ padding: 12 }}>
                 <table className="hz-table"><thead><tr><th>Check (one detector-fix round)</th><th>Before</th><th>After</th><th>Result</th></tr></thead>
@@ -304,15 +218,37 @@ function Body({ d }: { d: SiteData }) {
 export default function MethodologyPage() {
   const { data, error } = useSiteData();
   const { t } = useLanguage();
+  const [coverageOpen, setCoverageOpen] = useState(false);
+
+  useEffect(() => {
+    if (!coverageOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setCoverageOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [coverageOpen]);
+
   return (
     <main className="content-page space-shell space-page">
       <div className="space-hero-strip">
         <div className="space-hero-orbit" aria-hidden="true"><span /><span /></div>
         <header className="nasa-page-intro">
           <p className="eyebrow"><span className="dot" /> Harmonized record</p>
-          <h2>Methodology & Validation</h2>
+          <div className="hz-title-caution-row">
+            <h2>Methodology & Validation</h2>
+            <CoverageCautionButton
+              open={coverageOpen}
+              onToggle={() => setCoverageOpen((open) => !open)}
+              controlsId="methodology-coverage-notice"
+            />
+          </div>
           <p className="lead">How the multi-sensor fire record is built and checked. Every number is read from the pipeline's own outputs and carries its status; anything not yet computed says “awaiting data”.</p>
-          <HarmonizedProvenance />
+          <HarmonizedProvenance
+            showNotice={coverageOpen}
+            noticeId="methodology-coverage-notice"
+            onCloseNotice={() => setCoverageOpen(false)}
+          />
         </header>
       </div>
       {data ? <Body d={data} /> : <p className="lead">{error ? `${t("error")}: ${error}` : t("loading")}</p>}
