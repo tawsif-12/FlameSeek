@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import Plot from "react-plotly.js";
+import Plot from "../components/LazyPlot";
 import { GeoJSON, MapContainer, Rectangle, TileLayer, Tooltip, useMap } from "react-leaflet";
 import type { LatLngBoundsExpression } from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -97,7 +97,7 @@ export default function AreaIntelligencePage() {
     return [parts[0] ?? name, parts.slice(1).join(", ")];
   }, [name]);
 
-  // Stage 2 (quick look, last 12 months), then stage 3 (full history). Both are Fire Memory jobs:
+  // Quick look and full history run independently. Both are Fire Memory jobs:
   // identical requests share one backend job, and downloaded chunks are cached and reused.
   useEffect(() => {
     if (!aoi) return;
@@ -117,25 +117,16 @@ export default function AreaIntelligencePage() {
     savedPlacePipeline(aoi, years).then((saved) => {
       if (saved && mine()) setPipe((current) => current && !current.provenance?.saved_preview ? current : saved);
     }).catch(() => {});
-    (async () => {
-      try {
-        const q = await runJob(startFireMemory(aoi, QUICK_YEARS, HUB_SENSORS, 30), (j) => mine() && setQuickJob(j));
-        if (mine()) setQuick(q);
-      } catch (e) {
-        if (mine()) setQuickError(normalizeApiError(e));
-      }
-      if (!mine()) return;
-      // Stage 4 runs alongside stage 3: both use the same NASA downloads (shared in flight and cached).
-      runJob(startPlacePipeline(aoi, years), (j) => mine() && setPipeJob(j))
-        .then((r) => mine() && setPipe(r))
-        .catch((e) => mine() && setPipeError(normalizeApiError(e)));
-      try {
-        const f = await runJob(startFireMemory(aoi, years, HUB_SENSORS, 30), (j) => mine() && setFullJob(j));
-        if (mine()) { setFull(f); shareMemory(f); }
-      } catch (e) {
-        if (mine()) setFullError(normalizeApiError(e));
-      }
-    })();
+    // Start independent jobs together; a slow quick look must not block history.
+    runJob(startFireMemory(aoi, QUICK_YEARS, HUB_SENSORS, 30), (j) => mine() && setQuickJob(j))
+      .then((q) => mine() && setQuick(q))
+      .catch((e) => mine() && setQuickError(normalizeApiError(e)));
+    runJob(startPlacePipeline(aoi, years), (j) => mine() && setPipeJob(j))
+      .then((r) => mine() && setPipe(r))
+      .catch((e) => mine() && setPipeError(normalizeApiError(e)));
+    runJob(startFireMemory(aoi, years, HUB_SENSORS, 30), (j) => mine() && setFullJob(j))
+      .then((f) => { if (mine()) { setFull(f); shareMemory(f); } })
+      .catch((e) => mine() && setFullError(normalizeApiError(e)));
     return () => { ++runRef.current; };
   }, [aoi, years]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -222,7 +213,7 @@ export default function AreaIntelligencePage() {
   const quotaWait = /quota/i.test(fullJob?.message ?? "");
   const pipePct = pipeJob ? Math.round(pipeJob.progress * 100) : 0;
   const pipeStatus = pipe?.provenance?.saved_preview ? `Saved through ${pipe.period.end}; ${pipeError ? `update unavailable: ${pipeError}` : `updating in background · ${pipePct}% · ${pipeJob?.message ?? "starting"}`}` : pipeError ? pipeError : pipe ? (pipe.served_from_cache ? "loaded from saved run" : `ready · ${pipe.quality.events} event${pipe.quality.events === 1 ? "" : "s"} from ${pipe.quality.clean_detections} detection${pipe.quality.clean_detections === 1 ? "" : "s"}`)
-    : quick || quickError ? `${pipePct}% · ${pipeJob?.message ?? "starting"}` : "starts after the quick look";
+    : quick || quickError ? `${pipePct}% · ${pipeJob?.message ?? "starting"}` : "loading history";
   const historyStatus = quotaWait
     ? `${pct(fullJob)}% · paused: NASA allows 5,000 requests per 10 minutes, resumes automatically — keep reading meanwhile`
     : `${pct(fullJob)}% · ${fullJob?.message ?? "Preparing history"}. First-time downloads depend on NASA; completed runs are saved.`;
@@ -275,7 +266,7 @@ export default function AreaIntelligencePage() {
         </li>
         <li className={full ? "done" : fullError ? "fail" : quick || quickError ? "active" : "waiting"}>
           <b>{full ? "✓" : fullError ? "!" : quick || quickError ? "…" : "3"}</b>
-          <span><strong>Full {years}-year history</strong><small>{full?.provenance?.saved_preview ? `Saved through ${full.period.end}; ${fullError ? `update unavailable: ${fullError}` : `updating in background · ${historyStatus}`}` : full ? (full.provenance?.served_from_cache ? "loaded from saved analysis" : "ready") : fullError ? fullError : quick || quickError ? historyStatus : "starts after the quick look"}</small></span>
+          <span><strong>Full {years}-year history</strong><small>{full?.provenance?.saved_preview ? `Saved through ${full.period.end}; ${fullError ? `update unavailable: ${fullError}` : `updating in background · ${historyStatus}`}` : full ? (full.provenance?.served_from_cache ? "loaded from saved analysis" : "ready") : fullError ? fullError : quick || quickError ? historyStatus : "loading history"}</small></span>
           {!full && !fullError && (quick || quickError) && <i className="hz-bar"><span style={{ width: `${pct(fullJob)}%` }} /></i>}
         </li>
         <li className={pipe ? "done" : pipeError ? "fail" : quick || quickError ? "active" : "waiting"}>

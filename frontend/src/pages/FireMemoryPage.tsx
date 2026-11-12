@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import Plot from "react-plotly.js";
+import Plot from "../components/LazyPlot";
 import "../memory-refinements.css";
 import { useNavigate } from "react-router-dom";
-import { normalizeApiError, runJob, startFireMemory } from "../api/client";
+import { normalizeApiError, runJob, startFireMemory, savedFireMemory } from "../api/client";
 import AnalysisNavigation from "../components/AnalysisNavigation";
 import AOISelector from "../components/AOISelector";
 import WorldviewButton from "../components/WorldviewButton";
@@ -57,21 +57,33 @@ export default function FireMemoryPage() {
   const [job, setJob] = useState<Job<FireMemoryResult> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const running = job?.status === "queued" || job?.status === "running";
+  const requestGeneration = useRef(0);
   const autoStarted = useRef(false);
+  useEffect(() => () => { ++requestGeneration.current; autoStarted.current = false; }, [aoi]);
   useEffect(() => {
     if (lockedArea && aoi && !memory && !autoStarted.current) { autoStarted.current = true; void run(); }
   }, [lockedArea, aoi, memory]);
 
   async function run() {
     if (!aoi) return;
+    const generation = ++requestGeneration.current;
+    const mine = () => generation === requestGeneration.current;
+    let finished = false;
     setError(null);
+    // Display an exact-query saved analysis while fresh observations are processed.
+    void savedFireMemory(aoi, years, sensors, windowDays).then((saved) => {
+      if (saved && mine() && !finished) setMemory(saved);
+    }).catch(() => {});
     try {
-      const result = await runJob(startFireMemory(aoi, years, sensors, windowDays), setJob);
+      const result = await runJob(startFireMemory(aoi, years, sensors, windowDays), (progress) => { if (mine()) setJob(progress); });
+      if (!mine()) return;
+      finished = true;
       setMemory(result);
     } catch (err) {
-      setError(normalizeApiError(err));
+      if (mine()) setError(normalizeApiError(err));
     } finally {
-      setJob(null);
+      finished = true;
+      if (mine()) setJob(null);
     }
   }
 
@@ -149,6 +161,7 @@ export default function FireMemoryPage() {
           <p className="meta-text">{running ? "Analysis in progress. Cells are not zero-fire results." : "Select a location and generate fire history to populate the calendar."}</p>
         </section>
       )}
+      {Boolean(memory?.provenance?.saved_preview) && memory && <p className="meta-text" role="status">Showing saved results through {memory.period.end}. {running ? "Checking for newer observations in the background." : "Run analysis to check for newer observations."}</p>}
       {memory && <MemoryResults memory={memory} />}
     </main>
   );

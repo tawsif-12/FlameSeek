@@ -10,6 +10,8 @@ import { DEFAULT_SENSORS, aoiBBox, aoiContains, describeAoi, useAppContext } fro
 import type { AOI, CaseMarker, FireEvent, FireEventSummary, ForecastHorizon, HotspotRecord, PlaceResult } from "../types/api";
 import { BEHAVIOUR_COLORS, BEHAVIOUR_PLAIN, KIND_COLORS, KIND_LABELS, REALITY_WEIGHT } from "./fireCasePresentation";
 
+import HarmonizationProgress from "./HarmonizationProgress";
+
 const EventPanel = React.lazy(() => import("./EventPanel"));
 
 type SatelliteLayer = "Terra" | "Aqua" | "S-NPP" | "NOAA-20" | "NOAA-21";
@@ -259,6 +261,7 @@ export default function CesiumFireGlobe() {
   const [dataStatus, setDataStatus] = useState("Loading live FIRMS MODIS/VIIRS data...");
   const [feedState, setFeedState] = useState<"loading" | "live" | "partial" | "cached" | "ready" | "failed">("loading");
   const [lastRefresh, setLastRefresh] = useState<string | null>(null);
+  const [harmonizationRun, setHarmonizationRun] = useState<string | null>(null);
   const [mergedCount, setMergedCount] = useState<number | null>(null);
   const [mergedUnavailable, setMergedUnavailable] = useState(false);
   const [backgroundRefresh, setBackgroundRefresh] = useState(false);
@@ -412,6 +415,7 @@ export default function CesiumFireGlobe() {
         ? await getCurrentHotspots(DEFAULT_SENSORS, days, 4000, historicalDate, false)
         : await getHarmonizedHotspots(days);
       if (sequence !== loadSequence.current || unmountedRef.current) return;
+      setHarmonizationRun(typeof response.metadata.harmonization_run === "string" ? response.metadata.harmonization_run : null);
       setMergedUnavailable(Boolean(response.metadata.processing_pending || response.metadata.harmonization_unavailable));
       setProcessingPending(Boolean(response.metadata.processing_pending));
       setBackgroundRefresh(Boolean(response.metadata.refresh_in_progress));
@@ -1312,6 +1316,7 @@ export default function CesiumFireGlobe() {
           {feedState === "loading" && <span className="processing-indicator" aria-label="Processing observations" />}
           {mergedCount !== null && <p className="merged-count"><strong>{mergedCount.toLocaleString()}</strong> total merged events</p>}
           {feedState === "failed" && <p className="refresh-timestamp">Data unavailable. Try Refresh FIRMS.</p>}
+          <HarmonizationProgress runId={harmonizationRun} />
           <details className="sidebar-data-details">
             <summary>Data details</summary>
           <p className="tiles-status">{dataStatus}</p>

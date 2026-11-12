@@ -1,0 +1,1 @@
+[{"subset": "all", "n": 6, "fitted": false, "reason": "only 6 pairs (< 15)"}, {"subset": "day", "n": 5, "fitted": false, "reason": "only 5 pairs (< 15)"}, {"subset": "night", "n": 1, "fitted": false, "reason": "only 1 pairs (< 15)"}]

@@ -3137,3 +3137,75 @@ html[data-theme="day"] .oc-home .oc-grid-lines {
     padding: 24px 16px 28px;
   }
 }
+
+/* Compact, readable overview with all five steps visible together. */
+.roadmap-outer-wrapper.roadmap-compact {
+  max-width: 1180px;
+  padding: clamp(18px, 2.5vw, 30px);
+  border-radius: 24px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, .25);
+  color: #e2e8f0;
+}
+.roadmap-compact-heading { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 22px; }
+.roadmap-compact-heading h2 { font-size: clamp(20px, 2vw, 27px); line-height: 1.25; margin: 6px 0 8px; color: #f8fafc; }
+.roadmap-compact-heading p { margin: 0; font-size: 14px; color: #aabbd0; }
+.roadmap-compact-heading .roadmap-compact-eyebrow { color: #67d8ee; font-size: 12px; font-weight: 700; }
+.roadmap-compact-count { white-space: nowrap; color: #aabbd0; font-size: 13px; }
+.roadmap-compact-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.roadmap-compact-step { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 16px; min-width: 0; text-align: left; font: inherit; color: #b4c2d5; background: rgba(8, 18, 35, .8); border: 1px solid #294057; border-radius: 16px; cursor: pointer; transition: background .18s, border-color .18s; }
+.roadmap-compact-step:hover, .roadmap-compact-step.is-selected { border-color: var(--step-color); background: #12243a; }
+.roadmap-compact-step:focus-visible, .roadmap-compact-detail button:focus-visible { outline: 2px solid #67d8ee; outline-offset: 4px; }
+.roadmap-compact-step strong { font-size: 14px; line-height: 1.4; color: #f1f5f9; }
+.roadmap-compact-step > span:last-child { font-size: 13px; line-height: 1.5; }
+.roadmap-compact-number { color: var(--step-color); font-size: 13px; font-weight: 700; }
+.roadmap-compact-detail { display: flex; align-items: center; justify-content: space-between; gap: 22px; margin-top: 18px; padding: 18px 20px; background: rgba(15, 32, 50, .65); border: 1px solid #294057; border-radius: 16px; }
+.roadmap-compact-detail h3 { margin: 0 0 8px; font-size: 17px; color: #f1f5f9; }
+.roadmap-compact-detail p { margin: 0; max-width: 88ch; font-size: 14px; line-height: 1.6; }
+.roadmap-compact-detail nav { display: flex; gap: 8px; flex-shrink: 0; }
+.roadmap-compact-detail button { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #446079; border-radius: 50%; color: inherit; background: transparent; cursor: pointer; }
+.roadmap-compact-note { margin: 14px 0 0; font-size: 12px; color: #aabbd0; }
+html[data-theme="day"] .roadmap-compact { background: #f4faff; color: #3e5267; border-color: #c7dce9; box-shadow: 0 12px 32px #234b6710; }
+html[data-theme="day"] .roadmap-compact :is(h2, h3, strong) { color: #172d43; }
+html[data-theme="day"] .roadmap-compact-heading p, html[data-theme="day"] .roadmap-compact-count, html[data-theme="day"] .roadmap-compact-note { color: #526b80; }
+html[data-theme="day"] .roadmap-compact-step { background: #fff; border-color: #c7dce9; color: #526b80; }
+html[data-theme="day"] .roadmap-compact-step:is(:hover, .is-selected) { background: #e7f4fb; border-color: #3783a5; }
+html[data-theme="day"] .roadmap-compact-number, html[data-theme="day"] .roadmap-compact-eyebrow { color: #246b8b; }
+html[data-theme="day"] .roadmap-compact-detail { background: #eaf4fa; border-color: #c7dce9; }
+@media (max-width: 760px) {
+  .roadmap-compact-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .roadmap-compact-step { padding: 12px; gap: 6px; }
+  .roadmap-compact-step > span:last-child { display: none; }
+  .roadmap-compact-detail { align-items: flex-start; flex-direction: column; gap: 12px; padding: 16px; }
+  .roadmap-compact-heading { margin-bottom: 16px; }
+}
+@media (max-width: 420px) {
+  .roadmap-compact-step strong { font-size: 12px; }
+  .roadmap-compact-heading h2 { font-size: 20px; }
+}
+
+/* Observation summaries follow the page theme instead of using dark overlays. */
+.oc-sensor-summary {
+  padding: 8px 12px;
+  background: rgba(11, 20, 40, .6);
+  border: 1px solid rgba(56, 189, 248, .12);
+  border-radius: 8px;
+  font-size: 12px;
+}
+html[data-theme="day"] .oc-home {
+  --oc-sensor-terra: #0369a1;
+  --oc-sensor-snpp: #0e7490;
+  --oc-sensor-noaa20: #92400e;
+  --oc-sensor-noaa21: #c2410c;
+}
+html[data-theme="day"] .oc-home :is(.oc-event-row, .oc-sensor-summary) {
+  background: #edf7ff;
+  border-color: #c5e0f2;
+  color: #153552;
+}
+html[data-theme="day"] .oc-home .oc-event-row:is(:hover, :focus-visible) {
+  background: #dff1fc;
+  border-color: #62add9;
+}
+html[data-theme="day"] .oc-home .oc-event-place { color: #153552; }
+html[data-theme="day"] .oc-home .oc-event-sub { color: #496881; }
+html[data-theme="day"] .oc-home .oc-event-age { color: #0369a1; }

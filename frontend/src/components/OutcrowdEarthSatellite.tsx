@@ -355,26 +355,33 @@ export default function OutcrowdEarthSatellite({
     const cloudsMesh = new THREE.Mesh(cloudsGeometry, cloudsMaterial);
     earthGroup.add(cloudsMesh);
 
-    // 6. Outer Atmosphere Rayleigh Glow
-    const atmosphereGeometry = new THREE.SphereGeometry(earthRadius + 0.16, 48, 40);
+    // A wide atmosphere fades to transparent before its outer edge, so the
+    // Earth blends into either theme instead of ending in a bright cyan ring.
+    const atmosphereGeometry = new THREE.SphereGeometry(earthRadius * 1.3, 48, 40);
     const atmosphereShader = new THREE.ShaderMaterial({
       side: THREE.BackSide,
-      blending: THREE.AdditiveBlending,
       transparent: true,
+      depthWrite: false,
       vertexShader: `
-        varying vec3 vNormal;
+        varying vec3 vViewNormal;
+        varying vec3 vViewPosition;
         void main() {
-          vNormal = normalize(mat3(modelMatrix) * normal);
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+          vViewNormal = normalize(normalMatrix * normal);
+          vViewPosition = viewPosition.xyz;
+          gl_Position = projectionMatrix * viewPosition;
         }
       `,
       fragmentShader: `
-        varying vec3 vNormal;
+        varying vec3 vViewNormal;
+        varying vec3 vViewPosition;
         void main() {
-          float intensity = pow(0.68 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.8);
-          // Electric cyan to deep azure gradient
-          vec3 glowColor = mix(vec3(0.0, 0.95, 1.0), vec3(0.15, 0.45, 1.0), intensity * 0.6);
-          gl_FragColor = vec4(glowColor, intensity * 0.88);
+          float facing = abs(dot(normalize(vViewNormal), normalize(-vViewPosition)));
+          float radius = sqrt(max(0.0, 1.0 - facing * facing));
+          float falloff = exp(-max(radius - 0.72, 0.0) * 12.0);
+          float edgeFade = 1.0 - smoothstep(0.88, 1.0, radius);
+          vec3 glowColor = mix(vec3(0.12, 0.62, 0.86), vec3(0.38, 0.76, 0.94), radius);
+          gl_FragColor = vec4(glowColor, falloff * edgeFade * 0.5);
         }
       `,
     });
@@ -416,6 +423,7 @@ export default function OutcrowdEarthSatellite({
       spacecraftTextures.set(orbit.image, texture);
     }
     const trailSamples = 28;
+    const drawnOrbitPlanes = new Set<string>();
     const fleet = HERO_ORBITS.map((orbit) => {
       const { group: model, billboard } = createImageSatelliteModel(
         spacecraftTextures.get(orbit.image)!, orbit.imageAspect, orbit.imageSize,
@@ -431,7 +439,14 @@ export default function OutcrowdEarthSatellite({
       const pathPoints = Array.from({ length: 97 }, (_, i) => orbitPosition(orbit, i / 96 * Math.PI * 2));
       const path = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pathPoints),
         new THREE.LineBasicMaterial({ color: orbit.color, transparent: true, opacity: 0.34, depthWrite: false }));
-      scene.add(path);
+      const planeKey = `${orbit.radius}:${orbit.inclination}:${orbit.node}`;
+      if (!drawnOrbitPlanes.has(planeKey)) {
+        scene.add(path);
+        drawnOrbitPlanes.add(planeKey);
+      } else {
+        path.geometry.dispose();
+        path.material.dispose();
+      }
       const trailGeometry = new THREE.BufferGeometry();
       const trailPositions = new Float32Array(trailSamples * 3);
       const trailColors = new Float32Array(trailSamples * 3);
@@ -699,7 +714,7 @@ export default function OutcrowdEarthSatellite({
 
   return (
     <div className="outcrowd-3d-wrapper" style={{ position: "relative", width: "100%", height: "100%" }}>
-      {!targetHotspots.length && <small style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", color: "#9eb6c9", fontSize: 11, zIndex: 3 }}>Illustrative hotspot markers</small>}
+      {!targetHotspots.length && <small style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", color: "#9eb6c9", fontSize: 11, zIndex: 3 }}>Example heat markers</small>}
       {!isReady && <div className="earth-instant-preview" aria-hidden="true"><div /></div>}
       {/* 3D Canvas Mount Point */}
       <div
@@ -716,7 +731,7 @@ export default function OutcrowdEarthSatellite({
           transition: "opacity 100ms ease-out",
           touchAction: "none",
         }}
-        aria-label="Interactive Earth with illustrative orbits of Terra, Aqua, Suomi-NPP, NOAA-20, and NOAA-21; positions are not live telemetry"
+        aria-label="Interactive Earth with illustrative orbits of four satellites (Terra, Aqua, Suomi-NPP, and NOAA-20) on two crossing paths; satellite positions are illustrative"
       />
 
 

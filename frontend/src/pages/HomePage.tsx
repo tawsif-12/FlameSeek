@@ -39,106 +39,15 @@ type SensorCounts = Record<"modis" | "viirs_snpp" | "viirs_noaa20" | "viirs_noaa
 const EMPTY_COUNTS: SensorCounts = { modis: 0, viirs_snpp: 0, viirs_noaa20: 0, viirs_noaa21: 0 };
 const SENSOR_LABELS = ["MODIS (Terra/Aqua)", "S-NPP (VIIRS)", "NOAA-20 (VIIRS)", "NOAA-21 (VIIRS)"];
 
-const SATELLITE_FLEET = [
-  {
-    id: "terra",
-    num: "01",
-    name: "Terra MODIS",
-    kicker: "NASA EOS AM-1 // MORNING WITNESS",
-    sensor: "MODIS Payload (36 Bands)",
-    orbit: "705 km Polar Sun-Synchronous",
-    overpass: "10:30 AM LST (Descending)",
-    swath: "2,330 km",
-    resolution: "1,000 m Nadir",
-    baseline: "26 Years",
-    tagline: "Morning Thermal Baseline & 26-Year Climate Record",
-    description:
-      "Operating in polar sun-synchronous orbit since December 1999, Terra's MODIS payload establishes the morning observation anchor at 10:30 AM local solar time. By imaging the planet before afternoon convective cloud formation and thunderstorm obscuration, Terra captures early diurnal fire spread and provides the unbroken 26-year historical baseline from 2000 to present.",
-    stats: [
-      { num: "2,330", unit: "KM", label: "Swath Width" },
-      { num: "1,000", unit: "M", label: "Nadir Resolution" },
-      { num: "26", unit: "YRS", label: "Consistent Record" },
-    ],
-    status: "ONLINE // SYNCHRONIZED",
-    route: "/fire-map",
-  },
-  {
-    id: "aqua",
-    num: "02",
-    name: "Aqua MODIS",
-    kicker: "NASA EOS PM-1 // AFTERNOON PEAK ANCHOR",
-    sensor: "MODIS Payload (36 Bands)",
-    orbit: "705 km Polar Sun-Synchronous",
-    overpass: "01:30 PM LST (Ascending)",
-    swath: "2,330 km",
-    resolution: "1,000 m Nadir",
-    baseline: "Aqua 13:30 Eqv",
-    tagline: "Diurnal Peak Fire Power Anchor & Harmonization Standard",
-    description:
-      "Aqua crosses the equator at 1:30 PM local solar time during daily peak ambient temperature and maximum convective wildfire intensity. To eliminate orbit-drift artifacts and make observations comparable across decades, FlameSeek normalizes every satellite pass to its Aqua 13:30 solar equivalent using our Four-Witness diurnal conversion model.",
-    stats: [
-      { num: "13:30", unit: "LST", label: "Solar Diurnal Anchor" },
-      { num: "4.3", unit: "MW", label: "50% Nadir Threshold" },
-      { num: "36", unit: "BND", label: "Spectral Channels" },
-    ],
-    status: "ONLINE // SYNCHRONIZED",
-    route: "/data-sources",
-  },
-  {
-    id: "snpp",
-    num: "03",
-    name: "Suomi NPP VIIRS",
-    kicker: "NASA / NOAA // HIGH-RESOLUTION PRECISION",
-    sensor: "VIIRS Instrument (22 Channels)",
-    orbit: "824 km Polar Sun-Synchronous",
-    overpass: "01:30 PM / 01:30 AM",
-    swath: "3,040 km (Zero-Gap)",
-    resolution: "375 m I-Band Nadir",
-    baseline: "Since 2012",
-    tagline: "Sub-Pixel Thermal Resolution & 375m Edge-to-Edge Fidelity",
-    description:
-      "Launched in 2012, Suomi NPP's VIIRS instrument delivers 375m imagery—resolving active fires with 7x smaller pixel area than MODIS. Its aggregation algorithm maintains 375m spatial fidelity from nadir all the way to scan edge with zero equator gaps, while its panchromatic Day/Night Band detects nocturnal active fire fronts and differentiates gas flares from wildfires.",
-    stats: [
-      { num: "375", unit: "M", label: "I-Band Resolution" },
-      { num: "3,040", unit: "KM", label: "Zero-Gap Swath" },
-      { num: "24", unit: "H", label: "Day & Night Passes" },
-    ],
-    status: "ONLINE // SYNCHRONIZED",
-    route: "/fire-map",
-  },
-  {
-    id: "noaa20",
-    num: "04",
-    name: "NOAA-20 VIIRS",
-    kicker: "JPSS-1, NOAA // TEMPORAL PERSISTENCE VERIFIER",
-    sensor: "VIIRS Instrument (22 Channels)",
-    orbit: "824 km Polar Sun-Synchronous",
-    overpass: "02:20 PM (50 Min Offset)",
-    swath: "3,040 km (Zero-Gap)",
-    resolution: "375 m I-Band Nadir",
-    baseline: "Since 2018",
-    tagline: "Cross-Verification Witness & Predictive Validation Standard",
-    description:
-      "Trailing Suomi NPP by precisely 50 minutes in the identical orbital track, NOAA-20 provides definitive cross-sensor verification. It confirms whether thermal hotspots represent persistent active combustion versus transient sun glint or hot metal roofs. It powers FlameSeek's 'Hide-One-Witness' test, achieving an AUC of 0.94 and Brier skill score validation.",
-    stats: [
-      { num: "50", unit: "MIN", label: "Temporal Offset" },
-      { num: "0.94", unit: "AUC", label: "Prediction ROC Score" },
-      { num: "3,040", unit: "KM", label: "Swath Coverage" },
-    ],
-    status: "ONLINE // SYNCHRONIZED",
-    route: "/fire-map",
-  },
-] as const;
-
 const PARTNER_ORGANIZATIONS = [
-  { name: "NASA FIRMS", role: "Active Fire System" },
-  { name: "NOAA NESDIS", role: "Geostationary & Polar" },
-  { name: "ESA Copernicus", role: "Sentinel-2 & EFFIS" },
-  { name: "Skyfield & CelesTrak", role: "Orbital TLE Propagation" },
-  { name: "WorldPop UN", role: "100m Population Density" },
-  { name: "OpenStreetMap", role: "Infrastructure & Roads" },
-  { name: "GDELT Project", role: "Global NLP News Event" },
-  { name: "NIFC WFIGS", role: "National Incident Data" },
+  { name: "NASA FIRMS", role: "Fire detections" },
+  { name: "NOAA NESDIS", role: "Satellite observations" },
+  { name: "ESA Copernicus", role: "Imagery and fire reports" },
+  { name: "Skyfield & CelesTrak", role: "Satellite pass estimates" },
+  { name: "WorldPop", role: "Population estimates" },
+  { name: "OpenStreetMap", role: "Roads and buildings" },
+  { name: "GDELT Project", role: "News reports" },
+  { name: "NIFC WFIGS", role: "US fire incident reports" },
 ];
 
 function formatAge(date: string) {
@@ -195,7 +104,7 @@ export default function HomePage() {
         setUpdatedAt(new Date());
       } else {
         setSourceMode("unavailable");
-        setError("NASA FIRMS is temporarily offline. Live backup observations remain ready in Fire Now.");
+        setError("We could not load recent NASA observations. Open the fire map to retry.");
       }
 
 
@@ -244,33 +153,32 @@ export default function HomePage() {
             <div className="oc-kicker-badge">
               <span className="oc-kicker-dot" />
               <span className="oc-kicker-text">
-                {sourceMode === "live"
-                  ? "● LIVE NASA FIRMS NRT STREAM"
+                {loading ? "LOADING NASA OBSERVATIONS" : sourceMode === "demo" ? "SAMPLE DATA" : sourceMode === "live"
+                  ? "RECENT NASA FIRE OBSERVATIONS"
                   : sourceMode === "cached"
-                  ? "● CACHED SATELLITE TELEMETRY"
-                  : "● FOUR-WITNESS SATELLITE FLEET"}
+                  ? "SAVED NASA OBSERVATIONS"
+                  : "EXPLORE SATELLITE FIRE DATA"}
               </span>
             </div>
 
             <h1 id="oc-hero-heading" className="oc-hero-title">
-              Next Generation <br />
-              <span className="glow-gradient">Satellite Systems</span>
+              Understand fires <br />
+              <span className="glow-gradient">with satellite data</span>
             </h1>
 
             <p className="oc-hero-subtitle">
-              Pioneering planetary active-fire surveillance from polar orbit. Continuous 375m fire radiative power
-              detection and multi-witness harmonization built on NASA Terra, Aqua, Suomi-NPP, and NOAA-20 platforms.
+              See where satellites have detected heat, explore past fire activity, and check the evidence behind each result. FlameSeek brings NASA fire observations together in one place.
             </p>
 
             <div className="oc-hero-actions">
               <Link to="/fire-map" className="oc-btn-primary">
-                Explore Fire Now 3D
+                Open the fire map
                 <ArrowRight size={17} />
               </Link>
 
               <Link to="/fire-calendar" className="oc-btn-secondary">
                 <Clock size={16} />
-                Explore Burning Calendar
+                Explore fire history
               </Link>
             </div>
 
@@ -280,28 +188,28 @@ export default function HomePage() {
                 <div className="oc-stat-val">
                   4<span>SAT</span>
                 </div>
-                <div className="oc-stat-lbl">Active Witnesses</div>
+                <div className="oc-stat-lbl">Featured satellites</div>
               </div>
 
               <div className="oc-stat-item">
                 <div className="oc-stat-val">
-                  705<span>KM</span>
+                  2<span>TYPES</span>
                 </div>
-                <div className="oc-stat-lbl">Polar Sun-Sync</div>
+                <div className="oc-stat-lbl">Satellite sensors</div>
               </div>
 
               <div className="oc-stat-item">
                 <div className="oc-stat-val">
                   375<span>M</span>
                 </div>
-                <div className="oc-stat-lbl">VIIRS Resolution</div>
+                <div className="oc-stat-lbl">VIIRS pixel size</div>
               </div>
 
               <div className="oc-stat-item">
                 <div className="oc-stat-val">
                   {totalDetections === null ? "—" : totalDetections.toLocaleString()}
                 </div>
-                <div className="oc-stat-lbl">Hotspots Returned</div>
+                <div className="oc-stat-lbl">Recent heat detections</div>
               </div>
             </div>
           </div>
@@ -348,13 +256,12 @@ export default function HomePage() {
           ==================================================================== */}
       <section className="oc-section" id="fleet" aria-labelledby="fleet-heading" style={{ paddingTop: 40, overflow: "visible" }}>
         <div className="oc-section-header">
-          <span className="oc-section-tag">CONSTELLATION FLEET</span>
+          <span className="oc-section-tag">MEET THE SATELLITES</span>
           <h2 id="fleet-heading" className="oc-section-title">
-            The Four-Witness Fire Intelligence
+            Different satellites, a clearer picture
           </h2>
           <p className="oc-section-desc">
-            Single-sensor fire monitoring suffers from orbital blind spots, cloud gaps, and diurnal timing bias.
-            FlameSeek harmonizes four synchronized satellites into one continuous, evidence-backed observation layer.
+            Satellites pass at different times and see different levels of detail. FlameSeek combines MODIS and VIIRS observations, including NOAA-21 where available. Clouds and gaps between passes can still hide fires.
           </p>
         </div>
 
@@ -365,9 +272,9 @@ export default function HomePage() {
       {/* ====================================================================
           SECTION 2: DATA ECOSYSTEM MARQUEE (Eloqwnt 'Who we work with' ticker)
           ==================================================================== */}
-      <section className="oc-section" style={{ padding: "30px 0" }} aria-label="Authoritative scientific data providers">
+      <section className="oc-section" style={{ padding: "30px 0" }} aria-label="Data sources used by FlameSeek">
         <div style={{ textAlign: "center", marginBottom: 16 }}>
-          <span className="oc-sat-kicker" style={{ justifyContent: "center" }}>• DATA ECOSYSTEM & CALIBRATION PARTNERS</span>
+          <span className="oc-sat-kicker" style={{ justifyContent: "center" }}>DATA SOURCES</span>
         </div>
         <div className="oc-marquee-wrap">
           <div className="oc-marquee-inner">
@@ -388,13 +295,12 @@ export default function HomePage() {
           ==================================================================== */}
       <section className="oc-section" id="pipeline" aria-labelledby="pipeline-heading" style={{ overflow: "visible" }}>
         <div className="oc-section-header">
-          <span className="oc-section-tag">SYSTEM ARCHITECTURE</span>
+          <span className="oc-section-tag">EXPLORE THE TOOLS</span>
           <h2 id="pipeline-heading" className="oc-section-title">
-            Past → Present → Identify → Verify → Forecast → Exposure
+            Follow a fire from first detection to further analysis
           </h2>
           <p className="oc-section-desc">
-            A satellite hotspot is an observation, not automatically a confirmed wildfire. Every result is categorized
-            through our rigorous 7-stage evidence pipeline. Explore each stage in the 3D transition system below.
+            Start with recent satellite detections, then explore history, related reports and possible impacts. Some analyses need more data before they can show a result.
           </p>
         </div>
 
@@ -407,24 +313,24 @@ export default function HomePage() {
           ==================================================================== */}
       <section className="oc-section" aria-labelledby="telemetry-heading">
         <div className="oc-section-header">
-          <span className="oc-section-tag">REAL-TIME DATA STREAM</span>
+          <span className="oc-section-tag">RECENT SATELLITE OBSERVATIONS</span>
           <h2 id="telemetry-heading" className="oc-section-title">
-            Live Orbital Telemetry & Sensor Returns
+            What satellites have detected recently
           </h2>
           <p className="oc-section-desc">
-            Direct feed from NASA FIRMS NRT and science archives, updated every 3 hours with sub-pixel Fire Radiative Power (MW).
+            Recent heat detections from NASA FIRMS, grouped by satellite sensor. These are satellite observations, not a count of confirmed wildfires. Updates depend on data availability.
           </p>
         </div>
 
         <div className="oc-dashboard-grid">
-          {/* Left Panel: Live Sensor Distribution Chart */}
+          {/* Left Panel: Live Detections by sensor Chart */}
           <div className="oc-dashboard-panel">
             <div className="oc-panel-header">
               <span className="oc-panel-title">
                 <Radio size={16} />
-                Sensor Share (Last 24h Hotspots)
+                Heat detections by satellite sensor
               </span>
-              <span className="oc-hud-tag">LAST 24 H</span>
+              <span className="oc-hud-tag">PAST 24 HOURS</span>
             </div>
 
             <div style={{ height: 260, width: "100%", position: "relative" }}>
@@ -439,25 +345,25 @@ export default function HomePage() {
                   pointerEvents: "none",
                 }}
               >
-                <div style={{ fontFamily: "var(--oc-font-mono)", fontSize: 22, fontWeight: 800, color: "#ffffff" }}>
+                <div style={{ fontFamily: "var(--oc-font-mono)", fontSize: 22, fontWeight: 800, color: "var(--oc-text-primary)" }}>
                   {totalDetections ? totalDetections.toLocaleString() : "—"}
                 </div>
-                <div style={{ fontSize: 10, color: "var(--oc-text-muted)", letterSpacing: "0.1em" }}>HOTSPOTS</div>
+                <div style={{ fontSize: 10, color: "var(--oc-text-muted)", letterSpacing: "0.1em" }}>HEAT DETECTIONS</div>
               </div>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 12 }}>
-              <div style={{ padding: "8px 12px", background: "rgba(11, 20, 40, 0.6)", borderRadius: 8, border: "1px solid rgba(56, 189, 248, 0.12)", fontSize: 12 }}>
-                <span style={{ color: "#38bdf8" }}>● Terra & Aqua:</span> <strong>{counts.modis.toLocaleString()}</strong>
+              <div className="oc-sensor-summary">
+                <span style={{ color: "var(--oc-sensor-terra, #38bdf8)" }}>● Terra & Aqua:</span> <strong>{counts.modis.toLocaleString()}</strong>
               </div>
-              <div style={{ padding: "8px 12px", background: "rgba(11, 20, 40, 0.6)", borderRadius: 8, border: "1px solid rgba(56, 189, 248, 0.12)", fontSize: 12 }}>
-                <span style={{ color: "#00f2fe" }}>● Suomi NPP:</span> <strong>{counts.viirs_snpp.toLocaleString()}</strong>
+              <div className="oc-sensor-summary">
+                <span style={{ color: "var(--oc-sensor-snpp, #00f2fe)" }}>● Suomi NPP:</span> <strong>{counts.viirs_snpp.toLocaleString()}</strong>
               </div>
-              <div style={{ padding: "8px 12px", background: "rgba(11, 20, 40, 0.6)", borderRadius: 8, border: "1px solid rgba(56, 189, 248, 0.12)", fontSize: 12 }}>
-                <span style={{ color: "#f59e0b" }}>● NOAA-20:</span> <strong>{counts.viirs_noaa20.toLocaleString()}</strong>
+              <div className="oc-sensor-summary">
+                <span style={{ color: "var(--oc-sensor-noaa20, #f59e0b)" }}>● NOAA-20:</span> <strong>{counts.viirs_noaa20.toLocaleString()}</strong>
               </div>
-              <div style={{ padding: "8px 12px", background: "rgba(11, 20, 40, 0.6)", borderRadius: 8, border: "1px solid rgba(56, 189, 248, 0.12)", fontSize: 12 }}>
-                <span style={{ color: "#ff4d26" }}>● NOAA-21:</span> <strong>{counts.viirs_noaa21.toLocaleString()}</strong>
+              <div className="oc-sensor-summary">
+                <span style={{ color: "var(--oc-sensor-noaa21, #ff4d26)" }}>● NOAA-21:</span> <strong>{counts.viirs_noaa21.toLocaleString()}</strong>
               </div>
             </div>
           </div>
@@ -467,10 +373,10 @@ export default function HomePage() {
             <div className="oc-panel-header">
               <span className="oc-panel-title">
                 <Flame size={16} />
-                Recent Reconstructed Fire Events
+                Recent groups of fire detections
               </span>
               <Link to="/fire-map" style={{ color: "var(--oc-cyan)", fontSize: 12, textDecoration: "none" }}>
-                Open 3D Globe →
+                Open fire map
               </Link>
             </div>
 
@@ -481,12 +387,12 @@ export default function HomePage() {
                     <span className="oc-event-flare" />
                     <div>
                       <div className="oc-event-place">
-                        {`Cluster near ${event.centroid.lat.toFixed(2)}°, ${event.centroid.lon.toFixed(2)}°`}
+                        {`Detections near ${event.centroid.lat.toFixed(2)}°, ${event.centroid.lon.toFixed(2)}°`}
                       </div>
                       <div className="oc-event-sub">
-                        <span>{event.observation_count} hotspots</span>
+                        <span>{event.observation_count} heat detections</span>
                         <span>•</span>
-                        <span>{Math.round(event.max_frp ?? 0)} MW peak FRP</span>
+                        <span>{Math.round(event.max_frp ?? 0)} MW peak heat output</span>
                         <span>•</span>
                         <span>
                           {event.sensors
@@ -507,7 +413,7 @@ export default function HomePage() {
 
               {!latestEvents.length && (
                 <div style={{ textAlign: "center", padding: "40px 0", color: "var(--oc-text-muted)", fontSize: 13 }}>
-                  Connecting to live satellite event reconstruction…
+                  No recent fire groups loaded. Open the map to check again.
                 </div>
               )}
             </div>
@@ -525,12 +431,12 @@ export default function HomePage() {
           ==================================================================== */}
       <section className="oc-section" aria-labelledby="faq-heading" style={{ overflow: "visible" }}>
         <div className="oc-section-header">
-          <span className="oc-section-tag">FREQUENTLY ASKED QUESTIONS</span>
+          <span className="oc-section-tag">HOW WE CHECK THE DATA</span>
           <h2 id="faq-heading" className="oc-section-title">
-            Scientific Methodology & Evidence Standards
+            Understand what the results mean
           </h2>
           <p className="oc-section-desc">
-            Learn why Four-Witness harmonization matters and how satellite active fire detection operates without proprietary black boxes.
+            Learn how satellite observations become fire information, what we check, and where the limits are.
           </p>
         </div>
 
@@ -544,28 +450,28 @@ export default function HomePage() {
       <section className="oc-cta-horizon" aria-label="Explore FlameSeek live tools">
         <div className="oc-cta-content">
           <h2 className="oc-cta-title">
-            Enter the FlameSeek <br />
-            <span className="glow-gradient">Orbital Environment</span>
+            Choose a place. <br />
+            <span className="glow-gradient">Explore its fire activity.</span>
           </h2>
 
           <p className="oc-cta-desc">
-            Explore live 3D planetary active-fire observations, build 25-year seasonal baselines, or analyze fire DNA fingerprints in any region across Earth.
+            Open the map for recent detections, browse available fire history, or compare activity in a place you care about.
           </p>
 
           <div className="oc-cta-btns">
             <Link to="/fire-map" className="oc-btn-primary">
-              Launch Fire Now 3D Globe
+              Open the fire map
               <ArrowRight size={17} />
             </Link>
 
             <Link to="/fire-calendar" className="oc-btn-secondary">
               <Clock size={16} />
-              Open Burning Calendar
+              Explore fire history
             </Link>
 
             <Link to="/fire-dna" className="oc-btn-secondary">
               <Activity size={16} />
-              Analyze Fire DNA
+              Compare fire patterns
             </Link>
           </div>
         </div>

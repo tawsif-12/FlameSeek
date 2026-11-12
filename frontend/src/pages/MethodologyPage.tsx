@@ -216,7 +216,7 @@ function Body({ d }: { d: SiteData }) {
 }
 
 export default function MethodologyPage() {
-  const { data, error } = useSiteData();
+  const { data, error } = useSiteData(false);
   const { t } = useLanguage();
   const [coverageOpen, setCoverageOpen] = useState(false);
 
@@ -244,7 +244,9 @@ export default function MethodologyPage() {
             />
           </div>
           <p className="lead">How the multi-sensor fire record is built and checked. Every number is read from the pipeline's own outputs and carries its status; anything not yet computed says “awaiting data”.</p>
+          <p className="hz-src">Validation results below come from saved pipeline outputs{data ? ` exported on ${data.exported_utc}` : ""}. They describe the recorded processing windows; daily live snapshots have separate validation status.</p>
           <HarmonizedProvenance
+            window={data?.meta.default_window}
             showNotice={coverageOpen}
             noticeId="methodology-coverage-notice"
             onCloseNotice={() => setCoverageOpen(false)}

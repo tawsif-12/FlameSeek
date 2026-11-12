@@ -9,7 +9,7 @@ from pipeline import ingest, quality, footprints, events
 from pipeline.config import load_settings
 
 
-def harmonize(rows):
+def harmonize(rows, artifacts=None):
     cfg = load_settings()
     raw = []
     for i, r in enumerate(rows):
@@ -57,9 +57,20 @@ def harmonize(rows):
                                           footprint_area_km2=float(ev.footprint_area_km2)),
                        'lookup_detection': {k: representative[k] for k in ('sensor', 'lat', 'lon', 'acq_datetime')}})
     metadata.update(events_total=len(points), clustering=result['stats'])
+    if artifacts is not None:
+        folder = Path(artifacts); folder.mkdir(parents=True, exist_ok=True)
+        # Raw confidence mixes VIIRS letters and MODIS percentages; it is not
+        # needed downstream and cannot be encoded as one Arrow numeric column.
+        required = ['det_id','fire_id','sensor','platform','acq_datetime_utc',
+                    'utc_date','local_solar_date','latitude','longitude','frp_mw',
+                    'bt_k','p_conf','footprint_area_km2','half_diag_km','daynight',
+                    'scan_km','track_km','geometry']
+        result['detections'][required].to_parquet(folder/'detections.parquet', index=False)
+        result['overpasses'].to_parquet(folder/'event_overpasses.parquet', index=False)
+        (folder/'metadata.json').write_text(json.dumps(metadata, allow_nan=False), encoding='utf-8')
     return dict(hotspots=points, metadata=metadata)
 
 
 if __name__ == '__main__':
-    payload = harmonize(json.loads(Path(sys.argv[1]).read_text(encoding='utf-8')))
+    payload = harmonize(json.loads(Path(sys.argv[1]).read_text(encoding='utf-8')), sys.argv[3] if len(sys.argv)>3 else None)
     Path(sys.argv[2]).write_text(json.dumps(payload, allow_nan=False), encoding='utf-8')

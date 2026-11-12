@@ -32,7 +32,7 @@ export default function HarmonizedRecordSection() {
             <div className="oc-hud-row"><span>{t("window_utc")}</span><strong>{meta?.start ?? "…"} → {meta?.end ?? "…"}</strong></div>
             <div className="oc-hud-row"><span>{t("updated")}</span><strong className="accent">{meta?.last_observation_time ?? t("awaiting")}</strong></div>
           </div>
-          <p className="hz-src">Source: /meta · {meta?.now_basis ?? ""}</p>
+          <p className="hz-src">Times are shown in UTC. This saved record may be older than the live map.</p>
         </div>
 
         <div className="oc-dashboard-panel">
@@ -41,16 +41,14 @@ export default function HarmonizedRecordSection() {
           </div>
           {h ? (
             <div className="hz-flow">
-              {[h.raw_detections, h.clean_detections, h.events].map((v) => (
+              {[h.raw_detections, h.clean_detections, h.events].map((v, index) => (
                 <div className="hz-flow-step" key={v.label}>
                   <div className="hz-flow-value">{v.value != null ? fmt(v.value) : t("awaiting")}</div>
-                  <div className="hz-flow-label">{v.label}</div>
+                  <div className="hz-flow-label">{["Satellite heat detections", "Detections after quality checks", "Estimated fire groups"][index]}</div>
                   <StatusPill status={v.status} />
                 </div>
               ))}
-              <p className="hz-src">
-                {h.low_confidence.label}: {h.low_confidence.value != null ? fmt(h.low_confidence.value) : t("awaiting")} · Source: {h.events.source}
-              </p>
+              <p className="hz-src">Nearby detections can come from the same fire. These groups are estimates, not confirmed wildfire counts.</p>
             </div>
           ) : (
             <StatusPill status="awaiting data" />
@@ -60,7 +58,7 @@ export default function HarmonizedRecordSection() {
 
       <div className="hz-card-row">
         {[
-          { to: "/fire-map", icon: <MapIcon size={18} />, title: "FireNow", text: t("card_map") },
+          { to: "/fire-map", icon: <MapIcon size={18} />, title: "Fire map", text: t("card_map") },
           { to: "/methodology", icon: <BookOpen size={18} />, title: t("nav_method"), text: t("card_method") },
           { to: "/about", icon: <Users size={18} />, title: t("nav_about"), text: t("card_about") },
         ].map((c) => (
@@ -71,7 +69,7 @@ export default function HarmonizedRecordSection() {
           </Link>
         ))}
       </div>
-      <HarmonizedProvenance />
+      <HarmonizedProvenance showNotice={false} />
     </section>
   );
 }

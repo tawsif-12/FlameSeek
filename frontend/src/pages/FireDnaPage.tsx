@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import Plot from "react-plotly.js";
+import Plot from "../components/LazyPlot";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Activity,
@@ -18,7 +18,7 @@ import {
   TrendingUp,
   CheckCircle2,
 } from "lucide-react";
-import { normalizeApiError, runJob, startFireMemory } from "../api/client";
+import { normalizeApiError, runJob, startFireMemory, savedFireMemory } from "../api/client";
 import AOISelector from "../components/AOISelector";
 import AnalysisNavigation from "../components/AnalysisNavigation";
 import FireDnaEmptyDashboard from "../components/FireDnaEmptyDashboard";
@@ -69,16 +69,27 @@ export default function FireDnaPage() {
   const [showMeaning, setShowMeaning] = useState(false);
   const running = job?.status === "queued" || job?.status === "running";
   const profile = memory?.fire_dna;
+  const requestGeneration = useRef(0);
   const autoStarted = useRef(false);
+  useEffect(() => () => { ++requestGeneration.current; autoStarted.current = false; }, [aoi]);
   useEffect(() => {
     if (lockedArea && aoi && !memory && !autoStarted.current) { autoStarted.current = true; void analyze(); }
   }, [lockedArea, aoi, memory]);
 
   async function analyze() {
     if (!aoi) return;
+    const generation = ++requestGeneration.current;
+    const mine = () => generation === requestGeneration.current;
+    let finished = false;
     setError(null);
+    // Display an exact-query saved analysis while fresh observations are processed.
+    void savedFireMemory(aoi, years, sensors, 30).then((saved) => {
+      if (saved && mine() && !finished) setMemory(saved);
+    }).catch(() => {});
     try {
-      const result = await runJob(startFireMemory(aoi, years, sensors, 30), setJob);
+      const result = await runJob(startFireMemory(aoi, years, sensors, 30), (progress) => { if (mine()) setJob(progress); });
+      if (!mine()) return;
+      finished = true;
       setMemory(result);
       const comparableYears = result.fire_dna.annual.filter((row) => row.comparable);
       setSelectedYear(
@@ -89,9 +100,10 @@ export default function FireDnaPage() {
       const peak = result.fire_dna.monthly_reference.find((row) => row.name === result.fire_dna.peak_month);
       if (peak) setSelectedMonth(peak.month);
     } catch (reason) {
-      setError(normalizeApiError(reason));
+      if (mine()) setError(normalizeApiError(reason));
     } finally {
-      setJob(null);
+      finished = true;
+      if (mine()) setJob(null);
     }
   }
 
@@ -415,6 +427,7 @@ export default function FireDnaPage() {
         {/* ====================================================================
             ACTIVE DATA VISUALIZATIONS (WHEN PROFILE IS GENERATED)
             ==================================================================== */}
+        {Boolean(memory?.provenance?.saved_preview) && memory && <p className="meta-text" role="status">Showing saved results through {memory.period.end}. {running ? "Checking for newer observations in the background." : "Run analysis to check for newer observations."}</p>}
         {profile && memory && (
           <>
             {/* ROW 1: REGIONAL IDENTITY (8 cols) & FIRE DNA RADAR (4 cols - DARK ACCENT CARD) */}

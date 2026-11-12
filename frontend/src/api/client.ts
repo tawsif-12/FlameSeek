@@ -86,22 +86,48 @@ export async function searchPlaces(q: string, signal?: AbortSignal, suggest = fa
   return data.results;
 }
 
+// Repeated navigation and StrictMode mounts share identical analysis requests.
+const analysisStarts = new Map<string, { started: number; request: Promise<Job<unknown>>; jobId?: string }>();
+const jobReads = new Map<string, Promise<Job<unknown>>>();
 async function startJob<T>(url: string, body?: unknown, params?: Record<string, unknown>): Promise<Job<T>> {
-  const { data } = await api.post<Job<T>>(url, body, { params });
-  return data;
+  const reusable = (url === "/api/fire_memory" || url === "/api/place_pipeline") && !(body as { refresh?: boolean } | undefined)?.refresh;
+  const key = JSON.stringify([url, body, params]);
+  const existing = analysisStarts.get(key);
+  if (reusable && existing && Date.now() - existing.started < 30000) return existing.request as Promise<Job<T>>;
+  const request = api.post<Job<T>>(url, body, { params }).then(({ data }) => data);
+  if (reusable) {
+    for (const [oldKey, value] of analysisStarts) if (Date.now() - value.started >= 30000) analysisStarts.delete(oldKey);
+    analysisStarts.set(key, { started: Date.now(), request });
+    void request.then((job) => {
+      const entry = analysisStarts.get(key);
+      if (entry?.request === request) entry.jobId = job.id;
+    }).catch(() => { if (analysisStarts.get(key)?.request === request) analysisStarts.delete(key); });
+  }
+  return request;
 }
 
 export async function getJob<T>(id: string): Promise<Job<T>> {
-  const { data } = await api.get<Job<T>>(`/api/jobs/${id}`);
-  return data;
+  const existing = jobReads.get(id);
+  if (existing) return existing as Promise<Job<T>>;
+  const request = api.get<Job<T>>(`/api/jobs/${id}`).then(({ data }) => {
+    for (const [key, entry] of analysisStarts) {
+      if (entry.jobId !== id) continue;
+      if (data.status === "failed") analysisStarts.delete(key);
+      else if (data.status === "completed") entry.request = Promise.resolve(data);
+    }
+    return data;
+  }).finally(() => jobReads.delete(id));
+  jobReads.set(id, request);
+  return request;
 }
 
 /** Poll a background job until it finishes, reporting progress along the way. */
 export async function runJob<T>(start: Promise<Job<T>>, onProgress: (job: Job<T>) => void, signal?: { cancelled: boolean }): Promise<T> {
   let job = await start;
   onProgress(job);
+  let polls = 0;
   while (job.status === "queued" || job.status === "running") {
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, polls++ === 0 ? 150 : 1500));
     if (signal?.cancelled) throw new Error("cancelled");
     job = await getJob<T>(job.id);
     onProgress(job);
@@ -127,8 +153,8 @@ export function startPlacePipeline(aoi: AOI, historyYears: number) {
   return startJob<PlacePipelineSummary>("/api/place_pipeline", { aoi, history_years: historyYears });
 }
 
-export async function savedFireMemory(aoi: AOI, historyYears: number, sensors: SensorName[]) {
-  const { data } = await api.post<{ result: FireMemoryResult | null }>("/api/fire_memory/saved", { aoi, history_years: historyYears, sensors, comparison_window_days: 30 });
+export async function savedFireMemory(aoi: AOI, historyYears: number, sensors: SensorName[], comparisonWindowDays = 30) {
+  const { data } = await api.post<{ result: FireMemoryResult | null }>("/api/fire_memory/saved", { aoi, history_years: historyYears, sensors, comparison_window_days: comparisonWindowDays });
   return data.result;
 }
 

@@ -115,3 +115,144 @@ main pre { max-width: 100%; overflow-x: auto; }
 .pipeline-date-filters label { display: grid; gap: .25rem; }
 .pipeline-history-table { overflow: auto; max-height: 28rem; }
 .pipeline-history-table th, .pipeline-history-table td { padding: .5rem .75rem; text-align: left; }
+
+/* Device layout rules use #root so lazy route styles cannot undo them. */
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+#root { min-width: 0; width: 100%; }
+#root :is(.content-page,.memory-page,.fire-dna-bento-shell,.location-dashboard,.fire-intelligence-dashboard) { max-width: 100%; }
+#root :is(.oc-dashboard-grid,.hz-map-layout,.memory-grid,.bento-row,.source-grid,.method-grid) > * { min-width: 0; }
+#root :is(.hero-chips code,.hz-provenance code,.source-card a,.hz-src) { overflow-wrap: anywhere; }
+#root :is(.table-wrap,.hz-table-wrap,.pipeline-history-table,.burning-pattern-scroll) { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+#root .oc-panel-header { flex-wrap: wrap; gap: 10px; }
+#root .oc-event-flare { flex-shrink: 0; }
+#root .oc-event-sub { display: flex; flex-wrap: wrap; gap: 3px 6px; }
+#root .oc-hero-stats .oc-stat-item { min-width: 0; }
+#root .oc-hero-stats .oc-stat-val { overflow-wrap: anywhere; }
+
+@media (min-width: 1001px) and (max-width: 1280px) {
+  #root .mission-header { gap: 14px; padding-inline: 20px; }
+  #root .mission-header .primary-navigation { gap: 6px; }
+  #root .mission-header .primary-navigation a { padding-inline: 8px; font-size: 12px; }
+  #root .oc-home .oc-hero-main { gap: 20px; padding-inline: 28px; }
+  #root .oc-home .oc-hero-title { font-size: clamp(38px,4.6vw,58px); }
+}
+@media (min-width: 641px) and (max-width: 1100px) {
+  #root :is(.source-grid,.method-grid,.hz-card-row) { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  #root .location-content .fire-intelligence-dashboard .hz-map-layout { grid-template-columns: minmax(0,1fr); }
+  #root .location-content .fire-intelligence-dashboard .hz-side { max-height: none; }
+  #root .location-content .bento-row { grid-template-columns: minmax(0,1fr); }
+}
+@media (max-width: 1000px) {
+  #root .mission-header { padding-left: max(12px,env(safe-area-inset-left)); padding-right: max(12px,env(safe-area-inset-right)); }
+  #root .mission-header .primary-navigation.mobile-open { padding-bottom: max(20px,env(safe-area-inset-bottom)); overscroll-behavior: contain; }
+  #root .oc-home .oc-hero-main { grid-template-columns: minmax(0,1fr); }
+  #root .oc-home .oc-hero-visual { min-width: 0; }
+  #root .oc-home .oc-dashboard-grid { grid-template-columns: minmax(0,1fr); }
+  #root .immersive-globe-page { height: 100svh; height: 100dvh; min-height: 0; }
+  #root .command-globe.fire-now { min-height: 0; }
+  #root .command-globe.fire-now .cesium-container { inset: 0; width: 100%; height: 100%; transform: none; }
+  #root .command-globe.fire-now .mobile-map-controls { display: flex; top: 10px; left: max(12px,env(safe-area-inset-left)); }
+  #root .command-globe.fire-now .scene-panel { display: none; top: 64px; bottom: auto; left: 12px; right: 12px; width: auto; max-width: 400px; max-height: calc(100% - 150px); overflow-y: auto; overscroll-behavior: contain; }
+  #root .command-globe.fire-now .scene-panel.mobile-panel-open { display: block; }
+  #root .command-globe.fire-now .insight-dock { left: 50%; right: auto; bottom: max(12px,env(safe-area-inset-bottom)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 24px); overflow-x: auto; }
+  #root .command-globe.fire-now .insight-dock button { flex-shrink: 0; min-height: 44px; }
+  #root .command-globe.fire-now .zoom-controls { left: 12px; bottom: calc(84px + env(safe-area-inset-bottom)); }
+  #root .command-globe.fire-now .zoom-controls button { width: 44px; height: 44px; }
+  #root .command-globe.fire-now .insight-drawer { inset: 64px 12px 80px; width: auto; max-width: 400px; max-height: none; overflow-y: auto; }
+  #root .command-globe.fire-now .unified-fire-panel { inset: auto 12px max(12px,env(safe-area-inset-bottom)); width: auto; max-width: 480px; max-height: calc(100% - 76px); }
+  #root .command-globe.fire-now .observation-popup { top: 64px; right: 12px; width: min(340px,calc(100% - 76px)); max-height: calc(100% - 145px); }
+  #root .command-globe.fire-now .map-empty-state { left: 50%; width: min(360px,calc(100% - 100px)); bottom: 84px; }
+  #root .command-globe.fire-now .selection-status { left: auto; right: 12px; max-width: calc(100% - 90px); }
+}
+@media (max-width: 900px) {
+  #root .location-dashboard { --location-mobile-bar-height: 64px; }
+  #root .location-mobile-bar { min-height: var(--location-mobile-bar-height); padding-block: 8px; }
+  #root .location-mobile-bar strong { max-width: 32%; overflow-wrap: anywhere; }
+  #root .location-content .globe-page { padding: 0; min-height: 0; height: calc(100svh - var(--app-header-height) - var(--location-mobile-bar-height)); height: calc(100dvh - var(--app-header-height) - var(--location-mobile-bar-height)); }
+  #root .location-content .command-globe { height: 100%; min-height: 0; }
+  #root .location-sidebar { padding-bottom: max(16px,env(safe-area-inset-bottom)); }
+}
+@media (max-width: 640px) {
+  #root :is(.content-page,.memory-page,.hz-page) { padding-inline: 14px; }
+  #root :is(.source-grid,.method-grid,.stats-grid,.hz-card-row,.hz-two,.hz-tiles,.memory-summary,.memory-stats,.dna-selector-grid,.dna-chart-row,.dna-analysis-row) { grid-template-columns: minmax(0,1fr); }
+  #root .oc-home .oc-section { padding: 32px 14px; }
+  #root .oc-home .oc-hero-main { padding: 24px 16px; }
+  #root .oc-home .oc-dashboard-panel { padding: 16px; border-radius: 16px; }
+  #root .oc-home .oc-event-row { align-items: flex-start; padding: 12px; gap: 10px; }
+  #root .oc-home .oc-event-left { min-width: 0; gap: 8px; }
+  #root .oc-home .oc-event-left > div { min-width: 0; }
+  #root .oc-home .oc-event-place { font-size: 13px; }
+  #root .oc-home .oc-event-right { flex-shrink: 0; gap: 4px; }
+  #root .oc-home .oc-cta-btns { display: grid; grid-template-columns: minmax(0,1fr); }
+  #root .oc-home .oc-cta-btns a { min-height: 48px; justify-content: center; white-space: normal; }
+  #root .sat-coverflow-wrapper .sat-coverflow-stage { height: 590px; }
+  #root .sat-coverflow-wrapper .sat-3d-card { width: min(330px,calc(100cqw - 16px)); height: 560px; }
+  #root .sat-coverflow-wrapper .sat-nav-arrow { top: auto; bottom: 18px; width: 44px; height: 44px; }
+  #root .sat-coverflow-wrapper .sat-indicators-bar { flex-wrap: wrap; gap: 6px; padding-inline: 48px; }
+  #root .sat-coverflow-wrapper .sat-indicator-pill { min-height: 44px; padding: 6px 8px; }
+  #root .sat-coverflow-wrapper .sat-card-cta-btn { min-height: 44px; }
+  #root .pipe-transition-wrapper .pipe-stage-container { height: 650px; }
+  #root .pipe-transition-wrapper .pipe-3d-card { width: min(340px,calc(100cqw - 16px)); height: 620px; }
+  #root .pipe-transition-wrapper .pipe-card-content { gap: 10px; }
+  #root .pipe-transition-wrapper .pipe-card-category-badge { white-space: normal; }
+  #root .pipe-transition-wrapper .pipe-sequencer-bar { flex-wrap: wrap; justify-content: center; border-radius: 16px; }
+  #root .pipe-transition-wrapper .pipe-seq-step { min-height: 44px; min-width: 36px; }
+  #root .pipe-transition-wrapper .pipe-nav-arrow { width: 44px; height: 44px; }
+  #root .pipe-transition-wrapper .pipe-card-cta { min-height: 44px; }
+  #root .roadmap-compact-heading { align-items: flex-start; }
+  #root .roadmap-compact-detail nav button { width: 44px; height: 44px; }
+  #root .minimal-search-stage { padding: 30px 14px; }
+  #root .minimal-search-box { grid-template-columns: 24px minmax(0,1fr) auto; gap: 8px; padding: 8px 8px 8px 12px; border-radius: 16px; }
+  #root .minimal-search-box > button { min-width: 66px; height: 46px; padding-inline: 10px; }
+  #root .minimal-search-box input { font-size: 16px; width: 100%; }
+  #root .minimal-place-results > button { padding: 12px 8px; }
+  #root .minimal-place-results :is(strong,span) { min-width: 0; overflow-wrap: anywhere; }
+  #root .area-destinations a { padding: 18px; }
+  #root :is(.intelligence-header,.intelligence-timeline header,.analysis-navigation,.page-title-row,.source-card-footer) { flex-wrap: wrap; gap: 12px; }
+  #root .fire-intelligence-dashboard .hz-map-layout { grid-template-columns: minmax(0,1fr); }
+  #root .fire-intelligence-dashboard .hz-side { max-height: none; }
+  #root .location-content > .fire-intelligence-dashboard { padding: 16px 12px; }
+  #root .intelligence-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  #root .intelligence-metric { padding: 12px; min-width: 0; }
+  #root .pt-perspective { height: clamp(430px,72svh,560px); }
+  #root .pt-card-inner { padding: 20px 16px; overflow-y: auto; overscroll-behavior: contain; }
+  #root .pt-card-head { flex-wrap: wrap; }
+  #root .pt-card-inner h3 { font-size: clamp(22px,6vw,30px); }
+  #root .hero-chips { padding-inline: 0; }
+  #root .hero-chips li { max-width: 100%; min-width: 0; flex-wrap: wrap; }
+  #root :is(.hz-table-wrap,.table-wrap) table { min-width: 540px; }
+  #root .hz-figure { margin-inline: 0; }
+  #root .hz-figure img { max-width: 100%; height: auto; }
+  #root :is(.memory-calendar-toolbar,.pipeline-date-filters,.aoi-radius-row) { flex-wrap: wrap; }
+  #root .pipeline-date-filters label { flex: 1 1 140px; min-width: 0; }
+  #root .pipeline-date-filters input { width: 100%; }
+  #root .bento-row { grid-template-columns: minmax(0,1fr); }
+  #root .bento-hero-title { overflow-wrap: anywhere; }
+  #root .bento-card :is(.plot,.js-plotly-plot) { min-width: 0; width: 100%; }
+}
+@media (max-width: 380px) {
+  #root .oc-sensor-summary { padding: 8px; font-size: 11px; }
+  #root .oc-event-row { flex-wrap: wrap; }
+  #root .oc-event-right { margin-left: auto; }
+  #root .roadmap-compact-steps { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  #root .intelligence-metrics { grid-template-columns: minmax(0,1fr); }
+  #root .pipe-transition-wrapper .pipe-spec-box { grid-template-columns: 70px minmax(0,1fr); }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  #root .command-globe.fire-now :is(.scene-panel,.insight-drawer) { top: 54px; bottom: 62px; max-height: calc(100% - 116px); }
+  #root .command-globe.fire-now .unified-fire-panel { max-height: calc(100% - 12px); }
+  #root .mission-header .primary-navigation.mobile-open { max-height: calc(100dvh - var(--app-header-height)); }
+}
+@media (pointer: coarse) {
+  #root :is(.event-tabs button,.intelligence-tabs button,.aoi-tools button,.aoi-actions button,.hz-seg button,.inspector-nav-btn) { min-height: 44px; }
+  #root :is(.scene-panel,.event-panel-body,.location-sidebar,.table-wrap,.hz-table-wrap) { -webkit-overflow-scrolling: touch; }
+}
+
+@media (max-width: 640px) {
+  #root .pt-deck-dots { gap: 4px; }
+  #root .pt-deck-dot { min-width: 36px; padding-inline: 8px; }
+  #root .pt-deck-nav-btns { width: 100%; justify-content: space-between; }
+  #root .pt-deck-btn { min-height: 44px; }
+  #root .lazy-plot-host { max-width: 100%; min-width: 0; }
+}

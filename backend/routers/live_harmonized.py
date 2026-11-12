@@ -22,6 +22,9 @@ _jobs = {}
 _ready = {}
 _errors = {}
 _retry_after = {}
+_harmonization_jobs = {}
+_harmonization_errors = {}
+_full_lock = asyncio.Lock()
 FRESH_SECONDS = 15 * 60
 MAX_CACHE_SECONDS = 6 * 60 * 60
 
@@ -32,18 +35,110 @@ def _save_snapshot(days, stamp, payload):
 
 def compute(rows):
     encoded = json.dumps(jsonable_encoder(rows), sort_keys=True)
-    key = hashlib.sha256(('live-v1' + encoded).encode()).hexdigest()[:24]
+    key = hashlib.sha256(('live-v2-full-workflow' + encoded).encode()).hexdigest()[:24]
     folder = ROOT / '.runlogs' / 'live_harmonized'
     folder.mkdir(parents=True, exist_ok=True)
     source, target = folder / f'{key}.input.json', folder / f'{key}.json'
     if not target.exists():
         source.write_text(encoded, encoding='utf-8')
         proc = subprocess.run([os.getenv('FLAMESEEK_PIPELINE_PYTHON', r'E:\anaconda\envs\flameseek\python.exe'),
-                               '-m', 'pipeline.live_globe', str(source), str(target)],
+                               '-m', 'pipeline.live_globe', str(source), str(target), str(folder/key)],
                               cwd=ROOT, capture_output=True, text=True, timeout=300)
         if proc.returncode:
             raise RuntimeError(proc.stderr[-2000:])
-    return json.loads(target.read_text(encoding='utf-8'))
+    payload = json.loads(target.read_text(encoding='utf-8'))
+    payload['metadata']['harmonization_run'] = key
+    return payload
+
+
+def _run_folder(key):
+    if not isinstance(key, str) or len(key)!=24 or any(c not in '0123456789abcdef' for c in key):
+        raise ValueError('Invalid harmonization run')
+    return ROOT/'.runlogs'/'live_harmonized'/key
+
+
+def _full_workflow(key):
+    folder = _run_folder(key)
+    status = folder/'full'/'status.json'
+    signature=_full_signature()
+    if status.exists():
+        previous=json.loads(status.read_text())
+        if previous.get('finished') and previous.get('input_signature')==signature: return
+    if not (folder/'detections.parquet').exists(): return
+    command = [os.getenv('FLAMESEEK_PIPELINE_PYTHON', r'E:\anaconda\envs\flameseek\python.exe'),
+               '-m','pipeline.harmonization',str(folder),str(folder/'full')]
+    evidence = ROOT/'config'/'harmonization_evidence.json'
+    if evidence.exists(): command += ['--evidence',str(evidence)]
+    # Heavy orbital/grid/Monte Carlo work never runs on FastAPI's event loop.
+    result = subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=1800)
+    (folder/'full.log').write_text(result.stdout+'\n'+result.stderr,encoding='utf-8')
+    if result.returncode: raise RuntimeError(result.stderr[-1500:])
+    if status.exists():
+        report=json.loads(status.read_text()); report['input_signature']=signature
+        temporary=status.with_suffix('.tmp'); temporary.write_text(json.dumps(report),encoding='utf-8'); temporary.replace(status)
+
+
+def _full_signature():
+    digest=hashlib.sha256()
+    for relative in ['pipeline/harmonization.py','pipeline/grid.py','pipeline/calibration.py',
+                     'pipeline/diurnal.py','config/settings.yaml','config/harmonization_evidence.json']:
+        path=ROOT/relative
+        if path.exists(): digest.update(path.read_bytes())
+    manifest=ROOT/'config'/'harmonization_evidence.json'
+    if manifest.exists():
+        for relative in json.loads(manifest.read_text()).values():
+            path=(manifest.parent/relative).resolve()
+            if path.exists():
+                stat=path.stat(); digest.update(f'{path}:{stat.st_size}:{stat.st_mtime_ns}'.encode())
+    return digest.hexdigest()
+
+
+async def _finish_harmonization(key):
+    try:
+        async with _full_lock:
+            await asyncio.to_thread(_full_workflow,key)
+    except Exception as exc:
+        _harmonization_errors[key] = str(exc)
+
+
+def _start_harmonization(key):
+    job=_harmonization_jobs.get(key)
+    changed=False
+    if job is not None and job.done() and key not in _harmonization_errors:
+        path=_run_folder(key)/'full'/'status.json'
+        if path.exists(): changed=json.loads(path.read_text()).get('input_signature')!=_full_signature()
+    if job is None or changed:
+        _harmonization_jobs[key] = asyncio.create_task(_finish_harmonization(key))
+
+
+def _harmonization_status(key):
+    folder = _run_folder(key)
+    path = folder/'full'/'status.json'
+    result = json.loads(path.read_text()) if path.exists() else {'stages':[], 'full_harmonization_complete':False}
+    job = _harmonization_jobs.get(key)
+    result['running'] = job is not None and not job.done()
+    result['run_id'] = key
+    if key in _harmonization_errors: result['error'] = _harmonization_errors[key]
+    return result
+
+
+async def _upgrade_snapshot(days, stamp, payload):
+    """Attach the new workflow to real cached observations without downloading again."""
+    try:
+        rows=payload.get('raw_hotspots')
+        if not rows: return
+        async with _lock:
+            result=await asyncio.to_thread(compute,rows)
+        current=_snapshots.get(days)
+        if current is None or current[0]!=stamp: return
+        updated={**payload,'hotspots':result['hotspots'],'metadata':{**payload['metadata'],**result['metadata'], 'processing_pending':False}}
+        _snapshots[days]=(stamp,updated)
+        key=result['metadata'].get('harmonization_run')
+        if key: _start_harmonization(key)
+        await asyncio.to_thread(_save_snapshot,days,stamp,updated)
+    except Exception as exc:
+        _errors[days]=str(exc)
+        _retry_after[days]=time.time()+60
 
 
 async def _refresh(days):
@@ -68,6 +163,8 @@ async def _refresh(days):
                    'metadata': {**payload['metadata'], **result['metadata'], 'processing_pending': False}}
         stamp = time.time()
         _snapshots[days] = (stamp, payload)
+        key = result['metadata'].get('harmonization_run')
+        if key: _start_harmonization(key)
         try:
             await asyncio.to_thread(_save_snapshot, days, stamp, payload)
         except OSError:
@@ -134,6 +231,10 @@ async def harmonized_hotspots(days: int = Query(1, ge=1, le=5), limit: int | Non
         if not cached:
             raise HTTPException(502, detail={'message': f'FIRMS observations unavailable: {_errors.get(days, "retry shortly")}'})
     stamp, payload = cached
+    key = payload['metadata'].get('harmonization_run')
+    if key: _start_harmonization(key)
+    elif payload.get('raw_hotspots') and time.time()>=_retry_after.get(days,0) and (days not in _jobs or _jobs[days].done()):
+        _jobs[days]=asyncio.create_task(_upgrade_snapshot(days,stamp,payload))
     # Legacy snapshots may contain a raw preview in hotspots. Never publish it
     # as merged output, including after a failed or incomplete pipeline run.
     merged_ready = not payload['metadata'].get('processing_pending') and not payload['metadata'].get('harmonization_unavailable')
@@ -144,6 +245,11 @@ async def harmonized_hotspots(days: int = Query(1, ge=1, le=5), limit: int | Non
                 'full_harmonization_complete': False,
                 'cache_age_seconds': round(time.time() - stamp), 'stale_snapshot': bool(stale),
                 'refresh_in_progress': days in _jobs and not _jobs[days].done()}
+    if key:
+        status = await asyncio.to_thread(_harmonization_status,key)
+        metadata['harmonization'] = status
+        metadata['full_harmonization_complete'] = status.get('full_harmonization_complete',False)
+        metadata['harmonization_scope'] = 'ten_stage_workflow'
     if stale:
         metadata['data_source'] = 'cached_actual'
     if days in _errors:
@@ -152,3 +258,23 @@ async def harmonized_hotspots(days: int = Query(1, ge=1, le=5), limit: int | Non
     # Avoid FastAPI's repeated traversal of tens of thousands of already encoded rows.
     encoded = await asyncio.to_thread(json.dumps, body, separators=(',', ':'), allow_nan=False)
     return Response(encoded, media_type='application/json')
+
+
+@router.get('/harmonization/{run_id}/status')
+async def harmonization_status(run_id: str):
+    try: return await asyncio.to_thread(_harmonization_status,run_id)
+    except ValueError as exc: raise HTTPException(400,str(exc)) from exc
+
+
+@router.get('/harmonization/{run_id}/activity')
+async def harmonization_activity(run_id: str, limit: int=Query(1000,ge=1,le=10000), offset: int=Query(0,ge=0)):
+    try: folder=_run_folder(run_id)
+    except ValueError as exc: raise HTTPException(400,str(exc)) from exc
+    # Parquet stays in the geospatial worker's environment. The report exports
+    # JSON records for the API so its Python environment needs no extra libraries.
+    path=folder/'full'/'activity.json'
+    if not path.exists(): return {'status':'awaiting data','data':[], 'count':0}
+    def read():
+        rows=json.loads(path.read_text())
+        return {'data':rows[offset:offset+limit],'count':len(rows),'offset':offset,'limit':limit,'has_more':offset+limit<len(rows)}
+    return await asyncio.to_thread(read)

@@ -276,3 +276,16 @@ html[data-theme="day"] .command-globe.fire-now .unified-fire-panel {
 .command-globe.fire-now .unified-fire-panel :is(.event-tabs button,.validation-header button,.primary-button) { color: var(--event-text); }
 .command-globe.fire-now .unified-fire-panel .event-tabs button.active { color: var(--event-accent); background: var(--event-active); }
 .command-globe.fire-now .unified-fire-panel :is(button,a):focus-visible { outline: 2px solid var(--event-link); outline-offset: 3px; }
+.harmonization-progress { margin-top: 12px; font: 12px/1.5 Inter,system-ui,sans-serif; }
+.harmonization-progress summary { cursor: pointer; font-weight: 700; }
+.harmonization-progress ol { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 7px; }
+.harmonization-progress li { padding: 8px; border: 1px solid var(--sp-border); border-radius: 7px; }
+.harmonization-progress li > div { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.harmonization-progress li span { white-space: nowrap; font-size: 10px; }
+.harmonization-progress li p { margin: 5px 0 0; overflow-wrap: anywhere; }
+.harmonization-progress li[data-status="computed"] span { color: #15803d; }
+.harmonization-progress li[data-status="running"] span { color: #0369a1; }
+.harmonization-progress li[data-status="failed"] span { color: #b91c1c; }
+html:not([data-theme="day"]) .harmonization-progress li[data-status="computed"] span { color: #86efac; }
+html:not([data-theme="day"]) .harmonization-progress li[data-status="running"] span { color: #7dd3fc; }
+html:not([data-theme="day"]) .harmonization-progress li[data-status="failed"] span { color: #fca5a5; }

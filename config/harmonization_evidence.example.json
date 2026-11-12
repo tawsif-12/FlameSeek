@@ -1,0 +1,7 @@
+{
+  "opportunities": "../data/harmonization/opportunities.parquet",
+  "temporal_models": "../data/harmonization/temporal_models.parquet",
+  "exposures": "../data/harmonization/exposures.parquet",
+  "history": "../data/harmonization/history.parquet",
+  "validation": "../data/harmonization/validation.parquet"
+}

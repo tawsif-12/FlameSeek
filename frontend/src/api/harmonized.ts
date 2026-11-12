@@ -110,7 +110,7 @@ export function loadSiteData(): Promise<SiteData> {
   return siteCache;
 }
 
-export function useSiteData() {
+export function useSiteData(published = true) {
   const [data, setData] = useState<SiteData | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
@@ -118,6 +118,10 @@ export function useSiteData() {
     async function refresh() {
       try {
         const base = await loadSiteData();
+        if (!published) {
+          if (alive) { setData(base); setError(null); }
+          return;
+        }
         const catalog = await snapshotGet<SiteData['meta']>('/api/pipeline/catalog').catch(() => base.meta);
         const current = catalog.windows[catalog.default_window];
         let updated: SiteData = { ...base, meta: catalog };
@@ -138,7 +142,7 @@ export function useSiteData() {
     void refresh();
     const timer = window.setInterval(refresh, 60000);
     return () => { alive = false; window.clearInterval(timer); };
-  }, []);
+  }, [published]);
   return { data, error };
 }
 

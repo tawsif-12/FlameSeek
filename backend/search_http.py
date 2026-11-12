@@ -8,5 +8,7 @@ class SearchGZipMiddleware:
         self.compressed=GZipMiddleware(app,minimum_size=1000,compresslevel=5)
 
     async def __call__(self,scope,receive,send):
-        app=self.compressed if scope['type']=='http' and scope.get('path') in {'/fires/search', '/api/harmonized_hotspots'} else self.app
+        path = scope.get('path', '')
+        compress = path in {'/fires/search', '/api/harmonized_hotspots', '/api/fire_memory', '/api/fire_memory/saved', '/api/place_pipeline', '/api/place_pipeline/saved'} or path.startswith('/api/jobs/')
+        app = self.compressed if scope['type'] == 'http' and compress else self.app
         await app(scope,receive,send)

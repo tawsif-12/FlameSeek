@@ -38,13 +38,13 @@ export const PIPELINE_STAGES_DATA: PipelineStage[] = [
     id: "memory",
     n: "01",
     title: "Burning Calendar",
-    badge: "Consistent Baseline",
-    q: "What normally happened in this area across 25 years?",
-    how: "Constructs 26-year sensor-harmonized seasonal baselines using MAD (Median Absolute Deviation) and PELT change-point detection to separate genuine fire anomalies from annual agricultural burns.",
+    badge: "Fire history",
+    q: "When does this place usually have fire activity?",
+    how: "Browse past detections and compare seasons where enough data is available. Missing dates stay unknown.",
     route: "/fire-calendar",
-    method: "MAD + PELT Change-Point",
-    cycle: "2000 – Present (26 Yrs)",
-    standard: "Drift-Corrected Baseline",
+    method: "Compare past observations",
+    cycle: "Available historical dates",
+    standard: "Depends on data coverage",
     accentColor: "#38bdf8",
     glowColor: "rgba(56, 189, 248, 0.55)",
   },
@@ -52,13 +52,13 @@ export const PIPELINE_STAGES_DATA: PipelineStage[] = [
     id: "now",
     n: "02",
     title: "Fire Now",
-    badge: "3D Globe Feed",
-    q: "What are satellites observing right now in 3D?",
-    how: "Ingests near-real-time observations from MODIS and VIIRS payloads onto a high-performance 3D Cesium planetary globe, rendering exact sensor scan footprints and sub-pixel FRP intensity.",
+    badge: "Recent detections",
+    q: "Where have satellites detected heat recently?",
+    how: "Explore NASA fire detections on a 3D map. Select a point to see when it was observed and which satellite recorded it.",
     route: "/fire-map",
-    method: "Cesium 3D + FIRMS NRT",
-    cycle: "Realtime (< 3 Hr Ingest)",
-    standard: "Scan Footprint Geometry",
+    method: "NASA MODIS and VIIRS",
+    cycle: "Recent satellite passes",
+    standard: "Heat does not confirm wildfire",
     accentColor: "#00f2fe",
     glowColor: "rgba(0, 242, 254, 0.55)",
   },
@@ -66,13 +66,13 @@ export const PIPELINE_STAGES_DATA: PipelineStage[] = [
     id: "identity",
     n: "03",
     title: "Fire Identity",
-    badge: "Spatio-Temporal",
-    q: "Which observations belong to the same evolving fire?",
-    how: "Aggregates disparate satellite detections into unified evolving wildfire events via ST-DBSCAN clustering, calculating active perimeters, centroids, and propagation velocity.",
+    badge: "Related detections",
+    q: "Which detections may belong to the same fire?",
+    how: "Group nearby observations using their locations, times and satellite pixel sizes. A group is an estimate, not a confirmed fire boundary.",
     route: "/fire-map",
-    method: "ST-DBSCAN Clustering",
-    cycle: "Dynamic Perimeter Graph",
-    standard: "Convex Hull Aggregation",
+    method: "Match by place and time",
+    cycle: "Across nearby observations",
+    standard: "Estimated fire groups",
     accentColor: "#a855f7",
     glowColor: "rgba(168, 85, 247, 0.55)",
   },
@@ -80,13 +80,13 @@ export const PIPELINE_STAGES_DATA: PipelineStage[] = [
     id: "evidence",
     n: "04",
     title: "Fire Evidence",
-    badge: "Multi-Source Fusion",
-    q: "Do other satellites, agencies or local news support it?",
-    how: "Cross-checks candidate hotspots against subsequent polar overpasses via Skyfield SGP4 orbit propagation, geostationary GOES/Himawari returns, national incident feeds, and NLP news evidence.",
+    badge: "Supporting reports",
+    q: "What other evidence is available?",
+    how: "Check other satellite passes, official reports and news where available. Read the original sources to understand what supports a result.",
     route: "/fire-map",
-    method: "Skyfield SGP4 + NLP Fusion",
-    cycle: "Multi-Witness Corroboration",
-    standard: "Hide-One-Witness Tested",
+    method: "Compare independent sources",
+    cycle: "As reports become available",
+    standard: "Sources linked when available",
     accentColor: "#22c55e",
     glowColor: "rgba(34, 197, 94, 0.55)",
   },
@@ -94,13 +94,13 @@ export const PIPELINE_STAGES_DATA: PipelineStage[] = [
     id: "past",
     n: "05",
     title: "Fire Past",
-    badge: "Analogue Search",
-    q: "How did similar historical fires in this region evolve?",
-    how: "Performs high-dimensional Mahalanobis distance similarity matching across historical fire archives to locate same-age, same-biome wildfire analogues and analyze their final footprint.",
+    badge: "Similar past events",
+    q: "What happened in similar past fires?",
+    how: "Look for past events with similar conditions. These comparisons provide context, but do not tell us exactly what will happen next.",
     route: "/fire-map",
-    method: "Shrinkage Mahalanobis",
-    cycle: "Historical Twin Database",
-    standard: "Biome-Conditioned Covariance",
+    method: "Find similar past events",
+    cycle: "Available historical records",
+    standard: "A comparison, not a prediction",
     accentColor: "#f59e0b",
     glowColor: "rgba(245, 158, 11, 0.55)",
   },
@@ -108,13 +108,13 @@ export const PIPELINE_STAGES_DATA: PipelineStage[] = [
     id: "future",
     n: "06",
     title: "Fire Future",
-    badge: "Validated Corridor",
-    q: "Where might new satellite-observed activity appear next?",
-    how: "Computes physics-grounded 6/12/24 hour downwind activity corridors conditioned on wind vectors, fuel moisture, and terrain slope. Enforces strict FORECAST WITHHELD when uncertainty is high.",
+    badge: "Possible future activity",
+    q: "Where might fire activity appear next?",
+    how: "Estimate possible activity over the next 6 to 24 hours when enough data and validation are available. Unsupported forecasts are withheld.",
     route: "/fire-map",
-    method: "Physics Corridor Modeling",
-    cycle: "6 / 12 / 24 Hour Windows",
-    standard: "Strict Uncertainty Guardrails",
+    method: "Check data and model results",
+    cycle: "6, 12 and 24 hours ahead",
+    standard: "Shown only when supported",
     accentColor: "#ff7a45",
     glowColor: "rgba(255, 122, 69, 0.55)",
   },
@@ -122,13 +122,13 @@ export const PIPELINE_STAGES_DATA: PipelineStage[] = [
     id: "exposure",
     n: "07",
     title: "Exposure",
-    badge: "Critical Impact",
-    q: "What population and infrastructure lie in the danger zone?",
-    how: "Overlays dynamic wildfire perimeters with high-resolution WorldPop population density rasters and OpenStreetMap infrastructure layers—identifying vulnerable communities, hospitals, and transit routes.",
+    badge: "Nearby people and places",
+    q: "Who and what could be nearby?",
+    how: "Use population and map data to identify nearby communities, roads and facilities. Results depend on the available fire area or forecast.",
     route: "/fire-map",
-    method: "WorldPop + OpenStreetMap",
-    cycle: "Sub-1km Spatial Overlay",
-    standard: "Humanitarian Risk Standard",
+    method: "Population and map data",
+    cycle: "For the selected analysis",
+    standard: "Possible exposure, not damage",
     accentColor: "#ef4444",
     glowColor: "rgba(239, 68, 68, 0.55)",
   },
@@ -174,8 +174,8 @@ function StageHudGraphic({ stageId, color }: { stageId: string; color: string })
           {/* PELT Change point markers */}
           <circle cx="140" cy="30" r="4" fill="#ffffff" stroke={color} strokeWidth="2" />
           <circle cx="260" cy="22" r="5" fill="#ff4d26" stroke="#ffffff" strokeWidth="1.5" />
-          <text x="148" y="26" fill={color} fontSize="9" fontFamily="monospace">PELT τ₁</text>
-          <text x="268" y="18" fill="#ff4d26" fontSize="9" fontFamily="monospace">ANOMALY</text>
+          <text x="148" y="26" fill={color} fontSize="9" fontFamily="monospace">CHANGE</text>
+          <text x="268" y="18" fill="#ff4d26" fontSize="9" fontFamily="monospace">UNUSUAL</text>
         </svg>
       );
 
@@ -201,15 +201,15 @@ function StageHudGraphic({ stageId, color }: { stageId: string; color: string })
           <circle cx="155" cy="68" r="4" fill="#ff4d26" />
           <circle cx="155" cy="68" r="9" fill="none" stroke="#ff4d26" strokeWidth="1" opacity="0.6" />
           <circle cx="170" cy="72" r="3" fill="#ffaa00" />
-          <text x="70" y="32" fill={color} fontSize="9" fontFamily="monospace">VIIRS 375m I-BAND</text>
-          <text x="210" y="98" fill="rgba(255,255,255,0.6)" fontSize="9" fontFamily="monospace">NADIR SCAN</text>
+          <text x="70" y="32" fill={color} fontSize="9" fontFamily="monospace">SATELLITE HEAT DETECTIONS</text>
+          <text x="210" y="98" fill="rgba(255,255,255,0.6)" fontSize="9" fontFamily="monospace">AREA OBSERVED</text>
         </svg>
       );
 
     case "identity":
       return (
         <svg viewBox="0 0 320 120" className="pipeline-hud-svg" aria-hidden="true">
-          {/* ST-DBSCAN Cluster Polygon (Convex Hull) */}
+          {/* FIRE GROUP Cluster Polygon (Convex Hull) */}
           <polygon
             points="70,40 130,25 210,35 240,75 190,100 100,90"
             fill="rgba(168, 85, 247, 0.12)"
@@ -232,8 +232,8 @@ function StageHudGraphic({ stageId, color }: { stageId: string; color: string })
           <circle cx="150" cy="62" r="8" fill="none" stroke="#ff4d26" strokeWidth="1.5" />
           <line x1="140" y1="62" x2="160" y2="62" stroke="#ff4d26" strokeWidth="1.5" />
           <line x1="150" y1="52" x2="150" y2="72" stroke="#ff4d26" strokeWidth="1.5" />
-          <text x="165" y="60" fill="#ffffff" fontSize="9" fontFamily="monospace">CENTROID</text>
-          <text x="35" y="25" fill={color} fontSize="9" fontFamily="monospace">ST-DBSCAN CLUSTER #409</text>
+          <text x="165" y="60" fill="#ffffff" fontSize="9" fontFamily="monospace">CENTRE</text>
+          <text x="35" y="25" fill={color} fontSize="9" fontFamily="monospace">RELATED DETECTIONS</text>
         </svg>
       );
 
@@ -278,7 +278,7 @@ function StageHudGraphic({ stageId, color }: { stageId: string; color: string })
           <circle cx="150" cy="48" r="3" fill="rgba(255,255,255,0.4)" />
           {/* Current Query Point */}
           <circle cx="170" cy="55" r="5" fill="#ff4d26" stroke="#ffffff" strokeWidth="1.5" />
-          <text x="50" y="30" fill={color} fontSize="9" fontFamily="monospace">MAHALANOBIS D_M = 0.84</text>
+          <text x="50" y="30" fill={color} fontSize="9" fontFamily="monospace">SIMILAR PAST EVENTS</text>
           <text x="185" y="60" fill="#ffffff" fontSize="9" fontFamily="monospace">CURRENT EVENT</text>
         </svg>
       );
@@ -293,7 +293,7 @@ function StageHudGraphic({ stageId, color }: { stageId: string; color: string })
             </marker>
           </defs>
           <line x1="40" y1="30" x2="90" y2="30" stroke="#38bdf8" strokeWidth="2" markerEnd="url(#arrow)" />
-          <text x="100" y="34" fill="#38bdf8" fontSize="9" fontFamily="monospace">WIND: 28 km/h ENE</text>
+          <text x="100" y="34" fill="#38bdf8" fontSize="9" fontFamily="monospace">WIND DIRECTION</text>
           {/* Active Ignition Origin */}
           <circle cx="60" cy="80" r="5" fill="#ff4d26" />
           {/* Downwind Projection Cones (6h, 12h, 24h) */}
@@ -302,7 +302,7 @@ function StageHudGraphic({ stageId, color }: { stageId: string; color: string })
           <path d="M 220 30 L 290 20 L 290 120 L 220 115 Z" fill="rgba(255, 122, 69, 0.04)" stroke={color} strokeDasharray="5 3" />
           <text x="110" y="78" fill="#ffffff" fontSize="9" fontFamily="monospace">+6h</text>
           <text x="175" y="78" fill="#ffffff" fontSize="9" fontFamily="monospace">+12h</text>
-          <text x="245" y="78" fill="#ffffff" fontSize="9" fontFamily="monospace">+24h CORRIDOR</text>
+          <text x="245" y="78" fill="#ffffff" fontSize="9" fontFamily="monospace">+24h OUTLOOK</text>
         </svg>
       );
 
@@ -322,8 +322,8 @@ function StageHudGraphic({ stageId, color }: { stageId: string; color: string })
           <circle cx="80" cy="50" r="6" fill="#ef4444" />
           <circle cx="230" cy="65" r="18" fill="rgba(239, 68, 68, 0.2)" />
           <circle cx="230" cy="65" r="8" fill="#ef4444" />
-          <text x="40" y="32" fill={color} fontSize="9" fontFamily="monospace">WORLDPOP: 4,200/km²</text>
-          <text x="170" y="44" fill="#ffffff" fontSize="9" fontFamily="monospace">REGIONAL HOSPITAL</text>
+          <text x="40" y="32" fill={color} fontSize="9" fontFamily="monospace">POPULATION DATA</text>
+          <text x="170" y="44" fill="#ffffff" fontSize="9" fontFamily="monospace">HOSPITAL</text>
         </svg>
       );
 
@@ -478,7 +478,7 @@ export default function Pipeline3DTransition() {
               <div className="pipe-card-top">
                 <div className="pipe-card-num-badge">
                   <span className="pipe-pill-pulse" />
-                  <span>STAGE {stage.n}</span>
+                  <span>STEP {stage.n}</span>
                 </div>
                 <span className="pipe-card-category-badge">{stage.badge}</span>
               </div>
@@ -486,7 +486,7 @@ export default function Pipeline3DTransition() {
               {/* Graphic Telemetry HUD Window */}
               <div className="pipe-card-hud-viewport">
                 <StageHudGraphic stageId={stage.id} color={stage.accentColor} />
-                <div className="pipe-hud-scanline" />
+                <div className="pipe-hud-scanline" /><span style={{ position: "absolute", bottom: 4, right: 8, fontSize: 10, color: "var(--oc-text-muted)" }}>Example illustration</span>
               </div>
 
               {/* Card Body & Technical Metadata */}
@@ -496,15 +496,15 @@ export default function Pipeline3DTransition() {
 
                 <div className="pipe-specs-grid">
                   <div className="pipe-spec-box">
-                    <span className="pipe-spec-label">METHODOLOGY</span>
+                    <span className="pipe-spec-label">HOW IT WORKS</span>
                     <strong className="pipe-spec-val">{stage.method}</strong>
                   </div>
                   <div className="pipe-spec-box">
-                    <span className="pipe-spec-label">UPDATE CYCLE</span>
+                    <span className="pipe-spec-label">TIME PERIOD</span>
                     <strong className="pipe-spec-val">{stage.cycle}</strong>
                   </div>
                   <div className="pipe-spec-box">
-                    <span className="pipe-spec-label">STANDARD</span>
+                    <span className="pipe-spec-label">KEEP IN MIND</span>
                     <strong className="pipe-spec-val">{stage.standard}</strong>
                   </div>
                 </div>
@@ -518,7 +518,7 @@ export default function Pipeline3DTransition() {
                       className="pipe-card-cta"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <span>Open in FlameSeek</span>
+                      <span>Open tool</span>
                       <ArrowRight size={14} />
                     </Link>
                   </div>

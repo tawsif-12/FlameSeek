@@ -37,16 +37,16 @@ export const SATELLITES_DATA: SatelliteItem[] = [
     id: "terra",
     num: "01",
     name: "TERRA",
-    agency: "NASA EOS AM-1",
-    tagline: "Morning Thermal Baseline & 26-Year Climate Record",
+    agency: "NASA",
+    tagline: "A long record of fire observations",
     image: "/satellites/terra.jpg",
-    sensor: "MODIS Payload (36 Bands)",
-    orbit: "705 km Polar Sun-Sync",
-    overpass: "10:30 AM (Descending)",
+    sensor: "MODIS heat sensor",
+    orbit: "705 km",
+    overpass: "Originally about 10:30 AM local time",
     swath: "2,330 km",
-    resolution: "1,000 m Nadir",
-    baseline: "2000 to Present (26 Yrs)",
-    role: "Detects pre-burn thermal buildup before midday cloud & storm formation. Anchor of the 26-year unbroken climate series.",
+    resolution: "About 1 km",
+    baseline: "Fire record begins in 2000",
+    role: "Terra helps us look back at fire activity over many years. Its MODIS sensor detects heat across wide areas.",
     accentColor: "#38bdf8",
     glowColor: "rgba(56, 189, 248, 0.5)",
   },
@@ -54,16 +54,16 @@ export const SATELLITES_DATA: SatelliteItem[] = [
     id: "aqua",
     num: "02",
     name: "AQUA",
-    agency: "NASA EOS PM-1",
-    tagline: "Diurnal Peak Fire Power Reference Anchor",
+    agency: "NASA",
+    tagline: "Another view of the same fire activity",
     image: "/satellites/aqua.jpg",
-    sensor: "MODIS Payload (36 Bands)",
-    orbit: "705 km Polar Sun-Sync",
-    overpass: "01:30 PM (Ascending)",
+    sensor: "MODIS heat sensor",
+    orbit: "705 km",
+    overpass: "Originally about 1:30 PM local time",
     swath: "2,330 km",
-    resolution: "1,000 m Nadir",
-    baseline: "Aqua 13:30 Eqv Anchor",
-    role: "Observes during daily peak ambient temperature and fire intensity. Standard reference for diurnal solar power harmonization.",
+    resolution: "About 1 km",
+    baseline: "Used as a comparison reference",
+    role: "Aqua adds observations at a different time of day. Comparing it with Terra helps us understand how fire activity changes.",
     accentColor: "#00f2fe",
     glowColor: "rgba(0, 242, 254, 0.55)",
   },
@@ -72,15 +72,15 @@ export const SATELLITES_DATA: SatelliteItem[] = [
     num: "03",
     name: "SUOMI NPP",
     agency: "NASA / NOAA",
-    tagline: "High-Resolution 375m Sub-Pixel Thermal Precision",
+    tagline: "A closer look at smaller heat sources",
     image: "/satellites/suomi-npp.jpg",
-    sensor: "VIIRS Instrument (22 Channels)",
-    orbit: "824 km Polar Sun-Sync",
-    overpass: "01:30 PM / 01:30 AM",
-    swath: "3,040 km (Zero-Gap)",
-    resolution: "375 m I-Band Nadir",
-    baseline: "Active Since 2012",
-    role: "High-resolution fire perimeter mapping and sub-pixel thermal sensitivity from nadir to edge. Day/Night Band detects nocturnal fires.",
+    sensor: "VIIRS heat sensor",
+    orbit: "824 km",
+    overpass: "Day and night passes",
+    swath: "3,040 km",
+    resolution: "About 375 m",
+    baseline: "Fire record begins in 2012",
+    role: "Suomi-NPP provides more detailed heat detections than MODIS. Its observations help us see smaller areas of fire activity.",
     accentColor: "#22c55e",
     glowColor: "rgba(34, 197, 94, 0.5)",
   },
@@ -88,16 +88,16 @@ export const SATELLITES_DATA: SatelliteItem[] = [
     id: "noaa20",
     num: "04",
     name: "NOAA-20",
-    agency: "JPSS-1, NOAA",
-    tagline: "50-Minute Temporal Persistence Verifier",
+    agency: "NOAA",
+    tagline: "More chances to observe a fire",
     image: "/satellites/noaa-20.jpg",
-    sensor: "VIIRS Instrument (22 Channels)",
-    orbit: "824 km Polar Sun-Sync",
-    overpass: "02:20 PM (50 min offset)",
-    swath: "3,040 km (Zero-Gap)",
-    resolution: "375 m I-Band Nadir",
-    baseline: "Active Since 2018",
-    role: "Trailing Suomi NPP by 50 minutes, NOAA-20 confirms active fire persistence vs transient glint. Powers the Hide-One-Witness test.",
+    sensor: "VIIRS heat sensor",
+    orbit: "824 km",
+    overpass: "Day and night passes",
+    swath: "3,040 km",
+    resolution: "About 375 m",
+    baseline: "Fire record begins in 2018",
+    role: "NOAA-20 adds another set of observations. Later detections can help us check whether heat is still present in an area.",
     accentColor: "#ff8a5b",
     glowColor: "rgba(255, 138, 91, 0.55)",
   },
@@ -254,15 +254,15 @@ export default function Satellite3DCoverflow({ onSatelliteChange }: Satellite3DC
 
                 <div className="sat-card-specs-grid">
                   <div className="sat-spec-col">
-                    <span className="sat-spec-lbl">SWATH</span>
+                    <span className="sat-spec-lbl">VIEW WIDTH</span>
                     <strong className="sat-spec-val">{sat.swath}</strong>
                   </div>
                   <div className="sat-spec-col">
-                    <span className="sat-spec-lbl">RESOLUTION</span>
+                    <span className="sat-spec-lbl">PIXEL SIZE</span>
                     <strong className="sat-spec-val">{sat.resolution}</strong>
                   </div>
                   <div className="sat-spec-col">
-                    <span className="sat-spec-lbl">ORBIT</span>
+                    <span className="sat-spec-lbl">HEIGHT (KM)</span>
                     <strong className="sat-spec-val">{sat.orbit.split(" ")[0]}</strong>
                   </div>
                 </div>
@@ -277,7 +277,7 @@ export default function Satellite3DCoverflow({ onSatelliteChange }: Satellite3DC
                       onClick={(e) => e.stopPropagation()}
                       tabIndex={isCenter ? 0 : -1}
                     >
-                      <span>Explore Live Orbit</span>
+                      <span>View fire observations</span>
                       <ArrowRight size={14} />
                     </Link>
                   </div>
