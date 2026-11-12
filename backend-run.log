@@ -1,0 +1,11 @@
+current hotspots warmed
+INFO:     127.0.0.1:59155 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59155 - "POST /fires/search?limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59155 - "POST /api/fire_memory/saved HTTP/1.1" 200 OK
+event set warmed
+INFO:     127.0.0.1:57338 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65403 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49677 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49677 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57424 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58755 - "GET /api/pipeline/catalog HTTP/1.1" 200 OK
