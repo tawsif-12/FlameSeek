@@ -1,154 +1,21 @@
-2:35:52 PM [vite] Pre-transform error: D:\nasa space\Burning_Activity\frontend\src\components\HarmonizedProvenance.tsx: Unexpected token (5:1)
-
-  3 |
-  4 | /** data_version and last_observation_time from /meta, in the hero-chips style. */
-> 5 | <<<<<<< HEAD
-    |  ^
-  6 | export default function HarmonizedProvenance({ window, compact = false }: { window?: string; compact?: boolean }) {
-  7 | =======
-  8 | export default function HarmonizedProvenance({
-2:35:52 PM [vite] Pre-transform error: D:\nasa space\Burning_Activity\frontend\src\components\HarmonizedProvenance.tsx: Unexpected token (5:1)
-
-  3 |
-  4 | /** data_version and last_observation_time from /meta, in the hero-chips style. */
-> 5 | <<<<<<< HEAD
-    |  ^
-  6 | export default function HarmonizedProvenance({ window, compact = false }: { window?: string; compact?: boolean }) {
-  7 | =======
-  8 | export default function HarmonizedProvenance({
-2:35:52 PM [vite] Internal server error: D:\nasa space\Burning_Activity\frontend\src\components\HarmonizedProvenance.tsx: Unexpected token (5:1)
-
-  3 |
-  4 | /** data_version and last_observation_time from /meta, in the hero-chips style. */
-> 5 | <<<<<<< HEAD
-    |  ^
-  6 | export default function HarmonizedProvenance({ window, compact = false }: { window?: string; compact?: boolean }) {
-  7 | =======
-  8 | export default function HarmonizedProvenance({
-  Plugin: vite:react-babel
-  File: D:/nasa space/Burning_Activity/frontend/src/components/HarmonizedProvenance.tsx:5:1
-  3  |  
-  4  |  /** data_version and last_observation_time from /meta, in the hero-chips style. */
-  5  |  <<<<<<< HEAD
-     |       ^
-  6  |  export default function HarmonizedProvenance({ window, compact = false }: { window?: string; compact?: boolean }) {
-  7  |  =======
-      at constructor (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:369:19)
-      at TypeScriptParserMixin.raise (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:6622:19)
-      at TypeScriptParserMixin.unexpected (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:6642:16)
-      at TypeScriptParserMixin.jsxParseIdentifier (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:4587:12)
-      at TypeScriptParserMixin.jsxParseNamespacedName (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:4594:23)
-      at TypeScriptParserMixin.jsxParseElementName (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:4603:21)
-      at TypeScriptParserMixin.jsxParseOpeningElementAt (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:4679:22)
-      at TypeScriptParserMixin.jsxParseElementAt (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:4704:33)
-      at TypeScriptParserMixin.jsxParseElement (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:4767:17)
-      at TypeScriptParserMixin.parseExprAtom (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:4777:19)
-      at TypeScriptParserMixin.parseExprSubscripts (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:11107:23)
-      at TypeScriptParserMixin.parseUpdate (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:11092:21)
-      at TypeScriptParserMixin.parseMaybeUnary (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:11072:23)
-      at TypeScriptParserMixin.parseMaybeUnary (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:9860:18)
-      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:10925:61)
-      at TypeScriptParserMixin.parseExprOps (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:10930:23)
-      at TypeScriptParserMixin.parseMaybeConditional (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:10907:23)
-      at TypeScriptParserMixin.parseMaybeAssign (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:10857:21)
-      at D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:9798:39
-      at TypeScriptParserMixin.tryParse (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:6930:20)
-      at TypeScriptParserMixin.parseMaybeAssign (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:9798:18)
-      at TypeScriptParserMixin.parseExpressionBase (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:10810:23)
-      at D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:10806:39
-      at TypeScriptParserMixin.allowInAnd (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:12455:16)
-      at TypeScriptParserMixin.parseExpression (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:10806:17)
-      at TypeScriptParserMixin.parseStatementContent (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:12929:23)
-      at TypeScriptParserMixin.parseStatementContent (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:9531:18)
-      at TypeScriptParserMixin.parseStatementLike (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:12801:17)
-      at TypeScriptParserMixin.parseModuleItem (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:12778:17)
-      at TypeScriptParserMixin.parseBlockOrModuleBlockBody (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:13350:36)
-      at TypeScriptParserMixin.parseBlockBody (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:13343:10)
-      at TypeScriptParserMixin.parseProgram (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:12656:10)
-      at TypeScriptParserMixin.parseTopLevel (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:12646:25)
-      at TypeScriptParserMixin.parse (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:14522:25)
-      at TypeScriptParserMixin.parse (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:10149:18)
-      at parse (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\parser\lib\index.js:14556:38)
-      at parser (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
-      at parser.next (<anonymous>)
-      at normalizeFile (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
-      at normalizeFile.next (<anonymous>)
-      at run (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
-      at run.next (<anonymous>)
-      at transform (D:\nasa space\Burning_Activity\frontend\node_modules\@babel\core\lib\transform.js:22:33)
-      at transform.next (<anonymous>)
-      at step (D:\nasa space\Burning_Activity\frontend\node_modules\gensync\index.js:261:32)
-      at D:\nasa space\Burning_Activity\frontend\node_modules\gensync\index.js:273:13
-      at async.call.result.err.err (D:\nasa space\Burning_Activity\frontend\node_modules\gensync\index.js:223:11)
-      at D:\nasa space\Burning_Activity\frontend\node_modules\gensync\index.js:189:28
-      at D:\nasa space\Burning_Activity\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
-      at D:\nasa space\Burning_Activity\frontend\node_modules\gensync\index.js:113:33
-2:35:52 PM [vite] Pre-transform error: D:\nasa space\Burning_Activity\frontend\src\components\HarmonizedProvenance.tsx: Unexpected token (5:1)
-
-  3 |
-  4 | /** data_version and last_observation_time from /meta, in the hero-chips style. */
-> 5 | <<<<<<< HEAD
-    |  ^
-  6 | export default function HarmonizedProvenance({ window, compact = false }: { window?: string; compact?: boolean }) {
-  7 | =======
-  8 | export default function HarmonizedProvenance({
-2:47:58 PM [vite] http proxy error: /meta
-Error: read ECONNRESET
-    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
-2:47:58 PM [vite] http proxy error: /api/events?days=2&limit=40&include_demo=false
-Error: read ECONNRESET
-    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
-2:47:58 PM [vite] http proxy error: /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false
-Error: read ECONNRESET
-    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
-2:47:58 PM [vite] http proxy error: /api/pipeline/catalog
-Error: read ECONNRESET
-    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
-2:47:58 PM [vite] http proxy error: /meta
+12:54:18 AM [vite] http proxy error: /api/pipeline/catalog
 Error: connect ECONNREFUSED 127.0.0.1:8000
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /api/events?days=2&limit=40&include_demo=false
+12:54:18 AM [vite] http proxy error: /meta
 Error: connect ECONNREFUSED 127.0.0.1:8000
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=false
+12:54:19 AM [vite] http proxy error: /api/pipeline/catalog
 Error: connect ECONNREFUSED 127.0.0.1:8000
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /api/pipeline/catalog
+12:54:19 AM [vite] http proxy error: /api/pipeline/catalog
 Error: connect ECONNREFUSED 127.0.0.1:8000
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /meta
+12:54:19 AM [vite] http proxy error: /api/pipeline/catalog
 Error: connect ECONNREFUSED 127.0.0.1:8000
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /api/events?days=2&limit=40&include_demo=true
+12:54:19 AM [vite] http proxy error: /meta
 Error: connect ECONNREFUSED 127.0.0.1:8000
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true
-Error: connect ECONNREFUSED 127.0.0.1:8000
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /api/pipeline/catalog
-Error: connect ECONNREFUSED 127.0.0.1:8000
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /meta
-Error: connect ECONNREFUSED 127.0.0.1:8000
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /api/events?days=2&limit=40&include_demo=true
-Error: connect ECONNREFUSED 127.0.0.1:8000
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /api/current_hotspots?days=1&limit=600&sensors=modis&sensors=viirs_snpp&sensors=viirs_noaa20&sensors=viirs_noaa21&include_demo=true
-Error: connect ECONNREFUSED 127.0.0.1:8000
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /api/pipeline/catalog
-Error: connect ECONNREFUSED 127.0.0.1:8000
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /api/pipeline/catalog
-Error: connect ECONNREFUSED 127.0.0.1:8000
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /api/pipeline/catalog
-Error: connect ECONNREFUSED 127.0.0.1:8000
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /meta
-Error: connect ECONNREFUSED 127.0.0.1:8000
-    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
-2:47:58 PM [vite] http proxy error: /meta
+12:54:19 AM [vite] http proxy error: /meta
 Error: connect ECONNREFUSED 127.0.0.1:8000
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)

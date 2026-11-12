@@ -17,6 +17,7 @@ from routers.places import router as places_router
 from routers.place_pipeline import router as place_pipeline_router
 from routers.sources import router as sources_router
 from routers.pipeline_status import router as pipeline_status_router
+from routers.datasets import router as datasets_router
 
 
 async def _warm_event_set() -> None:
@@ -77,6 +78,7 @@ app.include_router(places_router, prefix="/api", tags=["places and jobs"])
 app.include_router(place_pipeline_router, prefix="/api", tags=["fire intelligence pipeline"])
 app.include_router(sources_router, tags=["sources"])
 app.include_router(pipeline_status_router, prefix="/api", tags=["pipeline"])
+app.include_router(datasets_router, prefix="/api", tags=["datasets"])
 
 
 @app.get("/")

@@ -1,0 +1,5 @@
+[Step 5] Energy conservation: FRP before gridding = 880911.600000 MW, after = 880911.600000 MW, rel. diff = 0.00e+00 -> PASS
+         18979 cell-days, 30344 cell-overpass rows; max raw weight-sum deviation 3.75e-06
+[Step 6E] day: n=26,528 F_min=10.67 MW alpha=2.009 R=-7.55 p=4.46e-14 -> lognormal
+[Step 6E] night: n=5,367 F_min=27.26 MW alpha=2.363 R=-1.04 p=0.3 -> inconclusive (p >= 0.1)
+

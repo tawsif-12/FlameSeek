@@ -76,13 +76,18 @@ export async function getEvent(eventId: string): Promise<FireEvent> {
 }
 
 export async function searchPlaces(q: string, signal?: AbortSignal, suggest = false): Promise<PlaceResult[]> {
-  const { data } = await api.get<{ results: PlaceResult[] }>("/api/places/search", { params: { q, suggest }, signal });
+  const { data } = await api.get<{ results: PlaceResult[] }>("/api/places/search", { params: { q, suggest }, signal, headers: { "Cache-Control": "no-cache" } });
   return data.results;
 }
 
 // Repeated navigation and StrictMode mounts share identical analysis requests.
 const analysisStarts = new Map<string, { started: number; request: Promise<Job<unknown>>; jobId?: string }>();
 const jobReads = new Map<string, Promise<Job<unknown>>>();
+export async function resolvePlace(placeId: string, signal?: AbortSignal): Promise<PlaceResult | null> {
+  const { data } = await api.get<{ result: PlaceResult | null }>("/api/places/resolve", { params: { place_id: placeId }, signal, headers: { "Cache-Control": "no-cache" } });
+  return data.result;
+}
+
 async function startJob<T>(url: string, body?: unknown, params?: Record<string, unknown>): Promise<Job<T>> {
   const reusable = (url === "/api/fire_memory" || url === "/api/place_pipeline") && !(body as { refresh?: boolean } | undefined)?.refresh;
   const key = JSON.stringify([url, body, params]);

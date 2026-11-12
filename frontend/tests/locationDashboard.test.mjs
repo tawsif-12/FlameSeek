@@ -16,7 +16,7 @@ await build({ stdin: { contents: `export { default as SearchPage } from './src/p
   builder.onResolve({ filter: /api\/client$/ }, () => ({ path: 'client', namespace: 'test' }));
   builder.onResolve({ filter: /components\/AOISelector$/ }, () => ({ path: 'map', namespace: 'test' }));
   builder.onResolve({ filter: /\/(AreaIntelligencePage|FireGlobePage|FireMemoryPage|FireDnaPage|HarmonizedMapPage)$/ }, ({ path }) => ({ path: path.split('/').at(-1), namespace: 'test' }));
-  builder.onLoad({ filter: /.*/, namespace: 'test' }, ({ path }) => ({ resolveDir: process.cwd(), loader: 'jsx', contents: path === 'client' ? `export const searchPlaces=(q,signal)=>globalThis.locationSearch(q,signal); export const normalizeApiError=e=>e.message;` : path === 'map' ? `import {useAppContext} from './src/context/AppContext'; export default function Map(){const {setAoi}=useAppContext();return <button onClick={()=>setAoi(globalThis.drawnArea)}>Draw test boundary</button>;}` : `import {useEffect} from 'react';import {useLocation} from 'react-router-dom';import {useAppContext} from './src/context/AppContext';export default function Feature(){const state=useAppContext();const route=useLocation();useEffect(()=>{globalThis.featureWrites.push({area:state.aoi,save:state.setMemory});},[]);return <main><h1>${path}</h1><pre data-testid="feature-area">{JSON.stringify({area:state.aoi,memory:state.memory,locked:state.lockedArea,section:route.pathname})}</pre></main>;}` }));
+  builder.onLoad({ filter: /.*/, namespace: 'test' }, ({ path }) => ({ resolveDir: process.cwd(), loader: 'jsx', contents: path === 'client' ? `export const searchPlaces=(q,signal)=>globalThis.locationSearch(q,signal); export const resolvePlace=(id,signal)=>globalThis.locationResolve(id,signal); export const normalizeApiError=e=>e.message;` : path === 'map' ? `import {useAppContext} from './src/context/AppContext'; export default function Map(){const {setAoi}=useAppContext();return <button onClick={()=>setAoi(globalThis.drawnArea)}>Draw test boundary</button>;}` : `import {useEffect} from 'react';import {useLocation} from 'react-router-dom';import {useAppContext} from './src/context/AppContext';export default function Feature(){const state=useAppContext();const route=useLocation();useEffect(()=>{globalThis.featureWrites.push({area:state.aoi,save:state.setMemory});},[]);return <main><h1>${path}</h1><pre data-testid="feature-area">{JSON.stringify({area:state.aoi,memory:state.memory,locked:state.lockedArea,section:route.pathname})}</pre></main>;}` }));
 } }] });
 const React = await import('react');
 const { render, screen, cleanup, waitFor, act } = await import('@testing-library/react');
@@ -37,7 +37,7 @@ function mount(path='/search', {small=false,saved=null}={}) {
     React.createElement(Route,{path:'/location',element:React.createElement(Dashboard)})))));
 }
 const current = () => JSON.parse(screen.getByTestId('feature-area').textContent);
-async function select(query) { await userEvent.type(screen.getByRole('combobox'),`${query}{Enter}`); await screen.findAllByRole('option'); await userEvent.keyboard('{ArrowDown}{Enter}'); await screen.findByTestId('feature-area'); }
+async function select(query) { await userEvent.type(screen.getByRole('combobox'),query); await screen.findAllByRole('option'); await userEvent.keyboard('{ArrowDown}{Enter}'); await screen.findByTestId('feature-area'); }
 afterEach(()=>{cleanup();globalThis.locationSearch=undefined;});
 
 test('Explore starts empty and debounces typing requests',async()=>{
@@ -88,14 +88,18 @@ test('switch to Bangladesh clears old data and rejects a late write from the pre
   }
 });
 
-test('point results require map confirmation; custom polygon and radius URLs round-trip',async()=>{
-  globalThis.locationSearch=async()=>[{...result('Noakhali'),geometry:null}];globalThis.drawnArea={name:'Custom area',geometry:boundary,kind:'polygon'};
-  mount();await userEvent.type(screen.getByRole('combobox'),'Noakhali{Enter}');await screen.findByRole('option');await userEvent.keyboard('{ArrowDown}{Enter}');
-  assert.ok(screen.getByText(/Only a point/));assert.equal(screen.queryByTestId('feature-area'),null);
-  await userEvent.click(screen.getByRole('button',{name:'Select an area on the map'}));
-  await userEvent.click(screen.getByRole('button',{name:'Draw test boundary'}));await userEvent.click(screen.getByRole('button',{name:'Open location dashboard'}));
-  await screen.findByTestId('feature-area');assert.deepEqual(current().area,globalThis.drawnArea);
+test('point-only live results open a clearly labelled radius dashboard; custom areas still round-trip',async()=>{
+  globalThis.locationSearch=async()=>[{...result('Noakhali'),geometry:null}];
+  mount();await userEvent.type(screen.getByRole('combobox'),'Noakhali');await screen.findByRole('option');await userEvent.keyboard('{Enter}');
+  await screen.findByTestId('feature-area');
+  assert.equal(current().section,'/location/intelligence');
+  assert.deepEqual(current().area.center,[90.5,23.5]);
+  assert.equal(current().area.radius_km,25);
+  assert.equal(current().area.kind,'radius');
+  assert.equal(current().area.name,'Noakhali (within 25 km)');
+  assert.equal(current().area.geometry,undefined);
   const radius={center:[90,24],radius_km:12.5,kind:'radius'};assert.deepEqual(areaFromUrl(new URL(dashboardUrl(radius),'http://localhost').search),radius);
+  const custom={geometry:boundary,kind:'polygon'};assert.deepEqual(areaFromUrl(new URL(dashboardUrl(custom),'http://localhost').search),custom);
   assert.equal(areaFromUrl('?area=invalid'),null);
   assert.equal(featureHref('/fire-map?date=2026-11-09',radius,true).startsWith('/location/now?'),true);
 });
@@ -153,4 +157,59 @@ test('merged links preserve the location and event query while legacy sections r
     assert.equal(new URLSearchParams(window.location.search).get('event'), 'existing-event');
     cleanup();
   }
+});
+
+
+test('fresh suggestions resolve their boundary on selection instead of treating a point as an area', async () => {
+  let resolutions = 0;
+  globalThis.locationSearch = async () => [{ ...result('Chattogram District'), geometry: null, requires_resolution: true, place_id: 'osm:relation:3824577' }];
+  globalThis.locationResolve = async id => { resolutions++; assert.equal(id, 'osm:relation:3824577'); return { ...result('Chattogram District'), place_id: id }; };
+  mount();
+  try {
+    await userEvent.type(screen.getByRole('combobox'), 'chittagong');
+    await screen.findAllByRole('option');
+    assert.equal(resolutions, 0);
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    await screen.findByTestId('feature-area');
+    assert.equal(resolutions, 1);
+    assert.equal(current().area.id, 'osm:relation:3824577');
+    assert.deepEqual(current().area.geometry, boundary);
+  } finally { delete globalThis.locationResolve; }
+});
+
+
+test('Enter opens the first live suggestion without arrow keys and resolves its boundary',async()=>{
+  const calls=[];
+  globalThis.locationSearch=async()=>[{...result('Noakhali'),place_id:'geonames:123',geometry:null,requires_resolution:true},result('Bangladesh')];
+  globalThis.locationResolve=async id=>{calls.push(id);return result('Noakhali');};
+  mount();
+  await userEvent.type(screen.getByRole('combobox'),'Noakhali');
+  await screen.findAllByRole('option');
+  await userEvent.keyboard('{Enter}');
+  await screen.findByTestId('feature-area');
+  assert.deepEqual(calls,['geonames:123']);
+  assert.equal(current().section,'/location/intelligence');
+  assert.deepEqual(current().area,noakhali);
+});
+
+
+test('resolved city centres without polygons still open the searched location dashboard',async()=>{
+  globalThis.locationSearch=async()=>[{...result('Dhaka'),place_id:'geonames:1185241',geometry:null,requires_resolution:true}];
+  globalThis.locationResolve=async()=>({...result('Dhaka'),place_id:'osm:node:3442474911',geometry:null});
+  mount();await userEvent.type(screen.getByRole('combobox'),'Dhaka');
+  await screen.findByRole('option');await userEvent.keyboard('{Enter}');
+  await screen.findByTestId('feature-area');
+  assert.equal(current().area.name,'Dhaka (within 25 km)');
+  assert.equal(current().section,'/location/intelligence');
+  assert.equal(current().area.radius_km,25);
+});
+
+
+test('Enter before suggestions arrive fetches and opens the first matching location',async()=>{
+  globalThis.locationSearch=async()=>[result('Noakhali')];
+  mount();
+  await userEvent.type(screen.getByRole('combobox'),'Noakhali{Enter}');
+  await screen.findByTestId('feature-area');
+  assert.deepEqual(current().area,noakhali);
+  assert.equal(current().section,'/location/intelligence');
 });

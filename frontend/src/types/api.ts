@@ -102,6 +102,7 @@ export interface Job<T> {
 // --- Places ------------------------------------------------------------------------
 
 export interface PlaceResult {
+  requires_resolution?: boolean;
   place_id?: string;
   place_name?: string;
   parent_region?: string;
