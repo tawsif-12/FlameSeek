@@ -4,6 +4,7 @@ import { Activity, CalendarDays, ChevronLeft, ChevronRight, Dna, Flame, Info, Ma
 import { areaFromUrl, dashboardUrl, locationId, LOCATION_SECTIONS, type LocationSection } from '../api/locationRoutes';
 import { describeAoi, LocationAreaScope, useAppContext } from '../context/AppContext';
 import '../location-dashboard.css';
+import { resolvePlace } from '../api/client';
 
 const FEATURES = {
   intelligence: lazy(() => import('./AreaIntelligencePage')),
@@ -25,6 +26,17 @@ export default function LocationDashboard() {
   const { aoi, setAoi, setMemory } = useAppContext();
   const areaToken = new URLSearchParams(route.search).get('area') || new URLSearchParams(route.hash.replace(/^#/, '')).get('area');
   const area = useMemo(() => areaFromUrl(`?area=${encodeURIComponent(areaToken || '')}`), [areaToken]);
+  // Repair old country links created by the point-only 25 km fallback.
+  useEffect(() => {
+    if (area?.kind !== 'radius' || !area.id?.match(/^geonames:[1-9][0-9]*:radius:25$/)) return;
+    const request = new AbortController();
+    void resolvePlace(area.id.replace(/:radius:25$/, ''), request.signal).then(place => {
+      if (request.signal.aborted || !place?.geometry || !['country', 'administrative'].includes(place.type) && !['country', 'administrative'].includes(place.addresstype)) return;
+      const fullArea = { id: place.place_id, geometry: place.geometry, bbox: place.bbox, name: place.place_name || place.name, kind: 'place' as const };
+      navigate(dashboardUrl(fullArea, LOCATION_SECTIONS.includes(section as LocationSection) ? section as LocationSection : 'intelligence'), { replace: true });
+    }).catch(() => { /* Existing area remains usable; selection can be retried. */ });
+    return () => request.abort();
+  }, [area, navigate, section]);
   const [collapsed, setCollapsed] = useState(() => { try { return localStorage.getItem('flameseek.sidebar.collapsed') === '1'; } catch { return false; } });
   const [mobile, setMobile] = useState(() => window.matchMedia('(max-width: 900px)').matches);
   const [drawer, setDrawer] = useState(false);

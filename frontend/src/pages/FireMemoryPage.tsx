@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import Plot from "../components/LazyPlot";
+import { useEffect, useMemo, useRef, useState, type ComponentProps } from "react";
+import LazyPlot from "../components/LazyPlot";
 import "../memory-refinements.css";
 import { useNavigate } from "react-router-dom";
 import { normalizeApiError, runJob, startFireMemory, savedFireMemory } from "../api/client";
@@ -27,6 +27,25 @@ const OBS_COLORS: Record<string, string> = {
   missing_observation: "#1e293b",
 };
 const plotLayout = { autosize: true, paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)", font: { family: "Inter, sans-serif", size: 12 } };
+function Plot(props: ComponentProps<typeof LazyPlot>) {
+  const [day, setDay] = useState(() => document.documentElement.dataset.theme === 'day');
+  useEffect(() => {
+    const observer = new MutationObserver(() => setDay(document.documentElement.dataset.theme === 'day'));
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
+  const color = day ? '#24445d' : '#d5e5f3';
+  const gridcolor = day ? '#d6e3ec' : '#334155';
+  const axis = { automargin: true, color, gridcolor, zerolinecolor: gridcolor };
+  return <LazyPlot {...props} layout={{ ...props.layout,
+    font: { ...props.layout?.font, color },
+    xaxis: { ...axis, ...props.layout?.xaxis },
+    yaxis: { ...axis, ...props.layout?.yaxis },
+    ...(props.layout?.yaxis2 ? { yaxis2: { ...axis, ...props.layout.yaxis2 } } : {}),
+    hoverlabel: { bgcolor: day ? '#ffffff' : '#102338', font: { color } },
+  }} />;
+}
+
 type CalendarMode = "harmonized" | "raw" | "anomaly";
 
 function medianOf(values: number[]) {
@@ -98,8 +117,8 @@ export default function FireMemoryPage() {
         <header className="memory-intro nasa-page-intro">
           <p className="eyebrow"><span className="dot" /> Historical fire activity and trends</p>
           <h2>Burning Calendar</h2>
-          <p className="lead">Explore the burning calendar, fire memory, historical activity and long-term trends for the selected location.</p>
-          <p className="memory-method-intro">Harmonized estimates account for sensor differences. Comparability depends on observation coverage and validation for the selected region and period.</p>
+          <p className="lead">See which months had more satellite heat detections and how the available record changes over time.</p>
+          <p className="memory-method-intro">Start with the monthly calendar. Select a month to see its numbers. Missing observations do not mean there were no fires.</p>
         </header>
       </div>
       <section className="memory-setup glass-card">
@@ -201,17 +220,17 @@ function MemorySummary({ memory }: { memory: FireMemoryResult }) {
   const changes = memory.change_points.change_points ?? [];
   const quiet = profile.quiet_months.filter((m) => !profile.peak_months.includes(m) && !profile.active_months.includes(m));
   const now: Record<string, string> = {
-    Normal: "Right now, fire activity is about normal for this time of year.",
+    Normal: "Recent recorded activity is about normal for this time of year.",
     "Above Normal": "Right now, there is more fire than usual for this time of year.",
-    Unusual: "Right now, fire activity is unusually high for this time of year.",
-    "Highly Unusual": "Right now, fire activity is far above anything usual for this time of year.",
+    Unusual: "Recent recorded activity is unusually high for this time of year.",
+    "Highly Unusual": "Recent recorded activity is far above anything usual for this time of year.",
   };
   return (
     <section className="page-plain glass-card" aria-label="Summary in plain words">
-      In {name}, fires are most common in {listWords(profile.peak_months) || "no particular month"}
-      {quiet.length ? `, and rare in ${listWords(quiet.slice(0, 4))}${quiet.length > 4 ? " and other months" : ""}` : ""}.{" "}
+      In the available records for {name}, activity is highest in {listWords(profile.peak_months) || "no particular month"}
+      {quiet.length ? `, and lower in ${listWords(quiet.slice(0, 4))}${quiet.length > 4 ? " and other months" : ""}` : ""}.{" "}
       {now[cmp.overall_category ?? ""] ?? "There is not enough history yet to say whether this year is unusual."}{" "}
-      {changes.length ? `Over the years, the level of fire ${changes[changes.length - 1].direction === "increase" ? "went up" : "went down"} around ${changes[changes.length - 1].date}.` : "Over these years, the overall level of fire has not clearly changed."}
+      {changes.length ? `Over the years, the level of fire ${changes[changes.length - 1].direction === "increase" ? "went up" : "went down"} around ${changes[changes.length - 1].date}.` : "No clear long-term change was detected in the available record."}
       <small>
         Based on {memory.summary.total_hotspots.toLocaleString()} satellite fire sightings from {memory.period.start.slice(0, 4)} to {memory.period.end.slice(0, 4)}.
         {step ? ` When sharper satellites started in ${step.date.slice(0, 4)}, raw sightings became about ${Number(step.raw_count_ratio).toFixed(1)} times as many. Sensor changes can contribute to this jump; consult the validation results before interpreting the harmonized trend.` : ""}
@@ -223,7 +242,7 @@ function MemorySummary({ memory }: { memory: FireMemoryResult }) {
 function MemoryResults({ memory }: { memory: FireMemoryResult }) {
   const navigate = useNavigate();
   const { aoi: selectedArea, lockedArea } = useAppContext();
-  const [calendarMode, setCalendarMode] = useState<CalendarMode>("harmonized");
+  const [calendarMode, setCalendarMode] = useState<CalendarMode>("raw");
   const [selectedMonth, setSelectedMonth] = useState<{ year: number; month: number } | null>(null);
   const cmp = memory.current_vs_historical;
   const bbox = aoiBBox(memory.aoi as never) ?? (memory.aoi.bbox as [number, number, number, number]);
@@ -275,7 +294,7 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
   }
 
   function exportCalendarPng() {
-    const cellW = 70, cellH = 32, left = 75, top = 64;
+    const cellW = 82, cellH = 44, left = 75, top = 64;
     const canvas = document.createElement("canvas");
     canvas.width = left + cellW * 12 + 24;
     canvas.height = top + cellH * memory.calendar.years.length + 56;
@@ -284,41 +303,50 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
     context.fillStyle = "#06101f"; context.fillRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = "#d8efff"; context.font = "bold 19px sans-serif"; context.fillText("FlameSeek · Fire Memory Calendar", 22, 28);
     context.fillStyle = "#7fa8c7"; context.font = "11px sans-serif"; context.fillText(String(memory.aoi.name ?? "Selected area"), 22, 47);
-    const values = memory.calendar.activity.flat().filter((value): value is number => value !== null);
+    const values = calendarGrid.flat().filter((value): value is number => value !== null);
     const max = Math.max(...values, 1);
     memory.calendar.months.forEach((month, index) => context.fillText(month, left + index * cellW + 18, top - 10));
     memory.calendar.years.forEach((year, yearIndex) => {
       context.fillStyle = "#a7c7de"; context.fillText(String(year), 20, top + yearIndex * cellH + 20);
-      memory.calendar.activity[yearIndex].forEach((value, monthIndex) => {
-        const ratio = value === null ? -1 : Math.max(0, Math.min(1, value / max));
-        context.fillStyle = ratio < 0 ? "#263143" : ratio < .25 ? "#0d3f63" : ratio < .5 ? "#08b8d8" : ratio < .75 ? "#ff9b32" : "#e33924";
+      calendarGrid[yearIndex].forEach((value, monthIndex) => {
+        context.fillStyle = value === null ? "#263143" : cellColor(value);
         context.fillRect(left + monthIndex * cellW, top + yearIndex * cellH, cellW - 3, cellH - 3);
+        const text = value === null ? '-' : calendarMode === 'anomaly' ? `${value > 0 ? '+' : ''}${Math.round(value)}%` : Math.round(value).toLocaleString();
+        context.fillStyle = '#ffffff'; context.font = 'bold 11px sans-serif';
+        const textX = left + monthIndex * cellW + (cellW - context.measureText(text).width) / 2;
+        context.fillStyle = '#071a2a'; context.fillRect(textX - 3, top + yearIndex * cellH + 12, context.measureText(text).width + 6, 18);
+        context.fillStyle = '#ffffff'; context.fillText(text, textX, top + yearIndex * cellH + 25);
       });
     });
-    context.fillStyle = "#7fa8c7"; context.fillText("NASA FIRMS · Aqua MODIS-equivalent activity per clear-sky look", 22, canvas.height - 18);
+    context.fillStyle = "#7fa8c7"; context.fillText(`NASA FIRMS | ${calendarMode === 'raw' ? 'Satellite heat detections' : calendarMode === 'anomaly' ? 'Difference from the historical median (%)' : 'Adjusted activity (estimate)'} | Missing data is not zero`, 22, canvas.height - 18);
     canvas.toBlob((blob) => blob && downloadFile("flameseek-fire-memory-calendar.png", blob), "image/png");
   }
   return (
     <>
+      <section className="calendar-reading-guide" aria-label="How to read the results">
+        <h3>Read the fire history in three steps</h3>
+        <ol><li><strong>Choose a measurement.</strong> Start with satellite detections.</li><li><strong>Select a month.</strong> Read its count and data notes below the calendar.</li><li><strong>Compare the patterns.</strong> Scroll down for seasonal and historical charts.</li></ol>
+      </section>
       <section className="memory-grid">
         <article className="viz-panel wide memory-calendar" id="fire-calendar">
           <header>
             <div>
               <p className="eyebrow">Earth's Burning Calendar</p>
-              <h3>Monthly Burning Patterns</h3>
-              <p className="meta-text">Each square is one month of one year. Click a square for its raw detections, corrected activity, historical median, anomaly, uncertainty and observation coverage.</p>
+              <h3>Heat detections by month</h3>
+              <p className="meta-text">Rows are years and columns are months. Select any cell to see its details. On smaller screens, scroll the calendar sideways to see all months.</p>
             </div>
-            <span className="method-badge">Harmonized estimates ? review validation</span>
+            <span className="method-badge">Satellite observations and estimates</span>
           </header>
           <div className="memory-calendar-toolbar">
             <div role="group" aria-label="Calendar metric">
-              <button className={calendarMode === "harmonized" ? "active" : ""} onClick={() => setCalendarMode("harmonized")}>Corrected activity</button>
-              <button className={calendarMode === "raw" ? "active" : ""} onClick={() => setCalendarMode("raw")}>Raw detections</button>
-              <button className={calendarMode === "anomaly" ? "active" : ""} onClick={() => setCalendarMode("anomaly")}>Relative anomaly</button>
+              <button className={calendarMode === "raw" ? "active" : ""} aria-pressed={calendarMode === "raw"} onClick={() => setCalendarMode("raw")}>Satellite detections</button>
+              <button className={calendarMode === "harmonized" ? "active" : ""} aria-pressed={calendarMode === "harmonized"} onClick={() => setCalendarMode("harmonized")}>Adjusted activity</button>
+              <button className={calendarMode === "anomaly" ? "active" : ""} aria-pressed={calendarMode === "anomaly"} onClick={() => setCalendarMode("anomaly")}>Compared with usual</button>
             </div>
             <div><button onClick={exportCalendarCsv}>Download CSV</button><button onClick={exportCalendarPng}>Download PNG</button></div>
           </div>
-          <div className="burning-pattern-scroll">
+          <p className="calendar-metric-help" role="status">{calendarMode === 'raw' ? 'Numbers show satellite heat detections, not confirmed wildfires. The same fire can be detected more than once.' : calendarMode === 'harmonized' ? 'Adjusted activity is a model estimate that accounts for differences between satellites. It is not a count of confirmed fires.' : 'Percentages compare adjusted activity with the same month in other complete years: positive means higher, negative means lower. A dash means there is not enough baseline data.'}</p>
+          <div className="burning-pattern-scroll" tabIndex={0} role="region" aria-label="Scrollable monthly calendar">
             <div className="burning-pattern-grid" role="grid" aria-label="Monthly burning patterns by year">
               <span className="calendar-corner" role="columnheader">Year</span>
               {memory.calendar.months.map((month) => <span className="calendar-month" role="columnheader" key={month}>{month}</span>)}
@@ -341,8 +369,9 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
                     style={value === null ? undefined : { backgroundColor: cellColor(value) }}
                     title={label}
                     aria-label={label}
+                    aria-pressed={selectedMonth?.year === year && selectedMonth?.month === monthIndex + 1}
                     onClick={() => setSelectedMonth({ year, month: monthIndex + 1 })}
-                  >{limited && <span aria-hidden="true">×</span>}</button>;
+                  ><span className="calendar-cell-value">{value === null ? '\u2014' : unverifiedZero ? '?' : calendarMode === 'anomaly' ? `${value > 0 ? '+' : ''}${Math.round(value)}%` : Math.round(value).toLocaleString()}</span>{limited && <span className="calendar-cell-status" aria-hidden="true">*</span>}</button>;
                 }),
               ])}
             </div>
@@ -355,24 +384,29 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
           </div>
           <p className="meta-text">*Coverage is estimated by the current pipeline, not independently verified. Green requires every day of the month to be reported as a clear observation without detections; it does not establish that no fire occurred. Patterned cells must not be read as zero-fire months.</p>
           <div className="burning-calendar-legend" aria-label="Activity color scale">
-            <span>Lower activity</span><div>{calendarColors.map((color) => <i key={color} style={{ backgroundColor: color }} />)}</div><span>Higher activity</span>
+            <span>{calendarMode === "anomaly" ? "Below usual" : "Lower activity"}</span><div>{calendarColors.map((color) => <i key={color} style={{ backgroundColor: color }} />)}</div><span>{calendarMode === "anomaly" ? "Above usual" : "Higher activity"}</span>
           </div>
-          <p className="calendar-legend-note"><span className="missing-swatch" /> Patterned grey = missing observation, not zero · <b>×</b> = observation sufficiency below 50/100. Anomaly uses the same month in other complete years, excluding the selected year.</p>
+          <p className="calendar-legend-note">A dash means no value is available. ? means no detections with unverified coverage. * means limited observations. Select a month to read its data notes.</p>
           {selectedMonth && <div className="memory-calendar-detail" aria-live="polite">
             <header><h4>{memory.calendar.months[selectedMonth.month - 1]} {selectedMonth.year}</h4><button aria-label="Close month details" onClick={() => setSelectedMonth(null)}>×</button></header>
             {selectedRow ? <>
+              <p className="calendar-month-summary"><strong>{selectedRow.hotspot_count.toLocaleString()}</strong> satellite heat detections in this month. The retrieved record includes {selectedRow.days_in_record} days; complete daily coverage is not verified.</p>
               <dl>
-                <div><dt>Raw detections</dt><dd>{selectedRow.hotspot_count.toLocaleString()}</dd></div>
-                <div><dt>Corrected activity</dt><dd>{selectedRow.harmonized_activity.toFixed(2)}</dd></div>
-                <div><dt>Historical median</dt><dd>{selectedMedian === undefined ? "Insufficient baseline" : selectedMedian.toFixed(2)}</dd></div>
-                <div><dt>Anomaly</dt><dd>{selectedAnomaly === null ? (selectedMedian === 0 ? `Absolute difference ${selectedRow.harmonized_activity.toFixed(2)}; median is zero` : "Insufficient baseline") : `${selectedAnomaly >= 0 ? "+" : ""}${selectedAnomaly.toFixed(1)}%`}</dd></div>
+                <div><dt>Satellite heat detections</dt><dd>{selectedRow.hotspot_count.toLocaleString()}</dd></div>
+                <div><dt>Adjusted activity (estimate)</dt><dd>{selectedRow.harmonized_activity.toFixed(2)}</dd></div>
+              </dl>
+              <details className="calendar-month-notes"><summary>Comparison and data quality</summary>
+              <dl>
+                <div><dt>Typical activity in this month</dt><dd>{selectedMedian === undefined ? "Insufficient baseline" : selectedMedian.toFixed(2)}</dd></div>
+                <div><dt>Difference from usual</dt><dd>{selectedAnomaly === null ? (selectedMedian === 0 ? `Absolute difference ${selectedRow.harmonized_activity.toFixed(2)}; median is zero` : "Insufficient baseline") : `${selectedAnomaly >= 0 ? "+" : ""}${selectedAnomaly.toFixed(1)}%`}</dd></div>
                 <div><dt>Uncertainty interval</dt><dd>{selectedDays.length ? `${selectedDays.reduce((sum, day) => sum + day.harmonized_low, 0).toFixed(2)}–${selectedDays.reduce((sum, day) => sum + day.harmonized_high, 0).toFixed(2)}` : "Not available"}</dd></div>
                 <div><dt>Data coverage</dt><dd>{selectedRow.days_in_record} record days · sufficiency {selectedRow.mean_sufficiency.toFixed(0)}/100</dd></div>
                 <div><dt>Sensor coverage</dt><dd>{selectedDays.reduce((sum, day) => sum + day.modis_count, 0)} MODIS · {selectedDays.reduce((sum, day) => sum + day.viirs_count, 0)} VIIRS</dd></div>
                 <div><dt>Static-source filtering</dt><dd>Not applied; backend flagging is unavailable</dd></div>
               </dl>
-              <button className="primary-button" onClick={() => navigate(featureHref(`/fire-map?date=${selectedMonth.year}-${String(selectedMonth.month).padStart(2, "0")}-15&aoi=1&from=memory`, selectedArea, Boolean(lockedArea)))}>View Hotspots on Map</button>
-              <small>The historical map loads one day at a time, so it opens the middle day of this month.</small>
+              </details>
+              <button className="primary-button" onClick={() => navigate(featureHref(`/fire-map?aoi=1`, selectedArea, Boolean(lockedArea)))}>Open live fire map</button>
+              <small>The live map shows the last 24 hours. It does not show the historical month selected above.</small>
             </> : <p className="empty-state">No observation record exists for this month; it is not treated as zero.</p>}
           </div>}
         </article>
@@ -391,7 +425,7 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
         <article className="viz-panel">
           <h3>The fire season</h3>
           <p className="meta-text">
-            Most fire in <strong>{memory.seasonal_profile.peak_months.join(", ") || "no clear month"}</strong>. Some fire in {memory.seasonal_profile.active_months.join(", ") || "no other months"}. Almost none in {memory.seasonal_profile.quiet_months.join(", ") || "no months"}. Bars show a typical year; the thin lines show how much it varies.
+            Higher recorded activity in <strong>{memory.seasonal_profile.peak_months.join(", ") || "no clear month"}</strong>. Lower recorded activity in {memory.seasonal_profile.quiet_months.join(", ") || "no clear months"}. Bars show typical adjusted activity; thin lines show variation across the available years.
           </p>
           <Plot
             data={[
@@ -410,7 +444,7 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
                 hovertemplate: "%{x}: median %{y:.1f}<extra></extra>",
               },
             ]}
-            layout={{ ...plotLayout, height: 280, margin: { l: 50, r: 10, t: 10, b: 30 }, yaxis: { title: { text: "typical fire activity" } } }}
+            layout={{ ...plotLayout, height: 320, margin: { l: 65, r: 24, t: 20, b: 65 }, yaxis: { automargin: true, title: { text: "Adjusted activity", standoff: 12 } }, xaxis: { automargin: true, tickangle: -35 } }}
             config={{ responsive: true, displayModeBar: false }}
             className="plot"
           />
@@ -486,7 +520,11 @@ function MemoryResults({ memory }: { memory: FireMemoryResult }) {
           <details className="tech"><summary>Source and limitations</summary><p className="meta-text">{memory.observed_record?.source}</p><p className="meta-text">{memory.observed_record?.coverage_note ?? 'FIRMS detection records alone cannot establish observation coverage or fire absence.'}</p></details>
         </article>
 
-        <FourWitness memory={memory} />
+        <details className="calendar-advanced wide">
+          <summary>Satellite comparisons and validation checks</summary>
+          <p className="meta-text">Optional detail about satellite differences and how the adjusted record was checked.</p>
+          <div className="memory-grid"><FourWitness memory={memory} /></div>
+        </details>
 
         <article className="viz-panel wide">
           <h3>Periods with unusually many fires</h3>
@@ -604,9 +642,9 @@ function FourWitness({ memory }: { memory: FireMemoryResult }) {
           ] as never}
           layout={{
             ...plotLayout,
-            height: 300,
-            margin: { l: 50, r: 50, t: 24, b: 40 },
-            legend: { orientation: "h", y: -0.18 },
+            height: 380,
+            margin: { l: 70, r: 70, t: 48, b: 110 },
+            legend: { orientation: "h", y: -0.35 },
             shapes,
             annotations,
             yaxis: { title: { text: "corrected activity" } },
@@ -679,7 +717,7 @@ function DailySeries({ memory }: { memory: FireMemoryResult }) {
       <p className="meta-text">Orange line: fire activity each day, counted the same way for every satellite. Dotted line: what is usual for that time of year. Coloured dots: days with clearly more fire than usual. Grey ticks: days when clouds hid the ground, so we cannot say there was no fire.</p>
       <Plot
         data={traces as never}
-        layout={{ ...plotLayout, height: 340, margin: { l: 50, r: 10, t: 10, b: 40 }, legend: { orientation: "h", y: -0.2 }, xaxis: { rangeslider: { visible: true } } }}
+        layout={{ ...plotLayout, height: 380, margin: { l: 65, r: 24, t: 20, b: 100 }, legend: { orientation: "h", y: -0.35 }, xaxis: { automargin: true, rangeslider: { visible: false } }, yaxis: { automargin: true } }}
         config={{ responsive: true, displayModeBar: false }}
         className="plot"
       />

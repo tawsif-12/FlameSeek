@@ -32,14 +32,15 @@ export function normalizeApiError(error: unknown): string {
 
 const repeatParams = { paramsSerializer: { indexes: null } };
 
-const globeRequests = new Map<number, Promise<CurrentHotspotsResponse>>();
-export function getHarmonizedHotspots(days = 1): Promise<CurrentHotspotsResponse> {
-  const pending = globeRequests.get(days);
+const globeRequests = new Map<string, Promise<CurrentHotspotsResponse>>();
+export function getHarmonizedHotspots(days = 1, bbox?: [number, number, number, number]): Promise<CurrentHotspotsResponse> {
+  const key = JSON.stringify([days, bbox]);
+  const pending = globeRequests.get(key);
   if (pending) return pending;
   const request = api.get<CurrentHotspotsResponse>('/api/harmonized_hotspots', {
-    params: { days }, timeout: 120000,
-  }).then(({ data }) => data).finally(() => globeRequests.delete(days));
-  globeRequests.set(days, request);
+    params: { days, ...(bbox ? { bbox: bbox.join(',') } : {}) }, timeout: 120000,
+  }).then(({ data }) => data).finally(() => globeRequests.delete(key));
+  globeRequests.set(key, request);
   return request;
 }
 
@@ -108,7 +109,7 @@ async function startJob<T>(url: string, body?: unknown, params?: Record<string, 
 export async function getJob<T>(id: string): Promise<Job<T>> {
   const existing = jobReads.get(id);
   if (existing) return existing as Promise<Job<T>>;
-  const request = api.get<Job<T>>(`/api/jobs/${id}`).then(({ data }) => {
+  const request = api.get<Job<T>>(`/api/jobs/${id}`, { timeout: 15000 }).then(({ data }) => {
     for (const [key, entry] of analysisStarts) {
       if (entry.jobId !== id) continue;
       if (data.status === "failed") analysisStarts.delete(key);

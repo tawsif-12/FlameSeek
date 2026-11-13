@@ -2,6 +2,7 @@
 import asyncio
 import hashlib
 import json
+import math
 import os
 import subprocess
 import time
@@ -213,7 +214,18 @@ def _read_snapshot(days):
 
 
 @router.get('/harmonized_hotspots')
-async def harmonized_hotspots(days: int = Query(1, ge=1, le=5), limit: int | None = Query(None, ge=1, le=200000)):
+async def harmonized_hotspots(days: int = Query(1, ge=1, le=5), limit: int | None = Query(None, ge=1, le=200000), bbox: str | None = None):
+    bounds = None
+    if bbox:
+        try:
+            bounds = tuple(float(value) for value in bbox.split(','))
+            if len(bounds) != 4 or not all(math.isfinite(value) for value in bounds):
+                raise ValueError()
+            w, s, e, n = bounds
+            if not (-180 <= w < e <= 180 and -90 <= s < n <= 90):
+                raise ValueError()
+        except ValueError:
+            raise HTTPException(422, detail='bbox must be west,south,east,north in degrees')
     cached = _snapshots.get(days)
     if cached is None:
         cached = await asyncio.to_thread(_read_snapshot, days)
@@ -233,12 +245,18 @@ async def harmonized_hotspots(days: int = Query(1, ge=1, le=5), limit: int | Non
     stamp, payload = cached
     key = payload['metadata'].get('harmonization_run')
     if key: _start_harmonization(key)
-    elif payload.get('raw_hotspots') and time.time()>=_retry_after.get(days,0) and (days not in _jobs or _jobs[days].done()):
+    elif payload.get('raw_hotspots') and (payload['metadata'].get('processing_pending') or payload['metadata'].get('harmonization_unavailable')) and time.time()>=_retry_after.get(days,0) and (days not in _jobs or _jobs[days].done()):
         _jobs[days]=asyncio.create_task(_upgrade_snapshot(days,stamp,payload))
     # Legacy snapshots may contain a raw preview in hotspots. Never publish it
     # as merged output, including after a failed or incomplete pipeline run.
     merged_ready = not payload['metadata'].get('processing_pending') and not payload['metadata'].get('harmonization_unavailable')
     merged = [point for point in payload['hotspots'] if point.get('harmonized')] if merged_ready else []
+    raw = payload.get('raw_hotspots', [])
+    if bounds:
+        w, s, e, n = bounds
+        inside = lambda point: w <= point['lon'] <= e and s <= point['lat'] <= n
+        merged = [point for point in merged if inside(point)]
+        raw = [point for point in raw if inside(point)]
     points = merged if limit is None else merged[:limit]
     metadata = {**payload['metadata'], 'returned_hotspot_count': len(points),
                 'merged_ready': merged_ready, 'harmonization_scope': 'footprint_events_steps_1_4',
@@ -254,7 +272,11 @@ async def harmonized_hotspots(days: int = Query(1, ge=1, le=5), limit: int | Non
         metadata['data_source'] = 'cached_actual'
     if days in _errors:
         metadata['refresh_warning'] = 'Latest refresh failed; showing previously downloaded observations.'
-    body = {**payload, 'hotspots': points, 'metadata': metadata}
+    if bounds:
+        metadata['raw_hotspot_count'] = len(raw)
+        metadata['bbox'] = list(bounds)
+        if merged_ready: metadata['events_total'] = len(merged)
+    body = {**payload, 'hotspots': points, 'raw_hotspots': raw, 'metadata': metadata}
     # Avoid FastAPI's repeated traversal of tens of thousands of already encoded rows.
     encoded = await asyncio.to_thread(json.dumps, body, separators=(',', ':'), allow_nan=False)
     return Response(encoded, media_type='application/json')

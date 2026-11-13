@@ -31,3 +31,6 @@ Error: connect ECONNREFUSED 127.0.0.1:8000
 1:01:02 AM [vite] http proxy error: /meta
 Error: connect ECONNREFUSED 127.0.0.1:8000
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)
+2:27:47 AM [vite] http proxy error: /api/jobs/fc74e6889415
+Error: connect ECONNREFUSED 127.0.0.1:8000
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1645:16)

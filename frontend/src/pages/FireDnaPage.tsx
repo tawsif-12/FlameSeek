@@ -68,7 +68,27 @@ export default function FireDnaPage() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getUTCMonth() + 1);
   const [showMeaning, setShowMeaning] = useState(false);
   const running = job?.status === "queued" || job?.status === "running";
+  const [clock, setClock] = useState(Date.now());
+  useEffect(() => {
+    if (!running) return;
+    setClock(Date.now());
+    const timer = window.setInterval(() => setClock(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [running]);
+  const elapsedSeconds = job?.created_at ? Math.max(0, Math.floor((clock - Date.parse(job.created_at)) / 1000)) : 0;
   const profile = memory?.fire_dna;
+  const seasonalConcentration = useMemo(() => {
+    const months = profile?.monthly_reference;
+    if (!months || months.length !== 12 || months.some(row => row.median_activity === null)) return null;
+    const total = months.reduce((sum, row) => sum + (row.median_activity ?? 0), 0);
+    if (total <= 0) return null;
+    const quarters = months.map((_, start) => {
+      const end = (start + 2) % 12;
+      const sum = [0, 1, 2].reduce((value, offset) => value + (months[(start + offset) % 12].median_activity ?? 0), 0);
+      return { label: `${months[start].name}–${months[end].name}`, percent: 100 * sum / total };
+    });
+    return { peak: quarters.reduce((a, b) => a.percent >= b.percent ? a : b), quiet: quarters.reduce((a, b) => a.percent <= b.percent ? a : b) };
+  }, [profile]);
   const requestGeneration = useRef(0);
   const autoStarted = useRef(false);
   useEffect(() => () => { ++requestGeneration.current; autoStarted.current = false; }, [aoi]);
@@ -411,6 +431,12 @@ export default function FireDnaPage() {
                     <div className="candy-striped-fill-cyan" style={{ width: `${job.progress * 100}%` }} />
                   </div>
                   <p className="text-xs font-semibold text-slate-500 text-center">{job.message}</p>
+                  <p className="text-xs text-slate-500 text-center">
+                    {Math.floor(elapsedSeconds / 60)}m {elapsedSeconds % 60}s elapsed · {Math.round(job.progress * 100)}% complete
+                  </p>
+                  <p className="text-xs text-slate-500 text-center">
+                    A first multi-year analysis can take several minutes to download satellite archives and calculate the profile. Saved downloads are reused on later runs.
+                  </p>
                 </div>
               )}
 
@@ -478,7 +504,7 @@ export default function FireDnaPage() {
                   </div>
 
                   <div className="bento-stat-tile">
-                    <span className="tile-label">26-Year Trend</span>
+                    <span className="tile-label">Historical Trend</span>
                     <span
                       className={`tile-value ${
                         isTrendIncreasing ? "text-rose-600" : isTrendDecreasing ? "text-cyan-600" : "text-amber-600"
@@ -499,21 +525,22 @@ export default function FireDnaPage() {
                 {/* Candy-striped progress bar for seasonal fire energy concentration */}
                 <div className="mt-5 pt-4 border-t border-slate-100 space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-slate-700">Seasonal Fire Energy Concentration</span>
+                    <span className="font-semibold text-slate-700">Seasonal Activity Concentration</span>
                     <span className="font-mono font-bold text-blue-700">
-                      Peak Quarter: ~76% of Annual Radiative Energy
+                      {seasonalConcentration ? `Peak: ${seasonalConcentration.peak.label} (${seasonalConcentration.peak.percent.toFixed(1)}%)` : "Insufficient monthly data"}
                     </span>
                   </div>
-                  <div className="candy-striped-progress">
+                  <div className="candy-striped-progress" role="meter" aria-label="Share of reference monthly activity in the peak three months" aria-valuemin={0} aria-valuemax={100} aria-valuenow={seasonalConcentration?.peak.percent ?? 0}>
                     <div
-                      className="candy-striped-fill-green"
-                      style={{ width: "76%" }}
+                      className="dna-seasonal-share"
+                      style={{ width: `${seasonalConcentration?.peak.percent ?? 0}%` }}
                     />
                   </div>
                   <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold pt-1">
-                    <span>Quietest Period: Jan–Mar (2.1%)</span>
+                    <span>{seasonalConcentration ? `Quietest: ${seasonalConcentration.quiet.label} (${seasonalConcentration.quiet.percent.toFixed(1)}%)` : "Seasonal share unavailable"}</span>
                     <span>Observation Sufficiency: {profile.reliability.mean_sufficiency_score.toFixed(0)}/100</span>
                   </div>
+                  <p className="text-xs text-slate-500">Analysis complete. This bar shows the peak three-month share of the sum of monthly median activity; it is not a loading indicator.</p>
                 </div>
               </div>
 

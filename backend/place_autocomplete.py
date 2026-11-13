@@ -112,11 +112,23 @@ async def resolve_place(place_id: str):
         if not point:
             return None
         # Query OSM only after selection, never for every keystroke.
-        candidates = await search_places(', '.join(filter(None, [data['name'], data.get('country')])), fresh=True)
+        query = ', '.join(dict.fromkeys(filter(None, [data['name'], data.get('country')])))
+        candidates = await search_places(query, fresh=True)
         lon, lat = point['center']
         def distance(candidate):
             x, y = candidate['center']
             return math.hypot((x - lon) * math.cos(math.radians(lat)), y - lat)
+        # Country and region centres can be far apart across providers. Match
+        # their named boundary rather than applying a city-sized distance limit.
+        if point['type'] in {'country', 'administrative'}:
+            matches = [candidate for candidate in candidates
+                       if candidate.get('geometry')
+                       and candidate.get('place_name', '').casefold() == data['name'].casefold()
+                       and (candidate.get('addresstype') == 'country' if point['type'] == 'country'
+                            else candidate.get('type') == 'administrative')]
+            if matches:
+                return min(matches, key=distance)
+            raise ExternalServiceError('Location boundary', 'The full country or region boundary could not be loaded. Retry selection.')
         nearby = [candidate for candidate in candidates if distance(candidate) < 0.5]
         # An extent or point is never passed off as a real administrative boundary.
         return min(nearby, key=distance) if nearby else point

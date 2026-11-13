@@ -480,6 +480,8 @@ html[data-theme="day"] .candy-striped-progress {
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.dna-seasonal-share { height: 100%; background: #059669; border-radius: 12px; }
+
 .candy-striped-fill-green {
   height: 100%;
   background: repeating-linear-gradient(

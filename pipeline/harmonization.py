@@ -120,6 +120,7 @@ def temporal_energy(gov, models, cell_deg=.1):
     result = []
     for (cell, day), group in rows.groupby(['cell_id','date'], sort=False):
         looks, tiers, sources = {}, set(), set()
+        accepted=0
         for row in group.itertuples():
             if row.validated is not True and row.validated != True: continue
             if not isinstance(row.source, str) or not row.source.strip(): continue
@@ -143,6 +144,7 @@ def temporal_energy(gov, models, cell_deg=.1):
             if key in looks:
                 size=min(len(looks[key]),len(energy)); looks[key]=looks[key][:size]+energy[:size]
             else: looks[key]=energy
+            accepted+=1
             tiers.add(row.tier); sources.add(row.source)
         if looks:
             draws=list(looks.values())
@@ -151,8 +153,8 @@ def temporal_energy(gov, models, cell_deg=.1):
             weights=1/values.var(axis=1); combined=np.average(values,axis=0,weights=weights)
             result.append(dict(cell_id=cell,date=day,fre_mj=float(np.mean(combined)),
                                fre_lo90_mj=float(np.quantile(combined,.05)),fre_hi90_mj=float(np.quantile(combined,.95)),
-                               diurnal_source=';'.join(sorted(tiers)),source=';'.join(sorted(sources))))
-    return pd.DataFrame(result, columns=['cell_id','date','fre_mj','fre_lo90_mj','fre_hi90_mj','diurnal_source','source'])
+                               diurnal_source=';'.join(sorted(tiers)),source=';'.join(sorted(sources)),temporal_complete=accepted==len(group)))
+    return pd.DataFrame(result, columns=['cell_id','date','fre_mj','fre_lo90_mj','fre_hi90_mj','diurnal_source','source','temporal_complete'])
 
 
 def estimate_activity(counts, exposures, draws=300, seed=20261102):
@@ -280,7 +282,8 @@ def run(det, ov, cfg, output, evidence=None, initial=None):
         if not evidence.get('temporal_models'):
             publish(7,'awaiting data',reason='Need applicable cell/day/platform diurnal curves and calibrated FRP uncertainty draws; provisional Northern Australia fits cannot be applied globally')
             return
-        pieces=gr['pieces'].merge(det[['det_id','fire_id']],on='det_id',how='left')
+        pieces=gr['pieces']
+        if 'fire_id' not in pieces: pieces=pieces.merge(det[['det_id','fire_id']],on='det_id',how='left')
         allocated=pieces.groupby(['cell_id','date','fire_id','platform','acq_datetime_utc'],as_index=False).agg(frp_mw=('frp_w','sum'))
         totals=ov[['fire_id','platform','acq_datetime_utc','frp_sum_mw']].rename(columns={'frp_sum_mw':'event_frp_mw'})
         allocated=allocated.merge(totals,on=['fire_id','platform','acq_datetime_utc'],how='left')
@@ -288,8 +291,9 @@ def run(det, ov, cfg, output, evidence=None, initial=None):
         allocated['date']=allocated.date.astype(str)
         energy=temporal_energy(allocated,read_table(evidence['temporal_models']),cfg['grid']['cell_deg'])
         energy.to_parquet(output/'daily_energy.parquet',index=False)
-        publish(7,'computed' if len(energy)==len(daily) else 'partial',computed_cell_days=len(energy),total_cell_days=len(daily),
-                reason=None if len(energy)==len(daily) else 'Some cell-days lack applicable independently validated temporal models')
+        complete=len(energy)==len(daily) and energy.temporal_complete.all()
+        publish(7,'computed' if complete else 'partial',computed_cell_days=len(energy),total_cell_days=len(daily),
+                reason=None if complete else 'Some observations lack applicable independently validated temporal models')
     attempt(7,temporal)
     counts=event_counts(det,cfg); counts.to_parquet(output/'event_counts.parquet',index=False)
     activity=daily[['cell_id','date','cell_lat','cell_lon']].copy()

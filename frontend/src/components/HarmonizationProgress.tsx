@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-type Stage = { stage: number; name: string; status: string; reason?: string; seconds?: number };
+type Stage = { stage: number; name: string; status: string; reason?: string; seconds?: number; limitations?: Record<string,string> };
 type Report = { stages: Stage[]; running?: boolean; finished?: boolean; error?: string; full_harmonization_complete?: boolean; computed_activity_cell_days?: number };
 const LABEL: Record<string,string> = {computed:'Computed',partial:'Partial',failed:'Failed',pending:'Queued',running:'Running','awaiting data':'Needs data'};
 
@@ -36,6 +36,7 @@ export default function HarmonizationProgress({ runId }: { runId: string | null 
       <ol>{report.stages.map(stage=><li key={stage.stage} data-status={stage.status}>
         <div><strong>{stage.stage}. {stage.name}</strong><span>{LABEL[stage.status]||stage.status}</span></div>
         {stage.reason && <p>{stage.reason}</p>}
+        {stage.limitations && <p>{Object.entries(stage.limitations).filter(([,value])=>value!=='applied').map(([name,value])=>`${name.replace(/_/g,' ')}: ${value}`).join('; ')}</p>}
       </li>)}</ol>
       {report.error && <p role="alert">{report.error}</p>}
       <p>{report.computed_activity_cell_days?.toLocaleString()||'0'} cell-days have activity estimates. Event markers remain footprint-merged observations; unavailable corrections are never treated as completed harmonization.</p>

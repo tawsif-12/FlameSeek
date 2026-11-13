@@ -49,6 +49,10 @@ export default function SearchPage() {
     if (area) { openArea(area); return; }
     // Some live providers return city centres without a usable polygon.
     // Keep the selection usable and state the analysis extent in its name.
+    if (['country', 'administrative'].includes(place.addresstype) || ['country', 'administrative'].includes(place.type)) {
+      setError('The full country or region boundary could not be loaded. Please select the location again.');
+      return;
+    }
     const [lon, lat] = place.center;
     if (Number.isFinite(lon) && Number.isFinite(lat)) {
       openArea({ id: `${place.place_id || 'place'}:radius:25`, center: place.center, radius_km: 25,

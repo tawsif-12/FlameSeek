@@ -27,7 +27,7 @@ export default function LazyPlot(props: PlotProps) {
   }, [visible]);
 
   return (
-    <div ref={host} className="lazy-plot-host" style={props.style}>
+    <div ref={host} className="lazy-plot-host" style={{ width: "100%", height: props.layout?.height, ...props.style }}>
       {visible ? (
         <Suspense fallback={<div className="chart-skeleton" aria-label="Loading chart" role="status" />}>
           <Plot {...props} useResizeHandler={props.useResizeHandler ?? true} style={{ width: "100%", height: "100%", ...props.style }} />

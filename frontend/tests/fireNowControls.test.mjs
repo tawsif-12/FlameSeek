@@ -96,6 +96,13 @@ test('real observations stay visible while event matching completes in the backg
   render(React.createElement(MemoryRouter, null, React.createElement(AppProvider, null, React.createElement(Globe))));
   try {
     await screen.findByText('Observations loaded. Matching events...');
+    assert.ok(screen.getByText('Showing individual satellite detections while merged fire events are unavailable.'));
+    fireEvent.click(screen.getByRole('button', { name: 'At a glance', exact: true }));
+    assert.match(screen.getByRole('complementary', { name: 'Insight panel' }).textContent, /Satellite heat detections1/);
+    assert.ok(screen.getByText('12 MW'));
+    fireEvent.click(screen.getByRole('button', { name: 'How strong', exact: true }));
+    assert.match(screen.getByRole('complementary', { name: 'Insight panel' }).textContent, /Heat output/);
+    fireEvent.click(screen.getByRole('button', { name: 'Close panel' }));
     assert.equal(screen.queryByText('No observations to display'), null);
     assert.equal(document.querySelector('.merged-count'), null);
     await waitFor(() => assert.equal(typeof poll, 'function'));

@@ -304,7 +304,7 @@ export default function CesiumFireGlobe() {
   const visibleHotspots = useMemo(
     () => [
       ...(layers.Harmonized ? hotspots.filter((h) => !mergedUnavailable && Boolean(h.harmonized)) : []),
-      ...rawHotspots.filter((h) => { const platform = satelliteLayer(h); return platform !== null && layers[platform]; }),
+      ...rawHotspots.filter((h) => { const platform = satelliteLayer(h); return platform !== null && ((layers.Harmonized && mergedUnavailable) || layers[platform]); }),
     ].filter((h) => !filterToAoi || !aoi || aoiContains(aoi, h.lat, h.lon)),
     [hotspots, rawHotspots, layers.Harmonized, layers.Terra, layers.Aqua, layers["S-NPP"], layers["NOAA-20"], layers["NOAA-21"], filterToAoi, aoi, mergedUnavailable],
   );
@@ -416,7 +416,7 @@ export default function CesiumFireGlobe() {
     try {
       const response = historical
         ? await getCurrentHotspots(DEFAULT_SENSORS, days, 4000, historicalDate, false)
-        : await getHarmonizedHotspots(days);
+        : await getHarmonizedHotspots(days, lockedArea && aoi ? aoiBBox(aoi) ?? undefined : undefined);
       if (sequence !== loadSequence.current || unmountedRef.current) return;
       setRawObservationCount(typeof response.metadata.raw_hotspot_count === "number" ? response.metadata.raw_hotspot_count : (response.raw_hotspots ?? response.hotspots).length);
       setHarmonizationRun(typeof response.metadata.harmonization_run === "string" ? response.metadata.harmonization_run : null);
@@ -563,19 +563,9 @@ export default function CesiumFireGlobe() {
         ellipsoidTerrainRef.current = ellipsoidTerrain;
         const localImageryProvider = () =>
           Cesium.SingleTileImageryProvider.fromUrl("/textures/earth_day_2048.jpg", { credit: "NASA Earth imagery (illustrative basemap)" });
-        let worldImageryProvider: Cesium.ImageryProvider;
-        if (cesiumIonToken) {
-          try {
-            worldImageryProvider = await Cesium.createWorldImageryAsync({ style: Cesium.IonWorldImageryStyle.AERIAL });
-          } catch {
-            // An expired, malformed, or restricted ion token must not prevent the
-            // viewer itself from loading. Natural Earth ships with Cesium locally.
-            worldImageryProvider = await localImageryProvider();
-          }
-        } else {
-          worldImageryProvider = await localImageryProvider();
-        }
+        const worldImageryProvider = await localImageryProvider();
 
+        if (disposed || !containerRef.current) return;
         const viewer = new Cesium.Viewer(containerRef.current, {
           contextOptions: { webgl: { alpha: true, premultipliedAlpha: false, antialias: true } },
           // Cesium's OIT composite can leave an opaque black limb on an alpha canvas.
@@ -682,6 +672,16 @@ export default function CesiumFireGlobe() {
         viewerRef.current = viewer;
         setViewerError(null);
         setViewerReady(true);
+        if (cesiumIonToken) {
+          // Online imagery upgrades the visible local map without blocking startup.
+          void Cesium.createWorldImageryAsync({ style: Cesium.IonWorldImageryStyle.AERIAL }).then(provider => {
+            if (disposed || viewer.isDestroyed()) return;
+            const detailed = viewer.imageryLayers.addImageryProvider(provider, 1);
+            detailed.show = showImagery;
+            viewer.scene.requestRender();
+          }).catch(() => undefined);
+        }
+
 
         void Cesium.ArcGisMapServerImageryProvider.fromUrl(BOUNDARIES_URL)
           .then((provider) => {
@@ -713,7 +713,7 @@ export default function CesiumFireGlobe() {
             .catch(() => undefined);
         }
       } catch (error) {
-        setViewerError(error instanceof Error ? error.message : "Cesium failed to initialize.");
+        if (!disposed) setViewerError(error instanceof Error ? error.message : "Cesium failed to initialize.");
       }
     }
 
@@ -735,6 +735,21 @@ export default function CesiumFireGlobe() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Dashboard sidebars and tabs change the canvas size without a window resize.
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    const container = containerRef.current;
+    if (!viewerReady || !viewer || !container || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => {
+      if (!viewer.isDestroyed() && container.clientWidth > 0 && container.clientHeight > 0) {
+        viewer.resize();
+        viewer.scene.requestRender();
+      }
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [viewerReady]);
 
   useEffect(() => {
     void loadData();
@@ -1264,7 +1279,7 @@ export default function CesiumFireGlobe() {
         <section className="harmonization-status" aria-live="polite" aria-busy={feedState === "loading"}>
           <p className={`processing-state ${feedState}`}>{feedState === "loading" ? "Loading..." : feedState === "failed" ? "Processing failed" : processingPending ? "Observations loaded. Matching events..." : mergedUnavailable ? "Merged output unavailable" : period === "historical" ? "Historical observations loaded" : "Ready"}</p>
           {feedState === "loading" && <span className="processing-indicator" aria-label="Processing observations" />}
-          {feedState !== "failed" && observationSummary.raw !== null && (
+          {feedState !== "loading" && feedState !== "failed" && observationSummary.raw !== null && (
             <div className="observation-count-summary">
               <p className="refresh-timestamp">{period === "historical" ? historicalDate : periodLabels[period]}{filterToAoi && aoi ? " in the selected area" : " worldwide"}</p>
               <p className="detection-count"><strong>{observationSummary.raw.toLocaleString()}</strong> satellite heat detections</p>
@@ -1274,6 +1289,7 @@ export default function CesiumFireGlobe() {
             </div>
           )}
           {feedState === "failed" && <p className="refresh-timestamp">Data unavailable. Try Refresh FIRMS.</p>}
+          {layers.Harmonized && mergedUnavailable && rawHotspots.length > 0 && <p className="refresh-timestamp">Showing individual satellite detections while merged fire events are unavailable.</p>}
           <HarmonizationProgress runId={harmonizationRun} />
           <details className="sidebar-data-details">
             <summary>Data details</summary>

@@ -146,3 +146,17 @@ def test_fallback_selection_resolves_fresh_boundary_and_rejects_distant_names(mo
     candidates.pop()
     result = asyncio.run(autocomplete.resolve_place('geonames:1185241'))
     assert result['geometry'] is None
+
+
+def test_country_boundary_is_not_rejected_by_city_distance_limit(monkeypatch):
+    boundary = {'type': 'MultiPolygon', 'coordinates': [[[[88,20],[93,20],[93,27],[88,20]]]]}
+    country = {'place_name': 'Bangladesh', 'name': 'Bangladesh', 'addresstype': 'country',
+               'type': 'administrative', 'center': [90.2934,24.4769], 'geometry': boundary}
+    async def provider(*args, **kwargs):
+        return {'id':1210997,'name':'Bangladesh','country':'Bangladesh','longitude':90,'latitude':24,'feature_code':'PCLI'}
+    async def search(query, *, fresh):
+        assert query == 'Bangladesh' and fresh
+        return [country]
+    monkeypatch.setattr(autocomplete,'request_json',provider)
+    monkeypatch.setattr(autocomplete,'search_places',search)
+    assert asyncio.run(autocomplete.resolve_place('geonames:1210997')) == country

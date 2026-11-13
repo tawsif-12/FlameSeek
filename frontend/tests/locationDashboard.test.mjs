@@ -89,7 +89,7 @@ test('switch to Bangladesh clears old data and rejects a late write from the pre
 });
 
 test('point-only live results open a clearly labelled radius dashboard; custom areas still round-trip',async()=>{
-  globalThis.locationSearch=async()=>[{...result('Noakhali'),geometry:null}];
+  globalThis.locationSearch=async()=>[{...result('Noakhali'),geometry:null,type:'city',addresstype:'city'}];
   mount();await userEvent.type(screen.getByRole('combobox'),'Noakhali');await screen.findByRole('option');await userEvent.keyboard('{Enter}');
   await screen.findByTestId('feature-area');
   assert.equal(current().section,'/location/intelligence');
@@ -195,7 +195,7 @@ test('Enter opens the first live suggestion without arrow keys and resolves its 
 
 test('resolved city centres without polygons still open the searched location dashboard',async()=>{
   globalThis.locationSearch=async()=>[{...result('Dhaka'),place_id:'geonames:1185241',geometry:null,requires_resolution:true}];
-  globalThis.locationResolve=async()=>({...result('Dhaka'),place_id:'osm:node:3442474911',geometry:null});
+  globalThis.locationResolve=async()=>({...result('Dhaka'),place_id:'osm:node:3442474911',geometry:null,type:'city',addresstype:'city'});
   mount();await userEvent.type(screen.getByRole('combobox'),'Dhaka');
   await screen.findByRole('option');await userEvent.keyboard('{Enter}');
   await screen.findByTestId('feature-area');
@@ -212,4 +212,15 @@ test('Enter before suggestions arrive fetches and opens the first matching locat
   await screen.findByTestId('feature-area');
   assert.deepEqual(current().area,noakhali);
   assert.equal(current().section,'/location/intelligence');
+});
+
+
+test('old Bangladesh circle links are repaired to the full country in the same section',async()=>{
+  globalThis.locationResolve=async()=>({...result('Bangladesh'),...bangladesh,place_name:'Bangladesh',type:'administrative',addresstype:'country'});
+  const old={id:'geonames:1210997:radius:25',name:'Bangladesh (within 25 km)',kind:'radius',center:[90,24],radius_km:25};
+  mount(dashboardUrl(old,'now'));
+  await waitFor(()=>assert.equal(current().area.name,'Bangladesh'));
+  assert.equal(current().section,'/location/now');
+  assert.deepEqual(current().area.geometry,bangladesh.geometry);
+  assert.equal(current().area.radius_km,undefined);
 });

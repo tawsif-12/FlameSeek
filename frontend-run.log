@@ -17,3 +17,26 @@
 1:05:54 AM [vite] hmr update /src/pages/SearchPage.tsx
 1:08:52 AM [vite] hmr update /src/pages/SearchPage.tsx
 1:10:04 AM [vite] hmr update /src/pages/SearchPage.tsx
+2:07:47 AM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+2:07:47 AM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+2:20:25 AM [vite] hmr update /src/pages/SearchPage.tsx
+2:20:26 AM [vite] hmr update /src/pages/LocationDashboard.tsx
+2:25:51 AM [vite] hmr update /src/pages/HomePage.tsx, /src/pages/SearchPage.tsx, /src/components/AOISelector.tsx, /src/components/CesiumFireGlobe.tsx, /src/components/EventPanel.tsx, /src/pages/AreaIntelligencePage.tsx, /src/pages/LocationDashboard.tsx, /src/pages/FireMemoryPage.tsx
+2:25:51 AM [vite] hmr update /src/components/CesiumFireGlobe.tsx
+2:30:55 AM [vite] hmr update /src/pages/FireMemoryPage.tsx
+2:31:51 AM [vite] hmr update /src/memory-refinements.css
+2:33:13 AM [vite] hmr update /src/pages/FireMemoryPage.tsx
+2:33:13 AM [vite] hmr update /src/components/LazyPlot.tsx
+2:36:11 AM [vite] hmr update /src/memory-refinements.css
+2:36:11 AM [vite] hmr update /src/pages/FireMemoryPage.tsx
+2:37:34 AM [vite] hmr update /src/pages/FireMemoryPage.tsx
+2:37:34 AM [vite] hmr update /src/memory-refinements.css
+2:39:12 AM [vite] hmr update /src/pages/FireMemoryPage.tsx
+2:53:19 AM [vite] hmr update /src/pages/HomePage.tsx, /src/pages/SearchPage.tsx, /src/components/AOISelector.tsx, /src/components/CesiumFireGlobe.tsx, /src/components/EventPanel.tsx, /src/pages/AreaIntelligencePage.tsx, /src/pages/LocationDashboard.tsx, /src/pages/FireMemoryPage.tsx, /src/pages/FireDnaPage.tsx, /src/fire-dna-utilities.css
+2:53:19 AM [vite] hmr update /src/pages/HomePage.tsx, /src/pages/SearchPage.tsx, /src/components/AOISelector.tsx, /src/components/CesiumFireGlobe.tsx, /src/components/EventPanel.tsx, /src/pages/AreaIntelligencePage.tsx, /src/pages/LocationDashboard.tsx, /src/pages/FireMemoryPage.tsx, /src/pages/FireDnaPage.tsx, /src/fire-dna-utilities.css
+2:53:22 AM [vite] hmr update /src/pages/FireDnaPage.tsx, /src/fire-dna-utilities.css
+2:54:14 AM [vite] hmr update /src/pages/FireDnaPage.tsx, /src/fire-dna-utilities.css
+2:57:15 AM [vite] hmr update /src/pages/FireDnaPage.tsx, /src/fire-dna-utilities.css
+2:57:17 AM [vite] hmr update /src/fire-dna-bento.css
+3:09:17 AM [vite] hmr update /src/components/HarmonizationProgress.tsx
+3:09:18 AM [vite] hmr update /src/components/HarmonizationProgress.tsx

@@ -124,3 +124,15 @@ def test_full_merged_set_is_returned_without_limit():
         assert len(limited['hotspots']) == 100
         assert limited['metadata']['events_total'] == 34704
     asyncio.run(check())
+
+
+def test_location_box_returns_only_local_observations_without_mutating_world_cache():
+    point = {'lat':23,'lon':90,'sensor':'modis','harmonized':{'event_id':'inside'}}
+    outside = {**point,'lon':10,'harmonized':{'event_id':'outside'}}
+    payload = {'hotspots':[point,outside], 'raw_hotspots':[point,outside],
+               'metadata':{'processing_pending':False,'raw_hotspot_count':2,'events_total':2}}
+    live._snapshots[1]=(time.time(),payload)
+    result=json.loads(asyncio.run(live.harmonized_hotspots(1,None,'88,20,93,27')).body)
+    assert result['raw_hotspots'] == result['hotspots'] == [point]
+    assert result['metadata']['raw_hotspot_count'] == result['metadata']['events_total'] == 1
+    assert len(payload['raw_hotspots']) == payload['metadata']['events_total'] == 2

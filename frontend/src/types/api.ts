@@ -90,6 +90,7 @@ export interface DataSource {
 
 export interface Job<T> {
   id: string;
+  created_at?: string;
   kind: string;
   status: "queued" | "running" | "completed" | "failed";
   progress: number;
