@@ -1,0 +1,17 @@
+.git
+**/.env
+**/.env.*
+**/node_modules
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/*.log
+.test-tmp-*
+.chrome-debug
+data
+dataset
+outputs
+backend/cache
+frontend/dist
+deploy/bundles

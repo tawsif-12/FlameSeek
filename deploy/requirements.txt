@@ -1,0 +1,10 @@
+-r ../backend/requirements.txt
+-r ../config/daily-requirements.txt
+statsmodels
+matplotlib
+h5py
+xgboost-cpu
+global-land-mask==1.0.0
+powerlaw
+folium
+contextily

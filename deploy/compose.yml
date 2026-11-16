@@ -1,0 +1,51 @@
+name: flameseek
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file: production.env
+    environment:
+      FLAMESEEK_PIPELINE_PYTHON: /usr/local/bin/python
+    volumes:
+      - ../data:/app/data
+      - ../dataset:/app/dataset:ro
+      - ../outputs:/app/outputs
+      - ../backend/cache:/app/backend/cache
+    expose: ["8000"]
+  frontend:
+    build: ../frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    expose: ["80"]
+  https:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    env_file: production.env
+    ports: ["80:80", "443:443", "443:443/udp"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [frontend]
+  daily:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    init: true
+    working_dir: /app
+    env_file: production.env
+    command: ["python", "deploy/daily_worker.py"]
+    volumes:
+      - ../data:/app/data
+      - ../dataset:/app/dataset:ro
+      - ../outputs:/app/outputs
+      - ../backend/cache:/app/backend/cache
+volumes:
+  caddy_data:
+  caddy_config:

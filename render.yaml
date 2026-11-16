@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: flameseek
+    runtime: docker
+    region: singapore
+    plan: 0.5c-512mb
+    dockerfilePath: ./deploy/Render.Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeployTrigger: "off"
+    disk:
+      name: flameseek-data
+      mountPath: /var/data
+      sizeGB: 30
+    envVars:
+      - key: FIRMS_MAP_KEY
+        sync: false
+      - key: FLAMESEEK_STORAGE
+        value: /var/data
+      # Enable only after the full dataset transfer and verification completes.
+      - key: FLAMESEEK_DAILY_ENABLED
+        value: "false"

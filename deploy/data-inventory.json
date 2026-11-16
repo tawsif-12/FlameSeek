@@ -1,0 +1,52 @@
+{
+  "folders": {
+    "data": {
+      "files": 336155,
+      "bytes": 18849263160
+    },
+    "dataset": {
+      "files": 4,
+      "bytes": 51781457
+    },
+    "outputs": {
+      "files": 155,
+      "bytes": 89853796
+    },
+    "params": {
+      "files": 11,
+      "bytes": 35825
+    },
+    "backend/cache": {
+      "files": 20666,
+      "bytes": 368256671
+    },
+    "frontend/public/site-data": {
+      "files": 3,
+      "bytes": 274521
+    }
+  },
+  "snapshots": [
+    {
+      "window": "current_2026",
+      "file": "current_2026.sqlite",
+      "exists": true,
+      "quick_check": "ok"
+    },
+    {
+      "window": "sync_2016",
+      "file": "sync_2016.sqlite",
+      "exists": true,
+      "quick_check": "ok"
+    },
+    {
+      "window": "daily",
+      "file": "daily_7768865c8dea4824afdc59508fd7c5e4.sqlite",
+      "exists": true,
+      "quick_check": "ok"
+    }
+  ],
+  "missing_public_datasets": [],
+  "errors": [],
+  "public_datasets": 29,
+  "default_window": "daily"
+}

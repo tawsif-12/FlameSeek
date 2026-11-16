@@ -23,3 +23,6 @@ outputs/**/*.html
 notebooks/.ipynb_checkpoints/
 
 .test-tmp-*/
+deploy/production.env
+deploy/bundles/
+deploy/render-schema.json

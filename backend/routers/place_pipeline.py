@@ -16,6 +16,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -33,7 +34,7 @@ from schemas import AOIModel
 
 router = APIRouter()
 PROJECT_ROOT = BACKEND_DIR.parent
-PIPELINE_PYTHON = os.getenv("FLAMESEEK_PIPELINE_PYTHON", r"E:\anaconda\envs\flameseek\python.exe")
+PIPELINE_PYTHON = os.getenv("FLAMESEEK_PIPELINE_PYTHON", sys.executable)
 SENSORS = ["modis", "viirs_snpp"]
 CACHE_VERSION = 2  # bump when place_summary.json changes
 CACHE_TTL_SECONDS = 7 * 86400

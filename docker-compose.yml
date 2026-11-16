@@ -1,17 +1,25 @@
 services:
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+    env_file: backend/.env
     environment:
-      FIRMS_MAP_KEY: ${FIRMS_MAP_KEY:-}
+      FLAMESEEK_PIPELINE_PYTHON: /usr/local/bin/python
+    init: true
+    volumes:
+      - ./data:/app/data
+      - ./dataset:/app/dataset:ro
+      - ./outputs:/app/outputs
+      - ./backend/cache:/app/backend/cache
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
 
   frontend:
     build: ./frontend
-    environment:
-      VITE_API_BASE_URL: http://localhost:8000
     ports:
-      - "5173:80"
+      - "127.0.0.1:5173:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
