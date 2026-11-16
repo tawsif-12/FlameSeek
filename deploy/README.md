@@ -1,5 +1,37 @@
 # Full FlameSeek deployment
 
+## Render
+
+`render.yaml` deploys one Docker web service in Singapore with a 30 GB persistent
+disk at `/var/data`. The combined ASGI server serves the SPA and API at the same
+origin. The startup supervisor maps data directories to the disk, drops to UID
+10001 and forwards shutdown signals to the API and optional daily scheduler.
+Render supplies HTTPS, so Caddy is used only for the alternative Linux-server
+deployment below.
+
+The Blueprint starts with the smallest paid compute plan. Confirm actual memory
+use before enabling scheduled ingestion or serving concurrent prediction jobs;
+large historical jobs may require a larger compute plan. No sizing benchmark
+has established that 512 MB supports the complete workload.
+
+After the first successful Render build, transfer `data/`, `dataset/`, `outputs/`
+and `backend/cache/` to the same paths under `/var/data` using Render SSH/SCP.
+Keep ingestion disabled during the transfer. Run from the Render service shell:
+
+```sh
+cd /app
+python deploy/check_data.py
+```
+
+Verify the public map, all historical windows, CSV downloads and an event outlook.
+Then set `FLAMESEEK_DAILY_ENABLED=true` and redeploy. Set `FIRMS_MAP_KEY` through
+Render's environment settings. Secrets are not present in `render.yaml`.
+
+Blueprint planning is separate from applying infrastructure. The Render connector
+requires approval of the generated plan before its first application. Dataset
+transfer also requires working Render SSH access; the connector cannot upload
+the local 19.4 GB data collection itself.
+
 Includes React/Cesium, FastAPI, LightGBM prediction code, XGBoost and geospatial
 pipeline dependencies, daily ingestion, and Caddy HTTPS. All local datasets,
 snapshots, outputs and caches are mounted in their original layout. Only reviewed
