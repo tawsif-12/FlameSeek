@@ -1,0 +1,59 @@
+{
+  "profile": "published-website",
+  "runtime_bytes": 2159309727,
+  "previous_full_inventory_bytes": 19359465430,
+  "reduction_percent": 88.85,
+  "archive_bytes": 877388016,
+  "archive_sha256": "91b7b6b17b2aae537a430db03a49526562cf488a37ea6039646b655bdc955872",
+  "omitted": [
+    "raw satellite archives",
+    "pipeline intermediates and partitions",
+    "unreferenced snapshot generations",
+    "canonical ingestion database",
+    "rebuildable HTTP/history/model caches",
+    "logs and secrets"
+  ],
+  "live_firms": "unchanged; backend FIRMS_MAP_KEY and network required",
+  "predictions": "existing on-demand code; history/weather fetched again; validation may withhold results",
+  "daily_ingestion": "disabled; this export is not an ingestion checkpoint",
+  "snapshots": {
+    "data/processed/snapshots/current_2026.sqlite": {
+      "events": 138576,
+      "detections": 545537,
+      "footprints": 138576,
+      "overpasses": 258920,
+      "grid": 81220
+    },
+    "data/processed/snapshots/daily_7768865c8dea4824afdc59508fd7c5e4.sqlite": {
+      "events": 340372,
+      "detections": 1252503,
+      "footprints": 340372,
+      "overpasses": 578783,
+      "grid": 0,
+      "raw_observations": 1433005
+    },
+    "data/processed/snapshots/sync_2016.sqlite": {
+      "events": 12289,
+      "detections": 24025,
+      "footprints": 12289,
+      "overpasses": 15854,
+      "grid": 81220
+    }
+  },
+  "files_exported": 52,
+  "public_csv_files": 29,
+  "checks": {
+    "file_sha256": "52 passed",
+    "snapshot_integrity": "3 passed",
+    "snapshot_row_counts": "matched originals",
+    "offline_api": "all 3 windows, 29 CSV downloads, accumulated history passed",
+    "tests": "4 passed",
+    "firms_key_status": "NASA HTTP 200; transaction limit 5000",
+    "firms_live_request": "NASA HTTP 200; valid MODIS_NRT CSV for tiny test area; 0 detections"
+  },
+  "artifacts": {
+    "archive": "deploy/bundles/published-website/flameseek-runtime.tar.gz",
+    "runtime": "deploy/bundles/published-website/runtime",
+    "report": "deploy/bundles/published-website/report.json"
+  }
+}

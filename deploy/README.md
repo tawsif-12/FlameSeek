@@ -1,5 +1,10 @@
 # Full FlameSeek deployment
 
+For the smaller published website dataset (2.16 GB runtime, 877 MB compressed),
+see [COMPACT-DATA.md](COMPACT-DATA.md). This preserves published history and public
+downloads while leaving the full scientific/ingestion archive on the local PC.
+The original full-data Blueprint is unchanged and remains deferred.
+
 ## Render
 
 Deployment is prepared on branch `deploy/render-flameseek-20261116` in
