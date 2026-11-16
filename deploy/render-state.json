@@ -1,0 +1,22 @@
+{
+  "workspace_id": "tea-dbg9thafngtc7394gt2g",
+  "workspace_name": "plexus",
+  "blueprint_id": "exs-dbthn8k9v7es73am84f0",
+  "repo": "https://github.com/tawsif-12/FlameSeek",
+  "branch": "deploy/render-flameseek-20261116",
+  "auto_sync": false,
+  "planning_outcome": "failed",
+  "blocking_notice": "need_payment_info",
+  "infrastructure_applied": false,
+  "datasets_transferred": false,
+  "user_requested": "Leave deployment prepared for now",
+  "verification": {
+    "frontend_production_build": "passed",
+    "deployment_routing_test": "1 passed",
+    "snapshot_and_place_pipeline_tests": "21 passed",
+    "blueprint_json_schema": "passed",
+    "published_sqlite_snapshots": "3 quick_check passed",
+    "public_datasets": "29 present",
+    "full_container_build": "not completed; stopped when deployment deferred"
+  }
+}

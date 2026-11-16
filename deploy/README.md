@@ -2,6 +2,20 @@
 
 ## Render
 
+Deployment is prepared on branch `deploy/render-flameseek-20261116` in
+https://github.com/tawsif-12/FlameSeek. The Blueprint exists in workspace `plexus`
+as `exs-dbthn8k9v7es73am84f0`, with auto-sync disabled. Planning returned
+`need_payment_info`; no infrastructure was applied and no datasets were uploaded.
+The user asked to leave deployment prepared. See `render-state.json` for resume
+details. After billing is configured and deployment is requested again, re-plan
+this existing Blueprint rather than creating another one, review its plan, and
+obtain the connector-required plan approval before applying it.
+
+Verified locally: production frontend build, 22 focused routing/snapshot/pipeline
+tests, official Blueprint JSON schema, all 29 public CSVs and integrity of three
+published SQLite snapshots. The complete Docker image build was stopped when
+deployment was deferred and still needs verification before publishing.
+
 `render.yaml` deploys one Docker web service in Singapore with a 30 GB persistent
 disk at `/var/data`. The combined ASGI server serves the SPA and API at the same
 origin. The startup supervisor maps data directories to the disk, drops to UID
